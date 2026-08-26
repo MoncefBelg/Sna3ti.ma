@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sna3ti | Trouvez un professionnel de confiance à Casablanca</title>
+<meta name="description" content="Sna3ti connecte les Marocains aux meilleurs artisans et professionnels vérifiés à Casablanca : plombier, électricien, peintre, climatisation, menuisier et plus. Contact direct via WhatsApp." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: {50:'#eefaf9',100:'#d2f1ee',200:'#a6e3dd',300:'#72cec5',400:'#43b3a8',500:'#249289',600:'#127167',700:'#0f5a53',800:'#0d4844',900:'#0b3a37'},
+          terra:   {50:'#fdf4ee',100:'#fbe4d5',200:'#f6c6a3',300:'#eea36e',400:'#e5813f',500:'#d96524',600:'#b6501c',700:'#8f3f19'}
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  [id] { scroll-margin-top: 5.5rem; }
+  body { font-family: 'Poppins', system-ui, sans-serif; }
+
+  .pattern-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(18,113,103,0.14) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+  .pattern-bg-white {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+  .input-field {
+    width: 100%; border: 1px solid #e5e7eb; border-radius: 0.75rem;
+    padding: 0.65rem 1rem; font-size: 0.875rem; background: #fff;
+  }
+  .input-field:focus { outline: none; box-shadow: 0 0 0 2px rgba(18,113,103,0.35); border-color: transparent; }
+
+  @keyframes fadeInUp { from{opacity:0; transform:translate(-50%,10px);} to{opacity:1; transform:translate(-50%,0);} }
+  .animate-fade-in { animation: fadeInUp .3s ease; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+</style>
+</head>
+
+<body class="bg-white text-gray-800 antialiased">
+
+<!-- ============ HEADER ============ -->
+<header class="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+    <a href="#/" class="flex items-center gap-2 shrink-0">
+      <span class="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold text-lg">S</span>
+      <span class="font-bold text-lg text-gray-900">Sna3ti</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
+      <a href="#/" class="hover:text-primary-600 transition-colors">Accueil</a>
+      <a href="#" onclick="navScroll('categories-section');return false;" class="hover:text-primary-600 transition-colors">Services</a>
+      <a href="#/services" class="hover:text-primary-600 transition-colors">Professionnels</a>
+      <a href="#" onclick="navScroll('how-it-works-section');return false;" class="hover:text-primary-600 transition-colors">Comment ça marche</a>
+    </nav>
+
+    <div class="hidden md:flex items-center gap-4">
+      <button onclick="showToast('Espace de connexion bientôt disponible.')" class="text-sm font-medium text-gray-600 hover:text-primary-600">Connexion</button>
+      <a href="#/register" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors">Inscrire mon activité</a>
+    </div>
+
+    <button id="menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
+    <a href="#/" class="block text-sm font-medium text-gray-700 py-1">Accueil</a>
+    <a href="#" onclick="navScroll('categories-section');return false;" class="block text-sm font-medium text-gray-700 py-1">Services</a>
+    <a href="#/services" class="block text-sm font-medium text-gray-700 py-1">Professionnels</a>
+    <a href="#" onclick="navScroll('how-it-works-section');return false;" class="block text-sm font-medium text-gray-700 py-1">Comment ça marche</a>
+    <button onclick="showToast('Espace de connexion bientôt disponible.')" class="block text-sm font-medium text-gray-700 py-1">Connexion</button>
+    <a href="#/register" class="block text-center bg-primary-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full mt-2">Inscrire mon activité</a>
+  </div>
+</header>
+
+<!-- Mobile sticky contact bar (shown on profile pages) -->
+<div id="mobile-contact-bar" class="hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-100 p-3 gap-3 lg:hidden" style="display:none;">
+  <div class="flex gap-3 max-w-7xl mx-auto">
+    <a id="mcb-whatsapp" target="_blank" class="flex-1 text-center bg-green-500 text-white font-medium py-3 rounded-full">WhatsApp</a>
+    <a id="mcb-call" class="flex-1 text-center bg-primary-600 text-white font-medium py-3 rounded-full">Appeler</a>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ HOME PAGE ============ -->
+<section id="page-home" class="page-section">
+
+  <!-- HERO -->
+  <section class="pattern-bg pt-28 pb-14 md:pt-40 md:pb-20 bg-gradient-to-b from-primary-50 via-white to-white">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <span class="inline-flex items-center gap-1.5 bg-white border border-gray-200 shadow-sm text-xs font-medium text-gray-600 px-3 py-1.5 rounded-full">🇲🇦 Casablanca & environs</span>
+      <h1 class="text-3xl md:text-5xl font-bold text-gray-900 mt-5 leading-tight">Besoin d'un professionnel de confiance ?</h1>
+      <p class="text-gray-500 md:text-lg mt-4">Trouvez facilement des artisans et professionnels près de chez vous.</p>
+      <p class="text-primary-600 italic text-sm mt-2">"L9a l7erfi li kat9leb 3lih."</p>
+
+      <form id="hero-search-form" class="bg-white rounded-2xl md:rounded-full shadow-xl border border-gray-100 mt-8 p-3 flex flex-col md:flex-row gap-2">
+        <div class="flex-1 flex items-center gap-2 px-3 py-2">
+          <span>🔍</span>
+          <select id="hero-service" class="w-full text-sm outline-none text-gray-700 bg-transparent"></select>
+        </div>
+        <div class="hidden md:block w-px bg-gray-200"></div>
+        <div class="flex-1 flex items-center gap-2 px-3 py-2">
+          <span>📍</span>
+          <input id="hero-city" type="text" placeholder="Ville ou quartier" class="w-full text-sm outline-none text-gray-700" />
+        </div>
+        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-6 py-3 rounded-full whitespace-nowrap">Rechercher</button>
+      </form>
+
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-5">
+        <span class="text-xs text-gray-400">Recherches populaires :</span>
+        <button onclick="location.hash='/services?cat=plomberie&q=Casablanca'" class="text-xs bg-white border border-gray-200 hover:border-primary-400 hover:text-primary-600 px-3 py-1.5 rounded-full text-gray-600">Plombier Casablanca</button>
+        <button onclick="location.hash='/services?cat=electricite&q=Maarif'" class="text-xs bg-white border border-gray-200 hover:border-primary-400 hover:text-primary-600 px-3 py-1.5 rounded-full text-gray-600">Électricien Maarif</button>
+        <button onclick="location.hash='/services?cat=climatisation&q=Casablanca'" class="text-xs bg-white border border-gray-200 hover:border-primary-400 hover:text-primary-600 px-3 py-1.5 rounded-full text-gray-600">Climatisation Casablanca</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categories-section" class="py-16 md:py-20">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center max-w-xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Nos catégories populaires</h2>
+        <p class="text-gray-500 mt-2">Tous les métiers dont vous avez besoin, réunis en un seul endroit.</p>
+      </div>
+      <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mt-10"></div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROS -->
+  <section id="featured-section" class="py-16 md:py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Professionnels recommandés</h2>
+          <p class="text-gray-500 mt-2">Des artisans vérifiés et bien notés par leurs clients.</p>
+        </div>
+        <a href="#/services" class="text-primary-600 font-semibold text-sm hover:text-primary-700 whitespace-nowrap">Voir tous les professionnels →</a>
+      </div>
+      <div id="featured-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10"></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works-section" class="py-16 md:py-20">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Comment fonctionne Sna3ti ?</h2>
+      <p class="text-gray-500 mt-2">Trois étapes simples pour trouver le bon professionnel.</p>
+      <div class="grid md:grid-cols-3 gap-8 mt-12">
+        <div>
+          <div class="w-14 h-14 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold mx-auto">1</div>
+          <h3 class="font-semibold text-gray-900 mt-4">Recherchez</h3>
+          <p class="text-gray-500 text-sm mt-2">Choisissez un service et votre ville ou quartier.</p>
+        </div>
+        <div>
+          <div class="w-14 h-14 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold mx-auto">2</div>
+          <h3 class="font-semibold text-gray-900 mt-4">Comparez</h3>
+          <p class="text-gray-500 text-sm mt-2">Consultez les profils, avis et notes des professionnels.</p>
+        </div>
+        <div>
+          <div class="w-14 h-14 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold mx-auto">3</div>
+          <h3 class="font-semibold text-gray-900 mt-4">Contactez</h3>
+          <p class="text-gray-500 text-sm mt-2">Contactez directement par WhatsApp ou téléphone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY SNA3TI -->
+  <section class="pattern-bg-white py-16 md:py-20 bg-primary-900 text-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center max-w-xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold">Pourquoi choisir Sna3ti ?</h2>
+        <p class="text-primary-100 mt-2">Une expérience simple, fiable et pensée pour le Maroc.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-12">
+        <div class="bg-white/10 rounded-2xl p-5 text-center"><p class="text-2xl">📍</p><h3 class="font-semibold mt-2 text-sm">Près de chez vous</h3><p class="text-primary-100 text-xs mt-1">Des professionnels dans votre quartier.</p></div>
+        <div class="bg-white/10 rounded-2xl p-5 text-center"><p class="text-2xl">✅</p><h3 class="font-semibold mt-2 text-sm">Profils vérifiés</h3><p class="text-primary-100 text-xs mt-1">Identité et activité contrôlées.</p></div>
+        <div class="bg-white/10 rounded-2xl p-5 text-center"><p class="text-2xl">⭐</p><h3 class="font-semibold mt-2 text-sm">Avis clients</h3><p class="text-primary-100 text-xs mt-1">Basé sur de vraies expériences.</p></div>
+        <div class="bg-white/10 rounded-2xl p-5 text-center"><p class="text-2xl">💬</p><h3 class="font-semibold mt-2 text-sm">Contact WhatsApp</h3><p class="text-primary-100 text-xs mt-1">Réponse rapide et directe.</p></div>
+        <div class="bg-white/10 rounded-2xl p-5 text-center"><p class="text-2xl">⚡</p><h3 class="font-semibold mt-2 text-sm">Processus simple</h3><p class="text-primary-100 text-xs mt-1">Aucune inscription requise pour chercher.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA ARTISAN -->
+  <section class="py-16 md:py-20">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="pattern-bg-white bg-terra-600 rounded-3xl px-6 py-12 md:py-16 text-center text-white">
+        <h2 class="text-2xl md:text-3xl font-bold">Vous êtes artisan ou professionnel ?</h2>
+        <p class="text-terra-50 mt-3 max-w-lg mx-auto">Développez votre visibilité avec Sna3ti et trouvez de nouveaux clients près de chez vous.</p>
+        <a href="#/register" class="inline-block mt-6 bg-white text-terra-700 font-semibold px-7 py-3 rounded-full hover:bg-gray-50 transition-colors">Inscrire mon activité</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING TEASER -->
+  <section class="py-16 md:py-20 bg-gray-50">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Des formules pour chaque professionnel</h2>
+      <p class="text-gray-500 mt-2">Du profil gratuit à la visibilité maximale.</p>
+      <div class="grid sm:grid-cols-3 gap-5 mt-10 text-left">
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 class="font-semibold text-gray-900">Free</h3>
+          <p class="text-2xl font-bold text-gray-900 mt-2">0 DH</p>
+          <p class="text-xs text-gray-500 mt-2">Profil basique, téléphone visible.</p>
+          <a href="#/pricing" class="text-primary-600 text-sm font-semibold mt-3 inline-block">En savoir plus →</a>
+        </div>
+        <div class="bg-white rounded-2xl border-2 border-primary-600 p-6">
+          <h3 class="font-semibold text-gray-900">Pro</h3>
+          <p class="text-2xl font-bold text-gray-900 mt-2">99 DH<span class="text-xs font-normal text-gray-400">/mois</span></p>
+          <p class="text-xs text-gray-500 mt-2">WhatsApp, photos, avis, badge vérifié.</p>
+          <a href="#/pricing" class="text-primary-600 text-sm font-semibold mt-3 inline-block">En savoir plus →</a>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 class="font-semibold text-gray-900">Vedette</h3>
+          <p class="text-2xl font-bold text-gray-900 mt-2">199 DH<span class="text-xs font-normal text-gray-400">/mois</span></p>
+          <p class="text-xs text-gray-500 mt-2">Classement prioritaire + visibilité accueil.</p>
+          <a href="#/pricing" class="text-primary-600 text-sm font-semibold mt-3 inline-block">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ============ DIRECTORY PAGE ============ -->
+<section id="page-directory" class="page-section hidden pt-24 pb-20 min-h-screen bg-white">
+  <div class="max-w-7xl mx-auto px-4">
+    <div id="directory-header"></div>
+    <div class="grid lg:grid-cols-4 gap-8 mt-6">
+      <aside id="directory-filters" class="lg:col-span-1"></aside>
+      <div class="lg:col-span-3">
+        <div id="directory-meta" class="mb-4 text-sm text-gray-500"></div>
+        <div id="directory-grid" class="grid sm:grid-cols-2 gap-5"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROFILE PAGE ============ -->
+<section id="page-profile" class="page-section hidden pt-24 pb-24 lg:pb-16 min-h-screen bg-white">
+  <div id="profile-content" class="max-w-6xl mx-auto px-4"></div>
+</section>
+
+<!-- ============ SEO LANDING PAGE ============ -->
+<section id="page-seo" class="page-section hidden pt-24 pb-20 min-h-screen bg-white">
+  <div id="seo-content" class="max-w-5xl mx-auto px-4"></div>
+</section>
+
+<!-- ============ REGISTER PAGE ============ -->
+<section id="page-register" class="page-section hidden pt-24 pb-20 bg-gray-50 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <span class="inline-block bg-primary-100 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">Espace professionnel</span>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Inscrivez votre activité sur Sna3ti</h1>
+      <p class="text-gray-500 mt-2">Rejoignez des centaines d'artisans et développez votre clientèle à Casablanca.</p>
+    </div>
+
+    <form id="register-form" class="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 space-y-8">
+      <div>
+        <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">1</span> Informations personnelles</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <input required placeholder="Nom complet" class="input-field" />
+          <input required placeholder="Nom de l'activité / entreprise" class="input-field" />
+          <input required type="tel" placeholder="Numéro de téléphone" class="input-field" />
+          <input required type="tel" placeholder="Numéro WhatsApp" class="input-field" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">2</span> Activité & localisation</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <select id="reg-category" required class="input-field"></select>
+          <select required class="input-field">
+            <option value="">Choisir une ville</option>
+            <option>Casablanca</option>
+            <option disabled>Rabat (bientôt)</option>
+            <option disabled>Marrakech (bientôt)</option>
+            <option disabled>Tanger (bientôt)</option>
+          </select>
+          <input required placeholder="Quartier" class="input-field" />
+          <input type="number" min="0" placeholder="Années d'expérience" class="input-field" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">3</span> Services & description</h2>
+        <div class="space-y-4">
+          <input placeholder="Services proposés (séparés par des virgules)" class="input-field" />
+          <textarea rows="4" placeholder="Décrivez votre activité, vos points forts..." class="input-field"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">4</span> Photos & horaires</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm text-gray-600 mb-1 block">Photo de profil</label>
+            <input type="file" class="input-field" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 mb-1 block">Photos de vos réalisations</label>
+            <input type="file" multiple class="input-field" />
+          </div>
+          <input placeholder="Horaires (ex: Lun-Sam 8h-19h)" class="input-field sm:col-span-2" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-semibold text-gray-900 mb-4 flex items-center gap-2"><span class="w-6 h-6 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">5</span> Choisissez votre formule</h2>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <label class="cursor-pointer">
+            <input type="radio" name="plan" value="free" class="peer hidden" checked />
+            <div class="border-2 border-gray-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 rounded-xl p-4 h-full">
+              <p class="font-semibold text-gray-900 text-sm">Free</p>
+              <p class="text-xs text-gray-500 mt-1">Profil basique gratuit</p>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="plan" value="pro" class="peer hidden" />
+            <div class="border-2 border-gray-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 rounded-xl p-4 h-full relative">
+              <span class="absolute -top-2 right-3 bg-terra-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Populaire</span>
+              <p class="font-semibold text-gray-900 text-sm">Pro - 99 DH/mois</p>
+              <p class="text-xs text-gray-500 mt-1">Profil complet + WhatsApp + avis</p>
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="plan" value="featured" class="peer hidden" />
+            <div class="border-2 border-gray-200 peer-checked:border-primary-600 peer-checked:bg-primary-50 rounded-xl p-4 h-full">
+              <p class="font-semibold text-gray-900 text-sm">Vedette - 199 DH/mois</p>
+              <p class="text-xs text-gray-500 mt-1">Mise en avant + badge Vedette</p>
+            </div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Aucun paiement ne sera effectué maintenant. Ceci est une démonstration.</p>
+      </div>
+
+      <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 rounded-full text-base">Créer mon profil</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ PRICING PAGE ============ -->
+<section id="page-pricing" class="page-section hidden pt-24 pb-20 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <span class="inline-block bg-primary-100 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">Tarifs</span>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Choisissez la formule adaptée à votre activité</h1>
+    <p class="text-gray-500 mt-2 max-w-xl mx-auto">Commencez gratuitement, évoluez quand vous êtes prêt. Sans engagement.</p>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-10 text-left">
+      <div class="bg-white rounded-2xl border border-gray-100 p-7 flex flex-col">
+        <h3 class="font-semibold text-lg text-gray-900">Free</h3>
+        <p class="text-3xl font-bold text-gray-900 mt-3">0 DH<span class="text-sm font-normal text-gray-400">/mois</span></p>
+        <ul class="mt-5 space-y-3 text-sm text-gray-600 flex-1">
+          <li>✅ Profil basique</li>
+          <li>✅ Numéro de téléphone visible</li>
+          <li>✅ Catégorie & localisation</li>
+          <li class="text-gray-300">❌ Bouton WhatsApp</li>
+          <li class="text-gray-300">❌ Photos & avis</li>
+        </ul>
+        <a href="#/register" class="mt-6 text-center border border-gray-200 hover:border-primary-400 hover:text-primary-600 text-gray-700 font-medium py-2.5 rounded-full">Commencer gratuitement</a>
+      </div>
+
+      <div class="bg-white rounded-2xl border-2 border-primary-600 p-7 flex flex-col relative shadow-lg">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-full">Le plus choisi</span>
+        <h3 class="font-semibold text-lg text-gray-900">Pro</h3>
+        <p class="text-3xl font-bold text-gray-900 mt-3">99 DH<span class="text-sm font-normal text-gray-400">/mois</span></p>
+        <ul class="mt-5 space-y-3 text-sm text-gray-600 flex-1">
+          <li>✅ Profil complet</li>
+          <li>✅ Photos illimitées</li>
+          <li>✅ Bouton WhatsApp direct</li>
+          <li>✅ Liste des services</li>
+          <li>✅ Avis clients + badge Vérifié</li>
+        </ul>
+        <a href="#/register" class="mt-6 text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-full">Choisir Pro</a>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 p-7 flex flex-col">
+        <h3 class="font-semibold text-lg text-gray-900">Vedette</h3>
+        <p class="text-3xl font-bold text-gray-900 mt-3">199 DH<span class="text-sm font-normal text-gray-400">/mois</span></p>
+        <ul class="mt-5 space-y-3 text-sm text-gray-600 flex-1">
+          <li>✅ Tous les avantages Pro</li>
+          <li>✅ Classement prioritaire</li>
+          <li>✅ Badge ⭐ Vedette</li>
+          <li>✅ Visibilité sur la page d'accueil</li>
+        </ul>
+        <a href="#/register" class="mt-6 text-center border border-terra-300 text-terra-600 hover:bg-terra-50 font-medium py-2.5 rounded-full">Choisir Vedette</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-gray-900 text-gray-300 pt-14 pb-8">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-2">
+          <span class="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center text-white font-bold">S</span>
+          <span class="font-bold text-lg text-white">Sna3ti</span>
+        </div>
+        <p class="text-sm text-gray-400 mt-3 max-w-xs">"L9a l7erfi li kat9leb 3lih." La plateforme qui connecte les Marocains aux meilleurs artisans et professionnels de confiance.</p>
+        <div class="flex gap-3 mt-4">
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm">FB</a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm">IG</a>
+          <a href="#" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm">TT</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3 text-sm">Services</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#/seo/plomberie" class="hover:text-white">Plombier Casablanca</a></li>
+          <li><a href="#/seo/electricite" class="hover:text-white">Électricien Casablanca</a></li>
+          <li><a href="#/seo/peinture" class="hover:text-white">Peintre Casablanca</a></li>
+          <li><a href="#/seo/menuiserie" class="hover:text-white">Menuisier Casablanca</a></li>
+          <li><a href="#/seo/climatisation" class="hover:text-white">Climatisation Casablanca</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3 text-sm">Villes</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#/services" class="hover:text-white">Casablanca</a></li>
+          <li class="text-gray-500">Rabat (bientôt)</li>
+          <li class="text-gray-500">Marrakech (bientôt)</li>
+          <li class="text-gray-500">Tanger (bientôt)</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-3 text-sm">Sna3ti</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#/pricing" class="hover:text-white">Tarifs</a></li>
+          <li><a href="#/register" class="hover:text-white">Inscrire mon activité</a></li>
+          <li><a href="#" onclick="showToast('Page à venir.');return false;" class="hover:text-white">Contact</a></li>
+          <li><a href="#" onclick="showToast('Page à venir.');return false;" class="hover:text-white">Conditions d'utilisation</a></li>
+          <li><a href="#" onclick="showToast('Page à venir.');return false;" class="hover:text-white">Confidentialité</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-10 pt-6 text-xs text-gray-500 text-center">© 2024 Sna3ti. Tous droits réservés. Fait avec ❤️ au Maroc.</div>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================
+   DATA
+========================================================== */
+const categories = [
+  { slug:'plomberie',      name:'Plomberie',      icon:'🔧', count:154 },
+  { slug:'electricite',    name:'Électricité',    icon:'⚡', count:132 },
+  { slug:'climatisation',  name:'Climatisation',  icon:'❄️', count:98  },
+  { slug:'peinture',       name:'Peinture',       icon:'🎨', count:87  },
+  { slug:'menuiserie',     name:'Menuiserie',     icon:'🪚', count:76  },
+  { slug:'nettoyage',      name:'Nettoyage',      icon:'🧹', count:143 },
+  { slug:'reparation',     name:'Réparation',     icon:'🛠️', count:65  },
+  { slug:'jardinage',      name:'Jardinage',      icon:'🌿', count:54  },
+];
+
+const professionals = [
+  { id:1, business:'Plomberie Al Amane', name:'Hassan Benali', category:'Plomberie', categorySlug:'plomberie',
+    city:'Casablanca', neighborhood:'Maarif', rating:4.8, reviews:124, verified:true, featured:true,
+    phone:'+212661234567', whatsapp:'212661234567', photo:'https://i.pravatar.cc/150?img=12',
+    desc:"Plombier expérimenté depuis 15 ans. Intervention rapide pour fuites, débouchage et installation sanitaire.",
+    experience:15, price:'150 - 400 DH',
+    services:['Réparation fuite','Débouchage canalisation','Installation sanitaire','Chauffe-eau'],
+    gallery:['https://picsum.photos/seed/plomb1/400/300','https://picsum.photos/seed/plomb2/400/300','https://picsum.photos/seed/plomb3/400/300'],
+    hours:'Lun - Sam : 8h00 - 19h00' },
+
+  { id:2, business:'Élec Pro Maarif', name:'Rachid Idrissi', category:'Électricité', categorySlug:'electricite',
+    city:'Casablanca', neighborhood:'Maarif', rating:4.6, reviews:89, verified:true, featured:false,
+    phone:'+212662345678', whatsapp:'212662345678', photo:'https://i.pravatar.cc/150?img=33',
+    desc:"Électricien agréé pour installations, pannes électriques et mise aux normes de votre logement.",
+    experience:10, price:'100 - 350 DH',
+    services:['Installation électrique','Dépannage','Tableau électrique','Éclairage'],
+    gallery:['https://picsum.photos/seed/elec1/400/300','https://picsum.photos/seed/elec2/400/300','https://picsum.photos/seed/elec3/400/300'],
+    hours:'Lun - Ven : 8h30 - 18h30' },
+
+  { id:3, business:'Climat Confort', name:'Youssef El Amrani', category:'Climatisation', categorySlug:'climatisation',
+    city:'Casablanca', neighborhood:'Bourgogne', rating:4.9, reviews:156, verified:true, featured:true,
+    phone:'+212663456789', whatsapp:'212663456789', photo:'https://i.pravatar.cc/150?img=14',
+    desc:"Spécialiste en installation et entretien de climatiseurs toutes marques. Devis gratuit sous 24h.",
+    experience:12, price:'300 - 1200 DH',
+    services:['Installation climatiseur','Entretien','Recharge gaz','Réparation'],
+    gallery:['https://picsum.photos/seed/clim1/400/300','https://picsum.photos/seed/clim2/400/300','https://picsum.photos/seed/clim3/400/300'],
+    hours:'Lun - Sam : 9h00 - 19h00' },
+
+  { id:4, business:'Atelier Bois Chaabi', name:'Karim Ziani', category:'Menuiserie', categorySlug:'menuiserie',
+    city:'Casablanca', neighborhood:'Ain Sebaa', rating:4.7, reviews:67, verified:true, featured:false,
+    phone:'+212664567890', whatsapp:'212664567890', photo:'https://i.pravatar.cc/150?img=51',
+    desc:"Menuisier artisan spécialisé dans le mobilier sur mesure, portes et dressing en bois massif.",
+    experience:18, price:'Sur devis',
+    services:['Mobilier sur mesure','Portes','Dressing','Cuisine en bois'],
+    gallery:['https://picsum.photos/seed/menu1/400/300','https://picsum.photos/seed/menu2/400/300','https://picsum.photos/seed/menu3/400/300'],
+    hours:'Lun - Sam : 8h00 - 18h00' },
+
+  { id:5, business:'Peinture Déco Maroc', name:'Omar Fassi', category:'Peinture', categorySlug:'peinture',
+    city:'Casablanca', neighborhood:'Sidi Belyout', rating:4.5, reviews:45, verified:false, featured:false,
+    phone:'+212665678901', whatsapp:'212665678901', photo:'https://i.pravatar.cc/150?img=22',
+    desc:"Peintre en bâtiment, finitions soignées pour appartements, villas et bureaux.",
+    experience:8, price:'40 - 90 DH/m²',
+    services:['Peinture intérieure','Peinture façade','Enduit décoratif','Tapisserie'],
+    gallery:['https://picsum.photos/seed/peint1/400/300','https://picsum.photos/seed/peint2/400/300','https://picsum.photos/seed/peint3/400/300'],
+    hours:'Lun - Sam : 8h00 - 18h00' },
+
+  { id:6, business:'Nadafa Cleaning', name:'Fatima Zahra Kabbaj', category:'Nettoyage', categorySlug:'nettoyage',
+    city:'Casablanca', neighborhood:'Racine', rating:4.9, reviews:203, verified:true, featured:true,
+    phone:'+212666789012', whatsapp:'212666789012', photo:'https://i.pravatar.cc/150?img=45',
+    desc:"Service de nettoyage professionnel pour particuliers et bureaux. Équipe fiable et ponctuelle.",
+    experience:6, price:'150 - 500 DH',
+    services:['Nettoyage appartement','Nettoyage bureaux','Fin de chantier','Vitres'],
+    gallery:['https://picsum.photos/seed/clean1/400/300','https://picsum.photos/seed/clean2/400/300','https://picsum.photos/seed/clean3/400/300'],
+    hours:'Lun - Dim : 8h00 - 20h00' },
+
+  { id:7, business:'Jardin Vert', name:'Said Amrani', category:'Jardinage', categorySlug:'jardinage',
+    city:'Casablanca', neighborhood:'Californie', rating:4.4, reviews:32, verified:false, featured:false,
+    phone:'+212667890123', whatsapp:'212667890123', photo:'https://i.pravatar.cc/150?img=60',
+    desc:"Entretien de jardins, taille, gazon et aménagement paysager pour villas et espaces extérieurs.",
+    experience:9, price:'200 - 600 DH',
+    services:['Entretien jardin','Taille arbustes','Gazon','Aménagement extérieur'],
+    gallery:['https://picsum.photos/seed/jard1/400/300','https://picsum.photos/seed/jard2/400/300','https://picsum.photos/seed/jard3/400/300'],
+    hours:'Lun - Sam : 7h30 - 17h00' },
+
+  { id:8, business:'Réparation Express', name:'Mehdi Alaoui', category:'Réparation', categorySlug:'reparation',
+    city:'Casablanca', neighborhood:'Derb Ghallef', rating:4.6, reviews:78, verified:true, featured:false,
+    phone:'+212668901234', whatsapp:'212668901234', photo:'https://i.pravatar.cc/150?img=15',
+    desc:"Réparation électroménager, plomberie légère et petits travaux à domicile. Intervention rapide.",
+    experience:7, price:'80 - 300 DH',
+    services:['Électroménager','Petits travaux','Serrurerie','Montage meubles'],
+    gallery:['https://picsum.photos/seed/repar1/400/300','https://picsum.photos/seed/repar2/400/300','https://picsum.photos/seed/repar3/400/300'],
+    hours:'Lun - Sam : 9h00 - 19h00' },
+
+  { id:9, business:'Clim Nasiri Services', name:'Abdellah Nasiri', category:'Climatisation', categorySlug:'climatisation',
+    city:'Casablanca', neighborhood:'Gauthier', rating:4.3, reviews:21, verified:false, featured:false,
+    phone:'+212669012345', whatsapp:'212669012345', photo:'https://i.pravatar.cc/150?img=8',
+    desc:"Installation et maintenance de climatiseurs pour particuliers, prix compétitifs.",
+    experience:5, price:'250 - 900 DH',
+    services:['Installation','Entretien','Réparation'],
+    gallery:['https://picsum.photos/seed/clim4/400/300','https://picsum.photos/seed/clim5/400/300','https://picsum.photos/seed/clim6/400/300'],
+    hours:'Lun - Sam : 9h00 - 18h00' },
+
+  { id:10, business:'Électricité Générale Berrada', name:'Younes Berrada', category:'Électricité', categorySlug:'electricite',
+    city:'Casablanca', neighborhood:'Oulfa', rating:4.7, reviews:58, verified:true, featured:false,
+    phone:'+212660123456', whatsapp:'212660123456', photo:'https://i.pravatar.cc/150?img=53',
+    desc:"Électricien polyvalent pour rénovation électrique complète, dépannage et installation domotique.",
+    experience:11, price:'100 - 400 DH',
+    services:['Rénovation électrique','Dépannage','Domotique','Installation'],
+    gallery:['https://picsum.photos/seed/elec4/400/300','https://picsum.photos/seed/elec5/400/300','https://picsum.photos/seed/elec6/400/300'],
+    hours:'Lun - Ven : 8h00 - 18h00' },
+];
+
+const sampleReviews = [
+  { name:'Nassim B.', rating:5, comment:"Service rapide et professionnel, je recommande vivement !", date:'Il y a 2 semaines' },
+  { name:'Salma T.', rating:4, comment:"Bon travail, ponctuel et prix correct.", date:'Il y a 1 mois' },
+  { name:'Adil K.', rating:5, comment:"Très sérieux, a résolu le problème rapidement. Chokrane !", date:'Il y a 2 mois' },
+];
+
+function getSeoContent(slug){
+  const cat = categories.find(c=>c.slug===slug) || categories[0];
+  return {
+    catName: cat.name,
+    title: `${cat.name} à Casablanca | Trouvez un professionnel fiable - Sna3ti`,
+    h1: `${cat.name} à Casablanca : trouvez le meilleur professionnel`,
+    desc: `Besoin d'un(e) ${cat.name.toLowerCase()} à Casablanca ? Sna3ti vous met en relation avec des professionnels vérifiés, notés par leurs clients, disponibles rapidement dans votre quartier. Contact direct par WhatsApp, sans intermédiaire.`,
+    faq: [
+      { q:`Combien coûte un(e) ${cat.name.toLowerCase()} à Casablanca ?`, a:`Le prix varie selon la nature de l'intervention. Consultez les profils pour un tarif indicatif, ou contactez le professionnel via WhatsApp pour un devis gratuit.` },
+      { q:`Comment choisir un(e) bon(ne) ${cat.name.toLowerCase()} sur Sna3ti ?`, a:`Vérifiez les avis clients, la note, le badge "Vérifié" et le nombre d'années d'expérience avant de contacter un professionnel.` },
+      { q:`Sna3ti est-il gratuit pour les clients ?`, a:`Oui, la recherche et la mise en relation avec les professionnels sont entièrement gratuites pour les clients.` },
+      { q:`Sna3ti est-il disponible dans d'autres villes ?`, a:`Sna3ti est actuellement disponible à Casablanca. Rabat, Marrakech et Tanger seront bientôt disponibles.` },
+    ]
+  };
+}
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+const verifiedBadge = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-primary-500 shrink-0"><path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.49 4.49 0 01-1.307 3.497 4.49 4.49 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>`;
+
+function proCard(p){
+  return `
+  <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col">
+    <div class="flex items-start gap-3">
+      <img src="${p.photo}" alt="${p.business}" class="w-16 h-16 rounded-xl object-cover shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <h3 class="font-semibold text-gray-900 leading-tight">${p.business}</h3>
+          ${p.verified ? `<span title="Profil vérifié">${verifiedBadge}</span>` : ''}
+        </div>
+        <p class="text-sm text-primary-600 font-medium">${p.category}</p>
+        <p class="text-xs text-gray-400 mt-0.5">📍 ${p.neighborhood}, ${p.city}</p>
+      </div>
+      ${p.featured ? '<span class="text-[10px] font-bold bg-terra-100 text-terra-700 px-2 py-1 rounded-full whitespace-nowrap">⭐ Vedette</span>' : ''}
+    </div>
+    <div class="flex items-center gap-1.5 mt-3">
+      <span class="flex items-center gap-1 text-sm font-semibold text-amber-500">★ ${p.rating}</span>
+      <span class="text-xs text-gray-400">(${p.reviews} avis)</span>
+    </div>
+    <p class="text-sm text-gray-500 mt-2 line-clamp-2">${p.desc}</p>
+    <div class="flex items-center gap-2 mt-4">
+      <a href="https://wa.me/${p.whatsapp}" target="_blank" rel="noopener" class="flex-1 text-center bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 rounded-full transition-colors">WhatsApp</a>
+      <a href="tel:${p.phone}" class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2 rounded-full transition-colors">Appeler</a>
+    </div>
+    <a href="#/pro/${p.id}" class="mt-2.5 text-center text-sm font-semibold text-primary-600 hover:text-primary-700">Voir le profil →</a>
+  </div>`;
+}
+
+function emptyState(){
+  return `<div class="col-span-full text-center py-16">
+    <p class="text-4xl mb-3">🔍</p>
+    <p class="text-gray-500 font-medium">Aucun professionnel trouvé pour ces critères.</p>
+    <p class="text-gray-400 text-sm mt-1">Essayez d'élargir votre recherche.</p>
+  </div>`;
+}
+
+function getFilteredPros({category, city, neighborhood, minRating, verifiedOnly, q} = {}){
+  return professionals.filter(p=>{
+    if(category && p.categorySlug !== category) return false;
+    if(city && p.city !== city) return false;
+    if(neighborhood && p.neighborhood !== neighborhood) return false;
+    if(minRating && p.rating < parseFloat(minRating)) return false;
+    if(verifiedOnly && !p.verified) return false;
+    if(q){
+      const s = q.toLowerCase();
+      if(!(p.business.toLowerCase().includes(s) || p.category.toLowerCase().includes(s) || p.neighborhood.toLowerCase().includes(s) || p.city.toLowerCase().includes(s))) return false;
+    }
+    return true;
+  });
+}
+
+function buildQuery(obj){
+  const params = new URLSearchParams();
+  Object.entries(obj).forEach(([k,v])=>{ if(v) params.set(k, v); });
+  const s = params.toString();
+  return s ? '?' + s : '';
+}
+
+function debounce(fn, delay){
+  let t;
+  return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), delay); };
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-5 py-3 rounded-full shadow-lg z-[100] animate-fade-in';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 3000);
+}
+
+function categoryOptionsHtml(placeholder){
+  return `<option value="">${placeholder}</option>` + categories.map(c=>`<option value="${c.slug}">${c.name}</option>`).join('');
+}
+
+function navScroll(id){
+  const currentPath = (location.hash.slice(1) || '/').split('?')[0];
+  if(currentPath !== '/'){
+    location.hash = '/';
+    setTimeout(()=> document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  } else {
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  closeMobileMenu();
+}
+
+function closeMobileMenu(){ document.getElementById('mobile-menu')?.classList.add('hidden'); }
+
+/* ==========================================================
+   HOME RENDER
+========================================================== */
+function renderCategoriesGrid(){
+  document.getElementById('categories-grid').innerHTML = categories.map(c=>`
+    <a href="#/services?cat=${c.slug}" class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-5 flex flex-col items-center text-center gap-2">
+      <div class="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center text-2xl group-hover:bg-primary-100 transition-colors">${c.icon}</div>
+      <h3 class="font-semibold text-gray-800 text-sm md:text-base">${c.name}</h3>
+      <p class="text-xs text-gray-400">${c.count} professionnels</p>
+    </a>
+  `).join('');
+}
+
+function renderFeaturedGrid(){
+  const featured = [...professionals].sort((a,b)=> (b.featured - a.featured) || (b.rating - a.rating)).slice(0,6);
+  document.getElementById('featured-grid').innerHTML = featured.map(p=>proCard(p)).join('');
+}
+
+/* ==========================================================
+   DIRECTORY PAGE
+========================================================== */
+function renderDirectoryPage(params){
+  document.title = 'Trouvez un professionnel à Casablanca | Sna3ti';
+  const cat = params.get('cat') || '';
+  const city = params.get('city') || '';
+  const nb = params.get('nb') || '';
+  const rating = params.get('rating') || '';
+  const verified = params.get('verified') === '1';
+  const q = params.get('q') || '';
+  const catName = cat ? (categories.find(c=>c.slug===cat)?.name || '') : '';
+
+  document.getElementById('directory-header').innerHTML = `
+    <nav class="text-sm text-gray-400 mb-3"><a href="#/" class="hover:text-primary-600">Accueil</a> / <span class="text-gray-600">Professionnels</span></nav>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">${catName ? catName + ' à Casablanca' : 'Tous les professionnels à Casablanca'}</h1>
+    <p class="text-gray-500 mt-1">Comparez les artisans et professionnels vérifiés près de chez vous.</p>
+    <div class="mt-4 flex gap-2">
+      <input id="directory-search" type="text" value="${q}" placeholder="Rechercher un nom, un métier, un quartier..." class="flex-1 md:flex-none md:w-96 border border-gray-200 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+      <button id="mobile-filter-btn" class="lg:hidden border border-gray-200 rounded-full px-4 py-2.5 text-sm font-medium text-gray-600">Filtres</button>
+    </div>
+  `;
+
+  const neighborhoods = [...new Set(professionals.map(p=>p.neighborhood))].sort();
+  document.getElementById('directory-filters').innerHTML = `
+    <div id="filters-panel" class="hidden lg:block bg-white rounded-2xl border border-gray-100 p-5 space-y-5 lg:sticky lg:top-24">
+      <h3 class="font-semibold text-gray-900">Filtres</h3>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Catégorie</label>
+        <select id="f-cat" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Toutes les catégories</option>
+          ${categories.map(c=>`<option value="${c.slug}" ${c.slug===cat?'selected':''}>${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Ville</label>
+        <select id="f-city" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Toutes les villes</option>
+          <option value="Casablanca" ${city==='Casablanca'?'selected':''}>Casablanca</option>
+          <option disabled>Rabat (bientôt)</option>
+          <option disabled>Marrakech (bientôt)</option>
+          <option disabled>Tanger (bientôt)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Quartier</label>
+        <select id="f-nb" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Tous les quartiers</option>
+          ${neighborhoods.map(n=>`<option value="${n}" ${n===nb?'selected':''}>${n}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Note minimale</label>
+        <select id="f-rating" class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Toutes les notes</option>
+          <option value="4.5" ${rating==='4.5'?'selected':''}>4.5+ ★</option>
+          <option value="4" ${rating==='4'?'selected':''}>4.0+ ★</option>
+        </select>
+      </div>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <input type="checkbox" id="f-verified" ${verified?'checked':''} class="rounded text-primary-600 focus:ring-primary-500" />
+        Profils vérifiés uniquement
+      </label>
+      <button id="f-reset" class="w-full text-center text-sm text-gray-400 hover:text-gray-600 pt-3 border-t border-gray-100">Réinitialiser les filtres</button>
+    </div>
+  `;
+
+  ['f-cat','f-city','f-nb','f-rating','f-verified'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', updateDirectoryResults);
+  });
+  document.getElementById('f-reset').addEventListener('click', ()=> location.hash = '/services');
+  document.getElementById('directory-search').addEventListener('input', debounce(updateDirectoryResults, 250));
+  document.getElementById('mobile-filter-btn').addEventListener('click', ()=>{
+    document.getElementById('filters-panel').classList.toggle('hidden');
+  });
+
+  renderDirectoryResults({ category:cat, city, neighborhood:nb, minRating:rating, verifiedOnly:verified, q });
+}
+
+function updateDirectoryResults(){
+  const filters = {
+    category: document.getElementById('f-cat').value,
+    city: document.getElementById('f-city').value,
+    neighborhood: document.getElementById('f-nb').value,
+    minRating: document.getElementById('f-rating').value,
+    verifiedOnly: document.getElementById('f-verified').checked,
+    q: document.getElementById('directory-search').value,
+  };
+  history.replaceState(null, '', '#/services' + buildQuery({
+    cat: filters.category, city: filters.city, nb: filters.neighborhood,
+    rating: filters.minRating, verified: filters.verifiedOnly ? '1' : '', q: filters.q
+  }));
+  renderDirectoryResults(filters);
+}
+
+function renderDirectoryResults(filters){
+  const results = getFilteredPros(filters);
+  document.getElementById('directory-meta').textContent = `${results.length} professionnel${results.length!==1?'s':''} trouvé${results.length!==1?'s':''}`;
+  document.getElementById('directory-grid').innerHTML = results.length ? results.map(p=>proCard(p)).join('') : emptyState();
+}
+
+/* ==========================================================
+   PROFILE PAGE
+========================================================== */
+function renderProfilePage(id){
+  const pro = professionals.find(p=>p.id === Number(id));
+  const container = document.getElementById('profile-content');
+  if(!pro){
+    container.innerHTML = '<p class="py-24 text-center text-gray-500">Professionnel introuvable.</p>';
+    return;
+  }
+  document.title = `${pro.business} - ${pro.category} à ${pro.city} | Sna3ti`;
+
+  document.getElementById('mcb-whatsapp').href = `https://wa.me/${pro.whatsapp}`;
+  document.getElementById('mcb-call').href = `tel:${pro.phone}`;
+
+  const similar = professionals.filter(p=>p.categorySlug === pro.categorySlug && p.id !== pro.id).slice(0,3);
+
+  container.innerHTML = `
+    <nav class="text-sm text-gray-400 mb-4 flex items-center gap-1.5 flex-wrap">
+      <a href="#/" class="hover:text-primary-600">Accueil</a><span>/</span>
+      <a href="#/services?cat=${pro.categorySlug}" class="hover:text-primary-600">${pro.category}</a><span>/</span>
+      <span class="text-gray-600">${pro.business}</span>
+    </nav>
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-6">
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <div class="flex flex-col sm:flex-row gap-5">
+            <img src="${pro.photo}" class="w-24 h-24 rounded-2xl object-cover" />
+            <div class="flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900">${pro.business}</h1>
+                ${pro.verified ? `<span title="Profil vérifié">${verifiedBadge}</span>` : ''}
+                ${pro.featured ? '<span class="text-[11px] font-bold bg-terra-100 text-terra-700 px-2 py-1 rounded-full">⭐ Vedette</span>' : ''}
+              </div>
+              <p class="text-primary-600 font-medium mt-1">${pro.category}</p>
+              <p class="text-gray-400 text-sm flex items-center gap-1 mt-1">📍 ${pro.neighborhood}, ${pro.city}</p>
+              <div class="flex items-center gap-2 mt-2 flex-wrap">
+                <span class="flex items-center gap-1 font-semibold text-amber-500">★ ${pro.rating}</span>
+                <span class="text-gray-400 text-sm">(${pro.reviews} avis)</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-sm text-gray-500">${pro.experience} ans d'expérience</span>
+              </div>
+            </div>
+          </div>
+          <div class="hidden lg:flex gap-3 mt-5">
+            <a href="https://wa.me/${pro.whatsapp}" target="_blank" rel="noopener" class="flex-1 text-center bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-full">WhatsApp</a>
+            <a href="tel:${pro.phone}" class="flex-1 text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-full">Appeler</a>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">À propos</h2>
+          <p class="text-gray-600 leading-relaxed">${pro.desc}</p>
+          <h3 class="text-sm font-semibold text-gray-900 mt-5 mb-2">Services proposés</h3>
+          <div class="flex flex-wrap gap-2">
+            ${pro.services.map(s=>`<span class="bg-primary-50 text-primary-700 text-sm px-3 py-1.5 rounded-full">${s}</span>`).join('')}
+          </div>
+          <div class="mt-5 flex items-center justify-between flex-wrap gap-3 text-sm border-t border-gray-100 pt-4">
+             <div><span class="text-gray-400">Tarif indicatif : </span><span class="font-medium text-gray-800">${pro.price}</span></div>
+             <div><span class="text-gray-400">Horaires : </span><span class="font-medium text-gray-800">${pro.hours}</span></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">Galerie de réalisations</h2>
+          <div class="grid grid-cols-3 gap-3">
+            ${pro.gallery.map(g=>`<img src="${g}" class="w-full h-24 md:h-32 object-cover rounded-xl" />`).join('')}
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Avis clients (${pro.reviews})</h2>
+            <span class="flex items-center gap-1 font-semibold text-amber-500">★ ${pro.rating}</span>
+          </div>
+          <div class="space-y-4">
+            ${sampleReviews.map(r=>`
+              <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-gray-800 text-sm">${r.name}</span>
+                  <span class="text-amber-500 text-sm">${'★'.repeat(r.rating)}</span>
+                </div>
+                <p class="text-gray-500 text-sm mt-1">${r.comment}</p>
+                <span class="text-xs text-gray-300">${r.date}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Contacter ${pro.name.split(' ')[0]}</h2>
+          <form id="contact-form" class="space-y-3">
+            <input required placeholder="Votre nom" class="input-field" />
+            <input required placeholder="Votre téléphone" class="input-field" />
+            <textarea required placeholder="Votre message" rows="4" class="input-field"></textarea>
+            <button class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-full">Envoyer le message</button>
+          </form>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-6">
+          <h3 class="font-semibold text-gray-900 mb-3">Professionnels similaires</h3>
+          <div class="space-y-3">
+            ${similar.length ? similar.map(s=>`
+              <a href="#/pro/${s.id}" class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-xl transition-colors">
+                <img src="${s.photo}" class="w-12 h-12 rounded-lg object-cover" />
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate">${s.business}</p>
+                  <p class="text-xs text-gray-400">${s.neighborhood} • ★ ${s.rating}</p>
+                </div>
+              </a>`).join('') : '<p class="text-sm text-gray-400">Aucun professionnel similaire pour le moment.</p>'}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('contact-form').addEventListener('submit', e=>{
+    e.preventDefault();
+    showToast('Votre message a été envoyé (démo).');
+    e.target.reset();
+  });
+}
+
+/* ==========================================================
+   SEO LANDING PAGE
+========================================================== */
+function renderSeoPage(slug){
+  const content = getSeoContent(slug);
+  document.title = content.title;
+  const pros = professionals.filter(p=>p.categorySlug === slug);
+  const others = categories.filter(c=>c.slug !== slug).slice(0,6);
+
+  document.getElementById('seo-content').innerHTML = `
+    <nav class="text-sm text-gray-400 mb-4 flex items-center gap-1.5">
+      <a href="#/" class="hover:text-primary-600">Accueil</a><span>/</span>
+      <a href="#/services" class="hover:text-primary-600">Services</a><span>/</span>
+      <span class="text-gray-600">${content.catName} Casablanca</span>
+    </nav>
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">${content.h1}</h1>
+    <p class="text-gray-500 mt-3 max-w-3xl leading-relaxed">${content.desc}</p>
+
+    <div class="mt-8 grid sm:grid-cols-2 gap-5">
+      ${pros.length ? pros.map(p=>proCard(p)).join('') : emptyState()}
+    </div>
+
+    <div class="mt-12">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Questions fréquentes</h2>
+      <div class="space-y-2" id="faq-list">
+        ${content.faq.map((f,i)=>`
+          <div class="border border-gray-100 rounded-xl overflow-hidden">
+            <button class="faq-toggle w-full flex items-center justify-between gap-3 text-left p-4 font-medium text-gray-800 hover:bg-gray-50" data-i="${i}">
+              <span>${f.q}</span> <span class="faq-icon transition-transform shrink-0">⌄</span>
+            </button>
+            <div class="faq-answer hidden px-4 pb-4 text-gray-500 text-sm leading-relaxed">${f.a}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">Autres services à Casablanca</h2>
+      <div class="flex flex-wrap gap-2">
+        ${others.map(c=>`<a href="#/seo/${c.slug}" class="text-sm bg-white border border-gray-200 hover:border-primary-400 hover:text-primary-600 px-4 py-2 rounded-full text-gray-600 transition-colors">${c.name} Casablanca</a>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.faq-toggle').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.nextElementSibling.classList.toggle('hidden');
+      btn.querySelector('.faq-icon').classList.toggle('rotate-180');
+    });
+  });
+}
+
+/* ==========================================================
+   ROUTER
+========================================================== */
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function route(){
+  const hash = location.hash.slice(1) || '/';
+  const [path, query] = hash.split('?');
+  const params = new URLSearchParams(query || '');
+  closeMobileMenu();
+
+  const mcb = document.getElementById('mobile-contact-bar');
+  mcb.style.display = 'none';
+
+  if(path === '/' || path === ''){
+    showPage('page-home');
+    document.title = 'Sna3ti | Trouvez un professionnel de confiance à Casablanca';
+  } else if(path === '/services'){
+    showPage('page-directory');
+    renderDirectoryPage(params);
+  } else if(path.startsWith('/pro/')){
+    showPage('page-profile');
+    renderProfilePage(path.split('/')[2]);
+    mcb.style.display = 'flex';
+  } else if(path === '/register'){
+    showPage('page-register');
+    document.title = 'Inscrire mon activité | Sna3ti';
+  } else if(path === '/pricing'){
+    showPage('page-pricing');
+    document.title = 'Tarifs professionnels | Sna3ti';
+  } else if(path.startsWith('/seo/')){
+    showPage('page-seo');
+    renderSeoPage(path.split('/')[2]);
+  } else {
+    showPage('page-home');
+  }
+  window.scrollTo(0,0);
+}
+
+window.addEventListener('hashchange', route);
+
+/* ==========================================================
+   INIT
+========================================================== */
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderCategoriesGrid();
+  renderFeaturedGrid();
+  document.getElementById('hero-service').innerHTML = categoryOptionsHtml('Quel service recherchez-vous ?');
+  document.getElementById('reg-category').innerHTML = categoryOptionsHtml('Choisir une catégorie');
+
+  document.getElementById('menu-btn').addEventListener('click', ()=>{
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+
+  document.getElementById('hero-search-form').addEventListener('submit', e=>{
+    e.preventDefault();
+    const cat = document.getElementById('hero-service').value;
+    const q = document.getElementById('hero-city').value;
+    location.hash = '/services' + buildQuery({ cat, q });
+  });
+
+  document.getElementById('register-form').addEventListener('submit', e=>{
+    e.preventDefault();
+    showToast('Votre profil a été créé avec succès (démo) 🎉');
+    e.target.reset();
+    setTimeout(()=> location.hash = '/', 1500);
+  });
+
+  route();
+});
+</script>
+</body>
+</html>
