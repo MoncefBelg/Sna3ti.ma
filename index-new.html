@@ -281,6 +281,216 @@
         min-height: auto;
       }
     }
+    /* ==========================================
+   SNA3TI — PREMIUM 3D HERO
+========================================== */
+
+#heroVisual {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Main visual */
+
+#heroVisual > div:first-child {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.7s cubic-bezier(.2,.8,.2,1),
+    box-shadow 0.7s ease;
+}
+
+#heroVisual:hover > div:first-child {
+  transform:
+    perspective(1200px)
+    rotateX(1deg)
+    rotateY(-2deg)
+    translateY(-5px);
+}
+
+
+/* ==========================================
+   HERO IMAGE
+========================================== */
+
+#heroVisual img {
+  transition:
+    transform 1.2s cubic-bezier(.2,.8,.2,1),
+    filter 1s ease;
+}
+
+#heroVisual:hover img {
+  transform: scale(1.08);
+  filter: saturate(1.08) contrast(1.04);
+}
+
+
+/* ==========================================
+   FLOATING 3D ELEMENTS
+========================================== */
+
+.float {
+  animation: heroFloatOne 5s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.float-2 {
+  animation: heroFloatTwo 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.float-3 {
+  animation: heroFloatThree 5.5s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+
+@keyframes heroFloatOne {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 12px);
+  }
+
+}
+
+
+@keyframes heroFloatTwo {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(8px, -15px, 15px) rotate(2deg);
+  }
+
+}
+
+
+@keyframes heroFloatThree {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-8px, -10px, 10px);
+  }
+
+}
+
+
+/* ==========================================
+   GLASS EFFECT
+========================================== */
+
+#heroVisual .glass {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ==========================================
+   SEARCH BAR
+========================================== */
+
+#heroForm {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+#heroForm:focus-within {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ==========================================
+   SEARCH BUTTON
+========================================== */
+
+#heroForm button {
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+#heroForm button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ==========================================
+   BACKGROUND ORBS
+========================================== */
+
+.hero .orb {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 767px) {
+
+  #heroVisual {
+    display: none;
+  }
+
+  #heroForm {
+    border-radius: 1.5rem;
+  }
+
+}
+
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .float,
+  .float-2,
+  .float-3 {
+    animation: none !important;
+  }
+
+  #heroVisual img {
+    transition: none;
+  }
+
+  #heroVisual > div:first-child {
+    transition: none;
+  }
+
+}
   </style>
 </head>
 
@@ -843,208 +1053,566 @@
 
       document.getElementById("app").innerHTML = `
 
-        <section
-          class="hero grid-bg min-h-[720px] pt-28 md:pt-32 relative"
+     <section
+  class="hero grid-bg min-h-[720px] pt-28 md:pt-32 relative overflow-hidden"
+>
+
+  <!-- Ambient background lights -->
+
+  <div
+    class="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-teal/20 blur-[120px] pointer-events-none"
+  ></div>
+
+  <div
+    class="absolute -bottom-40 -left-32 w-[500px] h-[500px] rounded-full bg-orange/15 blur-[120px] pointer-events-none"
+  ></div>
+
+
+  <div
+    class="max-w-7xl mx-auto px-4 sm:px-6 w-full
+           grid lg:grid-cols-[1.02fr_.98fr]
+           gap-10 items-center relative z-10
+           py-12 md:py-20"
+  >
+
+    <!-- =====================================
+         HERO CONTENT
+    ====================================== -->
+
+    <div class="text-white reveal">
+
+      <!-- Badge -->
+
+      <span
+        class="inline-flex items-center gap-2
+               rounded-full
+               border border-white/15
+               bg-white/10
+               backdrop-blur-xl
+               px-4 py-2
+               text-xs font-bold
+               shadow-lg"
+        data-i18n="hero.badge"
+      >
+        🇲🇦 Pensé pour le Maroc
+      </span>
+
+
+      <!-- Main title -->
+
+      <h1
+        class="display
+               text-5xl sm:text-6xl lg:text-7xl
+               font-bold
+               tracking-tight
+               leading-[.96]
+               mt-6"
+        data-i18n="hero.title"
+      >
+        Le bon professionnel,
+        <br>
+        près de chez vous.
+      </h1>
+
+
+      <!-- Subtitle -->
+
+      <p
+        class="text-white/65
+               text-base sm:text-lg
+               max-w-xl
+               mt-6
+               leading-8"
+        data-i18n="hero.sub"
+      >
+        Trouvez un artisan de confiance pour vos travaux,
+        réparations et projets.
+      </p>
+
+
+      <!-- =====================================
+           SEARCH
+      ====================================== -->
+
+      <form
+        id="heroForm"
+        class="glass
+               rounded-3xl
+               p-2
+               mt-8
+               max-w-2xl
+               shadow-[0_25px_80px_rgba(0,0,0,.25)]
+               flex flex-col md:flex-row
+               gap-2
+               text-ink
+               backdrop-blur-2xl"
+      >
+
+        <!-- Service -->
+
+        <select
+          id="heroService"
+          class="flex-1
+                 bg-white/80
+                 rounded-2xl
+                 px-4 py-3.5
+                 outline-none
+                 text-sm
+                 font-semibold
+                 focus:ring-2
+                 focus:ring-teal/30"
         >
 
-          <!-- Background lights -->
+          <option value="">
+            Quel service ?
+          </option>
+
+        </select>
+
+
+        <!-- Location -->
+
+        <input
+          id="heroPlace"
+          type="text"
+          class="flex-1
+                 bg-white/80
+                 rounded-2xl
+                 px-4 py-3.5
+                 outline-none
+                 text-sm
+                 focus:ring-2
+                 focus:ring-teal/30"
+          placeholder="Ville ou quartier"
+        >
+
+
+        <!-- Search button -->
+
+        <button
+          type="submit"
+          class="shine
+                 bg-orange
+                 text-white
+                 rounded-2xl
+                 px-7 py-3.5
+                 font-bold
+                 hover:brightness-110
+                 hover:-translate-y-0.5
+                 transition
+                 shadow-lg"
+          data-i18n="hero.search"
+        >
+          Rechercher
+        </button>
+
+      </form>
+
+
+      <!-- Popular searches -->
+
+      <div
+        class="flex flex-wrap gap-2 mt-4 items-center"
+      >
+
+        <span
+          class="text-white/40
+                 text-xs
+                 py-2"
+          data-i18n="hero.popular"
+        >
+          Recherches populaires
+        </span>
+
+        <div
+          id="popularSearches"
+          class="flex flex-wrap gap-2"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================
+         PREMIUM VISUAL
+    ====================================== -->
+
+    <div
+      id="heroVisual"
+      class="relative
+             h-[460px] sm:h-[520px]
+             hidden md:block
+             reveal
+             perspective-[1200px]"
+    >
+
+      <!-- Main image container -->
+
+      <div
+        class="absolute
+               inset-4
+               rounded-[3rem]
+               overflow-hidden
+               border border-white/15
+               shadow-[0_40px_100px_rgba(0,0,0,.45)]
+               bg-ink"
+      >
+
+        <!-- REALISTIC AI IMAGE -->
+
+        <img
+          src="assets/hero.webp"
+          alt="Professional craftsman working"
+          class="absolute
+                 inset-0
+                 w-full
+                 h-full
+                 object-cover
+                 scale-105
+                 transition-transform
+                 duration-[1200ms]
+                 ease-out"
+          loading="eager"
+        >
+
+
+        <!-- Cinematic overlay -->
+
+        <div
+          class="absolute inset-0
+                 bg-gradient-to-tr
+                 from-ink/95
+                 via-ink/35
+                 to-transparent"
+        ></div>
+
+
+        <!-- Teal lighting -->
+
+        <div
+          class="absolute
+                 -top-32
+                 -right-32
+                 w-80 h-80
+                 rounded-full
+                 bg-teal/25
+                 blur-[100px]"
+        ></div>
+
+
+        <!-- Orange lighting -->
+
+        <div
+          class="absolute
+                 -bottom-32
+                 -left-20
+                 w-72 h-72
+                 rounded-full
+                 bg-orange/20
+                 blur-[100px]"
+        ></div>
+
+
+        <!-- =================================
+             TOP BADGE
+        ================================== -->
+
+        <div
+          class="absolute
+                 top-6 right-6
+                 glass
+                 rounded-2xl
+                 px-4 py-3
+                 text-white
+                 backdrop-blur-xl
+                 border border-white/15
+                 shadow-xl"
+        >
 
           <div
-            class="orb w-72 h-72 bg-teal/20 top-16 right-[10%]"
-          ></div>
+            class="text-[9px]
+                   tracking-[.2em]
+                   uppercase
+                   text-white/50"
+          >
+            SNA3TI.MA
+          </div>
 
           <div
-            class="orb w-56 h-56 bg-orange/15 bottom-8 left-[8%]"
-          ></div>
-
-
-          <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 w-full grid lg:grid-cols-[1.02fr_.98fr] gap-10 items-center relative z-10 py-12 md:py-20"
+            class="flex items-center gap-2
+                   mt-1
+                   text-xs
+                   font-bold"
           >
 
+            <span
+              class="w-2 h-2
+                     rounded-full
+                     bg-emerald-400
+                     shadow-[0_0_12px_rgba(52,211,153,.8)]"
+            ></span>
 
-            <!-- HERO CONTENT -->
+            <span>
+              Professionnel vérifié
+            </span>
 
-            <div class="text-white reveal">
+          </div>
 
-              <span
-                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold"
-                data-i18n="hero.badge"
-              >
-                🇲🇦 Pensé pour le Maroc
-              </span>
-
-
-              <h1
-                class="display text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[.98] mt-6"
-                data-i18n="hero.title"
-              >
-                Le bon professionnel,
-                près de chez vous.
-              </h1>
+        </div>
 
 
-              <p
-                class="text-white/65 text-base sm:text-lg max-w-xl mt-6 leading-8"
-                data-i18n="hero.sub"
-              >
-                Trouvez un artisan de confiance pour vos travaux,
-                réparations et projets.
-              </p>
+        <!-- =================================
+             SERVICE FLOATING CARD
+        ================================== -->
+
+        <div
+          class="absolute
+                 top-28 left-6
+                 float
+                 glass
+                 rounded-2xl
+                 px-4 py-3
+                 text-white
+                 border border-white/15
+                 backdrop-blur-xl
+                 shadow-2xl"
+        >
+
+          <div
+            class="text-[10px]
+                   text-white/50
+                   uppercase
+                   tracking-wider"
+          >
+            Service
+          </div>
+
+          <div
+            class="flex items-center gap-2
+                   mt-1
+                   font-bold text-sm"
+          >
+
+            <span class="text-xl">
+              🔧
+            </span>
+
+            Plomberie
+
+          </div>
+
+        </div>
 
 
-              <!-- SEARCH -->
+        <!-- =================================
+             RATING CARD
+        ================================== -->
 
-              <form
-                id="heroForm"
-                class="glass rounded-3xl p-2 mt-8 max-w-2xl shadow-2xl flex flex-col md:flex-row gap-2 text-ink"
-              >
+        <div
+          class="absolute
+                 top-60 right-6
+                 float-2
+                 glass
+                 rounded-2xl
+                 px-4 py-3
+                 text-white
+                 border border-white/15
+                 backdrop-blur-xl
+                 shadow-2xl"
+        >
 
-                <select
-                  id="heroService"
-                  class="flex-1 bg-white/70 rounded-2xl px-4 py-3.5 outline-none text-sm font-semibold"
-                >
+          <div
+            class="flex items-center gap-2"
+          >
 
-                  <option value="">
-                    Quel service ?
-                  </option>
-
-                </select>
-
-
-                <input
-                  id="heroPlace"
-                  type="text"
-                  class="flex-1 bg-white/70 rounded-2xl px-4 py-3.5 outline-none text-sm"
-                  placeholder="Ville ou quartier"
-                >
-
-
-                <button
-                  type="submit"
-                  class="shine bg-orange text-white rounded-2xl px-7 py-3.5 font-bold hover:brightness-110 transition"
-                  data-i18n="hero.search"
-                >
-                  Rechercher
-                </button>
-
-              </form>
-
-
-              <!-- POPULAR SEARCH -->
-
-              <div class="flex flex-wrap gap-2 mt-4">
-
-                <span
-                  class="text-white/40 text-xs py-2"
-                  data-i18n="hero.popular"
-                >
-                  Recherches populaires
-                </span>
-
-                <div id="popularSearches"></div>
-
-              </div>
-
-            </div>
-
-
-            <!-- 3D VISUAL -->
-
-            <div
-              id="heroVisual"
-              class="relative h-[460px] hidden md:block reveal"
+            <span
+              class="text-orange text-lg"
             >
+              ★
+            </span>
+
+            <span
+              class="font-black"
+            >
+              4.9
+            </span>
+
+          </div>
+
+          <div
+            class="text-[10px]
+                   text-white/50
+                   mt-1"
+          >
+            127 avis clients
+          </div>
+
+        </div>
+
+
+        <!-- =================================
+             VERIFIED CARD
+        ================================== -->
+
+        <div
+          class="absolute
+                 bottom-24 left-6
+                 float-3
+                 glass
+                 rounded-2xl
+                 px-4 py-3
+                 text-white
+                 border border-white/15
+                 backdrop-blur-xl
+                 shadow-2xl"
+        >
+
+          <div
+            class="text-[10px]
+                   text-white/50
+                   uppercase
+                   tracking-wider"
+          >
+            Disponibilité
+          </div>
+
+          <div
+            class="flex items-center gap-2
+                   mt-1
+                   font-bold text-sm"
+          >
+
+            <span
+              class="w-2 h-2
+                     rounded-full
+                     bg-emerald-400"
+            ></span>
+
+            Disponible maintenant
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================
+             CENTER BRAND
+        ================================== -->
+
+        <div
+          class="absolute
+                 left-1/2
+                 top-1/2
+                 -translate-x-1/2
+                 -translate-y-1/2
+                 text-center
+                 z-10"
+        >
+
+          <!-- Logo -->
+
+          <div
+            class="w-32 h-32
+                   md:w-36 md:h-36
+                   rounded-[2.5rem]
+                   bg-white/95
+                   backdrop-blur-xl
+                   text-ink
+                   shadow-[0_30px_100px_rgba(0,0,0,.45)]
+                   grid place-items-center
+                   mx-auto
+                   border border-white"
+          >
+
+            <div>
 
               <div
-                class="absolute inset-8 rounded-[3rem] border border-white/10 bg-white/[.035]"
-              ></div>
-
-
-              <div
-                class="absolute inset-16 rounded-[2.5rem] bg-gradient-to-br from-white/10 to-white/[.02] border border-white/10 shadow-2xl backdrop-blur-xl"
-              ></div>
-
-
-              <!-- TOOL -->
-
-              <div
-                class="float absolute top-16 right-14 w-28 h-28 rounded-[2rem] bg-white/10 border border-white/20 backdrop-blur-xl grid place-items-center text-6xl shadow-2xl"
+                class="text-5xl
+                       font-black
+                       tracking-tight"
               >
-                🔧
+                S
               </div>
 
-
-              <!-- PAINT -->
-
               <div
-                class="float-2 absolute top-40 left-6 w-24 h-24 rounded-[2rem] bg-orange/90 grid place-items-center text-5xl shadow-2xl"
+                class="text-[9px]
+                       tracking-[.3em]
+                       font-black
+                       mt-1"
               >
-                🎨
-              </div>
-
-
-              <!-- BRICK -->
-
-              <div
-                class="float-3 absolute bottom-14 right-20 w-32 h-32 rounded-[2.5rem] bg-teal/80 border border-white/20 grid place-items-center text-6xl shadow-2xl"
-              >
-                🧱
-              </div>
-
-
-              <!-- ELECTRIC -->
-
-              <div
-                class="float-2 absolute bottom-24 left-24 w-24 h-24 rounded-[2rem] bg-white/10 border border-white/20 grid place-items-center text-5xl"
-              >
-                ⚡
-              </div>
-
-
-              <!-- CENTER LOGO -->
-
-              <div
-                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-              >
-
-                <div
-                  class="w-36 h-36 rounded-[2.5rem] bg-white text-ink shadow-[0_30px_80px_rgba(0,0,0,.35)] grid place-items-center mx-auto"
-                >
-
-                  <div>
-
-                    <div
-                      class="text-5xl font-black"
-                    >
-                      S
-                    </div>
-
-                    <div
-                      class="text-[9px] tracking-[.3em] font-bold mt-1"
-                    >
-                      SNA3TI
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                <div
-                  class="glass text-white px-5 py-3 rounded-full text-xs font-bold whitespace-nowrap mt-5"
-                  id="trustBadge"
-                >
-                  ✓ Professionnels de confiance
-                </div>
-
+                SNA3TI
               </div>
 
             </div>
 
           </div>
 
-        </section>
+
+          <!-- Trust -->
+
+          <div
+            id="trustBadge"
+            class="glass
+                   text-white
+                   px-5 py-3
+                   rounded-full
+                   text-xs
+                   font-bold
+                   whitespace-nowrap
+                   mt-5
+                   border border-white/15
+                   backdrop-blur-xl
+                   shadow-xl"
+          >
+            ✓ Professionnels de confiance
+          </div>
+
+        </div>
+
+
+        <!-- =================================
+             BOTTOM CTA
+        ================================== -->
+
+        <div
+          class="absolute
+                 bottom-5
+                 right-5
+                 glass
+                 rounded-2xl
+                 px-4 py-3
+                 text-white
+                 border border-white/15
+                 backdrop-blur-xl
+                 shadow-xl
+                 text-right"
+        >
+
+          <div
+            class="text-[10px]
+                   text-white/50"
+          >
+            SNA3TI
+          </div>
+
+          <div
+            class="text-sm
+                   font-black
+                   mt-1"
+          >
+            Trouvez. Comparez. Contactez.
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
       `;
 
