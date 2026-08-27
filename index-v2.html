@@ -2798,101 +2798,44 @@ searchForm.addEventListener("submit", function (event) {
         ".service-card"
       );
 
+```javascript
+const serviceCards =
+  document.querySelectorAll(".service-card");
 
-    serviceCards.forEach(card => {
+serviceCards.forEach(card => {
 
-      card.style.cssText += `
-        display:flex;
-        flex-direction:column;
-        align-items:flex-start;
-        gap:14px;
-        padding:20px;
-        border-radius:24px;
-        background:white;
-        border:1px solid #eee;
-        font-size:32px;
-        text-align:left;
-        transition:
-          transform .25s ease,
-          box-shadow .25s ease,
-          border-color .25s ease;
-      `;
+  const label = card.querySelector("span");
 
+  /* =====================================================
+     CLICK — KEEP EXISTING SEARCH BEHAVIOR
+  ====================================================== */
 
-      const label =
-        card.querySelector("span");
+  card.addEventListener("click", () => {
 
+    const service =
+      label?.textContent.trim() || "";
 
-      label.style.cssText = `
-        font-size:14px;
-        font-weight:700;
-        color:#071D1A;
-      `;
+    const serviceInput =
+      document.getElementById("serviceInput");
 
+    if (serviceInput) {
 
-      card.addEventListener(
-        "mouseenter",
-        () => {
+      serviceInput.value = service;
 
-          card.style.transform =
-            "translateY(-6px)";
+      serviceInput.focus();
 
-          card.style.boxShadow =
-            "0 20px 45px rgba(7,29,26,.10)";
+    }
 
-          card.style.borderColor =
-            "rgba(13,107,97,.25)";
-
-        }
-      );
-
-
-      card.addEventListener(
-        "mouseleave",
-        () => {
-
-          card.style.transform =
-            "";
-
-          card.style.boxShadow =
-            "";
-
-          card.style.borderColor =
-            "#eee";
-
-        }
-      );
-
-
-      card.addEventListener(
-        "click",
-        () => {
-
-          const service =
-            label.textContent.trim();
-
-          document
-            .getElementById(
-              "serviceInput"
-            )
-            .value = service;
-
-
-          document
-            .getElementById(
-              "serviceInput"
-            )
-            .focus();
-
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-          });
-
-        }
-      );
-
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
+
+  });
+
+});
+```
+
 
 
     /* =========================================================
