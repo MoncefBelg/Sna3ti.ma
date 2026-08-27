@@ -1872,139 +1872,476 @@
     </section>
 
 
-    <!-- =====================================================
-         QUICK SERVICES PREVIEW
-    ====================================================== -->
+   ```html
+<!-- =====================================================
+     PREMIUM SERVICES / CATEGORIES
+====================================================== -->
 
-    <section
-      id="services"
-      class="
-        bg-sna3ti-cream
-        py-16
-      "
+<section
+  id="services"
+  class="relative overflow-hidden bg-sna3ti-cream py-20 sm:py-24"
+>
+
+  <!-- Ambient decoration -->
+  <div
+    class="absolute -top-32 -right-32 w-96 h-96
+           rounded-full bg-sna3ti-teal/10 blur-3xl
+           pointer-events-none"
+  ></div>
+
+  <div
+    class="absolute -bottom-40 -left-32 w-96 h-96
+           rounded-full bg-orange/10 blur-3xl
+           pointer-events-none"
+  ></div>
+
+
+  <div
+    class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6"
+  >
+
+    <!-- HEADER -->
+    <div
+      class="flex flex-col md:flex-row
+             md:items-end md:justify-between
+             gap-6"
     >
 
-      <div
-        class="
-          max-w-7xl
-          mx-auto
-          px-4
-          sm:px-6
-        "
-      >
+      <div>
 
         <div
-          class="
-            flex
-            flex-col
-            md:flex-row
-            md:items-end
-            md:justify-between
-            gap-5
-          "
+          class="inline-flex items-center gap-2
+                 rounded-full
+                 bg-sna3ti-teal/10
+                 px-3 py-1.5
+                 text-xs font-black uppercase
+                 tracking-[.18em]
+                 text-sna3ti-teal"
         >
-
-          <div>
-
-            <span
-              class="
-                text-sna3ti-teal
-                text-xs
-                uppercase
-                tracking-[.2em]
-                font-black
-              "
-            >
-              Services
-            </span>
-
-            <h2
-              class="
-                mt-2
-                text-3xl
-                sm:text-4xl
-                font-black
-              "
-              data-i18n="services.title"
-            >
-              De quoi avez-vous besoin ?
-            </h2>
-
-            <p
-              class="
-                mt-3
-                text-gray-500
-                max-w-xl
-              "
-              data-i18n="services.subtitle"
-            >
-              Trouvez rapidement le bon professionnel pour votre projet.
-            </p>
-
-          </div>
-
-          <a
-            href="#professionals"
-            class="
-              text-sna3ti-teal
-              font-bold
-              text-sm
-            "
-          >
-            Voir tous les services →
-          </a>
-
+          <span>✦</span>
+          <span>Services</span>
         </div>
 
-
-        <!-- SERVICE CARDS -->
-
-        <div
-          class="
-            grid
-            grid-cols-2
-            sm:grid-cols-3
-            lg:grid-cols-6
-            gap-4
-            mt-9
-          "
+        <h2
+          class="mt-4 text-3xl sm:text-4xl lg:text-5xl
+                 font-black tracking-tight text-sna3ti-ink"
+          data-i18n="services.title"
         >
+          De quoi avez-vous besoin ?
+        </h2>
 
-          <button class="service-card">
-            🔧
-            <span>Plomberie</span>
-          </button>
-
-          <button class="service-card">
-            ⚡
-            <span>Électricité</span>
-          </button>
-
-          <button class="service-card">
-            🧱
-            <span>Gypsum</span>
-          </button>
-
-          <button class="service-card">
-            🎨
-            <span>Peinture</span>
-          </button>
-
-          <button class="service-card">
-            🪚
-            <span>Menuiserie</span>
-          </button>
-
-          <button class="service-card">
-            ❄️
-            <span>Climatisation</span>
-          </button>
-
-        </div>
+        <p
+          class="mt-4 max-w-xl text-gray-500
+                 text-base sm:text-lg leading-7"
+          data-i18n="services.subtitle"
+        >
+          Trouvez rapidement le bon professionnel pour votre projet.
+        </p>
 
       </div>
 
-    </section>
+
+      <a
+        href="#professionals"
+        class="group inline-flex items-center gap-2
+               text-sna3ti-teal
+               font-bold text-sm
+               whitespace-nowrap"
+      >
+        <span>
+          Voir tous les services
+        </span>
+
+        <span
+          class="transition-transform duration-300
+                 group-hover:translate-x-1"
+        >
+          →
+        </span>
+      </a>
+
+    </div>
+
+
+    <!-- SERVICE CARDS -->
+    <div
+      class="grid grid-cols-2
+             sm:grid-cols-3
+             lg:grid-cols-6
+             gap-4 sm:gap-5
+             mt-10"
+    >
+
+      <!-- PLUMBING -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('plomberie')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative
+                 w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🔧
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Plomberie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Eau & installation
+        </span>
+
+      </button>
+
+
+      <!-- ELECTRICITY -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('electricite')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:-rotate-3"
+        >
+          ⚡
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Électricité
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Installation & dépannage
+        </span>
+
+      </button>
+
+
+      <!-- GYPSUM -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('platrerie')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🧱
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Gypsum
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Faux plafond & déco
+        </span>
+
+      </button>
+
+
+      <!-- PAINT -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('peinture')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🎨
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Peinture
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Intérieur & extérieur
+        </span>
+
+      </button>
+
+
+      <!-- CARPENTRY -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('menuiserie')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🪚
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Menuiserie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Bois & aluminium
+        </span>
+
+      </button>
+
+
+      <!-- AC -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+        onclick="goSearch('climatisation')"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          ❄️
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Climatisation
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Installation & entretien
+        </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- MORE CATEGORIES -->
+    <div
+      class="mt-8 flex justify-center"
+    >
+
+      <a
+        href="#professionals"
+        class="group inline-flex items-center gap-2
+               rounded-full
+               border border-gray-200
+               bg-white/70
+               px-5 py-3
+               text-sm font-bold
+               text-gray-600
+               shadow-sm
+               hover:border-sna3ti-teal/20
+               hover:text-sna3ti-teal
+               transition"
+      >
+        <span>Découvrir toutes les catégories</span>
+
+        <span
+          class="transition-transform duration-300
+                 group-hover:translate-x-1"
+        >
+          →
+        </span>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  
 
   </main>
 
