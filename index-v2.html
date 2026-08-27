@@ -1,0 +1,2237 @@
+```html
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Sna3ti.ma — L9a l7erfi li kat9leb 3lih</title>
+  <meta
+    name="description"
+    content="Sna3ti.ma — Trouvez facilement un professionnel de confiance près de chez vous."
+  />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sna3ti: {
+              ink: "#071D1A",
+              teal: "#0D6B61",
+              teal2: "#168F80",
+              mint: "#C8F5ED",
+              orange: "#E9793F",
+              sand: "#F6F3ED",
+              cream: "#FCFBF8"
+            }
+          },
+
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            display: ["Space Grotesk", "Inter", "sans-serif"]
+          },
+
+          boxShadow: {
+            premium:
+              "0 30px 80px rgba(7,29,26,.14)",
+            soft:
+              "0 15px 50px rgba(7,29,26,.08)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+
+    /* =========================================================
+       GLOBAL
+    ========================================================= */
+
+    :root {
+      --ink: #071d1a;
+      --teal: #0d6b61;
+      --teal2: #168f80;
+      --mint: #c8f5ed;
+      --orange: #e9793f;
+      --sand: #f6f3ed;
+      --cream: #fcfbf8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .hero {
+      position: relative;
+      min-height: 780px;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 78% 18%,
+          rgba(22, 143, 128, 0.42),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 15% 90%,
+          rgba(233, 121, 63, 0.20),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #061512 0%,
+          #082620 48%,
+          #0d554c 100%
+        );
+    }
+
+    /* =========================================================
+       GRID
+    ========================================================= */
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+
+      background-image:
+        linear-gradient(
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        );
+
+      background-size: 46px 46px;
+
+      mask-image:
+        linear-gradient(
+          to bottom,
+          black,
+          transparent 85%
+        );
+    }
+
+    /* =========================================================
+       ORBS
+    ========================================================= */
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(2px);
+    }
+
+    .orb-1 {
+      width: 420px;
+      height: 420px;
+
+      right: -160px;
+      top: 80px;
+
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          rgba(200,245,237,.28),
+          rgba(13,107,97,.08) 50%,
+          transparent 70%
+        );
+
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 280px;
+      height: 280px;
+
+      left: -130px;
+      bottom: 80px;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(233,121,63,.22),
+          transparent 70%
+        );
+
+      animation: orbFloat 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat {
+
+      0%,
+      100% {
+        transform: translate3d(0,0,0);
+      }
+
+      50% {
+        transform: translate3d(0,-20px,0);
+      }
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .glass-header {
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    /* =========================================================
+       LOGO
+    ========================================================= */
+
+    .logo-box {
+      width: 42px;
+      height: 42px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 15px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #0d6b61,
+          #071d1a
+        );
+
+      color: white;
+
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800;
+
+      box-shadow:
+        0 10px 25px rgba(7,29,26,.20),
+        inset 0 1px rgba(255,255,255,.25);
+    }
+
+    /* =========================================================
+       SEARCH BOX
+    ========================================================= */
+
+    .hero-search {
+      background: white;
+
+      border-radius: 28px;
+
+      padding: 8px;
+
+      box-shadow:
+        0 30px 70px rgba(0,0,0,.22);
+
+      transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+    }
+
+    .hero-search:focus-within {
+      transform: translateY(-3px);
+
+      box-shadow:
+        0 35px 90px rgba(0,0,0,.28);
+    }
+
+    .search-field {
+      min-height: 62px;
+    }
+
+    /* =========================================================
+       BUTTON
+    ========================================================= */
+
+    .btn-orange {
+      background: linear-gradient(
+        135deg,
+        #f28a50,
+        #e9793f
+      );
+
+      box-shadow:
+        0 12px 28px rgba(233,121,63,.28);
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .btn-orange:hover {
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 18px 35px rgba(233,121,63,.36);
+    }
+
+    /* =========================================================
+       3D PROFESSIONAL CARD
+    ========================================================= */
+
+    .hero-card {
+      position: absolute;
+
+      width: 340px;
+
+      border-radius: 32px;
+
+      padding: 28px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.18),
+          rgba(255,255,255,.055)
+        );
+
+      border: 1px solid rgba(255,255,255,.18);
+
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+
+      box-shadow:
+        0 40px 100px rgba(0,0,0,.30);
+
+      transform-style: preserve-3d;
+    }
+
+    .hero-card-main {
+      top: 80px;
+      left: 50%;
+
+      transform:
+        translateX(-50%)
+        rotateY(-8deg)
+        rotateX(4deg);
+    }
+
+    .profile-photo {
+      width: 92px;
+      height: 92px;
+
+      border-radius: 28px;
+
+      object-fit: cover;
+
+      border: 5px solid rgba(255,255,255,.92);
+
+      box-shadow:
+        0 15px 35px rgba(0,0,0,.25);
+    }
+
+    /* =========================================================
+       FLOATING BADGES
+    ========================================================= */
+
+    .floating-badge {
+      position: absolute;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 14px 17px;
+
+      border-radius: 18px;
+
+      background: rgba(255,255,255,.93);
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.20);
+
+      color: var(--ink);
+
+      font-size: 13px;
+      font-weight: 700;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .badge-rating {
+      top: 45px;
+      right: -45px;
+
+      animation:
+        floating 6s ease-in-out infinite;
+    }
+
+    .badge-verified {
+      left: -55px;
+      bottom: 145px;
+
+      animation:
+        floating 7s ease-in-out -2s infinite;
+    }
+
+    .badge-whatsapp {
+      right: -20px;
+      bottom: 40px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0d6b61,
+          #168f80
+        );
+
+      animation:
+        floating 8s ease-in-out -4s infinite;
+    }
+
+    @keyframes floating {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-14px);
+      }
+    }
+
+    /* =========================================================
+       3D TOOL ORBS
+    ========================================================= */
+
+    .tool-orb {
+      position: absolute;
+
+      width: 62px;
+      height: 62px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 20px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.18),
+          rgba(255,255,255,.05)
+        );
+
+      border: 1px solid rgba(255,255,255,.15);
+
+      box-shadow:
+        0 20px 40px rgba(0,0,0,.18);
+
+      font-size: 27px;
+
+      backdrop-filter: blur(14px);
+    }
+
+    .tool-1 {
+      left: 35px;
+      top: 40px;
+
+      animation: floating 7s infinite;
+    }
+
+    .tool-2 {
+      right: 50px;
+      top: 160px;
+
+      animation: floating 8s infinite reverse;
+    }
+
+    .tool-3 {
+      left: 30px;
+      bottom: 55px;
+
+      animation: floating 9s infinite;
+    }
+
+    /* =========================================================
+       TRUST PILLS
+    ========================================================= */
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 10px 15px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,.08);
+
+      border: 1px solid rgba(255,255,255,.12);
+
+      color: rgba(255,255,255,.84);
+
+      font-size: 13px;
+      font-weight: 600;
+
+      backdrop-filter: blur(10px);
+    }
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 1024px) {
+
+      .hero {
+        min-height: auto;
+        padding-bottom: 90px;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .hero {
+        padding-top: 120px;
+      }
+
+      .hero-search {
+        border-radius: 22px;
+      }
+
+      .search-field {
+        border-bottom: 1px solid #eee;
+      }
+
+      .search-button {
+        width: 100%;
+      }
+    }
+
+    /* =========================================================
+       RTL
+    ========================================================= */
+
+    [dir="rtl"] .hero-card-main {
+      transform:
+        translateX(50%)
+        rotateY(8deg)
+        rotateX(4deg);
+    }
+
+    [dir="rtl"] .hero-grid {
+      transform: scaleX(-1);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <header
+    class="
+      glass-header
+      fixed
+      top-0
+      left-0
+      right-0
+      z-50
+    "
+  >
+
+    <div
+      class="
+        max-w-7xl
+        mx-auto
+        px-4
+        sm:px-6
+        h-[72px]
+        flex
+        items-center
+        justify-between
+      "
+    >
+
+      <!-- LOGO -->
+
+      <a
+        href="#"
+        class="flex items-center gap-3"
+      >
+
+        <span class="logo-box">
+          S
+        </span>
+
+        <span
+          class="
+            text-xl
+            font-black
+            tracking-tight
+          "
+        >
+          Sna3ti<span class="text-sna3ti-orange text-orange">.</span>ma
+        </span>
+
+      </a>
+
+
+      <!-- DESKTOP NAV -->
+
+      <nav
+        class="
+          hidden
+          lg:flex
+          items-center
+          gap-8
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+
+        <a
+          href="#"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.home"
+        >
+          Accueil
+        </a>
+
+        <a
+          href="#services"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.services"
+        >
+          Services
+        </a>
+
+        <a
+          href="#professionals"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.professionals"
+        >
+          Professionnels
+        </a>
+
+        <a
+          href="#how"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.how"
+        >
+          Comment ça marche
+        </a>
+
+        <a
+          href="#pricing"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.pricing"
+        >
+          Tarifs
+        </a>
+
+      </nav>
+
+
+      <!-- RIGHT -->
+
+      <div
+        class="
+          hidden
+          md:flex
+          items-center
+          gap-4
+        "
+      >
+
+        <!-- LANGUAGE -->
+
+        <select
+          id="languageSelect"
+          class="
+            bg-transparent
+            text-sm
+            font-bold
+            outline-none
+            cursor-pointer
+          "
+        >
+
+          <option value="fr">
+            FR
+          </option>
+
+          <option value="ar">
+            العربية
+          </option>
+
+          <option value="en">
+            EN
+          </option>
+
+        </select>
+
+
+        <!-- PROFESSIONAL CTA -->
+
+        <a
+          href="#register"
+          class="
+            rounded-full
+            bg-sna3ti-ink
+            text-white
+            px-5
+            py-3
+            text-sm
+            font-bold
+            hover:bg-sna3ti-teal
+            transition
+          "
+          data-i18n="nav.register"
+        >
+          Inscrire mon activité
+        </a>
+
+      </div>
+
+
+      <!-- MOBILE BUTTON -->
+
+      <button
+        id="mobileMenuButton"
+        class="
+          md:hidden
+          w-11
+          h-11
+          rounded-xl
+          border
+          border-gray-200
+          bg-white
+          text-lg
+        "
+      >
+        ☰
+      </button>
+
+    </div>
+
+
+    <!-- MOBILE MENU -->
+
+    <div
+      id="mobileMenu"
+      class="
+        hidden
+        md:hidden
+        bg-white
+        border-t
+        border-gray-100
+        px-5
+        py-5
+      "
+    >
+
+      <div class="grid gap-4 text-sm font-semibold">
+
+        <a href="#">
+          Accueil
+        </a>
+
+        <a href="#services">
+          Services
+        </a>
+
+        <a href="#professionals">
+          Professionnels
+        </a>
+
+        <a href="#how">
+          Comment ça marche
+        </a>
+
+        <a href="#pricing">
+          Tarifs
+        </a>
+
+        <a
+          href="#register"
+          class="text-sna3ti-teal"
+        >
+          Inscrire mon activité
+        </a>
+
+        <select
+          id="mobileLanguage"
+          class="
+            border
+            border-gray-200
+            rounded-xl
+            p-3
+          "
+        >
+
+          <option value="fr">
+            Français
+          </option>
+
+          <option value="ar">
+            العربية
+          </option>
+
+          <option value="en">
+            English
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       HERO
+  ======================================================== -->
+
+  <main>
+
+    <section class="hero">
+
+      <!-- BACKGROUND GRID -->
+
+      <div class="hero-grid"></div>
+
+      <!-- BACKGROUND ORBS -->
+
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+
+
+      <!-- HERO CONTENT -->
+
+      <div
+        class="
+          relative
+          z-10
+          max-w-7xl
+          mx-auto
+          px-4
+          sm:px-6
+          pt-16
+          lg:pt-24
+          grid
+          lg:grid-cols-2
+          gap-14
+          items-center
+        "
+      >
+
+        <!-- =================================================
+             LEFT
+        ================================================== -->
+
+        <div class="text-white">
+
+          <!-- EYEBROW -->
+
+          <div
+            class="
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              px-4
+              py-2
+              darkglass
+              text-sm
+              font-semibold
+              mb-7
+            "
+            style="
+              background:rgba(255,255,255,.08);
+              border:1px solid rgba(255,255,255,.12);
+            "
+          >
+
+            <span>
+              🇲🇦
+            </span>
+
+            <span data-i18n="hero.eyebrow">
+              Pensé pour le Maroc
+            </span>
+
+          </div>
+
+
+          <!-- TITLE -->
+
+          <h1
+            class="
+              font-display
+              text-5xl
+              sm:text-6xl
+              lg:text-7xl
+              font-black
+              leading-[.95]
+              tracking-tight
+              max-w-3xl
+            "
+            data-i18n="hero.title"
+          >
+            L9a l7erfi li kat9leb 3lih.
+          </h1>
+
+
+          <!-- SUBTITLE -->
+
+          <p
+            class="
+              mt-7
+              text-lg
+              leading-8
+              text-white/65
+              max-w-xl
+            "
+            data-i18n="hero.subtitle"
+          >
+            Trouvez un professionnel de confiance près de chez vous,
+            comparez les profils et contactez-le directement.
+          </p>
+
+
+          <!-- =================================================
+               SEARCH
+          ================================================== -->
+
+          <form
+            id="searchForm"
+            class="
+              hero-search
+              mt-9
+              grid
+              md:grid-cols-[1.2fr_1fr_auto]
+              gap-2
+            "
+          >
+
+            <!-- SERVICE -->
+
+            <div
+              class="
+                search-field
+                flex
+                items-center
+                gap-3
+                px-4
+              "
+            >
+
+              <span class="text-2xl">
+                🔧
+              </span>
+
+              <div class="flex-1">
+
+                <label
+                  class="
+                    block
+                    text-[11px]
+                    uppercase
+                    tracking-wider
+                    font-bold
+                    text-gray-400
+                  "
+                >
+                  Service
+                </label>
+
+                <input
+                  id="serviceInput"
+                  type="text"
+                  class="
+                    w-full
+                    mt-1
+                    outline-none
+                    text-sm
+                    font-semibold
+                    text-sna3ti-ink
+                  "
+                  placeholder="Plomberie, peinture..."
+                  data-i18n-placeholder="hero.servicePlaceholder"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- LOCATION -->
+
+            <div
+              class="
+                search-field
+                flex
+                items-center
+                gap-3
+                px-4
+                border-t
+                md:border-t-0
+                md:border-l
+                border-gray-100
+              "
+            >
+
+              <span class="text-2xl">
+                📍
+              </span>
+
+              <div class="flex-1">
+
+                <label
+                  class="
+                    block
+                    text-[11px]
+                    uppercase
+                    tracking-wider
+                    font-bold
+                    text-gray-400
+                  "
+                >
+                  Localisation
+                </label>
+
+                <input
+                  id="cityInput"
+                  type="text"
+                  class="
+                    w-full
+                    mt-1
+                    outline-none
+                    text-sm
+                    font-semibold
+                    text-sna3ti-ink
+                  "
+                  placeholder="Casablanca, Maarif..."
+                  data-i18n-placeholder="hero.cityPlaceholder"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <button
+              type="submit"
+              class="
+                search-button
+                btn-orange
+                rounded-2xl
+                text-white
+                px-7
+                py-4
+                font-bold
+                text-sm
+              "
+              data-i18n="hero.search"
+            >
+              Rechercher →
+            </button>
+
+          </form>
+
+
+          <!-- =================================================
+               TRUST
+          ================================================== -->
+
+          <div
+            class="
+              mt-7
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+
+            <span class="trust-pill">
+              🛡️
+              <span data-i18n="hero.verified">
+                Professionnels vérifiés
+              </span>
+            </span>
+
+            <span class="trust-pill">
+              ⚡
+              <span data-i18n="hero.fast">
+                Réponse rapide
+              </span>
+            </span>
+
+            <span class="trust-pill">
+              🟢
+              <span data-i18n="hero.available">
+                Disponible aujourd'hui
+              </span>
+            </span>
+
+          </div>
+
+
+          <!-- STATS -->
+
+          <div
+            class="
+              mt-10
+              flex
+              flex-wrap
+              gap-8
+              text-white
+            "
+          >
+
+            <div>
+              <div class="text-2xl font-black">
+                1,200+
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Professionnels
+              </div>
+            </div>
+
+            <div>
+              <div class="text-2xl font-black">
+                4.8/5
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Note moyenne
+              </div>
+            </div>
+
+            <div>
+              <div class="text-2xl font-black">
+                15+
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Catégories
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT — 3D VISUAL
+        ================================================== -->
+
+        <div
+          class="
+            hero-visual
+            relative
+            h-[540px]
+            hidden
+            lg:block
+          "
+        >
+
+          <!-- BACK CARD -->
+
+          <div
+            class="
+              absolute
+              inset-10
+              rounded-[3rem]
+              bg-white/5
+              border
+              border-white/10
+              rotate-[-5deg]
+            "
+          ></div>
+
+
+          <!-- MAIN CARD -->
+
+          <div
+            id="heroCard"
+            class="hero-card hero-card-main"
+          >
+
+            <!-- CARD TOP -->
+
+            <div
+              class="
+                flex
+                items-center
+                justify-between
+              "
+            >
+
+              <div
+                class="
+                  text-xs
+                  uppercase
+                  tracking-[.2em]
+                  text-white/45
+                  font-bold
+                "
+              >
+                Sna3ti.ma
+              </div>
+
+              <div
+                class="
+                  bg-white/10
+                  border
+                  border-white/10
+                  text-white
+                  rounded-full
+                  px-3
+                  py-1.5
+                  text-xs
+                  font-bold
+                "
+              >
+                ✓ Vérifié
+              </div>
+
+            </div>
+
+
+            <!-- PROFILE -->
+
+            <div class="mt-12 text-center">
+
+              <img
+                class="profile-photo mx-auto"
+                src="https://i.pravatar.cc/300?img=12"
+                alt="Professionnel Sna3ti"
+              />
+
+              <h3
+                class="
+                  mt-5
+                  text-2xl
+                  font-bold
+                  text-white
+                "
+              >
+                Yassine El Amrani
+              </h3>
+
+              <p
+                class="
+                  mt-1
+                  text-sm
+                  text-white/50
+                "
+              >
+                Plombier professionnel
+              </p>
+
+
+              <!-- RATING -->
+
+              <div
+                class="
+                  mt-4
+                  text-orange
+                  text-lg
+                "
+              >
+                ★★★★★
+
+                <span
+                  class="
+                    text-white/60
+                    text-sm
+                    ml-1
+                  "
+                >
+                  4.9 · 127 avis
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- INFO -->
+
+            <div
+              class="
+                grid
+                grid-cols-2
+                gap-3
+                mt-8
+              "
+            >
+
+              <div
+                class="
+                  rounded-2xl
+                  p-4
+                  bg-white/7
+                  border
+                  border-white/10
+                "
+              >
+
+                <div class="text-white text-sm">
+                  📍 Maarif
+                </div>
+
+                <div
+                  class="
+                    text-white/40
+                    text-xs
+                    mt-1
+                  "
+                >
+                  2.4 km
+                </div>
+
+              </div>
+
+
+              <div
+                class="
+                  rounded-2xl
+                  p-4
+                  bg-white/7
+                  border
+                  border-white/10
+                "
+              >
+
+                <div class="text-white text-sm">
+                  🟢 Disponible
+                </div>
+
+                <div
+                  class="
+                    text-white/40
+                    text-xs
+                    mt-1
+                  "
+                >
+                  Aujourd'hui
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div
+              class="
+                mt-5
+                flex
+                items-center
+                justify-between
+              "
+            >
+
+              <span
+                class="
+                  text-white/40
+                  text-sm
+                "
+              >
+                À partir de
+              </span>
+
+              <strong
+                class="
+                  text-white
+                  text-lg
+                "
+              >
+                250 DH
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               FLOATING BADGES
+          ================================================== -->
+
+          <div class="floating-badge badge-rating">
+
+            <span
+              class="
+                w-9
+                h-9
+                rounded-xl
+                bg-orange/10
+                grid
+                place-items-center
+                text-orange
+              "
+            >
+              ★
+            </span>
+
+            <div>
+
+              <div>
+                4.9 / 5
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-gray-400
+                  mt-0.5
+                "
+              >
+                Excellent
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="floating-badge badge-verified">
+
+            <span
+              class="
+                w-9
+                h-9
+                rounded-xl
+                bg-teal-50
+                grid
+                place-items-center
+                text-sna3ti-teal
+              "
+            >
+              🛡️
+            </span>
+
+            <div>
+
+              <div>
+                Profil vérifié
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-gray-400
+                  mt-0.5
+                "
+              >
+                Identité confirmée
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="floating-badge badge-whatsapp">
+
+            <span class="text-xl">
+              💬
+            </span>
+
+            <div>
+
+              <div>
+                WhatsApp
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-white/65
+                  mt-0.5
+                "
+              >
+                Réponse rapide
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               TOOL ORBS
+          ================================================== -->
+
+          <div class="tool-orb tool-1">
+            🔧
+          </div>
+
+          <div class="tool-orb tool-2">
+            ⚡
+          </div>
+
+          <div class="tool-orb tool-3">
+            🧱
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOTTOM CURVE -->
+
+      <div
+        class="
+          absolute
+          bottom-[-1px]
+          left-0
+          right-0
+          h-20
+          bg-sna3ti-cream
+        "
+        style="
+          clip-path: ellipse(70% 100% at 50% 100%);
+        "
+      ></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUICK SERVICES PREVIEW
+    ====================================================== -->
+
+    <section
+      id="services"
+      class="
+        bg-sna3ti-cream
+        py-16
+      "
+    >
+
+      <div
+        class="
+          max-w-7xl
+          mx-auto
+          px-4
+          sm:px-6
+        "
+      >
+
+        <div
+          class="
+            flex
+            flex-col
+            md:flex-row
+            md:items-end
+            md:justify-between
+            gap-5
+          "
+        >
+
+          <div>
+
+            <span
+              class="
+                text-sna3ti-teal
+                text-xs
+                uppercase
+                tracking-[.2em]
+                font-black
+              "
+            >
+              Services
+            </span>
+
+            <h2
+              class="
+                mt-2
+                text-3xl
+                sm:text-4xl
+                font-black
+              "
+              data-i18n="services.title"
+            >
+              De quoi avez-vous besoin ?
+            </h2>
+
+            <p
+              class="
+                mt-3
+                text-gray-500
+                max-w-xl
+              "
+              data-i18n="services.subtitle"
+            >
+              Trouvez rapidement le bon professionnel pour votre projet.
+            </p>
+
+          </div>
+
+          <a
+            href="#professionals"
+            class="
+              text-sna3ti-teal
+              font-bold
+              text-sm
+            "
+          >
+            Voir tous les services →
+          </a>
+
+        </div>
+
+
+        <!-- SERVICE CARDS -->
+
+        <div
+          class="
+            grid
+            grid-cols-2
+            sm:grid-cols-3
+            lg:grid-cols-6
+            gap-4
+            mt-9
+          "
+        >
+
+          <button class="service-card">
+            🔧
+            <span>Plomberie</span>
+          </button>
+
+          <button class="service-card">
+            ⚡
+            <span>Électricité</span>
+          </button>
+
+          <button class="service-card">
+            🧱
+            <span>Gypsum</span>
+          </button>
+
+          <button class="service-card">
+            🎨
+            <span>Peinture</span>
+          </button>
+
+          <button class="service-card">
+            🪚
+            <span>Menuiserie</span>
+          </button>
+
+          <button class="service-card">
+            ❄️
+            <span>Climatisation</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =======================================================
+       JAVASCRIPT
+  ======================================================== -->
+
+  <script>
+
+    /* =========================================================
+       TRANSLATIONS
+    ========================================================= */
+
+    const translations = {
+
+      fr: {
+
+        nav: {
+          home: "Accueil",
+          services: "Services",
+          professionals: "Professionnels",
+          how: "Comment ça marche",
+          pricing: "Tarifs",
+          register: "Inscrire mon activité"
+        },
+
+        hero: {
+          eyebrow: "Pensé pour le Maroc",
+          title: "L9a l7erfi li kat9leb 3lih.",
+          subtitle:
+            "Trouvez un professionnel de confiance près de chez vous, comparez les profils et contactez-le directement.",
+          servicePlaceholder:
+            "Plomberie, peinture...",
+          cityPlaceholder:
+            "Casablanca, Maarif...",
+          search:
+            "Rechercher",
+          verified:
+            "Professionnels vérifiés",
+          fast:
+            "Réponse rapide",
+          available:
+            "Disponible aujourd'hui"
+        },
+
+        services: {
+          title:
+            "De quoi avez-vous besoin ?",
+          subtitle:
+            "Trouvez rapidement le bon professionnel pour votre projet."
+        }
+
+      },
+
+
+      ar: {
+
+        nav: {
+          home: "الرئيسية",
+          services: "الخدمات",
+          professionals: "الحرفيين",
+          how: "كيفاش خدام",
+          pricing: "الأثمنة",
+          register: "سجّل النشاط ديالك"
+        },
+
+        hero: {
+          eyebrow: "معمولة للمغرب",
+          title: "لقا الحرفي اللي كتقلب عليه.",
+          subtitle:
+            "لقا مهني موثوق قريب ليك، قارن بين البروفايلات وتاصل معاه مباشرة.",
+          servicePlaceholder:
+            "سباكة، صباغة...",
+          cityPlaceholder:
+            "الدار البيضاء، المعاريف...",
+          search:
+            "بحث",
+          verified:
+            "حرفيين موثوقين",
+          fast:
+            "جواب سريع",
+          available:
+            "متوفر اليوم"
+        },
+
+        services: {
+          title:
+            "شنو الخدمة اللي كتحتاج؟",
+          subtitle:
+            "لقا الحرفي المناسب للمشروع ديالك بسهولة."
+        }
+
+      },
+
+
+      en: {
+
+        nav: {
+          home: "Home",
+          services: "Services",
+          professionals: "Professionals",
+          how: "How it works",
+          pricing: "Pricing",
+          register: "List my business"
+        },
+
+        hero: {
+          eyebrow: "Made for Morocco",
+          title: "Find the professional you need.",
+          subtitle:
+            "Discover trusted professionals near you, compare profiles and contact them directly.",
+          servicePlaceholder:
+            "Plumbing, painting...",
+          cityPlaceholder:
+            "Casablanca, Maarif...",
+          search:
+            "Search",
+          verified:
+            "Verified professionals",
+          fast:
+            "Fast response",
+          available:
+            "Available today"
+        },
+
+        services: {
+          title:
+            "What do you need?",
+          subtitle:
+            "Quickly find the right professional for your project."
+        }
+
+      }
+
+    };
+
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================= */
+
+    function setLanguage(language) {
+
+      const data = translations[language];
+
+      if (!data) return;
+
+
+      document.documentElement.lang = language;
+
+      document.documentElement.dir =
+        language === "ar"
+          ? "rtl"
+          : "ltr";
+
+
+      document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+          const key =
+            element.dataset.i18n.split(".");
+
+          let value = data;
+
+          key.forEach(part => {
+            value = value?.[part];
+          });
+
+          if (value) {
+            element.textContent = value;
+          }
+
+        });
+
+
+      document
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach(element => {
+
+          const key =
+            element.dataset.i18nPlaceholder.split(".");
+
+          let value = data;
+
+          key.forEach(part => {
+            value = value?.[part];
+          });
+
+          if (value) {
+            element.placeholder = value;
+          }
+
+        });
+
+
+      localStorage.setItem(
+        "sna3ti-language",
+        language
+      );
+
+    }
+
+
+    /* =========================================================
+       LANGUAGE SELECTORS
+    ========================================================= */
+
+    const languageSelect =
+      document.getElementById(
+        "languageSelect"
+      );
+
+    const mobileLanguage =
+      document.getElementById(
+        "mobileLanguage"
+      );
+
+
+    function syncLanguage(language) {
+
+      languageSelect.value = language;
+
+      mobileLanguage.value = language;
+
+      setLanguage(language);
+
+    }
+
+
+    languageSelect.addEventListener(
+      "change",
+      event => {
+
+        syncLanguage(
+          event.target.value
+        );
+
+      }
+    );
+
+
+    mobileLanguage.addEventListener(
+      "change",
+      event => {
+
+        syncLanguage(
+          event.target.value
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    const mobileButton =
+      document.getElementById(
+        "mobileMenuButton"
+      );
+
+    const mobileMenu =
+      document.getElementById(
+        "mobileMenu"
+      );
+
+
+    mobileButton.addEventListener(
+      "click",
+      () => {
+
+        mobileMenu.classList.toggle(
+          "hidden"
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       SEARCH
+    ========================================================= */
+
+    const searchForm =
+      document.getElementById(
+        "searchForm"
+      );
+
+
+    searchForm.addEventListener(
+      "submit",
+      event => {
+
+        event.preventDefault();
+
+
+        const service =
+          document
+            .getElementById(
+              "serviceInput"
+            )
+            .value
+            .trim();
+
+
+        const city =
+          document
+            .getElementById(
+              "cityInput"
+            )
+            .value
+            .trim();
+
+
+        console.log({
+          service,
+          city
+        });
+
+
+        /*
+          PART 2:
+
+          Here we will connect the search
+          to the real Sna3ti results page.
+
+          Example:
+
+          window.location.hash =
+            "#/services?service=" +
+            encodeURIComponent(service) +
+            "&city=" +
+            encodeURIComponent(city);
+        */
+
+
+        alert(
+          languageSelect.value === "ar"
+            ? "البحث ديالك تسجل بنجاح."
+            : languageSelect.value === "en"
+              ? "Your search is ready."
+              : "Votre recherche est prête."
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       3D CARD TILT
+    ========================================================= */
+
+    const heroCard =
+      document.getElementById(
+        "heroCard"
+      );
+
+
+    const heroVisual =
+      document.querySelector(
+        ".hero-visual"
+      );
+
+
+    if (heroCard && heroVisual) {
+
+      heroVisual.addEventListener(
+        "mousemove",
+        event => {
+
+          const rect =
+            heroVisual.getBoundingClientRect();
+
+
+          const x =
+            (event.clientX - rect.left)
+            / rect.width
+            - 0.5;
+
+
+          const y =
+            (event.clientY - rect.top)
+            / rect.height
+            - 0.5;
+
+
+          heroCard.style.transform =
+            `
+              translateX(-50%)
+              rotateY(${x * 12}deg)
+              rotateX(${-y * 8}deg)
+            `;
+
+        }
+      );
+
+
+      heroVisual.addEventListener(
+        "mouseleave",
+        () => {
+
+          heroCard.style.transform =
+            `
+              translateX(-50%)
+              rotateY(-8deg)
+              rotateX(4deg)
+            `;
+
+        }
+      );
+
+    }
+
+
+    /* =========================================================
+       SERVICE CARDS
+    ========================================================= */
+
+    const serviceCards =
+      document.querySelectorAll(
+        ".service-card"
+      );
+
+
+    serviceCards.forEach(card => {
+
+      card.style.cssText += `
+        display:flex;
+        flex-direction:column;
+        align-items:flex-start;
+        gap:14px;
+        padding:20px;
+        border-radius:24px;
+        background:white;
+        border:1px solid #eee;
+        font-size:32px;
+        text-align:left;
+        transition:
+          transform .25s ease,
+          box-shadow .25s ease,
+          border-color .25s ease;
+      `;
+
+
+      const label =
+        card.querySelector("span");
+
+
+      label.style.cssText = `
+        font-size:14px;
+        font-weight:700;
+        color:#071D1A;
+      `;
+
+
+      card.addEventListener(
+        "mouseenter",
+        () => {
+
+          card.style.transform =
+            "translateY(-6px)";
+
+          card.style.boxShadow =
+            "0 20px 45px rgba(7,29,26,.10)";
+
+          card.style.borderColor =
+            "rgba(13,107,97,.25)";
+
+        }
+      );
+
+
+      card.addEventListener(
+        "mouseleave",
+        () => {
+
+          card.style.transform =
+            "";
+
+          card.style.boxShadow =
+            "";
+
+          card.style.borderColor =
+            "#eee";
+
+        }
+      );
+
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          const service =
+            label.textContent.trim();
+
+          document
+            .getElementById(
+              "serviceInput"
+            )
+            .value = service;
+
+
+          document
+            .getElementById(
+              "serviceInput"
+            )
+            .focus();
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+
+        }
+      );
+
+    });
+
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+
+    const savedLanguage =
+      localStorage.getItem(
+        "sna3ti-language"
+      ) || "fr";
+
+
+    syncLanguage(
+      savedLanguage
+    );
+
+  </script>
+
+</body>
+</html>
+```
