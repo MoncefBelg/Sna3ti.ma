@@ -3043,36 +3043,21 @@
    SNA3TI V2 — REAL SEARCH
 ========================================================= */
 
-searchForm.addEventListener("submit", function (event) {
-
+ searchForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
-  const service = document
-    .getElementById("serviceInput")
-    .value
-    .trim();
-
-  const city = document
-    .getElementById("cityInput")
-    .value
-    .trim();
+  const service = serviceInput.value.trim();
+  const city = cityInput.value.trim();
 
   const params = new URLSearchParams();
 
-  if (service) {
-    params.set("service", service);
-  }
+  if (service) params.set("service", service);
+  if (city) params.set("city", city);
 
-  if (city) {
-    params.set("city", city);
-  }
+  window.location.hash = "/search?" + params.toString();
 
-  const searchHash =
-  "#/search?" + params.toString();
-
-window.location.hash = searchHash;
-  
-});
+  handleSna3tiRoute();
+   });
 
      
 
@@ -3154,8 +3139,6 @@ window.location.hash = searchHash;
         ".service-card"
       );
 
-const serviceCards =
-  document.querySelectorAll(".service-card");
 
 serviceCards.forEach(card => {
 
