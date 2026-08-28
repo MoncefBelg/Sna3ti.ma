@@ -1,0 +1,4747 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Sna3ti.ma — L9a lm3allem li 9rib lik</title>
+  <meta
+    name="description"
+    content="Sna3ti.ma — Trouvez facilement un professionnel de confiance près de chez vous."
+  />
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sna3ti: {
+              ink: "#071D1A",
+              teal: "#0D6B61",
+              teal2: "#168F80",
+              mint: "#C8F5ED",
+              orange: "#E9793F",
+              sand: "#F6F3ED",
+              cream: "#FCFBF8"
+            }
+          },
+
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            display: ["Space Grotesk", "Inter", "sans-serif"]
+          },
+
+          boxShadow: {
+            premium:
+              "0 30px 80px rgba(7,29,26,.14)",
+            soft:
+              "0 15px 50px rgba(7,29,26,.08)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+
+    /* =========================================================
+       GLOBAL
+    ========================================================= */
+
+    :root {
+      --ink: #071d1a;
+      --teal: #0d6b61;
+      --teal2: #168f80;
+      --mint: #c8f5ed;
+      --orange: #e9793f;
+      --sand: #f6f3ed;
+      --cream: #fcfbf8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+
+    .hero {
+      position: relative;
+      min-height: 780px;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 78% 18%,
+          rgba(22, 143, 128, 0.42),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 15% 90%,
+          rgba(233, 121, 63, 0.20),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #061512 0%,
+          #082620 48%,
+          #0d554c 100%
+        );
+    }
+
+    /* =========================================================
+       GRID
+    ========================================================= */
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+
+      background-image:
+        linear-gradient(
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,.045) 1px,
+          transparent 1px
+        );
+
+      background-size: 46px 46px;
+
+      mask-image:
+        linear-gradient(
+          to bottom,
+          black,
+          transparent 85%
+        );
+    }
+
+    /* =========================================================
+       ORBS
+    ========================================================= */
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(2px);
+    }
+
+    .orb-1 {
+      width: 420px;
+      height: 420px;
+
+      right: -160px;
+      top: 80px;
+
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          rgba(200,245,237,.28),
+          rgba(13,107,97,.08) 50%,
+          transparent 70%
+        );
+
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 280px;
+      height: 280px;
+
+      left: -130px;
+      bottom: 80px;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(233,121,63,.22),
+          transparent 70%
+        );
+
+      animation: orbFloat 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat {
+
+      0%,
+      100% {
+        transform: translate3d(0,0,0);
+      }
+
+      50% {
+        transform: translate3d(0,-20px,0);
+      }
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .glass-header {
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    /* =========================================================
+       LOGO
+    ========================================================= */
+
+    .logo-box {
+      width: 42px;
+      height: 42px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 15px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #0d6b61,
+          #071d1a
+        );
+
+      color: white;
+
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800;
+
+      box-shadow:
+        0 10px 25px rgba(7,29,26,.20),
+        inset 0 1px rgba(255,255,255,.25);
+    }
+
+    /* =========================================================
+       SEARCH BOX
+    ========================================================= */
+
+    .hero-search {
+      background: white;
+
+      border-radius: 28px;
+
+      padding: 8px;
+
+      box-shadow:
+        0 30px 70px rgba(0,0,0,.22);
+
+      transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+    }
+
+    .hero-search:focus-within {
+      transform: translateY(-3px);
+
+      box-shadow:
+        0 35px 90px rgba(0,0,0,.28);
+    }
+
+    .search-field {
+      min-height: 62px;
+    }
+
+    /* =========================================================
+       BUTTON
+    ========================================================= */
+
+    .btn-orange {
+      background: linear-gradient(
+        135deg,
+        #f28a50,
+        #e9793f
+      );
+
+      box-shadow:
+        0 12px 28px rgba(233,121,63,.28);
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .btn-orange:hover {
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 18px 35px rgba(233,121,63,.36);
+    }
+
+    /* =========================================================
+       3D PROFESSIONAL CARD
+    ========================================================= */
+
+    .hero-card {
+      position: absolute;
+
+      width: 340px;
+
+      border-radius: 32px;
+
+      padding: 28px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.18),
+          rgba(255,255,255,.055)
+        );
+
+      border: 1px solid rgba(255,255,255,.18);
+
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+
+      box-shadow:
+        0 40px 100px rgba(0,0,0,.30);
+
+      transform-style: preserve-3d;
+    }
+
+    .hero-card-main {
+      top: 80px;
+      left: 50%;
+
+      transform:
+        translateX(-50%)
+        rotateY(-8deg)
+        rotateX(4deg);
+    }
+
+    .profile-photo {
+      width: 92px;
+      height: 92px;
+
+      border-radius: 28px;
+
+      object-fit: cover;
+
+      border: 5px solid rgba(255,255,255,.92);
+
+      box-shadow:
+        0 15px 35px rgba(0,0,0,.25);
+    }
+
+    /* =========================================================
+       FLOATING BADGES
+    ========================================================= */
+
+    .floating-badge {
+      position: absolute;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 14px 17px;
+
+      border-radius: 18px;
+
+      background: rgba(255,255,255,.93);
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.20);
+
+      color: var(--ink);
+
+      font-size: 13px;
+      font-weight: 700;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .badge-rating {
+      top: 45px;
+      right: -45px;
+
+      animation:
+        floating 6s ease-in-out infinite;
+    }
+
+    .badge-verified {
+      left: -55px;
+      bottom: 145px;
+
+      animation:
+        floating 7s ease-in-out -2s infinite;
+    }
+
+    .badge-whatsapp {
+      right: -20px;
+      bottom: 40px;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #0d6b61,
+          #168f80
+        );
+
+      animation:
+        floating 8s ease-in-out -4s infinite;
+    }
+
+    @keyframes floating {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-14px);
+      }
+    }
+
+    /* =========================================================
+       3D TOOL ORBS
+    ========================================================= */
+
+    .tool-orb {
+      position: absolute;
+
+      width: 62px;
+      height: 62px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 20px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.18),
+          rgba(255,255,255,.05)
+        );
+
+      border: 1px solid rgba(255,255,255,.15);
+
+      box-shadow:
+        0 20px 40px rgba(0,0,0,.18);
+
+      font-size: 27px;
+
+      backdrop-filter: blur(14px);
+    }
+
+    .tool-1 {
+      left: 35px;
+      top: 40px;
+
+      animation: floating 7s infinite;
+    }
+
+    .tool-2 {
+      right: 50px;
+      top: 160px;
+
+      animation: floating 8s infinite reverse;
+    }
+
+    .tool-3 {
+      left: 30px;
+      bottom: 55px;
+
+      animation: floating 9s infinite;
+    }
+
+    /* =========================================================
+       TRUST PILLS
+    ========================================================= */
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 10px 15px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,.08);
+
+      border: 1px solid rgba(255,255,255,.12);
+
+      color: rgba(255,255,255,.84);
+
+      font-size: 13px;
+      font-weight: 600;
+
+      backdrop-filter: blur(10px);
+    }
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 1024px) {
+
+      .hero {
+        min-height: auto;
+        padding-bottom: 90px;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .hero {
+        padding-top: 120px;
+      }
+
+      .hero-search {
+        border-radius: 22px;
+      }
+
+      .search-field {
+        border-bottom: 1px solid #eee;
+      }
+
+      .search-button {
+        width: 100%;
+      }
+    }
+
+    /* =========================================================
+       RTL
+    ========================================================= */
+
+    [dir="rtl"] .hero-card-main {
+      transform:
+        translateX(50%)
+        rotateY(8deg)
+        rotateX(4deg);
+    }
+
+    [dir="rtl"] .hero-grid {
+      transform: scaleX(-1);
+    }
+
+    /* =========================================================
+   SNA3TI V2 — SEARCH RESULTS
+========================================================= */
+
+.search-page {
+  min-height: 100vh;
+  padding-top: 110px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(13,107,97,.08), transparent 28%),
+    radial-gradient(circle at 90% 20%, rgba(233,121,63,.08), transparent 25%),
+    var(--cream);
+}
+
+.results-shell {
+  max-width: 1280px;
+  margin: auto;
+  padding: 40px 20px 80px;
+}
+
+.results-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.results-count {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.results-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+}
+
+.results-filters {
+  background: white;
+  border: 1px solid rgba(7,29,26,.08);
+  border-radius: 28px;
+  padding: 22px;
+  height: fit-content;
+  box-shadow: 0 15px 45px rgba(7,29,26,.06);
+}
+
+.filter-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.filter-group {
+  padding: 18px 0;
+  border-top: 1px solid #edf0ef;
+}
+
+.filter-group:first-of-type {
+  border-top: 0;
+}
+
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.filter-option input {
+  accent-color: var(--teal);
+}
+
+.professionals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.pro-card {
+  position: relative;
+  overflow: hidden;
+  background: white;
+  border: 1px solid rgba(7,29,26,.07);
+  border-radius: 28px;
+  padding: 20px;
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+}
+
+.pro-card:hover {
+  transform: translateY(-7px);
+  border-color: rgba(13,107,97,.2);
+  box-shadow: 0 25px 60px rgba(7,29,26,.11);
+}
+
+.pro-top {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.pro-avatar {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 22px;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 10px 25px rgba(7,29,26,.13);
+}
+
+.pro-name {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.pro-job {
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #e8f8f4;
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.pro-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 17px;
+}
+
+.stars {
+  color: var(--orange);
+  letter-spacing: 1px;
+}
+
+.rating-number {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.review-count {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.pro-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.meta-pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f6f8f7;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pro-price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid #edf0ef;
+}
+
+.price-label {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.price-value {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.pro-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.pro-btn {
+  border-radius: 14px;
+  padding: 11px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.pro-btn-primary {
+  background: var(--ink);
+  color: white;
+}
+
+.pro-btn-primary:hover {
+  background: var(--teal);
+}
+
+.pro-btn-whatsapp {
+  background: #e9f8f2;
+  color: #087b55;
+}
+
+.pro-btn-whatsapp:hover {
+  background: #d5f1e6;
+}
+
+.empty-results {
+  background: white;
+  border-radius: 28px;
+  padding: 70px 30px;
+  text-align: center;
+  border: 1px solid #edf0ef;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.search-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.search-tag {
+  background: #e8f8f4;
+  color: var(--teal);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .results-filters {
+    display: none;
+  }
+
+  .professionals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .results-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pro-card {
+    border-radius: 22px;
+  }
+
+  .results-shell {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+    /* =========================================================
+   SNA3TI PREMIUM HERO POLISH v1
+   Visual only — does not change existing logic
+========================================================= */
+
+.hero {
+  min-height: 820px;
+  perspective: 1400px;
+}
+
+/* Softer cinematic lighting */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 52% 42%,
+      rgba(200,245,237,.07),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.05),
+      transparent 45%,
+      rgba(0,0,0,.18)
+    );
+  z-index: 1;
+}
+
+/* Moroccan-inspired subtle pattern */
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -180px;
+  bottom: -220px;
+  pointer-events: none;
+
+  opacity: .12;
+
+  background-image:
+    linear-gradient(30deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(150deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(30deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(150deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%);
+
+  background-size: 42px 72px;
+  background-position:
+    0 0,
+    0 0,
+    21px 36px,
+    21px 36px;
+
+  mask-image: radial-gradient(circle, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, black 10%, transparent 70%);
+
+  transform: rotate(12deg);
+}
+
+/* Better glass search */
+.hero-search {
+  position: relative;
+  z-index: 3;
+
+  border: 1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    0 25px 55px rgba(0,0,0,.22),
+    0 5px 15px rgba(0,0,0,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.hero-search::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 26px;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,255,255,.45),
+      transparent 35%
+    );
+
+  opacity: .55;
+}
+
+/* Premium CTA */
+.btn-orange {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-orange::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.32),
+      transparent
+    );
+
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+
+.btn-orange:hover::before {
+  left: 150%;
+}
+
+/* Hero card becomes more dimensional */
+.hero-card {
+  box-shadow:
+    0 50px 110px rgba(0,0,0,.34),
+    0 15px 35px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.22);
+
+  border-color: rgba(255,255,255,.22);
+
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    box-shadow .3s ease;
+}
+
+/* Highlight on top edge */
+.hero-card::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.65),
+      transparent
+    );
+
+  pointer-events: none;
+}
+
+/* Card hover depth */
+.hero-visual:hover .hero-card {
+  box-shadow:
+    0 60px 130px rgba(0,0,0,.38),
+    0 20px 45px rgba(0,0,0,.2),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+/* Floating badges become more premium */
+.floating-badge {
+  border:
+    1px solid rgba(255,255,255,.55);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,.22),
+    0 5px 15px rgba(0,0,0,.08);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+.floating-badge:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 30px 70px rgba(0,0,0,.28);
+}
+
+/* Tool orbs */
+.tool-orb {
+  border-color: rgba(255,255,255,.22);
+
+  box-shadow:
+    0 25px 50px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.18);
+
+  transform-style: preserve-3d;
+}
+
+/* Trust pills */
+.trust-pill {
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.trust-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.22);
+}
+
+/* Hero title polish */
+.hero h1 {
+  text-shadow:
+    0 2px 25px rgba(0,0,0,.18);
+}
+
+/* Better stats hierarchy */
+.hero .text-2xl {
+  text-shadow:
+    0 4px 20px rgba(0,0,0,.18);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .orb,
+  .floating-badge,
+  .tool-orb,
+  .hero-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Mobile polish */
+@media (max-width: 768px) {
+
+  .hero {
+    min-height: auto;
+    padding-bottom: 80px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 13vw, 4.5rem);
+  }
+
+  .hero-search {
+    margin-top: 2rem;
+  }
+
+  .trust-pill {
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+}
+
+    /* =========================================================
+   HERO POLISH — FINAL TUNING
+========================================================= */
+
+.hero-search {
+  position: relative;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255,255,255,.10),
+      transparent 42%
+    );
+
+  opacity: .7;
+}
+
+/* Give the profile a more premium presence */
+.profile-photo {
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 999px;
+
+  border: 4px solid rgba(255,255,255,.14);
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.28),
+    0 0 0 8px rgba(255,255,255,.025);
+}
+
+/* Hero eyebrow */
+.hero > .relative > .text-white > div:first-child {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* Search fields */
+.search-field {
+  position: relative;
+  min-height: 76px;
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+.search-field:focus-within {
+  background: rgba(255,255,255,.04);
+}
+
+.search-field input::placeholder {
+  color: #9ca3af;
+  opacity: .8;
+}
+
+/* Search button */
+.search-button {
+  min-width: 150px;
+
+  box-shadow:
+    0 12px 25px rgba(233,121,63,.22);
+}
+
+.search-button:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 16px 32px rgba(233,121,63,.30);
+}
+
+/* Trust pills */
+.trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 9px 13px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  color: rgba(255,255,255,.78);
+
+  background: rgba(255,255,255,.055);
+
+  border: 1px solid rgba(255,255,255,.09);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hero stats */
+.hero-stat {
+  position: relative;
+}
+
+.hero-stat + .hero-stat::before {
+  content: "";
+
+  position: absolute;
+  left: -17px;
+  top: 8px;
+  bottom: 8px;
+
+  width: 1px;
+
+  background: rgba(255,255,255,.10);
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+
+  .hero-search {
+    border-radius: 22px;
+  }
+
+  .search-field {
+    min-height: 68px;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .hero-stat + .hero-stat::before {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <header
+    class="
+      glass-header
+      fixed
+      top-0
+      left-0
+      right-0
+      z-50
+    "
+  >
+
+    <div
+      class="
+        max-w-7xl
+        mx-auto
+        px-4
+        sm:px-6
+        h-[72px]
+        flex
+        items-center
+        justify-between
+      "
+    >
+
+      <!-- LOGO -->
+
+      <a
+        href="#"
+        class="flex items-center gap-3"
+      >
+
+        <span class="logo-box">
+          S
+        </span>
+
+        <span
+          class="
+            text-xl
+            font-black
+            tracking-tight
+          "
+        >
+          Sna3ti<span class="text-sna3ti-orange text-orange">.</span>ma
+        </span>
+
+      </a>
+
+
+      <!-- DESKTOP NAV -->
+
+      <nav
+        class="
+          hidden
+          lg:flex
+          items-center
+          gap-8
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+
+        <a
+          href="#"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.home"
+        >
+          Accueil
+        </a>
+
+        <a
+          href="#services"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.services"
+        >
+          Services
+        </a>
+
+        <a
+          href="#professionals"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.professionals"
+        >
+          Professionnels
+        </a>
+
+        <a
+          href="#how"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.how"
+        >
+          Comment ça marche
+        </a>
+
+        <a
+          href="#pricing"
+          class="hover:text-sna3ti-teal transition"
+          data-i18n="nav.pricing"
+        >
+          Tarifs
+        </a>
+
+      </nav>
+
+
+      <!-- RIGHT -->
+
+      <div
+        class="
+          hidden
+          md:flex
+          items-center
+          gap-4
+        "
+      >
+
+        <!-- LANGUAGE -->
+
+        <select
+          id="languageSelect"
+          class="
+            bg-transparent
+            text-sm
+            font-bold
+            outline-none
+            cursor-pointer
+          "
+        >
+
+          <option value="fr">
+            FR
+          </option>
+
+          <option value="ar">
+            العربية
+          </option>
+
+          <option value="en">
+            EN
+          </option>
+
+        </select>
+
+
+        <!-- PROFESSIONAL CTA -->
+
+        <a
+          href="#register"
+          class="
+            rounded-full
+            bg-sna3ti-ink
+            text-white
+            px-5
+            py-3
+            text-sm
+            font-bold
+            hover:bg-sna3ti-teal
+            transition
+          "
+          data-i18n="nav.register"
+        >
+          Inscrire mon activité
+        </a>
+
+      </div>
+
+
+      <!-- MOBILE BUTTON -->
+
+      <button
+        id="mobileMenuButton"
+        class="
+          md:hidden
+          w-11
+          h-11
+          rounded-xl
+          border
+          border-gray-200
+          bg-white
+          text-lg
+        "
+      >
+        ☰
+      </button>
+
+    </div>
+
+
+    <!-- MOBILE MENU -->
+
+    <div
+      id="mobileMenu"
+      class="
+        hidden
+        md:hidden
+        bg-white
+        border-t
+        border-gray-100
+        px-5
+        py-5
+      "
+    >
+
+      <div class="grid gap-4 text-sm font-semibold">
+
+        <a href="#">
+          Accueil
+        </a>
+
+        <a href="#services">
+          Services
+        </a>
+
+        <a href="#professionals">
+          Professionnels
+        </a>
+
+        <a href="#how">
+          Comment ça marche
+        </a>
+
+        <a href="#pricing">
+          Tarifs
+        </a>
+
+        <a
+          href="#register"
+          class="text-sna3ti-teal"
+        >
+          Inscrire mon activité
+        </a>
+
+        <select
+          id="mobileLanguage"
+          class="
+            border
+            border-gray-200
+            rounded-xl
+            p-3
+          "
+        >
+
+          <option value="fr">
+            Français
+          </option>
+
+          <option value="ar">
+            العربية
+          </option>
+
+          <option value="en">
+            English
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       HERO
+  ======================================================== -->
+
+  <main>
+
+    <section class="hero">
+
+      <!-- BACKGROUND GRID -->
+
+      <div class="hero-grid"></div>
+
+      <!-- BACKGROUND ORBS -->
+
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+
+
+      <!-- HERO CONTENT -->
+      <div
+        class="
+          relative
+          z-10
+          max-w-7xl
+          mx-auto
+          px-4
+          sm:px-6
+          pt-20
+          lg:pt-28
+          grid
+          lg:grid-cols-2
+          gap-14
+          items-center
+        "
+      >
+
+        <!-- =================================================
+             LEFT
+        ================================================== -->
+
+        <div class="text-white">
+
+          <!-- EYEBROW -->
+
+          <div
+            class="
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              px-4
+              py-2
+              darkglass
+              text-sm
+              font-semibold
+              mb-7
+            "
+            style="
+              background:rgba(255,255,255,.08);
+              border:1px solid rgba(255,255,255,.12);
+            "
+          >
+
+            <span>
+              🇲🇦
+            </span>
+
+            <span data-i18n="hero.eyebrow">
+              Pensé pour le Maroc
+            </span>
+
+          </div>
+
+
+          <!-- TITLE -->
+
+          <h1
+            class="
+              font-display
+              text-5xl
+              sm:text-6xl
+              lg:text-7xl
+              font-black
+              leading-[.95]
+              tracking-tight
+              max-w-3xl
+            "
+            data-i18n="hero.title"
+          >
+            L9a lm3allem li 9rib lik.
+          </h1>
+
+
+          <!-- SUBTITLE -->
+
+          <p
+            class="
+              mt-7
+              text-lg
+              leading-8
+              text-white/65
+              max-w-xl
+            "
+            data-i18n="hero.subtitle"
+          >
+            Trouvez un professionnel de confiance près de chez vous,
+            comparez les profils et contactez-le directement.
+          </p>
+
+
+          <!-- =================================================
+               SEARCH
+          ================================================== -->
+
+          <form
+            id="searchForm"
+            class="
+              hero-search
+              mt-9
+              grid
+              md:grid-cols-[1.2fr_1fr_auto]
+              gap-2
+            "
+          >
+
+            <!-- SERVICE -->
+
+            <div
+              class="
+                search-field
+                flex
+                items-center
+                gap-3
+                px-4
+              "
+            >
+
+              <span class="text-2xl">
+                🔧
+              </span>
+
+              <div class="flex-1">
+
+                <label
+                  class="
+                    block
+                    text-[11px]
+                    uppercase
+                    tracking-wider
+                    font-bold
+                    text-gray-400
+                  "
+                >
+                  Service
+                </label>
+
+                <input
+                  id="serviceInput"
+                  type="text"
+                  class="
+                    w-full
+                    mt-1
+                    outline-none
+                    text-sm
+                    font-semibold
+                    text-sna3ti-ink
+                  "
+                  placeholder="Plomberie, peinture..."
+                  data-i18n-placeholder="hero.servicePlaceholder"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- LOCATION -->
+
+            <div
+              class="
+                search-field
+                flex
+                items-center
+                gap-3
+                px-4
+                border-t
+                md:border-t-0
+                md:border-l
+                border-gray-100
+              "
+            >
+
+              <span class="text-2xl">
+                📍
+              </span>
+
+              <div class="flex-1">
+
+                <label
+                  class="
+                    block
+                    text-[11px]
+                    uppercase
+                    tracking-wider
+                    font-bold
+                    text-gray-400
+                  "
+                >
+                  Localisation
+                </label>
+
+                <input
+                  id="cityInput"
+                  type="text"
+                  class="
+                    w-full
+                    mt-1
+                    outline-none
+                    text-sm
+                    font-semibold
+                    text-sna3ti-ink
+                  "
+                  placeholder="Casablanca, Maarif..."
+                  data-i18n-placeholder="hero.cityPlaceholder"
+                />
+
+              </div>
+
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <button
+              type="submit"
+              class="
+                search-button
+                btn-orange
+                rounded-2xl
+                text-white
+                px-7
+                py-4
+                font-bold
+                text-sm
+              "
+              data-i18n="hero.search"
+            >
+              Rechercher →
+            </button>
+
+          </form>
+
+
+          <!-- =================================================
+               TRUST
+          ================================================== -->
+
+          <div
+            class="
+              mt-7
+              flex
+              flex-wrap
+              gap-3
+            "
+          >
+
+            <span class="trust-pill">
+              🛡️
+              <span data-i18n="hero.verified">
+                Professionnels vérifiés
+              </span>
+            </span>
+
+            <span class="trust-pill">
+              ⚡
+              <span data-i18n="hero.fast">
+                Réponse rapide
+              </span>
+            </span>
+
+            <span class="trust-pill">
+              🟢
+              <span data-i18n="hero.available">
+                Disponible aujourd'hui
+              </span>
+            </span>
+
+          </div>
+
+
+          <!-- STATS -->
+
+          <div
+            class="
+              mt-10
+              flex
+              flex-wrap
+              gap-8
+              text-white
+            "
+          >
+
+            <div class="hero-stat">
+              <div class="text-2xl font-black">
+                1,200+
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Professionnels
+              </div>
+            </div>
+
+            <div>
+              <div class="text-2xl font-black">
+                4.8/5
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Note moyenne
+              </div>
+            </div>
+
+            <div class="hero-stat">
+              <div class="text-2xl font-black">
+                15+
+              </div>
+
+              <div class="text-xs text-white/45 mt-1">
+                Catégories
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT — 3D VISUAL
+        ================================================== -->
+
+        <div
+          class="
+            hero-visual
+            relative
+            h-[580px]
+            hidden
+            lg:block
+          "
+        >
+
+          <!-- BACK CARD -->
+
+          <div
+            class="
+              absolute
+              inset-10
+              rounded-[3rem]
+              bg-white/5
+              border
+              border-white/10
+              rotate-[-5deg]
+            "
+          ></div>
+
+
+          <!-- MAIN CARD -->
+
+          <div
+            id="heroCard"
+            class="hero-card hero-card-main"
+          >
+
+            <!-- CARD TOP -->
+
+            <div
+              class="
+                flex
+                items-center
+                justify-between
+              "
+            >
+
+              <div
+                class="
+                  text-xs
+                  uppercase
+                  tracking-[.2em]
+                  text-white/45
+                  font-bold
+                "
+              >
+                Sna3ti.ma
+              </div>
+
+              <div
+                class="
+                  bg-white/10
+                  border
+                  border-white/10
+                  text-white
+                  rounded-full
+                  px-3
+                  py-1.5
+                  text-xs
+                  font-bold
+                "
+              >
+                ✓ Vérifié
+              </div>
+
+            </div>
+
+
+            <!-- PROFILE -->
+
+            <div class="mt-12 text-center">
+
+              <img
+                class="profile-photo mx-auto"
+                src="https://i.pravatar.cc/300?img=12"
+                alt="Professionnel Sna3ti"
+              />
+
+              <h3
+                class="
+                  mt-5
+                  text-2xl
+                  font-bold
+                  text-white
+                "
+              >
+                Yassine El Amrani
+              </h3>
+
+              <p
+                class="
+                  mt-1
+                  text-sm
+                  text-white/50
+                "
+              >
+                Plombier professionnel
+              </p>
+
+
+              <!-- RATING -->
+
+              <div
+                class="
+                  mt-4
+                  text-orange
+                  text-lg
+                "
+              >
+                ★★★★★
+
+                <span
+                  class="
+                    text-white/60
+                    text-sm
+                    ml-1
+                  "
+                >
+                  4.9 · 127 avis
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- INFO -->
+
+            <div
+              class="
+                grid
+                grid-cols-2
+                gap-3
+                mt-8
+              "
+            >
+
+              <div
+                class="
+                  rounded-2xl
+                  p-4
+                  bg-white/7
+                  border
+                  border-white/10
+                "
+              >
+
+                <div class="text-white text-sm">
+                  📍 Maarif
+                </div>
+
+                <div
+                  class="
+                    text-white/40
+                    text-xs
+                    mt-1
+                  "
+                >
+                  2.4 km
+                </div>
+
+              </div>
+
+
+              <div
+                class="
+                  rounded-2xl
+                  p-4
+                  bg-white/7
+                  border
+                  border-white/10
+                "
+              >
+
+                <div class="text-white text-sm">
+                  🟢 Disponible
+                </div>
+
+                <div
+                  class="
+                    text-white/40
+                    text-xs
+                    mt-1
+                  "
+                >
+                  Aujourd'hui
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div
+              class="
+                mt-5
+                flex
+                items-center
+                justify-between
+              "
+            >
+
+              <span
+                class="
+                  text-white/40
+                  text-sm
+                "
+              >
+                À partir de
+              </span>
+
+              <strong
+                class="
+                  text-white
+                  text-lg
+                "
+              >
+                250 DH
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               FLOATING BADGES
+          ================================================== -->
+
+          <div class="floating-badge badge-rating">
+
+            <span
+              class="
+                w-9
+                h-9
+                rounded-xl
+                bg-orange/10
+                grid
+                place-items-center
+                text-orange
+              "
+            >
+              ★
+            </span>
+
+            <div>
+
+              <div>
+                4.9 / 5
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-gray-400
+                  mt-0.5
+                "
+              >
+                Excellent
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="floating-badge badge-verified">
+
+            <span
+              class="
+                w-9
+                h-9
+                rounded-xl
+                bg-teal-50
+                grid
+                place-items-center
+                text-sna3ti-teal
+              "
+            >
+              🛡️
+            </span>
+
+            <div>
+
+              <div>
+                Profil vérifié
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-gray-400
+                  mt-0.5
+                "
+              >
+                Identité confirmée
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="floating-badge badge-whatsapp">
+
+            <span class="text-xl">
+              💬
+            </span>
+
+            <div>
+
+              <div>
+                WhatsApp
+              </div>
+
+              <div
+                class="
+                  text-[10px]
+                  text-white/65
+                  mt-0.5
+                "
+              >
+                Réponse rapide
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               TOOL ORBS
+          ================================================== -->
+
+          <div class="tool-orb tool-1">
+            🔧
+          </div>
+
+          <div class="tool-orb tool-2">
+            ⚡
+          </div>
+
+          <div class="tool-orb tool-3">
+            🧱
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOTTOM CURVE -->
+
+      <div
+        class="
+          absolute
+          bottom-[-1px]
+          left-0
+          right-0
+          h-20
+          bg-sna3ti-cream
+        "
+        style="
+          clip-path: ellipse(70% 100% at 50% 100%);
+        "
+      ></div>
+
+    </section>
+
+
+   
+<!-- =====================================================
+     PREMIUM SERVICES / CATEGORIES
+====================================================== -->
+
+<section
+  id="services"
+  class="relative overflow-hidden bg-sna3ti-cream py-20 sm:py-24"
+>
+
+  <!-- Ambient decoration -->
+  <div
+    class="absolute -top-32 -right-32 w-96 h-96
+           rounded-full bg-sna3ti-teal/10 blur-3xl
+           pointer-events-none"
+  ></div>
+
+  <div
+    class="absolute -bottom-40 -left-32 w-96 h-96
+           rounded-full bg-orange/10 blur-3xl
+           pointer-events-none"
+  ></div>
+
+
+  <div
+    class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6"
+  >
+
+    <!-- HEADER -->
+    <div
+      class="flex flex-col md:flex-row
+             md:items-end md:justify-between
+             gap-6"
+    >
+
+      <div>
+
+        <div
+          class="inline-flex items-center gap-2
+                 rounded-full
+                 bg-sna3ti-teal/10
+                 px-3 py-1.5
+                 text-xs font-black uppercase
+                 tracking-[.18em]
+                 text-sna3ti-teal"
+        >
+          <span>✦</span>
+          <span>Services</span>
+        </div>
+
+        <h2
+          class="mt-4 text-3xl sm:text-4xl lg:text-5xl
+                 font-black tracking-tight text-sna3ti-ink"
+          data-i18n="services.title"
+        >
+          De quoi avez-vous besoin ?
+        </h2>
+
+        <p
+          class="mt-4 max-w-xl text-gray-500
+                 text-base sm:text-lg leading-7"
+          data-i18n="services.subtitle"
+        >
+          Trouvez rapidement le bon professionnel pour votre projet.
+        </p>
+
+      </div>
+
+
+      <a
+        href="#professionals"
+        class="group inline-flex items-center gap-2
+               text-sna3ti-teal
+               font-bold text-sm
+               whitespace-nowrap"
+      >
+        <span>
+          Voir tous les services
+        </span>
+
+        <span
+          class="transition-transform duration-300
+                 group-hover:translate-x-1"
+        >
+          →
+        </span>
+      </a>
+
+    </div>
+
+
+    <!-- SERVICE CARDS -->
+    <div
+      class="grid grid-cols-2
+             sm:grid-cols-3
+             lg:grid-cols-6
+             gap-4 sm:gap-5
+             mt-10"
+    >
+
+      <!-- PLUMBING -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative
+                 w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🔧
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Plomberie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Eau & installation
+        </span>
+
+      </button>
+
+
+      <!-- ELECTRICITY -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:-rotate-3"
+        >
+          ⚡
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Électricité
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Installation & dépannage
+        </span>
+
+      </button>
+
+
+      <!-- GYPSUM -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🧱
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Gypsum
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Faux plafond & déco
+        </span>
+
+      </button>
+
+
+      <!-- PAINT -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🎨
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Peinture
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Intérieur & extérieur
+        </span>
+
+      </button>
+
+
+      <!-- CARPENTRY -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🪚
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Menuiserie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Bois & aluminium
+        </span>
+
+      </button>
+
+
+      <!-- AC -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          ❄️
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+        >
+          Climatisation
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+        >
+          Installation & entretien
+        </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- MORE CATEGORIES -->
+    <div
+      class="mt-8 flex justify-center"
+    >
+
+      <a
+        href="#professionals"
+        class="group inline-flex items-center gap-2
+               rounded-full
+               border border-gray-200
+               bg-white/70
+               px-5 py-3
+               text-sm font-bold
+               text-gray-600
+               shadow-sm
+               hover:border-sna3ti-teal/20
+               hover:text-sna3ti-teal
+               transition"
+      >
+        <span>Découvrir toutes les catégories</span>
+
+        <span
+          class="transition-transform duration-300
+                 group-hover:translate-x-1"
+        >
+          →
+        </span>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+  <!-- =====================================================
+       PROFESSIONALS / FOR PROFESSIONALS
+  ====================================================== -->
+
+  <section
+    id="professionals"
+    class="relative overflow-hidden bg-sna3ti-cream py-20 sm:py-24"
+  >
+
+    <div
+      class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6"
+    >
+
+      <div
+        class="grid lg:grid-cols-2 gap-12 items-center"
+      >
+
+        <div>
+
+          <div
+            class="inline-flex items-center gap-2
+                   rounded-full bg-sna3ti-teal/10
+                   px-3 py-1.5 text-xs font-black uppercase
+                   tracking-[.18em] text-sna3ti-teal"
+          >
+            <span>🛠️</span>
+            <span>Professionnels</span>
+          </div>
+
+          <h2
+            class="mt-4 text-3xl sm:text-4xl lg:text-5xl
+                   font-black tracking-tight text-sna3ti-ink"
+          >
+            Vous êtes un professionnel&nbsp;?
+          </h2>
+
+          <p
+            class="mt-4 max-w-xl text-gray-500
+                   text-base sm:text-lg leading-7"
+          >
+            Inscrivez votre activité sur Sna3ti et recevez
+            plus de demandes de clients proches de vous.
+            Gérez vos disponibilités, vos prix et contactez
+            vos clients en toute confiance.
+          </p>
+
+          <ul
+            class="mt-8 grid sm:grid-cols-2 gap-4"
+          >
+            <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
+              <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">✅</span>
+              Profil gratuit
+            </li>
+            <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
+              <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">🤝</span>
+              Demandes qualifiées
+            </li>
+            <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
+              <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">🛡️</span>
+              Badge vérifié
+            </li>
+            <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
+              <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">📈</span>
+              Plus de visibilité
+            </li>
+          </ul>
+
+          <a
+            href="#register"
+            class="mt-8 inline-flex items-center gap-2 rounded-full
+                   bg-sna3ti-ink text-white px-6 py-3.5 text-sm font-bold
+                   hover:bg-sna3ti-teal transition"
+          >
+            Inscrire mon activité
+            <span>→</span>
+          </a>
+
+        </div>
+
+        <div class="relative">
+
+          <div
+            class="absolute -top-12 -right-12 w-56 h-56 rounded-full
+                   bg-sna3ti-teal/10 blur-3xl pointer-events-none"
+          ></div>
+
+          <div
+            class="relative rounded-[2rem] bg-white border border-sna3ti-teal/10
+                   p-8 shadow-premium"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal/10 grid place-items-center text-2xl">👷</div>
+              <div>
+                <div class="text-lg font-black text-sna3ti-ink">Rejoignez</div>
+                <div class="text-sm text-gray-500">1200+ professionnels actifs</div>
+              </div>
+            </div>
+            <div class="mt-6 space-y-3">
+              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:85%"></div>
+              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:65%"></div>
+              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:90%"></div>
+            </div>
+            <div
+              class="mt-6 pt-6 border-t border-sna3ti-teal/10
+                     flex items-center justify-between"
+            >
+              <span class="text-sm font-bold text-sna3ti-teal">Demandes ce mois</span>
+              <span class="text-2xl font-black text-sna3ti-ink">+340</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       HOW IT WORKS
+  ====================================================== -->
+
+  <section
+    id="how"
+    class="relative overflow-hidden bg-white py-20 sm:py-24"
+  >
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+
+      <div class="text-center max-w-2xl mx-auto">
+
+        <div
+          class="inline-flex items-center gap-2 rounded-full
+                 bg-sna3ti-teal/10 px-3 py-1.5 text-xs font-black
+                 uppercase tracking-[.18em] text-sna3ti-teal"
+        >
+          <span>✦</span>
+          <span>Comment ça marche</span>
+        </div>
+
+        <h2
+          class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black
+                 tracking-tight text-sna3ti-ink"
+        >
+          Votre besoin, le bon pro, en 3 étapes
+        </h2>
+
+        <p
+          class="mt-4 text-gray-500 text-base sm:text-lg leading-7"
+        >
+          Simple, rapide et sûr.
+        </p>
+
+      </div>
+
+      <div
+        class="mt-14 grid md:grid-cols-3 gap-6"
+      >
+
+        <div
+          class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">1</div>
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Décrivez votre besoin</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6">
+            Choisissez un service et votre localisation — ou laissez-nous comprendre votre demande.
+          </p>
+        </div>
+
+        <div
+          class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">2</div>
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Comparez les profils</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6">
+            Note, avis, vérification, prix et disponibilité — choisissez en toute confiance.
+          </p>
+        </div>
+
+        <div
+          class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
+        >
+          <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">3</div>
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Contactez directement</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6">
+            Appelez ou envoyez un message WhatsApp au professionnel et fixez un rendez-vous.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       PRICING
+  ====================================================== -->
+
+  <section
+    id="pricing"
+    class="relative overflow-hidden bg-sna3ti-cream py-20 sm:py-24"
+  >
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+
+      <div class="text-center max-w-2xl mx-auto">
+
+        <div
+          class="inline-flex items-center gap-2 rounded-full
+                 bg-sna3ti-teal/10 px-3 py-1.5 text-xs font-black
+                 uppercase tracking-[.18em] text-sna3ti-teal"
+        >
+          <span>💳</span>
+          <span>Tarifs</span>
+        </div>
+
+        <h2
+          class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black
+                 tracking-tight text-sna3ti-ink"
+        >
+          Une offre simple et transparente
+        </h2>
+
+      </div>
+
+      <div class="mt-14 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+        <div
+          class="rounded-3xl bg-white border border-gray-200 p-8"
+        >
+          <h3 class="text-lg font-black text-sna3ti-ink">Compte gratuit</h3>
+          <div class="mt-2 text-3xl font-black text-sna3ti-ink">0 DH</div>
+          <p class="mt-2 text-sm text-gray-500">Pour démarrer</p>
+          <ul class="mt-6 space-y-3 text-sm text-gray-600">
+            <li class="flex items-center gap-2">✅ Profil professionnel de base</li>
+            <li class="flex items-center gap-2">✅ Recevoir des demandes</li>
+            <li class="flex items-center gap-2">✅ Contact direct clients</li>
+          </ul>
+          <a
+            href="#register"
+            class="mt-8 inline-flex w-full justify-center rounded-full border-2
+                   border-sna3ti-teal px-6 py-3 text-sm font-bold text-sna3ti-teal
+                   hover:bg-sna3ti-teal hover:text-white transition"
+          >
+            Créer mon compte
+          </a>
+        </div>
+
+        <div
+          class="relative rounded-3xl bg-sna3ti-ink text-white p-8 shadow-premium"
+        >
+          <div
+            class="absolute top-6 right-6 rounded-full bg-sna3ti-orange text-white
+                   px-3 py-1 text-[11px] font-black uppercase"
+          >
+            Recommandé
+          </div>
+          <h3 class="text-lg font-black">Compte vérifié</h3>
+          <div class="mt-2 text-3xl font-black">99 DH</div>
+          <p class="mt-2 text-sm text-white/60">Paiement unique</p>
+          <ul class="mt-6 space-y-3 text-sm text-white/80">
+            <li class="flex items-center gap-2">🛡️ Badge "Professionnel vérifié"</li>
+            <li class="flex items-center gap-2">📈 Plus de visibilité et de confiance</li>
+            <li class="flex items-center gap-2">⭐ Profil mis en avant</li>
+          </ul>
+          <a
+            href="#register"
+            class="mt-8 inline-flex w-full justify-center rounded-full
+                   bg-sna3ti-orange px-6 py-3 text-sm font-bold text-white
+                   hover:opacity-90 transition"
+          >
+            Passer au compte vérifié
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       REGISTER CTA
+  ====================================================== -->
+
+  <section
+    id="register"
+    class="relative overflow-hidden py-20 sm:py-24"
+    style="
+      background:
+        radial-gradient(circle at 80% 10%, rgba(22,143,128,.35), transparent 30%),
+        linear-gradient(135deg, #061512 0%, #0d554c 100%);
+    "
+  >
+
+    <div class="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 text-center">
+
+      <h2
+        class="text-3xl sm:text-4xl font-black tracking-tight text-white"
+      >
+        Prêt à développer votre activité&nbsp;?
+      </h2>
+
+      <p class="mt-4 text-white/70 text-base sm:text-lg">
+        Rejoignez Sna3ti aujourd'hui et soyez plus visible
+        auprès de nouveaux clients près de chez vous.
+      </p>
+
+      <form
+        class="mt-8 grid sm:grid-cols-[1fr_auto] gap-3"
+        onsubmit="alert('Merci ! Nous vous contacterons bientôt.'); return false;"
+      >
+        <input
+          type="email"
+          placeholder="Votre adresse e-mail"
+          class="rounded-full px-6 py-4 text-sm font-semibold outline-none
+                 bg-white/10 border border-white/15 text-white placeholder-white/60"
+          required
+        />
+        <button
+          type="submit"
+          class="rounded-full bg-sna3ti-orange text-white px-7 py-4 text-sm font-bold
+                 hover:opacity-90 transition"
+        >
+          S'inscrire →
+        </button>
+      </form>
+
+    </div>
+
+  </section>
+
+
+  </main>
+
+
+  <!-- =======================================================
+       JAVASCRIPT
+  ======================================================== -->
+
+  <script>
+
+    /* =========================================================
+       TRANSLATIONS
+    ========================================================= */
+
+    const translations = {
+
+      fr: {
+
+        nav: {
+          home: "Accueil",
+          services: "Services",
+          professionals: "Professionnels",
+          how: "Comment ça marche",
+          pricing: "Tarifs",
+          register: "Inscrire mon activité"
+        },
+
+        hero: {
+          eyebrow: "Pensé pour le Maroc",
+          title: "L9a l7erfi li kat9leb 3lih.",
+          subtitle:
+            "Trouvez un professionnel de confiance près de chez vous, comparez les profils et contactez-le directement.",
+          servicePlaceholder:
+            "Plomberie, peinture...",
+          cityPlaceholder:
+            "Casablanca, Maarif...",
+          search:
+            "Rechercher",
+          verified:
+            "Professionnels vérifiés",
+          fast:
+            "Réponse rapide",
+          available:
+            "Disponible aujourd'hui"
+        },
+
+        services: {
+          title:
+            "De quoi avez-vous besoin ?",
+          subtitle:
+            "Trouvez rapidement le bon professionnel pour votre projet."
+        }
+
+      },
+
+
+      ar: {
+
+        nav: {
+          home: "الرئيسية",
+          services: "الخدمات",
+          professionals: "الحرفيين",
+          how: "كيفاش خدام",
+          pricing: "الأثمنة",
+          register: "سجّل النشاط ديالك"
+        },
+
+        hero: {
+          eyebrow: "معمولة للمغرب",
+          title: "لقا الحرفي اللي كتقلب عليه.",
+          subtitle:
+            "لقا مهني موثوق قريب ليك، قارن بين البروفايلات وتاصل معاه مباشرة.",
+          servicePlaceholder:
+            "سباكة، صباغة...",
+          cityPlaceholder:
+            "الدار البيضاء، المعاريف...",
+          search:
+            "بحث",
+          verified:
+            "حرفيين موثوقين",
+          fast:
+            "جواب سريع",
+          available:
+            "متوفر اليوم"
+        },
+
+        services: {
+          title:
+            "شنو الخدمة اللي كتحتاج؟",
+          subtitle:
+            "لقا الحرفي المناسب للمشروع ديالك بسهولة."
+        }
+
+      },
+
+
+      en: {
+
+        nav: {
+          home: "Home",
+          services: "Services",
+          professionals: "Professionals",
+          how: "How it works",
+          pricing: "Pricing",
+          register: "List my business"
+        },
+
+        hero: {
+          eyebrow: "Made for Morocco",
+          title: "Find the professional you need.",
+          subtitle:
+            "Discover trusted professionals near you, compare profiles and contact them directly.",
+          servicePlaceholder:
+            "Plumbing, painting...",
+          cityPlaceholder:
+            "Casablanca, Maarif...",
+          search:
+            "Search",
+          verified:
+            "Verified professionals",
+          fast:
+            "Fast response",
+          available:
+            "Available today"
+        },
+
+        services: {
+          title:
+            "What do you need?",
+          subtitle:
+            "Quickly find the right professional for your project."
+        }
+
+      }
+
+    };
+
+
+    /* =========================================================
+       LANGUAGE
+    ========================================================= */
+
+    function setLanguage(language) {
+
+      const data = translations[language];
+
+      if (!data) return;
+
+
+      document.documentElement.lang = language;
+
+      document.documentElement.dir =
+        language === "ar"
+          ? "rtl"
+          : "ltr";
+
+
+      document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+          const key =
+            element.dataset.i18n.split(".");
+
+          let value = data;
+
+          key.forEach(part => {
+            value = value?.[part];
+          });
+
+          if (value) {
+            element.textContent = value;
+          }
+
+        });
+
+
+      document
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach(element => {
+
+          const key =
+            element.dataset.i18nPlaceholder.split(".");
+
+          let value = data;
+
+          key.forEach(part => {
+            value = value?.[part];
+          });
+
+          if (value) {
+            element.placeholder = value;
+          }
+
+        });
+
+
+      localStorage.setItem(
+        "sna3ti-language",
+        language
+      );
+
+    }
+
+
+    /* =========================================================
+       LANGUAGE SELECTORS
+    ========================================================= */
+
+    const languageSelect =
+      document.getElementById(
+        "languageSelect"
+      );
+
+    const mobileLanguage =
+      document.getElementById(
+        "mobileLanguage"
+      );
+
+
+    function syncLanguage(language) {
+
+      languageSelect.value = language;
+
+      mobileLanguage.value = language;
+
+      setLanguage(language);
+
+    }
+
+
+    languageSelect.addEventListener(
+      "change",
+      event => {
+
+        syncLanguage(
+          event.target.value
+        );
+
+      }
+    );
+
+
+    mobileLanguage.addEventListener(
+      "change",
+      event => {
+
+        syncLanguage(
+          event.target.value
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    const mobileButton =
+      document.getElementById(
+        "mobileMenuButton"
+      );
+
+    const mobileMenu =
+      document.getElementById(
+        "mobileMenu"
+      );
+
+
+    mobileButton.addEventListener(
+      "click",
+      () => {
+
+        mobileMenu.classList.toggle(
+          "hidden"
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       SEARCH
+    ========================================================= */
+
+    const searchForm =
+      document.getElementById(
+        "searchForm"
+      );
+
+    const serviceInput =
+      document.getElementById(
+        "serviceInput"
+      );
+
+    const cityInput =
+      document.getElementById(
+        "cityInput"
+      );
+
+
+  /* =========================================================
+   SNA3TI V2 — REAL SEARCH
+========================================================= */
+
+searchForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const service = serviceInput?.value.trim() || "";
+  const city = cityInput?.value.trim() || "";
+
+  const params = new URLSearchParams();
+
+  if (service) {
+    params.set("service", service);
+  }
+
+  if (city) {
+    params.set("city", city);
+  }
+
+  window.location.hash = "#/search?" + params.toString();
+});
+
+
+     
+
+    /* =========================================================
+       3D CARD TILT
+    ========================================================= */
+
+    /* bindHeroTilt() — attach the 3D mouse tilt on the hero
+       card. Re-run after the home page is restored. */
+    function bindHeroTilt() {
+
+      const heroCard =
+        document.getElementById(
+          "heroCard"
+        );
+
+      const heroVisual =
+        document.querySelector(
+          ".hero-visual"
+        );
+
+      if (heroCard && heroVisual) {
+
+        heroVisual.addEventListener(
+          "mousemove",
+          event => {
+
+            const rect =
+              heroVisual.getBoundingClientRect();
+
+            const x =
+              (event.clientX - rect.left)
+              / rect.width
+              - 0.5;
+
+            const y =
+              (event.clientY - rect.top)
+              / rect.height
+              - 0.5;
+
+            heroCard.style.transform =
+              `
+                translateX(-50%)
+                rotateY(${x * 12}deg)
+                rotateX(${-y * 8}deg)
+              `;
+
+          }
+        );
+
+        heroVisual.addEventListener(
+          "mouseleave",
+          () => {
+
+            heroCard.style.transform =
+              `
+                translateX(-50%)
+                rotateY(-8deg)
+                rotateX(4deg)
+              `;
+
+          }
+        );
+
+      }
+
+    }
+
+    bindHeroTilt();
+
+
+    /* =========================================================
+       SERVICE CARDS
+    ========================================================= */
+
+    /* goSearch(service) — navigate straight to the search
+       results for a category (fixes the previously undefined
+       goSearch referenced by card clicks). */
+    function goSearch(service) {
+
+      if (serviceInput) {
+        serviceInput.value = service;
+      }
+
+      const params = new URLSearchParams();
+
+      if (service) {
+        params.set("service", service);
+      }
+
+      window.location.hash =
+        "#/search?" + params.toString();
+
+    }
+
+
+    /* bindServiceCards() — attach the category click
+       handlers. Called on load and after the home page is
+       restored so a re-rendered home keeps working. */
+    function bindServiceCards() {
+
+      document
+        .querySelectorAll(".service-card")
+        .forEach(card => {
+
+          const label =
+            card.querySelector("span");
+
+          card.addEventListener("click", () => {
+
+            const service =
+              label?.textContent.trim() || "";
+
+            goSearch(service);
+
+          });
+
+        });
+
+    }
+
+    bindServiceCards();
+
+
+
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+
+    const savedLanguage =
+      localStorage.getItem(
+        "sna3ti-language"
+      ) || "fr";
+
+
+    syncLanguage(
+      savedLanguage
+    );
+
+    /* Track the last search route so the profile "back"
+       button can restore the exact same results. */
+    let lastSearchHash = "";
+
+    /* =========================================================
+   SNA3TI V2 — DEMO PROFESSIONAL DATA
+========================================================= */
+
+const sna3tiProfessionals = [
+
+  {
+    id: 1,
+    name: "Yassine El Amrani",
+    job: "Plombier professionnel",
+    category: "plomberie",
+    city: "casablanca",
+    area: "Maarif",
+    rating: 4.9,
+    reviews: 127,
+    price: 250,
+    verified: true,
+    available: true,
+    distance: "2.4 km",
+    image: "https://i.pravatar.cc/300?img=12",
+    phone: "212600000001"
+  },
+
+  {
+    id: 2,
+    name: "Amine Berrada",
+    job: "Électricien",
+    category: "electricite",
+    city: "casablanca",
+    area: "Bourgogne",
+    rating: 4.8,
+    reviews: 94,
+    price: 200,
+    verified: true,
+    available: true,
+    distance: "3.1 km",
+    image: "https://i.pravatar.cc/300?img=11",
+    phone: "212600000002"
+  },
+
+  {
+    id: 3,
+    name: "Omar El Idrissi",
+    job: "Peintre professionnel",
+    category: "peinture",
+    city: "casablanca",
+    area: "Ain Sebaa",
+    rating: 4.7,
+    reviews: 68,
+    price: 180,
+    verified: false,
+    available: true,
+    distance: "5.2 km",
+    image: "https://i.pravatar.cc/300?img=14",
+    phone: "212600000003"
+  },
+
+  {
+    id: 4,
+    name: "Mehdi Alaoui",
+    job: "Plâtrier / Gypsum",
+    category: "gypsum",
+    city: "casablanca",
+    area: "Californie",
+    rating: 4.9,
+    reviews: 81,
+    price: 300,
+    verified: true,
+    available: false,
+    distance: "6.4 km",
+    image: "https://i.pravatar.cc/300?img=15",
+    phone: "212600000004"
+  },
+
+  {
+    id: 5,
+    name: "Hicham Benali",
+    job: "Menuisier",
+    category: "menuiserie",
+    city: "casablanca",
+    area: "Sidi Maarouf",
+    rating: 4.6,
+    reviews: 51,
+    price: 220,
+    verified: true,
+    available: true,
+    distance: "7.1 km",
+    image: "https://i.pravatar.cc/300?img=13",
+    phone: "212600000005"
+  },
+
+  {
+    id: 6,
+    name: "Karim Tazi",
+    job: "Technicien climatisation",
+    category: "climatisation",
+    city: "casablanca",
+    area: "Oasis",
+    rating: 4.8,
+    reviews: 73,
+    price: 250,
+    verified: true,
+    available: true,
+    distance: "4.8 km",
+    image: "https://i.pravatar.cc/300?img=17",
+    phone: "212600000006"
+  }
+
+];
+
+
+/* =========================================================
+   NORMALIZE SEARCH
+========================================================= */
+
+function normalizeText(value) {
+
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+}
+
+
+/* =========================================================
+   SEARCH MATCH
+========================================================= */
+
+function professionalMatches(pro, service, city) {
+
+  const serviceText = normalizeText(service);
+  const cityText = normalizeText(city);
+
+  const category =
+    normalizeText(pro.category);
+
+  const job =
+    normalizeText(pro.job);
+
+  const proCity =
+    normalizeText(pro.city);
+
+  const area =
+    normalizeText(pro.area);
+
+
+  const serviceMatch =
+    !serviceText ||
+    category.includes(serviceText) ||
+    job.includes(serviceText) ||
+    serviceText.includes(category);
+
+
+  const cityMatch =
+    !cityText ||
+    proCity.includes(cityText) ||
+    area.includes(cityText);
+
+
+  return serviceMatch && cityMatch;
+
+}
+
+
+/* =========================================================
+   RENDER PROFESSIONAL CARD
+========================================================= */
+
+function renderProfessionalCard(pro) {
+
+  const stars =
+    "★".repeat(Math.round(pro.rating)) +
+    "☆".repeat(5 - Math.round(pro.rating));
+
+
+  return `
+
+    <article class="pro-card">
+
+      <div class="pro-top">
+
+        <img
+          src="${pro.image}"
+          alt="${pro.name}"
+          class="pro-avatar"
+        />
+
+        <div class="flex-1">
+
+          <div class="pro-name">
+            ${pro.name}
+          </div>
+
+          <div class="pro-job">
+            ${pro.job}
+          </div>
+
+          ${
+            pro.verified
+              ? `
+                <span class="verified-badge">
+                  ✓ Vérifié
+                </span>
+              `
+              : ""
+          }
+
+        </div>
+
+      </div>
+
+
+      <div class="pro-rating">
+
+        <span class="stars">
+          ${stars}
+        </span>
+
+        <span class="rating-number">
+          ${pro.rating}
+        </span>
+
+        <span class="review-count">
+          (${pro.reviews} avis)
+        </span>
+
+      </div>
+
+
+      <div class="pro-meta">
+
+        <span class="meta-pill">
+          📍 ${pro.area}
+        </span>
+
+        <span class="meta-pill">
+          ${pro.distance}
+        </span>
+
+        ${
+          pro.available
+            ? `
+              <span
+                class="meta-pill"
+                style="color:#087b55;background:#e9f8f2"
+              >
+                ● Disponible
+              </span>
+            `
+            : `
+              <span class="meta-pill">
+                Sur rendez-vous
+              </span>
+            `
+        }
+
+      </div>
+
+
+      <div class="pro-price">
+
+        <div>
+
+          <div class="price-label">
+            À partir de
+          </div>
+
+          <div class="price-value">
+            ${pro.price} DH
+          </div>
+
+        </div>
+
+        ${
+          pro.verified
+            ? `
+              <div
+                style="
+                  color:#0d6b61;
+                  font-size:11px;
+                  font-weight:800;
+                "
+              >
+                🛡️ Profil vérifié
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+
+      <div class="pro-actions">
+
+        <button
+          class="pro-btn pro-btn-primary"
+          onclick="openProfessional(${pro.id})"
+        >
+          Voir le profil
+        </button>
+
+        <button
+          class="pro-btn pro-btn-whatsapp"
+          onclick="contactWhatsApp('${pro.phone}')"
+        >
+          WhatsApp
+        </button>
+
+      </div>
+
+    </article>
+
+  `;
+
+}
+
+
+/* =========================================================
+   RENDER SEARCH RESULTS
+========================================================= */
+
+function renderSearchResults() {
+
+  const hash =
+    window.location.hash;
+
+  const query =
+    hash.split("?")[1] || "";
+
+  const params =
+    new URLSearchParams(query);
+
+  const service =
+    params.get("service") || "";
+
+  const city =
+    params.get("city") || "";
+
+  /* Remember this search so a profile's "back" button
+     can return to the exact same filtered results. */
+  lastSearchHash = window.location.hash;
+
+
+  const results =
+    sna3tiProfessionals.filter(
+      pro =>
+        professionalMatches(
+          pro,
+          service,
+          city
+        )
+    );
+
+
+  const existing =
+    document.getElementById(
+      "searchResultsPage"
+    );
+
+  if (existing) {
+    existing.remove();
+  }
+
+
+  const page =
+    document.createElement("section");
+
+  page.id =
+    "searchResultsPage";
+
+  page.className =
+    "search-page";
+
+
+  page.innerHTML = `
+
+    <div class="results-shell">
+
+      <a
+        href="#"
+        class="back-home"
+      >
+        ← Retour à l'accueil
+      </a>
+
+
+      <div class="results-header">
+
+        <div>
+
+          <div
+            style="
+              color:#0d6b61;
+              font-size:11px;
+              font-weight:900;
+              text-transform:uppercase;
+              letter-spacing:.15em;
+            "
+          >
+            Sna3ti Recherche
+          </div>
+
+          <h1
+            style="
+              font-size:36px;
+              font-weight:900;
+              margin-top:8px;
+            "
+          >
+            Professionnels disponibles
+          </h1>
+
+          <div class="results-count">
+
+            ${results.length}
+            professionnel${
+              results.length !== 1
+                ? "s"
+                : ""
+            }
+            trouvé${
+              results.length !== 1
+                ? "s"
+                : ""
+            }
+
+          </div>
+
+
+          <div class="search-summary">
+
+            ${
+              service
+                ? `
+                  <span class="search-tag">
+                    🔧 ${service}
+                  </span>
+                `
+                : ""
+            }
+
+            ${
+              city
+                ? `
+                  <span class="search-tag">
+                    📍 ${city}
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+
+        <select
+          id="resultsSort"
+          style="
+            padding:12px 15px;
+            border-radius:14px;
+            border:1px solid #e5e7eb;
+            background:white;
+            font-size:13px;
+            font-weight:700;
+            outline:none;
+          "
+        >
+
+          <option value="rating">
+            Mieux notés
+          </option>
+
+          <option value="price">
+            Prix croissant
+          </option>
+
+          <option value="distance">
+            Plus proches
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="results-layout">
+
+
+        <!-- FILTERS -->
+
+        <aside class="results-filters">
+
+          <div class="filter-title">
+            Filtrer les résultats
+          </div>
+
+
+          <div class="filter-group">
+
+            <label class="filter-option">
+
+              <input
+                type="checkbox"
+                id="verifiedFilter"
+              />
+
+              Professionnels vérifiés
+
+            </label>
+
+
+            <label class="filter-option">
+
+              <input
+                type="checkbox"
+                id="availableFilter"
+              />
+
+              Disponibles aujourd'hui
+
+            </label>
+
+          </div>
+
+
+          <div class="filter-group">
+
+            <span class="filter-label">
+              Note minimum
+            </span>
+
+            <label class="filter-option">
+
+              <input
+                type="radio"
+                name="ratingFilter"
+                value="0"
+                checked
+              />
+
+              Toutes les notes
+
+            </label>
+
+            <label class="filter-option">
+
+              <input
+                type="radio"
+                name="ratingFilter"
+                value="4"
+              />
+
+              ★ 4.0+
+
+            </label>
+
+            <label class="filter-option">
+
+              <input
+                type="radio"
+                name="ratingFilter"
+                value="4.5"
+              />
+
+              ★ 4.5+
+
+            </label>
+
+            <label class="filter-option">
+
+              <input
+                type="radio"
+                name="ratingFilter"
+                value="4.8"
+              />
+
+              ★ 4.8+
+
+            </label>
+
+          </div>
+
+        </aside>
+
+
+        <!-- RESULTS -->
+
+        <div>
+
+          <div
+            id="professionalsGrid"
+            class="professionals-grid"
+          >
+
+            ${
+              results.length
+                ? results
+                    .map(
+                      renderProfessionalCard
+                    )
+                    .join("")
+                : `
+                  <div
+                    class="empty-results"
+                    style="grid-column:1/-1"
+                  >
+
+                    <div class="empty-icon">
+                      🔎
+                    </div>
+
+                    <h2
+                      style="
+                        font-size:22px;
+                        font-weight:900;
+                      "
+                    >
+                      Aucun professionnel trouvé
+                    </h2>
+
+                    <p
+                      style="
+                        color:#64748b;
+                        margin-top:8px;
+                      "
+                    >
+                      Essayez une autre
+                      catégorie ou une autre
+                      ville.
+                    </p>
+
+                  </div>
+                `
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  document
+    .querySelector("main")
+    .innerHTML = "";
+
+  document
+    .querySelector("main")
+    .appendChild(page);
+
+
+  setupResultFilters(results);
+
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+function setupResultFilters(originalResults) {
+
+  const verified =
+    document.getElementById(
+      "verifiedFilter"
+    );
+
+  const available =
+    document.getElementById(
+      "availableFilter"
+    );
+
+
+  const ratingInputs =
+    document.querySelectorAll(
+      'input[name="ratingFilter"]'
+    );
+
+
+  const sort =
+    document.getElementById(
+      "resultsSort"
+    );
+
+
+  function applyFilters() {
+
+    let results =
+      [...originalResults];
+
+
+    if (verified.checked) {
+
+      results =
+        results.filter(
+          pro => pro.verified
+        );
+
+    }
+
+
+    if (available.checked) {
+
+      results =
+        results.filter(
+          pro => pro.available
+        );
+
+    }
+
+
+    const rating =
+      Number(
+        document.querySelector(
+          'input[name="ratingFilter"]:checked'
+        )?.value || 0
+      );
+
+
+    results =
+      results.filter(
+        pro =>
+          pro.rating >= rating
+      );
+
+
+    if (sort.value === "rating") {
+
+      results.sort(
+        (a,b) =>
+          b.rating - a.rating
+      );
+
+    }
+
+
+    if (sort.value === "price") {
+
+      results.sort(
+        (a,b) =>
+          a.price - b.price
+      );
+
+    }
+
+
+    if (sort.value === "distance") {
+
+      results.sort(
+        (a,b) =>
+          parseFloat(a.distance) -
+          parseFloat(b.distance)
+      );
+
+    }
+
+
+    const grid =
+      document.getElementById(
+        "professionalsGrid"
+      );
+
+
+    grid.innerHTML =
+      results.length
+        ? results
+            .map(
+              renderProfessionalCard
+            )
+            .join("")
+        : `
+          <div
+            class="empty-results"
+            style="grid-column:1/-1"
+          >
+
+            <div class="empty-icon">
+              🔎
+            </div>
+
+            <h2
+              style="
+                font-size:22px;
+                font-weight:900;
+              "
+            >
+              Aucun résultat
+            </h2>
+
+            <p
+              style="
+                color:#64748b;
+                margin-top:8px;
+              "
+            >
+              Modifiez vos filtres.
+            </p>
+
+          </div>
+        `;
+
+  }
+
+
+  verified.addEventListener(
+    "change",
+    applyFilters
+  );
+
+  available.addEventListener(
+    "change",
+    applyFilters
+  );
+
+  ratingInputs.forEach(
+    input =>
+      input.addEventListener(
+        "change",
+        applyFilters
+      )
+  );
+
+
+  sort.addEventListener(
+    "change",
+    applyFilters
+  );
+
+}
+
+
+/* =========================================================
+   PROFESSIONAL PROFILE
+========================================================= */
+
+function openProfessional(id) {
+
+  const pro =
+    sna3tiProfessionals.find(
+      item => item.id === id
+    );
+
+  if (!pro) return;
+
+  /* Give the profile its own hash route so browser
+     back/refresh work correctly. Avoid triggering the
+     router again if we're already on this profile. */
+  if (window.location.hash !== "#/pro/" + id) {
+    window.location.hash = "#/pro/" + id;
+  }
+
+  document
+    .querySelector("main")
+    .innerHTML = `
+
+      <section
+        style="
+          min-height:100vh;
+          padding:130px 20px 80px;
+          background:var(--cream);
+        "
+      >
+
+        <div
+          style="
+            max-width:1000px;
+            margin:auto;
+          "
+        >
+
+          <a
+            href="${lastSearchHash || "#/search"}"
+            class="back-home"
+          >
+            ← Retour aux résultats
+          </a>
+
+
+          <div
+            style="
+              background:white;
+              border-radius:35px;
+              padding:35px;
+              box-shadow:0 25px 70px rgba(7,29,26,.08);
+              border:1px solid #edf0ef;
+            "
+          >
+
+            <div
+              style="
+                display:flex;
+                gap:25px;
+                align-items:center;
+                flex-wrap:wrap;
+              "
+            >
+
+              <img
+                src="${pro.image}"
+                alt="${pro.name}"
+                style="
+                  width:130px;
+                  height:130px;
+                  border-radius:35px;
+                  object-fit:cover;
+                  box-shadow:0 20px 40px rgba(7,29,26,.12);
+                "
+              />
+
+
+              <div>
+
+                <h1
+                  style="
+                    font-size:34px;
+                    font-weight:900;
+                  "
+                >
+                  ${pro.name}
+                </h1>
+
+                <p
+                  style="
+                    color:#64748b;
+                    margin-top:5px;
+                  "
+                >
+                  ${pro.job}
+                </p>
+
+
+                ${
+                  pro.verified
+                    ? `
+                      <div
+                        class="verified-badge"
+                        style="margin-top:12px"
+                      >
+                        ✓ Professionnel vérifié
+                      </div>
+                    `
+                    : ""
+                }
+
+
+                <div
+                  class="pro-rating"
+                  style="margin-top:15px"
+                >
+
+                  <span class="stars">
+                    ★★★★★
+                  </span>
+
+                  <strong>
+                    ${pro.rating}
+                  </strong>
+
+                  <span class="review-count">
+                    ${pro.reviews} avis
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div
+              style="
+                display:grid;
+                grid-template-columns:
+                  repeat(auto-fit,minmax(180px,1fr));
+                gap:15px;
+                margin-top:35px;
+              "
+            >
+
+              <div class="meta-pill">
+                📍 ${pro.area}
+              </div>
+
+              <div class="meta-pill">
+                📏 ${pro.distance}
+              </div>
+
+              <div class="meta-pill">
+                💰 Dès ${pro.price} DH
+              </div>
+
+              <div class="meta-pill">
+                ${
+                  pro.available
+                    ? "🟢 Disponible aujourd'hui"
+                    : "📅 Sur rendez-vous"
+                }
+              </div>
+
+            </div>
+
+
+            <div
+              style="
+                display:grid;
+                grid-template-columns:
+                  repeat(auto-fit,minmax(180px,1fr));
+                gap:12px;
+                margin-top:30px;
+              "
+            >
+
+              <button
+                class="pro-btn pro-btn-primary"
+                onclick="window.location.href='tel:+${pro.phone}'"
+              >
+                📞 Appeler
+              </button>
+
+              <button
+                class="pro-btn pro-btn-whatsapp"
+                onclick="contactWhatsApp('${pro.phone}')"
+              >
+                💬 WhatsApp
+              </button>
+
+            </div>
+
+
+            <div
+              style="
+                margin-top:40px;
+                padding-top:30px;
+                border-top:1px solid #edf0ef;
+              "
+            >
+
+              <h2
+                style="
+                  font-size:22px;
+                  font-weight:900;
+                "
+              >
+                À propos
+              </h2>
+
+              <p
+                style="
+                  margin-top:12px;
+                  line-height:1.8;
+                  color:#64748b;
+                "
+              >
+                Professionnel expérimenté spécialisé
+                dans son domaine. Contactez ce
+                professionnel directement pour discuter
+                de votre besoin et obtenir un devis.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    `;
+
+}
+
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+function contactWhatsApp(phone) {
+
+  const message =
+    encodeURIComponent(
+      "Bonjour, je vous ai trouvé sur Sna3ti.ma. Je souhaite avoir plus d'informations sur vos services."
+    );
+
+  window.open(
+    `https://wa.me/${phone}?text=${message}`,
+    "_blank"
+  );
+
+}
+
+
+/* =========================================================
+   HASH ROUTER
+========================================================= */
+
+function handleSna3tiRoute() {
+
+  const hash = window.location.hash;
+
+  // PROFILE ROUTE
+  const proMatch = hash.match(/^#\/pro\/(\d+)$/);
+
+  if (proMatch) {
+    openProfessional(Number(proMatch[1]));
+    return true;
+  }
+
+  // SEARCH ROUTE
+  if (hash.startsWith("#/search")) {
+
+    renderSearchResults();
+
+    return true;
+
+  }
+
+  // HOME ROUTE
+  if (
+    hash === "" ||
+    hash === "#" ||
+    hash === "#/"
+  ) {
+
+    restoreHome();
+
+    return true;
+
+  }
+
+  return false;
+
+}
+
+
+window.addEventListener(
+  "hashchange",
+  handleSna3tiRoute
+);
+
+
+/* =========================================================
+   HOME CAPTURE / RESTORE
+========================================================= */
+
+/* Snapshot of the static home page (hero + services) taken
+   once at load, so we can restore it when navigating home
+   after visiting search results or a profile. */
+let homeMainHTML = "";
+
+function restoreHome() {
+
+  const main = document.querySelector("main");
+
+  if (!main) return;
+
+  /* Restore only if a rendered page replaced the home. */
+  const hadHome =
+    main.querySelector(".hero") !== null;
+
+  if (hadHome) return;
+
+  if (!homeMainHTML) return;
+
+  main.innerHTML = homeMainHTML;
+
+  /* Re-bind the interactive home parts and re-apply the
+     active language to the restored markup. */
+  bindHeroTilt();
+  bindServiceCards();
+  setLanguage(savedLanguage);
+
+}
+
+
+/* =========================================================
+   INITIAL ROUTE
+========================================================= */
+
+/* Capture the static home page markup once, before any
+   route can replace it. */
+const mainEl = document.querySelector("main");
+
+if (mainEl) {
+  homeMainHTML = mainEl.innerHTML;
+}
+
+handleSna3tiRoute();
+
+  </script>
+
+</body>
+</html>
