@@ -3067,11 +3067,11 @@ searchForm.addEventListener("submit", function (event) {
     params.set("city", city);
   }
 
-  window.location.hash =
-    "#/search?" + params.toString();
+  const searchHash =
+  "#/search?" + params.toString();
 
-  renderSearchResults();
-
+window.location.hash = searchHash;
+  
 });
 
      
