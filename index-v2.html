@@ -4302,13 +4302,12 @@ function contactWhatsApp(phone) {
 
 function handleSna3tiRoute() {
 
-  const hash =
-    window.location.hash;
+  const hash = window.location.hash;
 
+  console.log("Sna3ti route:", hash);
 
-  if (
-    hash.startsWith("#/search")
-  ) {
+  // SEARCH ROUTE
+  if (hash.startsWith("#/search")) {
 
     renderSearchResults();
 
@@ -4316,6 +4315,18 @@ function handleSna3tiRoute() {
 
   }
 
+  // HOME ROUTE
+  if (
+    hash === "" ||
+    hash === "#" ||
+    hash === "#/"
+  ) {
+
+    location.reload();
+
+    return true;
+
+  }
 
   return false;
 
