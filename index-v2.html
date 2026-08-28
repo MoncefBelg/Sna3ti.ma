@@ -3074,60 +3074,10 @@ searchForm.addEventListener("submit", function (event) {
 
 });
 
-        event.preventDefault();
+     
 
 
-        const service =
-          document
-            .getElementById(
-              "serviceInput"
-            )
-            .value
-            .trim();
-
-
-        const city =
-          document
-            .getElementById(
-              "cityInput"
-            )
-            .value
-            .trim();
-
-
-        console.log({
-          service,
-          city
-        });
-
-
-        /*
-          PART 2:
-
-          Here we will connect the search
-          to the real Sna3ti results page.
-
-          Example:
-
-          window.location.hash =
-            "#/services?service=" +
-            encodeURIComponent(service) +
-            "&city=" +
-            encodeURIComponent(city);
-        */
-
-
-        alert(
-          languageSelect.value === "ar"
-            ? "البحث ديالك تسجل بنجاح."
-            : languageSelect.value === "en"
-              ? "Your search is ready."
-              : "Votre recherche est prête."
-        );
-
-      }
-    );
-
+     
 
     /* =========================================================
        3D CARD TILT
