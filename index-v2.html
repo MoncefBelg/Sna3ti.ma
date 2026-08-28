@@ -880,6 +880,412 @@
     padding-right: 15px;
   }
 }
+    /* =========================================================
+   SNA3TI PREMIUM HERO POLISH v1
+   Visual only — does not change existing logic
+========================================================= */
+
+.hero {
+  min-height: 820px;
+  perspective: 1400px;
+}
+
+/* Softer cinematic lighting */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 52% 42%,
+      rgba(200,245,237,.07),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.05),
+      transparent 45%,
+      rgba(0,0,0,.18)
+    );
+  z-index: 1;
+}
+
+/* Moroccan-inspired subtle pattern */
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -180px;
+  bottom: -220px;
+  pointer-events: none;
+
+  opacity: .12;
+
+  background-image:
+    linear-gradient(30deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(150deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(30deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%),
+    linear-gradient(150deg, rgba(255,255,255,.35) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,.35) 87.5%);
+
+  background-size: 42px 72px;
+  background-position:
+    0 0,
+    0 0,
+    21px 36px,
+    21px 36px;
+
+  mask-image: radial-gradient(circle, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle, black 10%, transparent 70%);
+
+  transform: rotate(12deg);
+}
+
+/* Better glass search */
+.hero-search {
+  position: relative;
+  z-index: 3;
+
+  border: 1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    0 25px 55px rgba(0,0,0,.22),
+    0 5px 15px rgba(0,0,0,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.hero-search::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 26px;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255,255,255,.45),
+      transparent 35%
+    );
+
+  opacity: .55;
+}
+
+/* Premium CTA */
+.btn-orange {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-orange::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.32),
+      transparent
+    );
+
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+
+.btn-orange:hover::before {
+  left: 150%;
+}
+
+/* Hero card becomes more dimensional */
+.hero-card {
+  box-shadow:
+    0 50px 110px rgba(0,0,0,.34),
+    0 15px 35px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.22);
+
+  border-color: rgba(255,255,255,.22);
+
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    box-shadow .3s ease;
+}
+
+/* Highlight on top edge */
+.hero-card::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.65),
+      transparent
+    );
+
+  pointer-events: none;
+}
+
+/* Card hover depth */
+.hero-visual:hover .hero-card {
+  box-shadow:
+    0 60px 130px rgba(0,0,0,.38),
+    0 20px 45px rgba(0,0,0,.2),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+/* Floating badges become more premium */
+.floating-badge {
+  border:
+    1px solid rgba(255,255,255,.55);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,.22),
+    0 5px 15px rgba(0,0,0,.08);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+.floating-badge:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 30px 70px rgba(0,0,0,.28);
+}
+
+/* Tool orbs */
+.tool-orb {
+  border-color: rgba(255,255,255,.22);
+
+  box-shadow:
+    0 25px 50px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.18);
+
+  transform-style: preserve-3d;
+}
+
+/* Trust pills */
+.trust-pill {
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.trust-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.22);
+}
+
+/* Hero title polish */
+.hero h1 {
+  text-shadow:
+    0 2px 25px rgba(0,0,0,.18);
+}
+
+/* Better stats hierarchy */
+.hero .text-2xl {
+  text-shadow:
+    0 4px 20px rgba(0,0,0,.18);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .orb,
+  .floating-badge,
+  .tool-orb,
+  .hero-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Mobile polish */
+@media (max-width: 768px) {
+
+  .hero {
+    min-height: auto;
+    padding-bottom: 80px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 13vw, 4.5rem);
+  }
+
+  .hero-search {
+    margin-top: 2rem;
+  }
+
+  .trust-pill {
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+}
+
+    /* =========================================================
+   HERO POLISH — FINAL TUNING
+========================================================= */
+
+.hero-search {
+  position: relative;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255,255,255,.10),
+      transparent 42%
+    );
+
+  opacity: .7;
+}
+
+/* Give the profile a more premium presence */
+.profile-photo {
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 999px;
+
+  border: 4px solid rgba(255,255,255,.14);
+
+  box-shadow:
+    0 15px 40px rgba(0,0,0,.28),
+    0 0 0 8px rgba(255,255,255,.025);
+}
+
+/* Hero eyebrow */
+.hero > .relative > .text-white > div:first-child {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.12),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* Search fields */
+.search-field {
+  position: relative;
+  min-height: 76px;
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+.search-field:focus-within {
+  background: rgba(255,255,255,.04);
+}
+
+.search-field input::placeholder {
+  color: #9ca3af;
+  opacity: .8;
+}
+
+/* Search button */
+.search-button {
+  min-width: 150px;
+
+  box-shadow:
+    0 12px 25px rgba(233,121,63,.22);
+}
+
+.search-button:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 16px 32px rgba(233,121,63,.30);
+}
+
+/* Trust pills */
+.trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 9px 13px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  color: rgba(255,255,255,.78);
+
+  background: rgba(255,255,255,.055);
+
+  border: 1px solid rgba(255,255,255,.09);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hero stats */
+.hero-stat {
+  position: relative;
+}
+
+.hero-stat + .hero-stat::before {
+  content: "";
+
+  position: absolute;
+  left: -17px;
+  top: 8px;
+  bottom: 8px;
+
+  width: 1px;
+
+  background: rgba(255,255,255,.10);
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+
+  .hero-search {
+    border-radius: 22px;
+  }
+
+  .search-field {
+    min-height: 68px;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .hero-stat + .hero-stat::before {
+    display: none;
+  }
+}
 
   </style>
 </head>
@@ -1180,8 +1586,8 @@
           mx-auto
           px-4
           sm:px-6
-          pt-16
-          lg:pt-24
+          pt-20
+          lg:pt-28
           grid
           lg:grid-cols-2
           gap-14
@@ -1455,7 +1861,7 @@
             "
           >
 
-            <div>
+            <div class="hero-stat">
               <div class="text-2xl font-black">
                 1,200+
               </div>
@@ -1475,7 +1881,7 @@
               </div>
             </div>
 
-            <div>
+            <div class="hero-stat">
               <div class="text-2xl font-black">
                 15+
               </div>
@@ -1498,7 +1904,7 @@
           class="
             hero-visual
             relative
-            h-[540px]
+            h-[580px]
             hidden
             lg:block
           "
