@@ -4,11 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Sna3ti.ma — L9a lm3allem li 9rib lik</title>
+  <title>Sna3ti.ma — L9a Lm3allem Li 9rib Lik | Plombier, électricien... partout au Maroc</title>
   <meta
     name="description"
-    content="Sna3ti.ma — Trouvez facilement un professionnel de confiance près de chez vous."
+    content="Sna3ti.ma — Trouvez facilement un artisan ou professionnel de confiance près de chez vous au Maroc : plombier, électricien, mécanicien, maçon, coiffeur, professeur et plus. Recherche intelligente en arabe, darija et français."
   />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Sna3ti.ma" />
+  <meta name="theme-color" content="#0D6B61" />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://sna3ti.ma/" />
+  <link rel="sitemap" href="https://sna3ti.ma/sitemap.xml" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sna3ti.ma" />
+  <meta property="og:title" content="Sna3ti.ma — L9a Lm3allem Li 9rib Lik" />
+  <meta
+    property="og:description"
+    content="Trouvez facilement un professionnel de confiance près de chez vous au Maroc : plombier, électricien, maçon, coiffeur et plus."
+  />
+  <meta property="og:url" content="https://sna3ti.ma/" />
+  <meta property="og:locale" content="fr_MA" />
+  <meta property="og:locale:alternate" content="ar_MA" />
+  <meta property="og:image" content="https://sna3ti.ma/hero.webp" />
+  <meta property="og:image:alt" content="Sna3ti.ma — Trouvez un artisan au Maroc" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sna3ti.ma — L9a Lm3allem Li 9rib Lik" />
+  <meta
+    name="twitter:description"
+    content="Trouvez facilement un professionnel de confiance près de chez vous au Maroc."
+  />
+  <meta name="twitter:image" content="https://sna3ti.ma/hero.webp" />
+
+  <!-- JSON-LD : LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Sna3ti.ma",
+    "url": "https://sna3ti.ma/",
+    "image": "https://sna3ti.ma/hero.webp",
+    "description": "Plateforme marocaine pour trouver des artisans et professionnels de confiance près de chez vous : plomberie, électricité, maçonnerie, mécanique, coiffure et plus.",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Maroc"
+    },
+    "inLanguage": ["fr", "ar"],
+    "makesOffer": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recherche de plombier" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recherche d'électricien" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recherche de maçon" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recherche de mécanicien" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Recherche de coiffeur" } }
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://sna3ti.ma/#/search?service={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -224,6 +283,132 @@
       -webkit-backdrop-filter: blur(18px);
 
       border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    /* =========================================================
+       NAV DROPDOWNS
+    ========================================================= */
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 4px;
+      transition: color .2s ease;
+    }
+
+    .nav-link .caret {
+      font-size: 10px;
+      opacity: .55;
+      transition: transform .2s ease;
+    }
+
+    .nav-item:hover .nav-link,
+    .nav-item:focus-within .nav-link {
+      color: var(--teal);
+    }
+
+    .nav-item:hover .nav-link .caret,
+    .nav-item:focus-within .nav-link .caret {
+      transform: rotate(180deg);
+    }
+
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      min-width: 220px;
+      background: white;
+      border: 1px solid rgba(7,29,26,.08);
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: 0 20px 50px rgba(7,29,26,.14);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity .2s ease,
+        transform .2s ease,
+        visibility .2s;
+      z-index: 60;
+    }
+
+    .nav-item:hover .nav-dropdown,
+    .nav-item:focus-within .nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .nav-dropdown-title {
+      display: block;
+      padding: 8px 12px 6px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: #a0aec0;
+    }
+
+    .nav-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .nav-dropdown a:hover {
+      background: #e8f8f4;
+      color: var(--teal);
+    }
+
+    /* =========================================================
+       GOLD PACKAGE
+    ========================================================= */
+
+    .gold-package {
+      position: relative;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(201,169,67,.55), transparent 55%),
+        radial-gradient(circle at 80% 100%, rgba(143,107,30,.45), transparent 55%),
+        linear-gradient(135deg, #c9a943 0%, #ae8625 50%, #8f6b1e 100%);
+      border: 2px solid #ae8625;
+    }
+
+    /* animated glossy sheen sweeping across the card */
+    .gold-package::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -80%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(255,255,255,0) 35%,
+        rgba(255,255,255,.6) 50%,
+        rgba(255,255,255,0) 65%,
+        transparent 100%
+      );
+      transform: skewX(-20deg);
+      animation: goldShine 3.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes goldShine {
+      0% { left: -80%; }
+      55% { left: 130%; }
+      100% { left: 130%; }
     }
 
     /* =========================================================
@@ -558,14 +743,43 @@
     ========================================================= */
 
     [dir="rtl"] .hero-card-main {
+      top: 24px;
       transform:
-        translateX(50%)
+        translateX(0)
         rotateY(8deg)
         rotateX(4deg);
     }
 
     [dir="rtl"] .hero-grid {
       transform: scaleX(-1);
+    }
+
+    /* Keep the profile card beside the search content on RTL:
+       force the visual back to the right column and top-align it
+       so it doesn't drop below the search bar. */
+    [dir="rtl"] .hero-content-grid {
+      align-items: start;
+    }
+
+    [dir="rtl"] .hero-content-grid .hero-visual {
+      order: -1;
+    }
+
+    /* Align the three pack toggles on the same bottom line */
+    .price-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-toggle {
+      margin-top: auto;
+    }
+
+    /* Selected registration pack card */
+    .reg-pack-selected {
+      border-color: #168F80 !important;
+      background: rgba(22,143,128,.18) !important;
+      box-shadow: 0 0 0 1px #168F80;
     }
 
     /* =========================================================
@@ -1351,7 +1565,7 @@
           hidden
           lg:flex
           items-center
-          gap-8
+          gap-7
           text-sm
           font-semibold
           text-gray-600
@@ -1366,21 +1580,49 @@
           Accueil
         </a>
 
-        <a
-          href="#services"
-          class="hover:text-sna3ti-teal transition"
-          data-i18n="nav.services"
-        >
-          Services
-        </a>
+        <!-- SERVICES DROPDOWN -->
+        <div class="nav-item">
+          <a
+            href="#services"
+            class="nav-link"
+            data-i18n="nav.services"
+          >
+            Services <span class="caret">▼</span>
+          </a>
+          <div class="nav-dropdown">
+            <span class="nav-dropdown-title">Nos services</span>
+            <a href="#/search?service=plomberie">🔧 Plomberie</a>
+            <a href="#/search?service=electricite">⚡ Électricité</a>
+            <a href="#/search?service=platrerie">🧱 Plâtrier / Gypsum</a>
+            <a href="#/search?service=peinture">🎨 Peinture</a>
+            <a href="#/search?service=menuiserie">🪚 Menuiserie</a>
+            <a href="#/search?service=climatisation">❄️ Climatisation</a>
+            <a href="#/search?service=carrelage">🧱 Carrelage / Zellige</a>
+            <a
+              href="#services"
+              style="border-top:1px solid #edf0ef; margin-top:6px; padding-top:12px;"
+            >
+              Toutes les catégories →
+            </a>
+          </div>
+        </div>
 
-        <a
-          href="#professionals"
-          class="hover:text-sna3ti-teal transition"
-          data-i18n="nav.professionals"
-        >
-          Professionnels
-        </a>
+        <!-- PROFESSIONNELS DROPDOWN -->
+        <div class="nav-item">
+          <a
+            href="#professionals"
+            class="nav-link"
+            data-i18n="nav.professionals"
+          >
+            Professionnels <span class="caret">▼</span>
+          </a>
+          <div class="nav-dropdown">
+            <span class="nav-dropdown-title">Pour les pros</span>
+            <a href="#professionals">🛠️ Rejoindre Sna3ti</a>
+            <a href="#how">📖 Comment ça marche</a>
+            <a href="#register">📝 Inscrire mon activité</a>
+          </div>
+        </div>
 
         <a
           href="#how"
@@ -1390,13 +1632,22 @@
           Comment ça marche
         </a>
 
-        <a
-          href="#pricing"
-          class="hover:text-sna3ti-teal transition"
-          data-i18n="nav.pricing"
-        >
-          Tarifs
-        </a>
+        <!-- TARIFS DROPDOWN -->
+        <div class="nav-item">
+          <a
+            href="#pricing"
+            class="nav-link"
+            data-i18n="nav.pricing"
+          >
+            Tarifs <span class="caret">▼</span>
+          </a>
+          <div class="nav-dropdown">
+            <span class="nav-dropdown-title">Nos formules</span>
+            <a href="#pricing">💼 Gratuit — 0 DH</a>
+            <a href="#pricing">🛡️ Vérifié — 99 DH/mois</a>
+            <a href="#pricing">👑 <span style="color:#D97706;font-weight:800">GOLD</span> — 199 DH/mois</a>
+          </div>
+        </div>
 
       </nav>
 
@@ -1505,9 +1756,20 @@
           Accueil
         </a>
 
-        <a href="#services">
-          Services
-        </a>
+        <div>
+          <a href="#services">
+            Services
+          </a>
+          <div class="grid gap-2 mt-2 pl-3 text-[13px] font-medium text-gray-500">
+            <a href="#/search?service=plomberie">🔧 Plomberie</a>
+            <a href="#/search?service=electricite">⚡ Électricité</a>
+            <a href="#/search?service=platrerie">🧱 Plâtrier / Gypsum</a>
+            <a href="#/search?service=peinture">🎨 Peinture</a>
+            <a href="#/search?service=menuiserie">🪚 Menuiserie</a>
+            <a href="#/search?service=climatisation">❄️ Climatisation</a>
+            <a href="#/search?service=carrelage">🧱 Carrelage / Zellige</a>
+          </div>
+        </div>
 
         <a href="#professionals">
           Professionnels
@@ -1517,9 +1779,16 @@
           Comment ça marche
         </a>
 
-        <a href="#pricing">
-          Tarifs
-        </a>
+        <div>
+          <a href="#pricing">
+            Tarifs
+          </a>
+          <div class="grid gap-2 mt-2 pl-3 text-[13px] font-medium text-gray-500">
+            <a href="#pricing">💼 Gratuit — 0 DH</a>
+            <a href="#pricing">🛡️ Vérifié — 99 DH/mois</a>
+            <a href="#pricing">👑 <span style="color:#D97706;font-weight:800">GOLD</span> — 199 DH/mois</a>
+          </div>
+        </div>
 
         <a
           href="#register"
@@ -1592,6 +1861,7 @@
           lg:grid-cols-2
           gap-14
           items-center
+          hero-content-grid
         "
       >
 
@@ -1638,9 +1908,9 @@
           <h1
             class="
               font-display
-              text-5xl
-              sm:text-6xl
-              lg:text-7xl
+              text-4xl
+              sm:text-5xl
+              lg:text-6xl
               font-black
               leading-[.95]
               tracking-tight
@@ -1648,7 +1918,7 @@
             "
             data-i18n="hero.title"
           >
-            L9a lm3allem li 9rib lik.
+            L9a Lm3allem Li&#160;9rib&#160;Lik.
           </h1>
 
 
@@ -1712,12 +1982,11 @@
                     text-gray-400
                   "
                 >
-                  Service
+                  <span data-i18n="hero.service">Service</span>
                 </label>
 
-                <input
-                  id="serviceInput"
-                  type="text"
+                <select
+                  id="serviceSelect"
                   class="
                     w-full
                     mt-1
@@ -1725,69 +1994,43 @@
                     text-sm
                     font-semibold
                     text-sna3ti-ink
+                    bg-transparent
+                    cursor-pointer
                   "
-                  placeholder="Plomberie, peinture..."
-                  data-i18n-placeholder="hero.servicePlaceholder"
-                />
+                ></select>
 
               </div>
 
             </div>
 
 
-            <!-- LOCATION -->
+            <!-- CITY -->
 
             <div
-              class="
-                search-field
-                flex
-                items-center
-                gap-3
-                px-4
-                border-t
-                md:border-t-0
-                md:border-l
-                border-gray-100
-              "
+              class="search-field flex items-center gap-3 px-4 border-t md:border-t-0 md:border-l border-gray-100"
             >
 
-              <span class="text-2xl">
-                📍
-              </span>
+              <span class="text-2xl">📍</span>
 
               <div class="flex-1">
 
                 <label
-                  class="
-                    block
-                    text-[11px]
-                    uppercase
-                    tracking-wider
-                    font-bold
-                    text-gray-400
-                  "
-                >
-                  Localisation
-                </label>
+                  class="block text-[11px] uppercase tracking-wider font-bold text-gray-400"
+                  data-i18n="hero.city"
+                >Ville</label>
 
-                <input
-                  id="cityInput"
-                  type="text"
-                  class="
-                    w-full
-                    mt-1
-                    outline-none
-                    text-sm
-                    font-semibold
-                    text-sna3ti-ink
-                  "
-                  placeholder="Casablanca, Maarif..."
-                  data-i18n-placeholder="hero.cityPlaceholder"
-                />
+                <select
+                  id="citySelect"
+                  class="w-full mt-1 outline-none text-sm font-semibold text-sna3ti-ink bg-transparent cursor-pointer"
+                ></select>
+
+                <div id="locationHint" class="mt-1 text-[10px] text-gray-400" data-i18n="hero.regionCityHint"></div>
 
               </div>
 
             </div>
+
+            <input id="cityInput" type="hidden" value="" />
 
 
             <!-- BUTTON -->
@@ -2324,7 +2567,7 @@
                  text-sna3ti-teal"
         >
           <span>✦</span>
-          <span>Services</span>
+          <span data-i18n="nav.services">Services</span>
         </div>
 
         <h2
@@ -2353,7 +2596,7 @@
                font-bold text-sm
                whitespace-nowrap"
       >
-        <span>
+        <span data-i18n="services.seeAll">
           Voir tous les services
         </span>
 
@@ -2419,6 +2662,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.plomberie.name"
         >
           Plomberie
         </span>
@@ -2426,6 +2670,7 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.plomberie.sub"
         >
           Eau & installation
         </span>
@@ -2474,6 +2719,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.electricite.name"
         >
           Électricité
         </span>
@@ -2481,6 +2727,7 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.electricite.sub"
         >
           Installation & dépannage
         </span>
@@ -2527,6 +2774,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.gypsum.name"
         >
           Gypsum
         </span>
@@ -2534,6 +2782,7 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.gypsum.sub"
         >
           Faux plafond & déco
         </span>
@@ -2581,6 +2830,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.peinture.name"
         >
           Peinture
         </span>
@@ -2588,6 +2838,7 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.peinture.sub"
         >
           Intérieur & extérieur
         </span>
@@ -2634,6 +2885,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.menuiserie.name"
         >
           Menuiserie
         </span>
@@ -2641,6 +2893,7 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.menuiserie.sub"
         >
           Bois & aluminium
         </span>
@@ -2687,6 +2940,7 @@
         <span
           class="relative block mt-5
                  font-bold text-gray-900"
+          data-i18n="services.cards.clim.name"
         >
           Climatisation
         </span>
@@ -2694,8 +2948,455 @@
         <span
           class="relative block mt-1
                  text-xs text-gray-400"
+          data-i18n="services.cards.clim.sub"
         >
           Installation & entretien
+        </span>
+
+      </button>
+
+
+      <!-- CARRELAGE / ZELLIGE -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🧱
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.carrelage.name"
+        >
+          Carrelage
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.carrelage.sub"
+        >
+          Zellige &amp; faïence
+        </span>
+
+      </button>
+
+      <!-- ALUMINIUM & VITRAGE -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🪟
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.vitrage.name"
+        >
+          Menuisier Aluminium &amp; Vitrage
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.vitrage.sub"
+        >
+          Aluminium &amp; verre
+        </span>
+
+      </button>
+
+      <!-- MASONRY / GROS ŒUVRE -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:-rotate-3"
+        >
+          🏗️
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.maconnerie.name"
+        >
+          Maçonnerie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.maconnerie.sub"
+        >
+          Gros œuvre
+        </span>
+
+      </button>
+
+      <!-- ROOFING / ÉTANCHÉITÉ -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🏠
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.toiture.name"
+        >
+          Toiture &amp; Étanchéité
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.toiture.sub"
+        >
+          Zinc &amp; bitume
+        </span>
+
+      </button>
+
+      <!-- FRIDGE / APPLIANCES -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          ❄️
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.electromenager.name"
+        >
+          Froid &amp; Électroménager
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.electromenager.sub"
+        >
+          Réparation &amp; entretien
+        </span>
+
+      </button>
+
+      <!-- GARDENING -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:-rotate-3"
+        >
+          🌿
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.jardinage.name"
+        >
+          Jardinage
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.jardinage.sub"
+        >
+          Espaces verts
+        </span>
+
+      </button>
+
+      <!-- LOCKSMITH -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-sna3ti-teal/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-sna3ti-teal/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110"
+        >
+          🔐
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.serrurerie.name"
+        >
+          Serrurerie
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.serrurerie.sub"
+        >
+          Sécurité &amp; accès
+        </span>
+
+      </button>
+
+      <!-- TRANSPORT -->
+      <button
+        type="button"
+        class="service-card group relative overflow-hidden
+               min-h-[155px]
+               rounded-3xl
+               bg-white
+               border border-gray-100
+               p-5
+               text-left
+               shadow-[0_10px_30px_rgba(15,92,91,.06)]
+               transition-all duration-300
+               hover:-translate-y-2
+               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+      >
+
+        <div
+          class="absolute -right-8 -top-8
+                 w-24 h-24
+                 rounded-full
+                 bg-orange/5
+                 transition-transform duration-500
+                 group-hover:scale-150"
+        ></div>
+
+        <div
+          class="relative w-14 h-14
+                 rounded-2xl
+                 bg-orange/10
+                 grid place-items-center
+                 text-3xl
+                 transition-transform duration-300
+                 group-hover:scale-110
+                 group-hover:rotate-3"
+        >
+          🚛
+        </div>
+
+        <span
+          class="relative block mt-5
+                 font-bold text-gray-900"
+          data-i18n="services.cards.transport.name"
+        >
+          Déplacement &amp; Transport
+        </span>
+
+        <span
+          class="relative block mt-1
+                 text-xs text-gray-400"
+          data-i18n="services.cards.transport.sub"
+        >
+          Camion &amp; déménagement
         </span>
 
       </button>
@@ -2766,12 +3467,13 @@
                    tracking-[.18em] text-sna3ti-teal"
           >
             <span>🛠️</span>
-            <span>Professionnels</span>
+            <span data-i18n="pro.badge">Professionnels</span>
           </div>
 
           <h2
             class="mt-4 text-3xl sm:text-4xl lg:text-5xl
                    font-black tracking-tight text-sna3ti-ink"
+            data-i18n="pro.title"
           >
             Vous êtes un professionnel&nbsp;?
           </h2>
@@ -2779,6 +3481,7 @@
           <p
             class="mt-4 max-w-xl text-gray-500
                    text-base sm:text-lg leading-7"
+            data-i18n="pro.subtitle"
           >
             Inscrivez votre activité sur Sna3ti et recevez
             plus de demandes de clients proches de vous.
@@ -2791,19 +3494,19 @@
           >
             <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
               <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">✅</span>
-              Profil gratuit
+              <span data-i18n="pro.item1">Profil gratuit</span>
             </li>
             <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
               <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">🤝</span>
-              Demandes qualifiées
+              <span data-i18n="pro.item2">Demandes qualifiées</span>
             </li>
             <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
               <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">🛡️</span>
-              Badge vérifié
+              <span data-i18n="pro.item3">Badge vérifié</span>
             </li>
             <li class="flex items-center gap-3 text-sm font-semibold text-gray-700">
               <span class="w-9 h-9 rounded-xl bg-sna3ti-teal/10 grid place-items-center">📈</span>
-              Plus de visibilité
+              <span data-i18n="pro.item4">Plus de visibilité</span>
             </li>
           </ul>
 
@@ -2813,7 +3516,7 @@
                    bg-sna3ti-ink text-white px-6 py-3.5 text-sm font-bold
                    hover:bg-sna3ti-teal transition"
           >
-            Inscrire mon activité
+            <span data-i18n="pro.cta">Inscrire mon activité</span>
             <span>→</span>
           </a>
 
@@ -2833,8 +3536,8 @@
             <div class="flex items-center gap-4">
               <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal/10 grid place-items-center text-2xl">👷</div>
               <div>
-                <div class="text-lg font-black text-sna3ti-ink">Rejoignez</div>
-                <div class="text-sm text-gray-500">1200+ professionnels actifs</div>
+                <div class="text-lg font-black text-sna3ti-ink" data-i18n="pro.join">Rejoignez</div>
+                <div class="text-sm text-gray-500" data-i18n="pro.active">1200+ professionnels actifs</div>
               </div>
             </div>
             <div class="mt-6 space-y-3">
@@ -2846,7 +3549,7 @@
               class="mt-6 pt-6 border-t border-sna3ti-teal/10
                      flex items-center justify-between"
             >
-              <span class="text-sm font-bold text-sna3ti-teal">Demandes ce mois</span>
+              <span class="text-sm font-bold text-sna3ti-teal" data-i18n="pro.month">Demandes ce mois</span>
               <span class="text-2xl font-black text-sna3ti-ink">+340</span>
             </div>
           </div>
@@ -2879,18 +3582,20 @@
                  uppercase tracking-[.18em] text-sna3ti-teal"
         >
           <span>✦</span>
-          <span>Comment ça marche</span>
+          <span data-i18n="how.badge">Comment ça marche</span>
         </div>
 
         <h2
           class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black
                  tracking-tight text-sna3ti-ink"
+          data-i18n="how.title"
         >
           Votre besoin, le bon pro, en 3 étapes
         </h2>
 
         <p
           class="mt-4 text-gray-500 text-base sm:text-lg leading-7"
+          data-i18n="how.subtitle"
         >
           Simple, rapide et sûr.
         </p>
@@ -2905,8 +3610,8 @@
           class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
         >
           <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">1</div>
-          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Décrivez votre besoin</h3>
-          <p class="mt-2 text-sm text-gray-500 leading-6">
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink" data-i18n="how.s1t">Décrivez votre besoin</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6" data-i18n="how.s1d">
             Choisissez un service et votre localisation — ou laissez-nous comprendre votre demande.
           </p>
         </div>
@@ -2915,8 +3620,8 @@
           class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
         >
           <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">2</div>
-          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Comparez les profils</h3>
-          <p class="mt-2 text-sm text-gray-500 leading-6">
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink" data-i18n="how.s2t">Comparez les profils</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6" data-i18n="how.s2d">
             Note, avis, vérification, prix et disponibilité — choisissez en toute confiance.
           </p>
         </div>
@@ -2925,8 +3630,8 @@
           class="relative rounded-3xl bg-sna3ti-cream border border-sna3ti-teal/10 p-8"
         >
           <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">3</div>
-          <h3 class="mt-5 text-xl font-black text-sna3ti-ink">Contactez directement</h3>
-          <p class="mt-2 text-sm text-gray-500 leading-6">
+          <h3 class="mt-5 text-xl font-black text-sna3ti-ink" data-i18n="how.s3t">Contactez directement</h3>
+          <p class="mt-2 text-sm text-gray-500 leading-6" data-i18n="how.s3d">
             Appelez ou envoyez un message WhatsApp au professionnel et fixez un rendez-vous.
           </p>
         </div>
@@ -2947,7 +3652,7 @@
     class="relative overflow-hidden bg-sna3ti-cream py-20 sm:py-24"
   >
 
-    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
 
       <div class="text-center max-w-2xl mx-auto">
 
@@ -2957,69 +3662,130 @@
                  uppercase tracking-[.18em] text-sna3ti-teal"
         >
           <span>💳</span>
-          <span>Tarifs</span>
+          <span data-i18n="pricing.badge">Tarifs</span>
         </div>
 
         <h2
           class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black
                  tracking-tight text-sna3ti-ink"
+          data-i18n="pricing.title"
         >
           Une offre simple et transparente
         </h2>
 
+        <p class="mt-4 text-gray-500 text-base sm:text-lg leading-7" data-i18n="pricing.subtitle">
+          Comparez les formules et choisissez celle qui convient à votre activité.
+        </p>
+
       </div>
 
-      <div class="mt-14 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
 
-        <div
-          class="rounded-3xl bg-white border border-gray-200 p-8"
-        >
-          <h3 class="text-lg font-black text-sna3ti-ink">Compte gratuit</h3>
-          <div class="mt-2 text-3xl font-black text-sna3ti-ink">0 DH</div>
-          <p class="mt-2 text-sm text-gray-500">Pour démarrer</p>
-          <ul class="mt-6 space-y-3 text-sm text-gray-600">
-            <li class="flex items-center gap-2">✅ Profil professionnel de base</li>
-            <li class="flex items-center gap-2">✅ Recevoir des demandes</li>
-            <li class="flex items-center gap-2">✅ Contact direct clients</li>
-          </ul>
-          <a
-            href="#register"
-            class="mt-8 inline-flex w-full justify-center rounded-full border-2
-                   border-sna3ti-teal px-6 py-3 text-sm font-bold text-sna3ti-teal
-                   hover:bg-sna3ti-teal hover:text-white transition"
-          >
-            Créer mon compte
-          </a>
-        </div>
+      <!-- PRICING CARDS -->
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
 
-        <div
-          class="relative rounded-3xl bg-sna3ti-ink text-white p-8 shadow-premium"
-        >
-          <div
-            class="absolute top-6 right-6 rounded-full bg-sna3ti-orange text-white
-                   px-3 py-1 text-[11px] font-black uppercase"
-          >
-            Recommandé
+        <!-- GRATUIT -->
+        <div class="price-card relative rounded-3xl bg-white border border-sna3ti-teal/10 shadow-soft overflow-hidden">
+          <div class="p-6 text-center">
+            <div class="text-base font-black text-sna3ti-ink" data-i18n="pricing.gratuit">Gratuit</div>
+            <div class="mt-2 text-4xl font-black text-sna3ti-ink">0 <span data-i18n="unit.dh">DH</span></div>
+            <div class="mt-1 text-xs text-gray-400" data-i18n="pricing.freeSub">Pour démarrer</div>
           </div>
-          <h3 class="text-lg font-black">Compte vérifié</h3>
-          <div class="mt-2 text-3xl font-black">99 DH</div>
-          <p class="mt-2 text-sm text-white/60">Paiement unique</p>
-          <ul class="mt-6 space-y-3 text-sm text-white/80">
-            <li class="flex items-center gap-2">🛡️ Badge "Professionnel vérifié"</li>
-            <li class="flex items-center gap-2">📈 Plus de visibilité et de confiance</li>
-            <li class="flex items-center gap-2">⭐ Profil mis en avant</li>
-          </ul>
-          <a
-            href="#register"
-            class="mt-8 inline-flex w-full justify-center rounded-full
-                   bg-sna3ti-orange px-6 py-3 text-sm font-bold text-white
-                   hover:opacity-90 transition"
-          >
-            Passer au compte vérifié
-          </a>
+          <div class="price-details hidden px-6 pb-6 pt-4">
+            <ul class="space-y-2.5 text-sm text-gray-600">
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchStandard">Apparition standard dans la recherche</span></li>
+              <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
+              <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
+              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotos3">3 photos</span></li>
+              <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fPortfolio">Portfolio</span></li>
+              <li class="flex items-start gap-2"><span>⭐</span> <span data-i18n="pricing.features.fAvis">Avis clients</span></li>
+              <li class="flex items-start gap-2"><span>🗓️</span> <span data-i18n="pricing.features.fDispo">Disponibilité</span></li>
+              <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fStats">Statistiques</span></li>
+              <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fMiseAvantFree">Mise en avant</span></li>
+              <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fAIProfile">🤖 AI Profile</span></li>
+              <li class="flex items-start gap-2"><span>🎧</span> <span data-i18n="pricing.features.fSupportStandard">Support standard</span></li>
+            </ul>
+            <a href="#register" data-reg-preselect="gratuit" class="mt-5 block text-center rounded-full border-2 border-sna3ti-teal px-4 py-2.5 text-sm font-bold text-sna3ti-teal hover:bg-sna3ti-teal hover:text-white transition" data-i18n="pricing.ctaFree">Créer mon compte</a>
+          </div>
+          <button type="button" class="price-toggle w-full border-t border-gray-100 py-3.5 text-sm font-bold text-sna3ti-teal hover:bg-sna3ti-teal/5 transition">
+            <span class="price-toggle-label" data-i18n="pricing.toggle">Voir les détails</span>
+            <span class="price-caret">▾</span>
+          </button>
+        </div>
+
+        <!-- VÉRIFIÉ -->
+        <div class="price-card relative rounded-3xl bg-sna3ti-ink text-white shadow-premium overflow-hidden">
+          <div class="px-6 pt-5 text-center">
+            <div class="mx-auto w-fit rounded-full bg-sna3ti-orange text-white px-3 py-1 text-[10px] font-black uppercase" data-i18n="pricing.recommended">⭐ Recommandé</div>
+          </div>
+          <div class="p-6 pt-3 text-center">
+            <div class="text-base font-black" data-i18n="pricing.verifie">Vérifié</div>
+            <div class="mt-2 text-4xl font-black">99 <span data-i18n="unit.dh">DH</span><small class="text-base text-white/60 font-bold" data-i18n="unit.perMonth">/mois</small></div>
+            <div class="mt-1 text-xs text-white/60" data-i18n="pricing.verifieSub">Confiance &amp; visibilité</div>
+          </div>
+          <div class="price-details hidden px-6 pb-6 pt-4">
+            <ul class="space-y-2.5 text-sm text-white/85">
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPriority">Apparition prioritaire dans la recherche</span></li>
+              <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
+              <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
+              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotos10">10 photos</span></li>
+              <li class="flex items-start gap-2"><span>📁</span> <span data-i18n="pricing.features.fPortfolio">Portfolio</span></li>
+              <li class="flex items-start gap-2"><span>⭐</span> <span data-i18n="pricing.features.fAvis">Avis clients</span></li>
+              <li class="flex items-start gap-2"><span>🗓️</span> <span data-i18n="pricing.features.fDispo">Disponibilité</span></li>
+              <li class="flex items-start gap-2"><span>📊</span> <span data-i18n="pricing.features.fStatsBase">Statistiques de base</span></li>
+            </ul>
+            <a href="#register" data-reg-preselect="verifie" class="mt-5 block text-center rounded-full bg-white px-4 py-2.5 text-sm font-bold text-sna3ti-ink hover:bg-sna3ti-teal hover:text-white transition" data-i18n="pricing.ctaVerifie">Choisir Vérifié</a>
+          </div>
+          <button type="button" class="price-toggle w-full border-t border-white/10 py-3.5 text-sm font-bold text-sna3ti-mint hover:bg-white/5 transition">
+            <span class="price-toggle-label" data-i18n="pricing.toggle">Voir les détails</span>
+            <span class="price-caret">▾</span>
+          </button>
+        </div>
+
+        <!-- GOLD -->
+        <div class="price-card gold-package relative rounded-3xl overflow-hidden">
+          <div class="relative px-6 pt-4 text-center">
+            <div class="mx-auto w-fit rounded-full bg-gradient-to-r from-yellow-300 to-amber-500 text-amber-950 shadow px-4 py-1 text-[10px] font-black uppercase tracking-wider">👑 GOLD</div>
+            <div class="absolute right-4 top-5 text-xl">👑</div>
+          </div>
+          <div class="p-6 pt-3 text-center">
+            <div class="text-base font-black text-white" data-i18n="pricing.gold">Offre Gold</div>
+            <div class="mt-2 text-4xl font-black text-white">199 <span data-i18n="unit.dh">DH</span><small class="text-base text-white/80 font-bold" data-i18n="unit.perMonth">/mois</small></div>
+            <div class="mt-1 text-xs text-white/80" data-i18n="pricing.goldSub">Maximum impact</div>
+          </div>
+          <div class="price-details hidden px-6 pb-6 pt-4">
+            <ul class="space-y-2.5 text-sm text-white">
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPremium">Apparition premium dans la recherche</span></li>
+              <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
+              <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
+              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotosUnlimited">Photos illimitées</span></li>
+              <li class="flex items-start gap-2"><span>📁</span> <span data-i18n="pricing.features.fPortfolio">Portfolio</span></li>
+              <li class="flex items-start gap-2"><span>⭐</span> <span data-i18n="pricing.features.fAvis">Avis clients</span></li>
+              <li class="flex items-start gap-2"><span>🗓️</span> <span data-i18n="pricing.features.fDispo">Disponibilité</span></li>
+              <li class="flex items-start gap-2"><span>📊</span> <span data-i18n="pricing.features.fStatsAvancees">Statistiques avancées</span></li>
+              <li class="flex items-start gap-2"><span>🚀</span> <span data-i18n="pricing.features.fMiseAvant">Mise en avant 4×/mois</span></li>
+              <li class="flex items-start gap-2"><span>🤖</span> <span data-i18n="pricing.features.fAIProfileAdvanced">🤖 AI Profile + Advanced</span></li>
+              <li class="flex items-start gap-2"><span>🎧</span> <span data-i18n="pricing.features.fSupportVip">Support VIP</span></li>
+            </ul>
+            <a href="#register" data-reg-preselect="gold" class="mt-5 block text-center rounded-full bg-white px-4 py-2.5 text-sm font-black text-sna3ti-ink shadow hover:bg-amber-100 transition" data-i18n="pricing.ctaGold">Passer en Gold</a>
+          </div>
+          <button type="button" class="price-toggle w-full border-t border-white/30 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition">
+            <span class="price-toggle-label" data-i18n="pricing.toggle">Voir les détails</span>
+            <span class="price-caret">▾</span>
+          </button>
         </div>
 
       </div>
+
+
+        <p
+          class="mt-6 text-center text-xs text-gray-400"
+          data-i18n="pricing.notice"
+        >
+          Prix en dirhams (DH). Passez à une formule supérieure à tout moment.
+        </p>
 
     </div>
 
@@ -3040,38 +3806,114 @@
     "
   >
 
-    <div class="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 text-center">
+    <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6">
 
-      <h2
-        class="text-3xl sm:text-4xl font-black tracking-tight text-white"
-      >
-        Prêt à développer votre activité&nbsp;?
-      </h2>
+      <div class="text-center">
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white" data-i18n="register.title">
+          Inscrire mon activité
+        </h2>
+        <p class="mt-3 text-white/70 text-base sm:text-lg" data-i18n="register.subtitle">
+          Choisissez votre formule puis complétez vos informations.
+          Un membre de l'équipe Sna3ti vous contactera rapidement.
+        </p>
+      </div>
 
-      <p class="mt-4 text-white/70 text-base sm:text-lg">
-        Rejoignez Sna3ti aujourd'hui et soyez plus visible
-        auprès de nouveaux clients près de chez vous.
-      </p>
+      <!-- STEP 1 : CHOOSE PACK -->
+      <div id="regStep1">
+        <div class="mt-10 mb-6 text-center text-xs font-black uppercase tracking-[.2em] text-white/50" data-i18n="register.step1">
+          Étape 1 · Choisissez votre formule
+        </div>
+        <div class="grid sm:grid-cols-3 gap-4">
 
-      <form
-        class="mt-8 grid sm:grid-cols-[1fr_auto] gap-3"
-        onsubmit="alert('Merci ! Nous vous contacterons bientôt.'); return false;"
-      >
-        <input
-          type="email"
-          placeholder="Votre adresse e-mail"
-          class="rounded-full px-6 py-4 text-sm font-semibold outline-none
-                 bg-white/10 border border-white/15 text-white placeholder-white/60"
-          required
-        />
-        <button
-          type="submit"
-          class="rounded-full bg-sna3ti-orange text-white px-7 py-4 text-sm font-bold
-                 hover:opacity-90 transition"
-        >
-          S'inscrire →
-        </button>
-      </form>
+          <button type="button" data-pack="gratuit" class="reg-pack rounded-2xl border-2 border-white/15 bg-white/5 p-5 text-center text-white transition hover:border-sna3ti-teal2 hover:bg-white/10">
+            <div class="text-2xl">💼</div>
+            <div class="mt-2 text-base font-black" data-i18n="pricing.gratuit">Gratuit</div>
+            <div class="mt-1 text-2xl font-black text-white">0 <span data-i18n="unit.dh">DH</span></div>
+            <div class="mt-1 text-xs text-white/50" data-i18n="pricing.freeSub">Pour démarrer</div>
+            <div class="mt-4 rounded-full border-2 border-white/25 px-4 py-2 text-xs font-bold" data-i18n="register.choose">Choisir</div>
+          </button>
+
+          <button type="button" data-pack="verifie" class="reg-pack rounded-2xl border-2 border-white/15 bg-white/5 p-5 text-center text-white transition hover:border-sna3ti-teal2 hover:bg-white/10">
+            <div class="text-2xl">🛡️</div>
+            <div class="mt-2 text-base font-black" data-i18n="pricing.verifie">Vérifié</div>
+            <div class="mt-1 text-2xl font-black text-white">99 <span data-i18n="unit.dh">DH</span><small class="text-white/60 font-bold" data-i18n="unit.perMonth">/mois</small></div>
+            <div class="mt-1 text-xs text-white/50" data-i18n="pricing.verifieSub">Confiance &amp; visibilité</div>
+            <div class="mt-4 rounded-full border-2 border-white/25 px-4 py-2 text-xs font-bold" data-i18n="register.choose">Choisir</div>
+          </button>
+
+          <button type="button" data-pack="gold" class="reg-pack rounded-2xl border-2 border-white/15 bg-white/5 p-5 text-center text-white transition hover:border-sna3ti-teal2 hover:bg-white/10">
+            <div class="text-2xl">👑</div>
+            <div class="mt-2 text-base font-black" data-i18n="pricing.gold">GOLD</div>
+            <div class="mt-1 text-2xl font-black text-white">199 <span data-i18n="unit.dh">DH</span><small class="text-white/60 font-bold" data-i18n="unit.perMonth">/mois</small></div>
+            <div class="mt-1 text-xs text-white/50" data-i18n="pricing.goldSub">Premium</div>
+            <div class="mt-4 rounded-full border-2 border-white/25 px-4 py-2 text-xs font-bold" data-i18n="register.choose">Choisir</div>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- STEP 2 : FORM -->
+      <div id="regStep2" class="mt-10 hidden">
+        <div class="mb-6 text-center text-xs font-black uppercase tracking-[.2em] text-white/50" data-i18n="register.step2">
+          Étape 2 · Vos informations
+        </div>
+
+        <form id="regForm" class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.nom">Nom</label>
+            <input id="regNom" type="text" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phNom" placeholder="Ex : El Amrani" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.prenom">Prénom</label>
+            <input id="regPrenom" type="text" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPrenom" placeholder="Ex : Karim" />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.metier">Votre métier</label>
+            <select id="regMetier" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none cursor-pointer [&>option]:text-sna3ti-ink">
+              <option value="" class="text-sna3ti-ink"></option>
+            </select>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.ville">Ville</label>
+            <select id="regVille" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none cursor-pointer [&>option]:text-sna3ti-ink">
+              <option value="" class="text-sna3ti-ink"></option>
+            </select>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.prix">Prix indicatif (DH/m²) <span class="text-white/40">· optionnel</span></label>
+            <input id="regPrix" type="number" inputmode="numeric" min="0" placeholder="Ex : 120" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPrix" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.phone">Numéro WhatsApp</label>
+            <div class="flex items-stretch overflow-hidden rounded-xl bg-white/10 border border-white/15 focus-within:border-sna3ti-teal2">
+              <span class="flex select-none items-center bg-white/10 px-4 text-sm font-bold whitespace-nowrap text-white/80">+212</span>
+              <input id="regPhone" required type="tel" inputmode="numeric" maxlength="9" class="w-full bg-transparent px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPhone" placeholder="XX XX XX XXX" />
+            </div>
+            <p class="mt-1 text-[11px] text-white/40" data-i18n="register.phoneHint">Sans le 0 au début · +212 suivi de 9 chiffres</p>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.photoProfil">Photo de profil</label>
+            <label class="reg-file flex cursor-pointer items-center gap-3 rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+              <input id="regPhotoProfil" type="file" accept="image/*" class="sr-only" />
+              <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseFile">Choisir un fichier</span>
+              <span class="reg-file-name truncate text-sm text-white/50" data-i18n="register.noFile">Aucun fichier sélectionné</span>
+            </label>
+          </div>
+          <div>
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.photoTravail">Photo de travail (échantillon)</label>
+            <label class="reg-file flex cursor-pointer items-center gap-3 rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+              <input id="regPhotoTravail" type="file" accept="image/*" class="sr-only" />
+              <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseFile">Choisir un fichier</span>
+              <span class="reg-file-name truncate text-sm text-white/50" data-i18n="register.noFile">Aucun fichier sélectionné</span>
+            </label>
+          </div>
+        </form>
+
+        <div class="mt-6 flex flex-col-reverse items-center justify-center gap-3 sm:flex-row">
+          <button type="button" id="regBack" class="rounded-full border-2 border-white/20 px-6 py-3 text-sm font-bold text-white hover:bg-white/10 transition" data-i18n="register.back">← Retour</button>
+          <button type="button" id="regSubmit" class="rounded-full bg-sna3ti-orange px-8 py-3 text-sm font-bold text-white hover:opacity-90 transition" data-i18n="register.submit">Envoyer ma demande →</button>
+        </div>
+      </div>
 
     </div>
 
@@ -3106,13 +3948,18 @@
 
         hero: {
           eyebrow: "Pensé pour le Maroc",
-          title: "L9a l7erfi li kat9leb 3lih.",
+          title: "L9a Lm3allem Li\u00a09rib\u00a0Lik.",
           subtitle:
             "Trouvez un professionnel de confiance près de chez vous, comparez les profils et contactez-le directement.",
           servicePlaceholder:
             "Plomberie, peinture...",
           cityPlaceholder:
             "Casablanca, Maarif...",
+          region: "Région",
+          service: "Service",
+          city: "Ville",
+          allRegion: "Toute la région",
+          regionCityHint: "Choisissez la région puis la ville",
           search:
             "Rechercher",
           verified:
@@ -3127,7 +3974,125 @@
           title:
             "De quoi avez-vous besoin ?",
           subtitle:
-            "Trouvez rapidement le bon professionnel pour votre projet."
+            "Trouvez rapidement le bon professionnel pour votre projet.",
+          seeAll:
+            "Voir tous les services",
+          cards: {
+            plomberie: { name: "Plomberie", sub: "Eau & installation" },
+            electricite: { name: "Électricité", sub: "Installation & dépannage" },
+            gypsum: { name: "Gypsum", sub: "Faux plafond & déco" },
+            peinture: { name: "Peinture", sub: "Intérieur & extérieur" },
+            menuiserie: { name: "Menuiserie", sub: "Bois & aluminium" },
+            clim: { name: "Climatisation", sub: "Installation & entretien" },
+            carrelage: { name: "Carrelage / Zellige", sub: "Zellige & faïence" },
+            vitrage: { name: "Menuisier Aluminium & Vitrage", sub: "Aluminium & verre" },
+            maconnerie: { name: "Maçonnerie", sub: "Gros œuvre" },
+            toiture: { name: "Toiture & Étanchéité", sub: "Zinc & bitume" },
+            electromenager: { name: "Froid & Électroménager", sub: "Réparation & entretien" },
+            jardinage: { name: "Jardinage", sub: "Espaces verts" },
+            serrurerie: { name: "Serrurerie", sub: "Sécurité & accès" },
+            transport: { name: "Déplacement & Transport", sub: "Camion & déménagement" }
+          }
+        },
+
+        how: {
+          badge: "Comment ça marche",
+          title: "Votre besoin, le bon pro, en 3 étapes",
+          subtitle: "Simple, rapide et sûr.",
+          s1t: "Décrivez votre besoin",
+          s1d: "Choisissez un service et votre localisation — ou laissez-nous comprendre votre demande.",
+          s2t: "Comparez les profils",
+          s2d: "Note, avis, vérification, prix et disponibilité — choisissez en toute confiance.",
+          s3t: "Contactez directement",
+          s3d: "Appelez ou envoyez un message WhatsApp au professionnel et fixez un rendez-vous."
+        },
+
+        pro: {
+          badge: "Professionnels",
+          title: "Vous êtes un professionnel ?",
+          subtitle: "Inscrivez votre activité sur Sna3ti et recevez plus de demandes de clients proches de vous. Gérez vos disponibilités, vos prix et contactez vos clients en toute confiance.",
+          item1: "Profil gratuit",
+          item2: "Demandes qualifiées",
+          item3: "Badge vérifié",
+          item4: "Plus de visibilité",
+          cta: "Inscrire mon activité",
+          join: "Rejoignez",
+          active: "1200+ professionnels actifs",
+          month: "Demandes ce mois"
+        },
+
+        unit: {
+          dh: "DH",
+          perMonth: "/mois"
+        },
+
+        pricing: {
+          badge: "Tarifs",
+          title: "Une offre simple et transparente",
+          subtitle: "Comparez les formules et choisissez celle qui convient à votre activité.",
+          gratuit: "Gratuit",
+          freeSub: "Pour démarrer",
+          verifie: "Vérifié",
+          verifieSub: "Confiance & visibilité",
+          gold: "GOLD",
+          goldSub: "Maximum impact",
+          toggle: "Voir les détails",
+          toggleHide: "Masquer les détails",
+          notice: "Prix en dirhams (DH). Passez à une formule supérieure à tout moment.",
+          ctaFree: "Créer mon compte",
+          ctaVerifie: "Choisir Vérifié",
+          ctaGold: "Passer en Gold",
+          recommended: "⭐ Recommandé",
+          goldBadge: "👑 GOLD",
+          features: {
+            fProfil: "Profil professionnel",
+            fSearchStandard: "Apparition standard dans la recherche",
+            fSearchPriority: "Apparition prioritaire dans la recherche",
+            fSearchPremium: "Apparition premium dans la recherche",
+            fBadge: "Badge vérifié",
+            fWhatsapp: "WhatsApp",
+            fPhotos3: "3 photos",
+            fPhotos10: "10 photos",
+            fPhotosUnlimited: "Photos illimitées",
+            fPortfolio: "Portfolio",
+            fAvis: "Avis clients",
+            fDispo: "Disponibilité",
+            fStats: "Statistiques",
+            fStatsBase: "Statistiques de base",
+            fStatsAvancees: "Statistiques avancées",
+            fMiseAvantFree: "Mise en avant",
+            fMiseAvant: "Mise en avant 4×/mois",
+            fAIProfile: "🤖 AI Profile",
+            fAIProfileAdvanced: "🤖 AI Profile + Advanced",
+            fSupportStandard: "Support standard",
+            fSupportVip: "Support VIP"
+          }
+        },
+
+        register: {
+          title: "Inscrire mon activité",
+          subtitle: "Choisissez votre formule puis complétez vos informations. Un membre de l'équipe Sna3ti vous contactera rapidement.",
+          step1: "Étape 1 · Choisissez votre formule",
+          step2: "Étape 2 · Vos informations",
+          choose: "Choisir",
+          nom: "Nom",
+          prenom: "Prénom",
+          metier: "Votre métier",
+          ville: "Ville",
+          region: "Région",
+          phone: "Numéro WhatsApp",
+          photoProfil: "Photo de profil",
+          photoTravail: "Photo de travail (échantillon)",
+          chooseFile: "Choisir un fichier",
+          noFile: "Aucun fichier sélectionné",
+          phNom: "Ex : El Amrani",
+          phPrenom: "Ex : Karim",
+          phMetier: "Ex : Plombier",
+          phVille: "Ex : Casablanca",
+          phPhone: "XX XX XX XXX",
+          phoneHint: "Sans le 0 au début · +212 suivi de 9 chiffres",
+          back: "← Retour",
+          submit: "Envoyer ma demande →"
         }
 
       },
@@ -3153,6 +4118,11 @@
             "سباكة، صباغة...",
           cityPlaceholder:
             "الدار البيضاء، المعاريف...",
+          region: "الجهة",
+          service: "الخدمة",
+          city: "المدينة",
+          allRegion: "كل الجهة",
+          regionCityHint: "اختر الجهة ثم المدينة",
           search:
             "بحث",
           verified:
@@ -3167,7 +4137,126 @@
           title:
             "شنو الخدمة اللي كتحتاج؟",
           subtitle:
-            "لقا الحرفي المناسب للمشروع ديالك بسهولة."
+            "لقا الحرفي المناسب للمشروع ديالك بسهولة.",
+          seeAll:
+            "عرض جميع الخدمات",
+          cards: {
+            plomberie: { name: "السباكة", sub: "الماء والتجهيزات" },
+            electricite: { name: "الكهرباء", sub: "التركيب والإصلاح" },
+            gypsum: { name: "الجبس", sub: "السقف المستعار والديكور" },
+            peinture: { name: "الدهان", sub: "الداخلي والخارجي" },
+            menuiserie: { name: "النجارة", sub: "الخشب والألمنيوم" },
+            clim: { name: "التكييف", sub: "التركيب والصيانة" },
+            carrelage: { name: "الزليج", sub: "الزليج والقيشاني" },
+            vitrage: { name: "ألمنيوم وزجاج", sub: "ألمنيوم وزجاج" },
+            maconnerie: { name: "البناء", sub: "الأشغال الكبرى" },
+            toiture: { name: "الأسقف والعزل", sub: "الزنك والبيتومين" },
+            electromenager: { name: "التبريد والأجهزة", sub: "الإصلاح والصيانة" },
+            jardinage: { name: "البستنة", sub: "المساحات الخضراء" },
+            serrurerie: { name: "الأقفال", sub: "الأمان والولوج" },
+            transport: { name: "النقل", sub: "شاحنة ونقل الأثاث" },
+            menage: { name: "عاملة منزلية", sub: "تنظيف المنزل" }
+          }
+        },
+
+        how: {
+          badge: "كيفاش خاص يعمل",
+          title: "الحاجة ديالك، الحرفي المناسب، فـ3 خطوات",
+          subtitle: "بسيطة، سريعة ومضمونة.",
+          s1t: "صيفط الحاجة اللي بغيتي",
+          s1d: "ختار خدمة والمدينة — أو خلينا نفهمو الطلب ديالك.",
+          s2t: "قارن بين البروفايلات",
+          s2d: "التقييم، الآراء، التحقق، الثمن والتوفر — اختار بثقة.",
+          s3t: "تواصل مباشرة",
+          s3d: "عاود أو صيفط رسالة واتساب للحرفي وحدد موعد."
+        },
+
+        pro: {
+          badge: "الحرفيون",
+          title: "أنت حرفي؟",
+          subtitle: "سجّل نشاطك على Sna3ti واحصل على مزيد من طلبات العملاء القريبين منك. أدر أوقات توفرك وأثمنتك وتواصل مع عملائك بثقة.",
+          item1: "بروفايل مجاني",
+          item2: "طلبات مؤهلة",
+          item3: "شارة موثّق",
+          item4: "مزيد من الظهور",
+          cta: "سجّل نشاطي",
+          join: "انضم",
+          active: "+1200 حرفي نشط",
+          month: "طلبات هذا الشهر"
+        },
+
+        unit: {
+          dh: "درهم",
+          perMonth: "/شهر"
+        },
+
+        pricing: {
+          badge: "الأثمنة",
+          title: "عرض بسيط وواضح",
+          subtitle: "قارن بين الصيغ واختر الصيغة المناسبة لنشاطك.",
+          gratuit: "مجاني",
+          freeSub: "للبدء",
+          verifie: "موثّق",
+          verifieSub: "الثقة والظهور",
+          gold: "ذهبي",
+          goldSub: "أقصى تأثير",
+          toggle: "عرض التفاصيل",
+          toggleHide: "إخفاء التفاصيل",
+          notice: "الأثمنة بالدرهم. يمكنك الانتقال إلى صيغة أعلى في أي وقت.",
+          ctaFree: "أنشئ حسابي",
+          ctaVerifie: "اختر موثّق",
+          ctaGold: "الانتقال إلى Gold",
+          recommended: "⭐ مُوصى به",
+          goldBadge: "👑 ذهبي",
+          features: {
+            fProfil: "بروفايل احترافي",
+            fSearchStandard: "ظهور عادي في البحث",
+            fSearchPriority: "ظهور بأولوية في البحث",
+            fSearchPremium: "ظهور مميز في البحث",
+            fBadge: "شارة موثّق",
+            fWhatsapp: "واتساب",
+            fPhotos3: "3 صور",
+            fPhotos10: "10 صور",
+            fPhotosUnlimited: "صور غير محدودة",
+            fPortfolio: "المعرض",
+            fAvis: "آراء العملاء",
+            fDispo: "التوفر",
+            fStats: "إحصائيات",
+            fStatsBase: "إحصائيات أساسية",
+            fStatsAvancees: "إحصائيات متقدمة",
+            fMiseAvantFree: "تسليط الضوء",
+            fMiseAvant: "تسليط الضوء 4 مرات/شهر",
+            fAIProfile: "🤖 ملف ذكي AI",
+            fAIProfileAdvanced: "🤖 ملف ذكي AI + متقدم",
+            fSupportStandard: "دعم عادي",
+            fSupportVip: "دعم VIP"
+          }
+        },
+
+        register: {
+          title: "سجّل النشاط ديالك",
+          subtitle: "اختر الصيغة اللي بغيتي ثم كمّل المعلومات ديالك. عضو من فرقة Sna3ti غادي يتواصل معك بسرعة.",
+          step1: "المرحلة 1 · اختر الصيغة",
+          step2: "المرحلة 2 · معلوماتك",
+          choose: "اختر",
+          nom: "اللقب",
+          prenom: "الاسم",
+          metier: "الصنعة ديالك",
+          ville: "المدينة",
+          region: "الجهة",
+          phone: "رقم الواتساب",
+          photoProfil: "صورة البروفايل",
+          photoTravail: "صورة شغل (نموذج)",
+          chooseFile: "اختر ملف",
+          noFile: "لم يتم اختيار ملف",
+          phNom: "مثال: العلمراني",
+          phPrenom: "مثال: كريم",
+          phMetier: "مثال: سباك",
+          phVille: "مثال: الدار البيضاء",
+          phPhone: "XX XX XX XXX",
+          phoneHint: "بدون 0 في البداية · +212 يليها 9 أرقام",
+          back: "رجوع",
+          submit: "أرسل طلبي"
         }
 
       },
@@ -3193,6 +4282,10 @@
             "Plumbing, painting...",
           cityPlaceholder:
             "Casablanca, Maarif...",
+          region: "Region",
+          city: "City",
+          allRegion: "Whole region",
+          regionCityHint: "Choose a region then a city",
           search:
             "Search",
           verified:
@@ -3207,7 +4300,126 @@
           title:
             "What do you need?",
           subtitle:
-            "Quickly find the right professional for your project."
+            "Quickly find the right professional for your project.",
+          seeAll:
+            "See all services",
+          cards: {
+            plomberie: { name: "Plumbing", sub: "Water & installation" },
+            electricite: { name: "Electricity", sub: "Installation & repair" },
+            gypsum: { name: "Gypsum", sub: "False ceiling & decor" },
+            peinture: { name: "Painting", sub: "Interior & exterior" },
+            menuiserie: { name: "Woodworking", sub: "Wood & aluminum" },
+            clim: { name: "Air conditioning", sub: "Installation & maintenance" },
+            carrelage: { name: "Tiling / Zellige", sub: "Zellige & tile" },
+            vitrage: { name: "Aluminum & Glass", sub: "Aluminum & glass" },
+            maconnerie: { name: "Masonry", sub: "Structural work" },
+            toiture: { name: "Roofing & Waterproofing", sub: "Zinc & bitumen" },
+            electromenager: { name: "Fridge & Appliances", sub: "Repair & maintenance" },
+            jardinage: { name: "Gardening", sub: "Green spaces" },
+            serrurerie: { name: "Locksmith", sub: "Security & access" },
+            transport: { name: "Transport & Moving", sub: "Truck & moving" },
+            menage: { name: "House cleaning", sub: "Home cleaning" }
+          }
+        },
+
+        how: {
+          badge: "How it works",
+          title: "Your need, the right pro, in 3 steps",
+          subtitle: "Simple, fast and safe.",
+          s1t: "Describe your need",
+          s1d: "Choose a service and your location — or let us understand your request.",
+          s2t: "Compare profiles",
+          s2d: "Rating, reviews, verification, price and availability — choose with confidence.",
+          s3t: "Contact directly",
+          s3d: "Call or send the professional a WhatsApp message and set an appointment."
+        },
+
+        pro: {
+          badge: "Professionals",
+          title: "Are you a professional?",
+          subtitle: "List your business on Sna3ti and receive more requests from nearby clients. Manage your availability, your prices and contact your clients with confidence.",
+          item1: "Free profile",
+          item2: "Qualified leads",
+          item3: "Verified badge",
+          item4: "More visibility",
+          cta: "List my business",
+          join: "Join us",
+          active: "1200+ active professionals",
+          month: "Requests this month"
+        },
+
+        unit: {
+          dh: "DH",
+          perMonth: "/month"
+        },
+
+        pricing: {
+          badge: "Pricing",
+          title: "Simple and transparent pricing",
+          subtitle: "Compare the plans and choose the one that fits your business.",
+          gratuit: "Free",
+          freeSub: "To get started",
+          verifie: "Verified",
+          verifieSub: "Trust & visibility",
+          gold: "GOLD",
+          goldSub: "Maximum impact",
+          toggle: "See details",
+          toggleHide: "Hide details",
+          notice: "Prices in dirhams (DH). Upgrade at any time.",
+          ctaFree: "Create my account",
+          ctaVerifie: "Choose Verified",
+          ctaGold: "Go Gold",
+          recommended: "⭐ Recommended",
+          goldBadge: "👑 GOLD",
+          features: {
+            fProfil: "Professional profile",
+            fSearchStandard: "Standard visibility in search",
+            fSearchPriority: "Priority visibility in search",
+            fSearchPremium: "Premium visibility in search",
+            fBadge: "Verified badge",
+            fWhatsapp: "WhatsApp",
+            fPhotos3: "3 photos",
+            fPhotos10: "10 photos",
+            fPhotosUnlimited: "Unlimited photos",
+            fPortfolio: "Portfolio",
+            fAvis: "Client reviews",
+            fDispo: "Availability",
+            fStats: "Statistics",
+            fStatsBase: "Basic statistics",
+            fStatsAvancees: "Advanced statistics",
+            fMiseAvantFree: "Feature",
+            fMiseAvant: "Featured 4×/month",
+            fAIProfile: "🤖 AI Profile",
+            fAIProfileAdvanced: "🤖 AI Profile + Advanced",
+            fSupportStandard: "Standard support",
+            fSupportVip: "VIP support"
+          }
+        },
+
+        register: {
+          title: "List my business",
+          subtitle: "Choose your plan then fill in your details. A member of the Sna3ti team will contact you shortly.",
+          step1: "Step 1 · Choose your plan",
+          step2: "Step 2 · Your details",
+          choose: "Choose",
+          nom: "Last name",
+          prenom: "First name",
+          metier: "Your trade",
+          ville: "City",
+          region: "Region",
+          phone: "WhatsApp number",
+          photoProfil: "Profile photo",
+          photoTravail: "Work photo (sample)",
+          chooseFile: "Choose file",
+          noFile: "No file selected",
+          phNom: "e.g. El Amrani",
+          phPrenom: "e.g. Karim",
+          phMetier: "e.g. Plumber",
+          phVille: "e.g. Casablanca",
+          phPhone: "XX XX XX XXX",
+          phoneHint: "No leading 0 · +212 followed by 9 digits",
+          back: "← Back",
+          submit: "Send my request →"
         }
 
       }
@@ -3316,6 +4528,11 @@
           event.target.value
         );
 
+        populateLocationDropdowns();
+        populateRegCity();
+        populateRegMetier();
+        populateServiceSelect();
+
       }
     );
 
@@ -3327,6 +4544,11 @@
         syncLanguage(
           event.target.value
         );
+
+        populateLocationDropdowns();
+        populateRegCity();
+        populateRegMetier();
+        populateServiceSelect();
 
       }
     );
@@ -3368,9 +4590,9 @@
         "searchForm"
       );
 
-    const serviceInput =
+    const serviceSelect =
       document.getElementById(
-        "serviceInput"
+        "serviceSelect"
       );
 
     const cityInput =
@@ -3380,30 +4602,266 @@
 
 
   /* =========================================================
-   SNA3TI V2 — REAL SEARCH
+   SNA3TI V2 — REALLY SEARCH (plus AI Smart Search)
 ========================================================= */
+
+function runSearchQuery(rawService, rawCity) {
+
+  /* Combine both fields so AI detects intent across the two. */
+  const combined =
+    [rawService, rawCity].filter(Boolean).join(" ");
+
+  const parsed = interpretQuery(combined);
+
+  /* If AI nailed the service from a phrase like
+     "بغيت شي معلم ديال الجبس قريب ليا", use its canonical value. */
+  const finalService =
+    parsed.service ||
+    (rawService || "").trim();
+
+  const finalCity =
+    parsed.city ||
+    (rawCity || "").trim();
+
+  const params = new URLSearchParams();
+
+  if (finalService) {
+    params.set("service", finalService);
+  }
+
+  if (finalCity) {
+    params.set("city", finalCity);
+  }
+
+  /* Optional availability signal — useful for later ranking. */
+  if (parsed.available) {
+    params.set("available", "1");
+  }
+
+  window.location.hash = "#/search?" + params.toString();
+
+}
 
 searchForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
-  const service = serviceInput?.value.trim() || "";
-  const city = cityInput?.value.trim() || "";
-
-  const params = new URLSearchParams();
-
-  if (service) {
-    params.set("service", service);
-  }
-
-  if (city) {
-    params.set("city", city);
-  }
-
-  window.location.hash = "#/search?" + params.toString();
+  runSearchQuery(
+    serviceSelect?.value || "",
+    cityInput?.value.trim() || ""
+  );
 });
 
 
-     
+/* =========================================================
+   CITY DROPDOWN (all cities)
+========================================================= */
+
+/* Fill the hero city select and keep the hidden cityInput in
+   sync so runSearchQuery / matching still work. */
+function populateLocationDropdowns() {
+
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+
+  const t =
+    (translations[lang] && translations[lang].hero) || {};
+
+  const citySel =
+    document.getElementById("citySelect");
+
+  const hidden =
+    document.getElementById("cityInput");
+
+  if (!citySel) return;
+
+  const prevCity = citySel.value;
+
+  citySel.innerHTML = "";
+
+  const first =
+    document.createElement("option");
+  first.value = "";
+  first.textContent = t.city || "Ville";
+  citySel.appendChild(first);
+
+  for (const c of allCitiesSorted(lang)) {
+    const o = document.createElement("option");
+    o.value = c.slug;
+    o.textContent = c.name[lang] || c.name.fr;
+    citySel.appendChild(o);
+  }
+
+  if (prevCity) citySel.value = prevCity;
+
+  const syncHidden = () => {
+    if (!hidden) return;
+    hidden.value = citySel.value || "";
+  };
+
+  citySel.onchange = syncHidden;
+
+  syncHidden();
+}
+
+/* All cities across the 12 regions, alphabetically ordered by
+   the current language's name. */
+function allCitiesSorted(lang) {
+  const list = [];
+  for (const r of MOROCCO_REGIONS) {
+    for (const c of r.cities) list.push(c);
+  }
+  return list.sort((a, b) =>
+    (a.name[lang] || a.name.fr).localeCompare(
+      b.name[lang] || b.name.fr,
+      lang
+    )
+  );
+}
+
+/* Fill the registration wizard's city dropdown. */
+function populateRegCity() {
+
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+
+  const t =
+    (translations[lang] && translations[lang].register) || {};
+
+  const sel =
+    document.getElementById("regVille");
+
+  if (!sel) return;
+
+  const prev = sel.value;
+
+  sel.innerHTML = "";
+
+  const ph =
+    document.createElement("option");
+  ph.value = "";
+  ph.textContent =
+    t.ville || "Ville";
+  sel.appendChild(ph);
+
+  for (const c of allCitiesSorted(lang)) {
+    const o = document.createElement("option");
+    o.value = c.slug;
+    o.textContent = c.name[lang] || c.name.fr;
+    sel.appendChild(o);
+  }
+
+  if (prev) sel.value = prev;
+}
+
+/* Canonical services. `key` is the localized service-card key
+   (for display names), `slug` is the canonical category slug
+   used to filter pros (matches pro.category) in searches. */
+const SERVICE_CANONICAL = [
+  { key: "plomberie",      slug: "plomberie" },
+  { key: "electricite",    slug: "electricite" },
+  { key: "gypsum",         slug: "platrerie" },
+  { key: "peinture",       slug: "peinture" },
+  { key: "menuiserie",     slug: "menuiserie" },
+  { key: "clim",           slug: "climatisation" },
+  { key: "carrelage",      slug: "carrelage" },
+  { key: "vitrage",        slug: "vitrage" },
+  { key: "maconnerie",     slug: "maconnerie" },
+  { key: "toiture",        slug: "toiture" },
+  { key: "electromenager", slug: "electromenager" },
+  { key: "jardinage",      slug: "jardinage" },
+  { key: "serrurerie",     slug: "serrurerie" },
+  { key: "transport",      slug: "transport" },
+  { key: "menage",         slug: "menage" }
+];
+
+/* Return the localized display name of a service-card key. */
+function serviceName(key, lang) {
+  const cards =
+    (translations[lang] &&
+     translations[lang].services &&
+     translations[lang].services.cards) || {};
+  const entry = cards[key];
+  return (entry && entry.name) || key;
+}
+
+/* Return the localized display name of a canonical slug. */
+function serviceNameBySlug(slug, lang) {
+  const item = SERVICE_CANONICAL.find(s => s.slug === slug);
+  return item ? serviceName(item.key, lang) : slug;
+}
+
+/* Fill the hero search service dropdown with all services, in
+   the current language (value = canonical slug). */
+function populateServiceSelect() {
+
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+
+  const t =
+    (translations[lang] && translations[lang].hero) || {};
+
+  const sel =
+    document.getElementById("serviceSelect");
+
+  if (!sel) return;
+
+  const prev = sel.value;
+
+  sel.innerHTML = "";
+
+  const ph =
+    document.createElement("option");
+  ph.value = "";
+  ph.textContent =
+    t.service || "Service";
+  sel.appendChild(ph);
+
+  for (const item of SERVICE_CANONICAL) {
+    const o = document.createElement("option");
+    o.value = item.slug;
+    o.textContent = serviceName(item.key, lang);
+    sel.appendChild(o);
+  }
+
+  if (prev) sel.value = prev;
+}
+
+/* Fill the registration wizard's métier dropdown with all
+   services, in the current language. */
+function populateRegMetier() {
+
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+
+  const t =
+    (translations[lang] && translations[lang].register) || {};
+
+  const sel =
+    document.getElementById("regMetier");
+
+  if (!sel) return;
+
+  const prev = sel.value;
+
+  sel.innerHTML = "";
+
+  const ph =
+    document.createElement("option");
+  ph.value = "";
+  ph.textContent =
+    t.metier || "Métier";
+  sel.appendChild(ph);
+
+  for (const item of SERVICE_CANONICAL) {
+    const o = document.createElement("option");
+    o.value = item.slug;
+    o.textContent = serviceName(item.key, lang);
+    sel.appendChild(o);
+  }
+
+  if (prev) sel.value = prev;
+}
+
 
     /* =========================================================
        3D CARD TILT
@@ -3482,18 +4940,7 @@ searchForm.addEventListener("submit", function (event) {
        goSearch referenced by card clicks). */
     function goSearch(service) {
 
-      if (serviceInput) {
-        serviceInput.value = service;
-      }
-
-      const params = new URLSearchParams();
-
-      if (service) {
-        params.set("service", service);
-      }
-
-      window.location.hash =
-        "#/search?" + params.toString();
+      runSearchQuery(service, "");
 
     }
 
@@ -3524,6 +4971,75 @@ searchForm.addEventListener("submit", function (event) {
     }
 
     bindServiceCards();
+
+
+    /* bindPricing() — toggle each pricing card's details
+       (accordion). Clicking "Voir les détails" opens a single
+       card's feature list. */
+    function bindPricing() {
+
+      document
+        .querySelectorAll(".price-card")
+        .forEach(card => {
+
+          const toggle =
+            card.querySelector(".price-toggle");
+
+          const details =
+            card.querySelector(".price-details");
+
+          if (!toggle || !details) {
+            return;
+          }
+
+          toggle.addEventListener("click", () => {
+
+            const isOpen =
+              !details.classList.contains("hidden");
+
+            /* Close any other open card for a tidy accordion. */
+            document
+              .querySelectorAll(".price-card .price-details")
+              .forEach(other => {
+
+                other.classList.add("hidden");
+
+              });
+
+            document
+              .querySelectorAll(".price-card .price-caret")
+              .forEach(c => {
+                c.textContent = "▾";
+              });
+
+            var lang = localStorage.getItem("sna3ti-language") || "fr";
+            document
+              .querySelectorAll(".price-card .price-toggle-label")
+              .forEach(l => {
+                l.textContent = translations[lang].pricing.toggle;
+              });
+
+            /* Open the clicked card if it was closed. */
+            if (!isOpen) {
+
+              details.classList.remove("hidden");
+
+              toggle
+                .querySelector(".price-caret").textContent = "▴";
+
+              toggle
+                .querySelector(".price-toggle-label").textContent =
+                  translations[lang].pricing.toggleHide;
+
+            }
+
+          });
+
+        });
+
+    }
+
+    bindPricing();
 
 
 
@@ -3607,7 +5123,7 @@ const sna3tiProfessionals = [
     id: 4,
     name: "Mehdi Alaoui",
     job: "Plâtrier / Gypsum",
-    category: "gypsum",
+    category: "platrerie",
     city: "casablanca",
     area: "Californie",
     rating: 4.9,
@@ -3652,6 +5168,23 @@ const sna3tiProfessionals = [
     distance: "4.8 km",
     image: "https://i.pravatar.cc/300?img=17",
     phone: "212600000006"
+  },
+
+  {
+    id: 7,
+    name: "Yassine Berrada",
+    job: "Carreleur / Zellige",
+    category: "carrelage",
+    city: "casablanca",
+    area: "Aïn Sebaâ",
+    rating: 4.7,
+    reviews: 66,
+    price: 280,
+    verified: true,
+    available: true,
+    distance: "5.3 km",
+    image: "https://i.pravatar.cc/300?img=32",
+    phone: "212600000007"
   }
 
 ];
@@ -3673,13 +5206,342 @@ function normalizeText(value) {
 
 
 /* =========================================================
+   AI SMART SEARCH — NATURAL LANGUAGE UNDERSTANDING
+   Rule-based intent extraction (Darija / French / English).
+   No API key required on the frontend; the real AI matching
+   will live on the backend later (see product brief).
+========================================================= */
+
+const aiServiceAliases = {
+  "plomberie": [
+    "plomberie", "plombier", "plumbing", "plumber", "spa", "sapa",
+    "سباك", "سباكة", "سپاك", "سپاكة", "fuite", "fuit", "leak",
+    "robinet", "tuyau", "pipe", "toilette", "wc", "حانوت", "سخان",
+    "chauffe", "ballon", "douche", "حمام", "sdb", "salle de bain"
+  ],
+  "electricite": [
+    "electricite", "electricien", "electric", "electrical",
+    "كهرباء", "كهربائي", "كهربائية", "الضو", "courant", "lumiere",
+    "prise", "tableau", "led", "neon", "توصيل", "ماطور", "اشيك"
+  ],
+  "platrerie": [
+    "platrerie", "platre", "platrier", "gypsum", "placo", "placoplatre",
+    "faux plafond", "fauxplafond", "plafond", "جيبس", "جبس", "الجيبس",
+    "سقف", "صلبصار", "مودور", "قوالب", "ديكور", "tifittou"
+  ],
+  "peinture": [
+    "peinture", "peintre", "painting", "painter", "صباغة", "صباغ",
+    "البوطا", "بويا", "دهان", "دهن", "tazwiq", "طباشير", "peint"
+  ],
+  "menuiserie": [
+    "menuiserie", "menuisier", "carpentry", "carpenter", "bois",
+    "نجار", "نجارة", "الخشب", "خشب", "charpente", "portail",
+    "باب خشب", "contreplaque"
+  ],
+  "climatisation": [
+    "climatisation", "clim", "climatiseur", "air condition", "ac",
+    "تكييف", "التكييف", "مكيف", "كلما", "froid", "pompe", "بوماتيك"
+  ],
+  "carrelage": [
+    "carrelage", "carreleur", "carrelier", "tiling", "tiler", "tile", "dalle",
+    "بلاط", "البلاط", "زرلاج", "الزرلاج", "زليج", "zelij", "zellige", "مصطبة",
+    "لاصق", "فرش", "serrab", "صرب", "مهارت"
+  ],
+  "maconnerie": [
+    "maconnerie", "maccon", "macon", "briquelage", "parpaing", "beton", "béton",
+    "gross", "gros oeuvre", "gros œuvre", "fondation", "mur", "cloison",
+    "بنّاء", "البناء", "بناء", "بومة", "bonnaise", "بتون", "خرسانة", "حائط"
+  ],
+  "toiture": [
+    "toiture", "toit", "toiture", "zinc", "tuile", "bitume", "etancheite", "étanchéité",
+    "etanchéité", "toiture", "isolation", "gouttiere", "gouttière", "evacuation",
+    "سقف", "الأسقف", "عزل", "الزنك", "قرميد", "بيتومين"
+  ],
+  "electromenager": [
+    "electromenager", "électroménager", "electromenager", "froid", "frigo",
+    "refrigerateur", "réfrigérateur", "lave linge", "machine a laver", "lave-linge",
+    "four", "mikrowav", "micro onde", "climatiseur", "reparateur",
+    "تبريد", "التبريد", "ثلاجة", "غسالة", "فرن", "أجهزة", "ميكرويف"
+  ],
+  "jardinage": [
+    "jardinage", "jardinier", "jardin", "espace vert", "pelouse", "gazon", "tonte",
+    "haie", "irrigation", "arbres", "cloture", "التخضير", "بقستان", "حديقة",
+    "البستنة", "حديقة", "عشب", "سقي"
+  ],
+  "serrurerie": [
+    "serrurerie", "serrurier", "serrure", "clef", "cle", "clé", "serrure", "verrou",
+    "porte blindee", "porte blindée", "coffre", "vando", "volets",
+    "أقفال", "الأقفال", "قفل", "مفتاح", "أمان"
+  ],
+  "transport": [
+    "transport", "deplacement", "déplacement", "camion", "estafette", "deménagement",
+    "déménagement", "debarra", "débarras", "livraison", "fourgon", "location",
+    "نقل", "النقل", "شاحنة", "نقل الأثاث", "توصيل", "أثاث"
+  ],
+  "menage": [
+    "menage", "ménage", "femme de menage", "nettoyage", "ménagère", "cleaning",
+    "cleaner", "repassage", "vitres", "house", "domestic",
+    "عاملة", "منزلية", "تنظيف", "نظافة", "عامل نظافة"
+  ],
+  "vitrage": [
+    "aluminium", "vitrage", "vitre", "verre", "menuisier aluminium",
+    "double vitrage", "fenetre alu", "fenêtre alu", "facade alu", "façade alu",
+    "verriere", "verrière", "문", "ألمنيوم", "الزجاج", "زجاج", "ألمونيوم", "شبابيك"
+  ]
+};
+
+const aiAreaAliases = {
+  "casablanca": [
+    "casablanca", "casa", "كازا", "الدار البيضاء", "الدارالبيضاء", "دار البيضاء"
+  ],
+  "maarif": ["maarif", "المعاريف"],
+  "bourgone": ["bourgone", "بورغون"],
+  "ain sebaa": ["ain sebaa", "عين السبع", "عين سبع"],
+  "californie": ["californie", "كالفورنية", "كاليفورنيا"],
+  "sidi maarouf": ["sidi maarouf", "سيدي معروف"],
+  "oasis": ["oasis", "الوازيس", "وازيس"]
+};
+
+/* =========================================================
+   REGIONS → CITIES
+   Morocco's 12 administrative regions, each with its main
+   cities (no neighborhoods).
+========================================================= */
+const MOROCCO_REGIONS = [
+  {
+    slug: "tanger-tetouan-alhoceima",
+    name: { fr: "Tanger-Tétouan-Al Hoceïma", ar: "طنجة - تطوان - الحسيمة", en: "Tanger-Tétouan-Al Hoceïma" },
+    cities: [
+      { slug: "tanger", name: { fr: "Tanger", ar: "طنجة", en: "Tangier" } },
+      { slug: "tetouan", name: { fr: "Tétouan", ar: "تطوان", en: "Tetouan" } },
+      { slug: "alhoceima", name: { fr: "Al Hoceïma", ar: "الحسيمة", en: "Al Hoceima" } },
+      { slug: "chefchaouen", name: { fr: "Chefchaouen", ar: "شفشاون", en: "Chefchaouen" } },
+      { slug: "fnideq", name: { fr: "Fnideq", ar: "الفنيدق", en: "Fnideq" } },
+      { slug: "mdiq", name: { fr: "M'diq", ar: "المضيق", en: "Mdiq" } },
+      { slug: "larache", name: { fr: "Larache", ar: "العرائش", en: "Larache" } },
+      { slug: "ouezzane", name: { fr: "Ouezzane", ar: "وزان", en: "Ouezzane" } }
+    ]
+  },
+  {
+    slug: "oriental",
+    name: { fr: "Oriental", ar: "الجهة الشرقية", en: "Oriental" },
+    cities: [
+      { slug: "oujda", name: { fr: "Oujda", ar: "وجدة", en: "Oujda" } },
+      { slug: "nador", name: { fr: "Nador", ar: "الناظور", en: "Nador" } },
+      { slug: "berkane", name: { fr: "Berkane", ar: "بركان", en: "Berkane" } },
+      { slug: "taourirt", name: { fr: "Taourirt", ar: "تاوريرت", en: "Taourirt" } },
+      { slug: "jerada", name: { fr: "Jerada", ar: "جرادة", en: "Jerada" } },
+      { slug: "figuig", name: { fr: "Figuig", ar: "فكيك", en: "Figuig" } },
+      { slug: "saidia", name: { fr: "Saidia", ar: "السعيدية", en: "Saidia" } }
+    ]
+  },
+  {
+    slug: "fes-meknes",
+    name: { fr: "Fès-Meknès", ar: "فاس - مكناس", en: "Fès-Meknès" },
+    cities: [
+      { slug: "fes", name: { fr: "Fès", ar: "فاس", en: "Fez" } },
+      { slug: "meknes", name: { fr: "Meknès", ar: "مكناس", en: "Meknes" } },
+      { slug: "taza", name: { fr: "Taza", ar: "تازة", en: "Taza" } },
+      { slug: "taounate", name: { fr: "Taounate", ar: "تاونات", en: "Taounate" } },
+      { slug: "sefrou", name: { fr: "Sefrou", ar: "صفرو", en: "Sefrou" } },
+      { slug: "ifrane", name: { fr: "Ifrane", ar: "إفران", en: "Ifrane" } },
+      { slug: "elhajeb", name: { fr: "El Hajeb", ar: "الحاجب", en: "El Hajeb" } },
+      { slug: "boulemane", name: { fr: "Boulemane", ar: "بولمان", en: "Boulemane" } }
+    ]
+  },
+  {
+    slug: "rabat-sale-kenitra",
+    name: { fr: "Rabat-Salé-Kénitra", ar: "الرباط - سلا - القنيطرة", en: "Rabat-Salé-Kénitra" },
+    cities: [
+      { slug: "rabat", name: { fr: "Rabat", ar: "الرباط", en: "Rabat" } },
+      { slug: "sale", name: { fr: "Salé", ar: "سلا", en: "Salé" } },
+      { slug: "kenitra", name: { fr: "Kénitra", ar: "القنيطرة", en: "Kenitra" } },
+      { slug: "temara", name: { fr: "Témara", ar: "تمارة", en: "Temara" } },
+      { slug: "skhirat", name: { fr: "Skhirat", ar: "الصخيرات", en: "Skhirat" } },
+      { slug: "khemisset", name: { fr: "Khémisset", ar: "الخميسات", en: "Khemisset" } },
+      { slug: "sidikacem", name: { fr: "Sidi Kacem", ar: "سيدي قاسم", en: "Sidi Kacem" } },
+      { slug: "sidislidane", name: { fr: "Sidi Slimane", ar: "سيدي سليمان", en: "Sidi Slimane" } }
+    ]
+  },
+  {
+    slug: "beni-mellal-khenifra",
+    name: { fr: "Béni Mellal-Khénifra", ar: "بني ملال - خنيفرة", en: "Béni Mellal-Khénifra" },
+    cities: [
+      { slug: "benimellal", name: { fr: "Béni Mellal", ar: "بني ملال", en: "Beni Mellal" } },
+      { slug: "khenifra", name: { fr: "Khénifra", ar: "خنيفرة", en: "Khenifra" } },
+      { slug: "khouribga", name: { fr: "Khouribga", ar: "خريبكة", en: "Khouribga" } }
+    ]
+  },
+  {
+    slug: "casablanca-settat",
+    name: { fr: "Casablanca-Settat", ar: "الدار البيضاء - سطات", en: "Casablanca-Settat" },
+    cities: [
+      { slug: "casablanca", name: { fr: "Casablanca", ar: "الدار البيضاء", en: "Casablanca" } },
+      { slug: "settat", name: { fr: "Settat", ar: "سطات", en: "Settat" } },
+      { slug: "berrechid", name: { fr: "Berrechid", ar: "برشيد", en: "Berrechid" } },
+      { slug: "mohammedia", name: { fr: "Mohammédia", ar: "المحمدية", en: "Mohammedia" } },
+      { slug: "sidibennour", name: { fr: "Sidi Bennour", ar: "سيدي بنور", en: "Sidi Bennour" } },
+      { slug: "eljadida", name: { fr: "El Jadida", ar: "الجديدة", en: "El Jadida" } },
+      { slug: "azemmour", name: { fr: "Azemmour", ar: "أزمور", en: "Azemmour" } }
+    ]
+  },
+  {
+    slug: "marrakech-safi",
+    name: { fr: "Marrakech-Safi", ar: "مراكش - آسفي", en: "Marrakech-Safi" },
+    cities: [
+      { slug: "marrakech", name: { fr: "Marrakech", ar: "مراكش", en: "Marrakech" } },
+      { slug: "safi", name: { fr: "Safi", ar: "آسفي", en: "Safi" } },
+      { slug: "essaouira", name: { fr: "Essaouira", ar: "الصويرة", en: "Essaouira" } },
+      { slug: "elkeladesraghna", name: { fr: "El Kelaâ des Sraghna", ar: "قلعة السراغنة", en: "El Kelaa des Sraghna" } },
+      { slug: "chichaoua", name: { fr: "Chichaoua", ar: "شيشاوة", en: "Chichaoua" } },
+      { slug: "youssoufia", name: { fr: "Youssoufia", ar: "اليوسفية", en: "Youssoufia" } }
+    ]
+  },
+  {
+    slug: "draa-tafilalet",
+    name: { fr: "Drâa-Tafilalet", ar: "درعة - تافيلالت", en: "Drâa-Tafilalet" },
+    cities: [
+      { slug: "errrachidia", name: { fr: "Errachidia", ar: "الرشيدية", en: "Errachidia" } },
+      { slug: "ouarzazate", name: { fr: "Ouarzazate", ar: "ورزازات", en: "Ouarzazate" } },
+      { slug: "tinghir", name: { fr: "Tinghir", ar: "تنغير", en: "Tinghir" } },
+      { slug: "zagora", name: { fr: "Zagora", ar: "زاكورة", en: "Zagora" } },
+      { slug: "midelt", name: { fr: "Midelt", ar: "ميدلت", en: "Midelt" } }
+    ]
+  },
+  {
+    slug: "souss-massa",
+    name: { fr: "Souss-Massa", ar: "سوس - ماسة", en: "Souss-Massa" },
+    cities: [
+      { slug: "agadir", name: { fr: "Agadir", ar: "أكادير", en: "Agadir" } },
+      { slug: "inezgane", name: { fr: "Inezgane", ar: "إنزكان", en: "Inezgane" } },
+      { slug: "tiznit", name: { fr: "Tiznit", ar: "تيزنيت", en: "Tiznit" } },
+      { slug: "taroudant", name: { fr: "Taroudant", ar: "تارودانت", en: "Taroudant" } },
+      { slug: "sidiifni", name: { fr: "Sidi Ifni", ar: "سيدي إفني", en: "Sidi Ifni" } }
+    ]
+  },
+  {
+    slug: "guelmim-ouednoun",
+    name: { fr: "Guelmim-Oued Noun", ar: "كلميم - وادي نون", en: "Guelmim-Oued Noun" },
+    cities: [
+      { slug: "guelmim", name: { fr: "Guelmim", ar: "كلميم", en: "Guelmim" } },
+      { slug: "tantan", name: { fr: "Tan-Tan", ar: "طانطان", en: "Tan-Tan" } }
+    ]
+  },
+  {
+    slug: "laayoune-sakiaelhamra",
+    name: { fr: "Laâyoune-Sakia El Hamra", ar: "العيون - الساقية الحمراء", en: "Laâyoune-Sakia El Hamra" },
+    cities: [
+      { slug: "laayoune", name: { fr: "Laâyoune", ar: "العيون", en: "Laayoune" } },
+      { slug: "boujdour", name: { fr: "Boujdour", ar: "بوجدور", en: "Boujdour" } },
+      { slug: "tarfaya", name: { fr: "Tarfaya", ar: "طرفاية", en: "Tarfaya" } },
+      { slug: "smara", name: { fr: "Smara", ar: "السمارة", en: "Smara" } }
+    ]
+  },
+  {
+    slug: "dakhla-ouededdahab",
+    name: { fr: "Dakhla-Oued Ed-Dahab", ar: "الداخلة - وادي الذهب", en: "Dakhla-Oued Ed-Dahab" },
+    cities: [
+      { slug: "dakhla", name: { fr: "Dakhla", ar: "الداخلة", en: "Dakhla" } }
+    ]
+  }
+];
+
+/* Return the region slug a city slug belongs to, or "". */
+function cityRegion(citySlug) {
+  for (const r of MOROCCO_REGIONS) {
+    if (r.cities.some(c => c.slug === citySlug)) return r.slug;
+  }
+  return "";
+}
+
+/* Return the localized display name of a city slug. */
+function cityName(citySlug, lang) {
+  for (const r of MOROCCO_REGIONS) {
+    const c = r.cities.find(x => x.slug === citySlug);
+    if (c) return c.name[lang] || c.name.fr;
+  }
+  return citySlug;
+}
+
+const aiUrgentWords = [
+  "aujourd", "today", "dab", "daba", "urgent", "urgente", "maintenance",
+  "اليوم", "دابا", "داب", "قريب", "dghia", "lhal", "غي", "بزاف"
+];
+
+/* Normalize an Arabic/Darija phrase so alias lookup works:
+   strip leading "بغيت/كنبغي/نقلب/ندور/بغيتي/لي/ديال" connectors. */
+function aiTokenize(value) {
+  const t = normalizeText(value);
+  const tokens = t.replace(/[؟؟!.،,؟]/g, " ").split(/\s+/);
+  return tokens.filter(x => x.length > 0);
+}
+
+/* Return the matching canonical service category, if any word
+   of the query is a known alias. */
+function aiDetectService(value) {
+  const tokens = aiTokenize(value);
+  for (const category in aiServiceAliases) {
+    const aliases = aiServiceAliases[category];
+    for (const token of tokens) {
+      for (const alias of aliases) {
+        const a = normalizeText(alias);
+        if (a.length > 2 && (token.includes(a) || a.includes(token))) {
+          return category;
+        }
+      }
+    }
+  }
+  return "";
+}
+
+/* Return the matching canonical city, if a known alias appears. */
+function aiDetectCity(value) {
+  const t = normalizeText(value);
+  for (const city in aiAreaAliases) {
+    const aliases = aiAreaAliases[city];
+    for (const alias of aliases) {
+      if (t.includes(normalizeText(alias))) {
+        return city;
+      }
+    }
+  }
+  return "";
+}
+
+/* Does the phrase signal urgency/availability today? */
+function aiDetectAvailable(value) {
+  const t = normalizeText(value);
+  return aiUrgentWords.some(w => t.includes(normalizeText(w)));
+}
+
+/* High-level natural-language interpreter used when the user
+   types a full sentence. Returns { service, city, available }. */
+function interpretQuery(raw) {
+  const detected = {
+    service: aiDetectService(raw),
+    city: aiDetectCity(raw),
+    available: aiDetectAvailable(raw)
+  };
+  return detected;
+}
+
+/* =========================================================
    SEARCH MATCH
 ========================================================= */
 
 function professionalMatches(pro, service, city) {
 
   const serviceText = normalizeText(service);
+
+  /* If the raw service text is a natural-language phrase,
+     let the AI layer detect the canonical category. */
+  const aiService = aiDetectService(service);
+  const effectiveService =
+    aiService || serviceText;
+
   const cityText = normalizeText(city);
+  const aiCity = aiDetectCity(city);
+  const effectiveCity = aiCity || cityText;
 
   const category =
     normalizeText(pro.category);
@@ -3693,18 +5555,39 @@ function professionalMatches(pro, service, city) {
   const area =
     normalizeText(pro.area);
 
+  /* If the selected value is one of the 12 regions, match any
+     pro whose city or neighborhood belongs to that region. */
+  const region =
+    MOROCCO_REGIONS.find(
+      r => normalizeText(r.slug) === effectiveCity
+    );
+
 
   const serviceMatch =
-    !serviceText ||
-    category.includes(serviceText) ||
-    job.includes(serviceText) ||
-    serviceText.includes(category);
+    !effectiveService ||
+    category.includes(effectiveService) ||
+    job.includes(effectiveService) ||
+    effectiveService.includes(category);
 
 
-  const cityMatch =
-    !cityText ||
-    proCity.includes(cityText) ||
-    area.includes(cityText);
+  let cityMatch = !effectiveCity;
+
+  if (region) {
+
+    cityMatch =
+      region.cities.some(
+        c =>
+          proCity.includes(c.slug) ||
+          area.includes(c.slug)
+      );
+
+  } else {
+
+    cityMatch =
+      proCity.includes(effectiveCity) ||
+      area.includes(effectiveCity);
+
+  }
 
 
   return serviceMatch && cityMatch;
@@ -4203,6 +6086,11 @@ function renderSearchResults() {
     .querySelector("main")
     .appendChild(page);
 
+  /* Reset scroll so the freshly-rendered results page is
+     shown from the top (and not clamped to the bottom of a
+     shorter page after the tall home page is replaced). */
+  window.scrollTo(0, 0);
+
 
   setupResultFilters(results);
 
@@ -4622,6 +6510,10 @@ function openProfessional(id) {
 
     `;
 
+  /* Reset scroll so the freshly-rendered profile page is
+     shown from the top. */
+  window.scrollTo(0, 0);
+
 }
 
 
@@ -4642,6 +6534,182 @@ function contactWhatsApp(phone) {
   );
 
 }
+
+
+/* =========================================================
+   REGISTRATION WIZARD — pack selection → form → lead
+========================================================= */
+
+/* → Replace with your Sna3ti admin WhatsApp number (format
+     2126XXXXXXXX, no + sign, no spaces) to receive leads. */
+const SNA3TI_ADMIN_WHATSAPP = "212600000000";
+
+const REG_PACK_LABELS = {
+  gratuit: "Gratuit (0 DH)",
+  verifie: "Vérifié (99 DH/mois)",
+  gold: "GOLD (199 DH/mois)"
+};
+
+function regVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : "";
+}
+
+function regSelectPack(pack) {
+  document.querySelectorAll(".reg-pack").forEach(function (b) {
+    b.classList.remove("reg-pack-selected");
+  });
+  const chosen = document.querySelector('.reg-pack[data-pack="' + pack + '"]');
+  if (chosen) chosen.classList.add("reg-pack-selected");
+
+  const s1 = document.getElementById("regStep1");
+  const s2 = document.getElementById("regStep2");
+  if (s1) s1.classList.add("hidden");
+  if (s2) {
+    s2.classList.remove("hidden");
+    s2.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function regSubmit() {
+  const nom = regVal("regNom");
+  const prenom = regVal("regPrenom");
+  const metier = regVal("regMetier");
+  const ville = regVal("regVille");
+  const phone = regVal("regPhone");
+  const prix = regVal("regPrix");
+
+  /* City select (slug) -> localized label for the message. */
+  const citySlug = ville;
+  const cityLabel = citySlug
+    ? cityName(citySlug, localStorage.getItem("sna3ti-language") || "fr")
+    : "";
+
+  if (!nom || !prenom || !metier || !ville || !phone) {
+    alert("Merci de remplir Nom, Prénom, Métier, Ville et Numéro WhatsApp.");
+    return;
+  }
+
+  // WhatsApp number must be a Moroccan +212 number followed by 9 digits
+  const digits = phone.replace(/\D/g, "");
+  let national = digits;
+  if (digits.startsWith("00212")) {
+    national = digits.slice(5);
+  } else if (digits.startsWith("212")) {
+    national = digits.slice(3);
+  }
+
+  if (national.length === 10 && national.indexOf("0") === 0) {
+    alert(
+      "⚠️ Supprime le 0 au début du numéro.\n\n" +
+      "Un numéro marocain doit être au format +212 suivi de 9 chiffres, ex : +212612345678.\n\n" +
+      "Tu as saisi : " + phone
+    );
+    return;
+  }
+
+  if (national.length !== 9) {
+    alert(
+      "⚠️ Numéro WhatsApp invalide.\n\n" +
+      "Saisis un numéro marocain au format +212 suivi de 9 chiffres, ex : +212612345678."
+    );
+    return;
+  }
+
+  const whatsappNumber = "+212" + national;
+
+  const selected = document.querySelector(".reg-pack.reg-pack-selected");
+  const pack = selected ? selected.getAttribute("data-pack") : "gratuit";
+  const packLabel = REG_PACK_LABELS[pack] || pack;
+
+  const photoP = document.getElementById("regPhotoProfil");
+  const photoT = document.getElementById("regPhotoTravail");
+  const photoPName = photoP && photoP.files && photoP.files[0] ? photoP.files[0].name : "-";
+  const photoTName = photoT && photoT.files && photoT.files[0] ? photoT.files[0].name : "-";
+
+  const msg =
+    "🛠️ NOUVELLE INSCRIPTION — Sna3ti.ma\n" +
+    "Formule : " + packLabel + "\n" +
+    "Nom : " + nom + "\n" +
+    "Prénom : " + prenom + "\n" +
+    "Métier : " + (serviceName(metier, localStorage.getItem("sna3ti-language") || "fr") || metier || "-") + "\n" +
+    "Ville : " + (cityLabel || ville || "-") + "\n" +
+    "Prix (DH/m²) : " + (prix ? prix + " DH" : "Non précisé") + "\n" +
+    "WhatsApp : " + whatsappNumber + "\n" +
+    "Photo de profil : " + photoPName + "\n" +
+    "Photo de travail : " + photoTName + "\n" +
+    "Envoyé depuis le site Sna3ti.ma";
+
+  window.open(
+    "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg),
+    "_blank"
+  );
+
+  alert(
+    "Merci " + prenom + " ! 🎉\n\n" +
+    "Ta demande a été préparée. Envoie le message WhatsApp qui vient de s'ouvrir pour finaliser ton inscription. 👌"
+  );
+}
+
+/* Delegated events so they keep working even after the home
+   page is restored (innerHTML swaps don't rebind inline). */
+document.addEventListener("click", function (e) {
+  const packCard = e.target.closest(".reg-pack");
+  if (packCard) {
+    regSelectPack(packCard.getAttribute("data-pack"));
+    return;
+  }
+
+  if (e.target.closest("#regBack")) {
+    const s1 = document.getElementById("regStep1");
+    const s2 = document.getElementById("regStep2");
+    if (s1) s1.classList.remove("hidden");
+    if (s2) s2.classList.add("hidden");
+    return;
+  }
+
+  if (e.target.closest("#regSubmit")) {
+    regSubmit();
+    return;
+  }
+
+  /* Pricing CTAs that pre-select a pack (data-reg-preselect). */
+  const pre = e.target.closest("[data-reg-preselect]");
+  if (pre) {
+    regSelectPack(pre.getAttribute("data-reg-preselect"));
+  }
+});
+
+document.addEventListener("submit", function (e) {
+  if (e.target && e.target.id === "regForm") {
+    e.preventDefault();
+    regSubmit();
+  }
+});
+
+document.addEventListener("change", function (e) {
+  const input = e.target;
+  if (!input || input.type !== "file") return;
+  if (input.id !== "regPhotoProfil" && input.id !== "regPhotoTravail") return;
+
+  const nameEl = input.closest(".reg-file");
+  if (!nameEl) return;
+  const labelEl = nameEl.querySelector(".reg-file-name");
+  if (!labelEl) return;
+
+  if (input.files && input.files[0]) {
+    labelEl.textContent = input.files[0].name;
+    labelEl.removeAttribute("data-i18n");
+    labelEl.classList.add("text-white/90");
+  } else {
+    const lang = localStorage.getItem("sna3ti-language") || "fr";
+    labelEl.textContent =
+      (translations[lang] && translations[lang].register && translations[lang].register.noFile) ||
+      "Aucun fichier sélectionné";
+    labelEl.setAttribute("data-i18n", "register.noFile");
+    labelEl.classList.remove("text-white/90");
+  }
+});
 
 
 /* =========================================================
@@ -4722,7 +6790,12 @@ function restoreHome() {
      active language to the restored markup. */
   bindHeroTilt();
   bindServiceCards();
+  bindPricing();
   setLanguage(savedLanguage);
+  populateLocationDropdowns();
+  populateRegCity();
+  populateRegMetier();
+  populateServiceSelect();
 
 }
 
@@ -4741,7 +6814,315 @@ if (mainEl) {
 
 handleSna3tiRoute();
 
+/* =========================================================
+   CHATBOT — "Sana3ti Assistant" (knowledge base + Q&A)
+========================================================= */
+(function () {
+  "use strict";
+
+  var cRoot = document.getElementById("sna3ti-chat-root");
+  if (!cRoot) return;
+
+  var el = {
+    panel: document.getElementById("sna3ti-chat-panel"),
+    btn: document.getElementById("sna3ti-chat-btn"),
+    close: document.getElementById("sna3ti-chat-close"),
+    msgs: document.getElementById("sna3ti-chat-msgs"),
+    quick: document.getElementById("sna3ti-chat-quick"),
+    form: document.getElementById("sna3ti-chat-form"),
+    input: document.getElementById("sna3ti-chat-input")
+  };
+
+  var typingTimer = null;
+
+  /* ---------- string helpers ---------- */
+  function norm(s) {
+    return String(s || "").toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[’'«»“”]/g, "'")
+      .replace(/[^a-z0-9' ]/g, " ")
+      .replace(/\s+/g, " ").trim();
+  }
+  function smooth(s) { return String(s || "").replace(/[\u00a0\u200b\u202f]/g, " "); }
+  function ncount(s) { return norm(s).replace(/[^a-z0-9]/g, ""); }
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function titleCase(s) {
+    return String(s || "").replace(/\w\S*/g, function (t) { return t.charAt(0).toUpperCase() + t.slice(1); });
+  }
+
+  /* ---------- knowledge base: service descriptions ---------- */
+  var services = {
+    plomberie: "réparations de fuites, installations sanitaires, débouchage, robinets, chauffe-eau et salles de bain.",
+    electricite: "installation et dépannage électrique : tableaux, prises, éclairage, LED et mise aux normes.",
+    platrerie: "plâtrerie et gypse : cloisons, plaques de plâtre (placo), faux plafonds, enduits et décors.",
+    peinture: "peinture intérieure et extérieure, rénovation, plafonds, crépis et finitions.",
+    menuiserie: "menuiserie sur mesure : portes, fenêtres, placards, cuisines et charpente en bois.",
+    climatisation: "installation, entretien et réparation de climatiseurs, froid, pompes et chauffage.",
+    carrelage: "pose de carrelage, faïence et zellige, dallage, marbre et sols.",
+    maconnerie: "maçonnerie et gros œuvre : murs, cloisons, parpaings, béton, dalles et façades.",
+    toiture: "toiture et étanchéité : zinc, tuiles, bitume, isolation et évacuation des eaux pluviales.",
+    electromenager: "froid et électroménager : réparation et entretien de réfrigérateurs, machines à laver, fours et climatiseurs.",
+    jardinage: "jardinage et espaces verts : tonte, gazon, haies, irrigation, clôtures et aménagement extérieur.",
+    serrurerie: "serrurerie : clés, serrures, portes blindées, volets, coffres et dépannage.",
+    transport: "déplacement et transport : camion, estafette, déménagement, débarras et location avec chauffeur.",
+    menage: "ménage et nettoyage : domicile, bureaux, après-chantier, vitres et repassage.",
+    vitrage: "menuiserie aluminium et vitrage : portes, fenêtres, façades, verrière et double vitrage."
+  };
+
+  /* ---------- detection (reuses the site's alias tables) ---------- */
+  function detectService(q) {
+    var n = norm(q);
+    for (var slug in aiServiceAliases) {
+      var list = [slug].concat(aiServiceAliases[slug]);
+      for (var i = 0; i < list.length; i++) {
+        var a = norm(list[i]);
+        if (a && n.indexOf(a) !== -1) return slug;
+      }
+    }
+    return null;
+  }
+  function detectArea(q) {
+    var n = norm(q);
+    for (var slug in aiAreaAliases) {
+      var list = aiAreaAliases[slug];
+      for (var i = 0; i < list.length; i++) {
+        var a = norm(list[i]);
+        if (a && n.indexOf(a) !== -1) return slug;
+      }
+    }
+    return null;
+  }
+  function areaMatches(p, slug) {
+    var cand = [p.city, p.area].filter(Boolean);
+    var al = (aiAreaAliases[slug] || []).map(ncount);
+    return cand.some(function (c) {
+      var ck = ncount(c);
+      return ncount(slug) === ck || al.indexOf(ck) !== -1;
+    });
+  }
+  function professionalsIn(serv, area) {
+    return sna3tiProfessionals.filter(function (p) {
+      if (serv && p.category !== serv) return false;
+      if (!area) return true;
+      return areaMatches(p, area);
+    });
+  }
+
+  /* ---------- canned replies ---------- */
+  function pricingAnswer() {
+    return "Voici les formules :\n• <b>Gratuit</b> — 0 DH (profil + 3 photos)\n• <b>Vérifié</b> — 99 DH/mois (recommandé)\n• <b>GOLD</b> — 199 DH/mois (premium)\n👉 Pour le détail complet, va dans la section « Tarifs ». Quel est ton métier ?";
+  }
+  function walkthroughAnswer() {
+    return "Comment ça marche (en 3 étapes) :\n1️⃣ Trouve le professionnel (par métier et ville)\n2️⃣ Consulte son profil : photos, avis, disponibilité, prix\n3️⃣ Contacte-le directement par WhatsApp ou téléphone\nTu peux aussi t'inscrire comme professionnel gratuitement !";
+  }
+  function servicesOverview() {
+    var names = Object.keys(services).map(titleCase).join(", ");
+    return "🧰 On couvre <b>" + Object.keys(services).length + "+ métiers</b> : " + names + ". Dis-moi le métier qui t'intéresse et je te montre les pros !";
+  }
+  function serviceAnswer(serv, q) {
+    var city = detectArea(q);
+    var label = titleCase(serv);
+    var out = "✅ Un pro en <b>" + esc(label) + "</b> ? Ce métier couvre : " + esc(services[serv] || "") + "\n";
+    var matches = professionalsIn(serv, city);
+    if (matches.length) {
+      out += "\n🎯 <b>" + matches.length + "</b> pro(s) disponible(s)" + (city ? " à <b>" + esc(titleCase(city)) + "</b>" : "") + ", dont :\n";
+      out += matches.slice(0, 3).map(function (p) {
+        return "· " + esc(p.name) + " (" + esc(p.area || "Casablanca") + ", " + p.price + " DH, ★" + p.rating + ")";
+      }).join("\n");
+      out += "\n👉 <a href='#/search?service=" + serv + (city ? ("&city=" + city) : "") + "' class='text-sna3ti-teal underline'>Voir tous les pros →</a>";
+    } else {
+      out += "\n👉 <a href='#/search?service=" + serv + "' class='text-sna3ti-teal underline'>Rechercher « " + esc(label) + " » →</a>";
+    }
+    return out;
+  }
+  function areaAnswer(area) {
+    if (!area) area = "casablanca";
+    var l = sna3tiProfessionals.filter(function (p) { return areaMatches(p, area); });
+    var head = "📍 Zone : <b>" + esc(titleCase(area)) + "</b>.";
+    if (l.length) {
+      return head + " Nous avons <b>" + l.length + "</b> pro(s) là-bas, dont : " +
+        l.slice(0, 4).map(function (p) { return esc(p.name) + " (" + esc(p.job) + ", ★" + p.rating + ")"; }).join(", ") +
+        ".\n👉 <a href='#/search?city=" + area + "' class='text-sna3ti-teal underline'>Explorer →</a>";
+    }
+    return head + " Des pros sont déjà à Casablanca (Maarif, Bourgogne, Californie…). 👉 <a href='#/search' class='text-sna3ti-teal underline'>Voir tous →</a>";
+  }
+  function generalProsAnswer() {
+    return "🧰 Sana3ti.ma réunit des professionnels de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
+  }
+  function fallbackAnswer(q) {
+    return "Désolé, je n'ai pas bien compris. 🤔 Essaie avec des mots-clés, ex. « tarifs », « plombier à Casablanca », « comment ça marche », « GOLD », « m3allem zellige ».";
+  }
+
+  /* ---------- main Q&A ---------- */
+  function answer(raw) {
+    var q = smooth(raw);
+    var n = norm(q);
+
+    if (/\b(hi|hello|hey|salut|bonjour|bonsoir|salam|slm|marhba|ahlan|ahlaw|aw ba)\b/.test(n))
+      return "Salam ! 👋 Je suis l'assistant de Sana3ti.ma. Demande-moi pour trouver un professionnel, connaître les tarifs, ou en savoir plus sur le site.";
+    if (/merci|chokran|choukran|thanks|thank you|شكرا|صحا/.test(n))
+      return "De rien ! 😊 Si tu as une autre question, je suis là. À bientôt !";
+
+    if (/gold|💛|👑|💛/.test(n))
+      return "L'offre <b>GOLD</b> (199 DH/mois) est la formule premium 💛 : apparition premium dans la recherche, badge vérifié, photos illimitées, portfolio, statistiques avancées, mise en avant 4×/mois, AI Profile Advanced et support VIP.";
+    if (/v[ée]rif[ée]|verif|recommand[ée]/.test(n))
+      return "L'offre <b>Vérifié</b> (99 DH/mois) donne : apparition prioritaire dans la recherche, badge vérifié, 10 photos, portfolio, statistiques de base… C'est le choix recommandé pour gagner la confiance des clients. ✅";
+    if (/gratuit|gratuite|\bfree\b|0 dh|zero/.test(n))
+      return "L'offre <b>Gratuit</b> (0 DH) te permet de créer ton compte et d'apparaître dans la recherche gratuitement, avec 3 photos et un profil standard. Idéal pour démarrer !";
+
+    if (/tarif|prix|combien|co[ûu]t|\bdh\b|dirham|abonn|formule|offre|\bplan\b|\bpackage\b/.test(n))
+      return pricingAnswer();
+    if (/comment (ca )?marche|comment ca s'appelle|etapes|fonctionne|comment trouver|comment utiliser|chnowa had site/.test(n))
+      return walkthroughAnswer();
+    if (/inscri|cr[ée].*compte|enregistr|sign ?up|register|compte/.test(n))
+      return "Pour t'inscrire comme professionnel, va dans la section « Tarifs » et choisis ta formule. Chacune a son bouton « Créer mon compte ». C'est rapide, et tu gères ensuite ton profil ! 📝";
+    if (/contact|whatsapp|whats|watsap|wa ?tsapp|t[ée]l[ée]phone|appeler|joindre|\bphone\b|numero|dial/.test(n))
+      return "Tu peux contacter un professionnel directement depuis son profil (bouton WhatsApp) ou depuis la fiche de recherche. 📱 Chaque pro affiche son numéro avec un lien WhatsApp.";
+
+    var serv = detectService(q);
+    if (/servic|metier|m[ée]tier|categor|cat[ée]gorie/.test(n) && !serv)
+      return servicesOverview();
+    if (serv)
+      return serviceAnswer(serv, q);
+
+    var area = detectArea(q);
+    if (/ville|city|madina|zone|r[ée]gion|المدينة/.test(n) || area)
+      return areaAnswer(area);
+
+    if (/professionnel|professionnelles|m(3|aa|o)allem|3amel|worker|technicien|artisan/.test(n))
+      return generalProsAnswer();
+
+    return fallbackAnswer(q);
+  }
+
+  /* ---------- UI ---------- */
+  function addMsg(html, who) {
+    var d = document.createElement("div");
+    var base = "max-w-[85%] px-3.5 py-2 whitespace-pre-line ";
+    d.className = (who === "user")
+      ? base + "self-end rounded-2xl rounded-br-md bg-sna3ti-ink text-white"
+      : base + "self-start rounded-2xl rounded-bl-md bg-white border border-sna3ti-teal/10 text-sna3ti-ink";
+    d.innerHTML = html;
+    el.msgs.appendChild(d);
+    el.msgs.scrollTop = el.msgs.scrollHeight;
+  }
+  function typing(on) {
+    var t = document.getElementById("sna3ti-chat-typing");
+    if (on && !t) {
+      var d = document.createElement("div");
+      d.id = "sna3ti-chat-typing";
+      d.className = "self-start rounded-2xl rounded-bl-md bg-white border border-sna3ti-teal/10 px-3.5 py-2 text-xs text-sna3ti-teal";
+      d.textContent = "écrit…";
+      el.msgs.appendChild(d);
+      el.msgs.scrollTop = el.msgs.scrollHeight;
+    } else if (!on && t) {
+      t.remove();
+    }
+  }
+  function ask(q) {
+    q = String(q || "").trim();
+    if (!q) return;
+    addMsg(esc(q), "user");
+    el.input.value = "";
+    typing(true);
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(function () {
+      typing(false);
+      addMsg(answer(q), "bot");
+    }, 500 + Math.random() * 500);
+  }
+
+  var chips = [
+    { label: "💰 Tarifs", ask: "montre moi les tarifs" },
+    { label: "🧰 Services", ask: "quels sont les services disponibles" },
+    { label: "📍 À Casablanca", ask: "professionnels à casablanca" },
+    { label: "ℹ️ Comment ça marche", ask: "comment ça marche" },
+    { label: "👑 GOLD", ask: "parle moi de l offre gold" }
+  ];
+  function buildChips() {
+    el.quick.innerHTML = "";
+    chips.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "rounded-full bg-sna3ti-mint px-3 py-1 text-xs font-bold text-sna3ti-teal hover:bg-sna3ti-teal/20 transition";
+      b.textContent = c.label;
+      b.addEventListener("click", function () { ask(c.ask); });
+      el.quick.appendChild(b);
+    });
+  }
+
+  var OPEN = false;
+  function openChat() {
+    OPEN = true;
+    el.panel.classList.remove("hidden");
+    el.panel.classList.add("flex");
+    el.btn.style.display = "none";
+    applyDir();
+    if (!el.msgs.children.length) {
+      addMsg("Salam ! 👋 Bienvenue sur Sana3ti.ma. Je peux t'aider à trouver un professionnel, connaître les tarifs ou en savoir plus. Qu'est-ce que tu cherches ?", "bot");
+    }
+    el.input.focus();
+  }
+  function closeChat() {
+    OPEN = false;
+    el.panel.classList.add("hidden");
+    el.panel.classList.remove("flex");
+    el.btn.style.display = "";
+  }
+  function applyDir() {
+    var rtl = document.documentElement.dir === "rtl";
+    cRoot.classList.toggle("right-5", !rtl);
+    cRoot.classList.toggle("left-5", rtl);
+    cRoot.classList.toggle("items-end", !rtl);
+    cRoot.classList.toggle("items-start", rtl);
+    cRoot.setAttribute("dir", rtl ? "rtl" : "ltr");
+  }
+
+  el.btn.addEventListener("click", openChat);
+  el.close.addEventListener("click", closeChat);
+  el.form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    ask(el.input.value);
+  });
+
+  buildChips();
+  applyDir();
+})();
+
+/* Populate the hero location/service dropdowns on first load. */
+populateLocationDropdowns();
+populateRegCity();
+populateRegMetier();
+populateServiceSelect();
+
   </script>
+
+<!-- SANA3TI CHATBOT WIDGET -->
+<div id="sna3ti-chat-root" dir="ltr" class="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3" style="font-family:Inter,sans-serif">
+  <section id="sna3ti-chat-panel" class="hidden w-[min(92vw,370px)] flex-col overflow-hidden rounded-3xl bg-white text-left shadow-premium border border-sna3ti-teal/15">
+    <header class="flex items-center justify-between gap-3 bg-sna3ti-ink px-4 py-3 text-white">
+      <div class="flex min-w-0 items-center gap-3">
+        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-xl">💬</div>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-black leading-tight">Sana3ti Assistant</p>
+          <p class="text-[11px] text-sna3ti-mint">En ligne · réponds en direct</p>
+        </div>
+      </div>
+      <button type="button" id="sna3ti-chat-close" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/70 hover:bg-white/10" aria-label="Fermer">✕</button>
+    </header>
+    <div id="sna3ti-chat-msgs" class="flex h-80 flex-col gap-2 overflow-y-auto bg-sna3ti-cream p-3 text-sm"></div>
+    <div id="sna3ti-chat-quick" class="flex flex-wrap gap-1.5 border-t border-sna3ti-teal/10 bg-white px-3 py-2"></div>
+    <form id="sna3ti-chat-form" class="flex items-center gap-2 border-t border-sna3ti-teal/10 bg-white p-2">
+      <input id="sna3ti-chat-input" type="text" autocomplete="off" placeholder="Ta question ici…" class="min-w-0 flex-1 rounded-full border border-sna3ti-teal/15 bg-sna3ti-cream px-4 py-2.5 text-sm outline-none focus:border-sna3ti-teal" />
+      <button type="submit" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-white transition hover:bg-sna3ti-teal2" aria-label="Envoyer">➤</button>
+    </form>
+  </section>
+  <button id="sna3ti-chat-btn" type="button" class="grid h-14 w-14 place-items-center rounded-full bg-sna3ti-ink text-2xl text-white shadow-premium transition hover:scale-105" aria-label="Ouvrir le chat">💬</button>
+</div>
 
 </body>
 </html>

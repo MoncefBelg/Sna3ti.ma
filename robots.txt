@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sna3ti.ma/sitemap.xml
