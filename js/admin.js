@@ -230,12 +230,12 @@
       ch.addEventListener("change", function(){ proState.selected[ch.dataset.id] = ch.checked; refreshSelected(); });
     });
     document.querySelectorAll("#proBody [data-view]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate(b.dataset.view); }); });
-    document.querySelectorAll("#proBody [data-edit]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(+b.dataset.edit); }); });
-    document.querySelectorAll("#proBody [data-verify]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(+b.dataset.verify, true); }); });
+    document.querySelectorAll("#proBody [data-edit]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.edit); }); });
+    document.querySelectorAll("#proBody [data-verify]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.verify, true); }); });
 
     var act;
     document.querySelectorAll("#proBody [data-suspend]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=+b.dataset.suspend;
+      var id=b.dataset.suspend;
       UI.confirmAction({ title:"Suspendre ce professionnel ?", message:"Le professionnel ne sera plus visible dans les recherches.", reasonRequired:true, reasonLabel:"Raison de la suspension", confirmLabel:"Suspendre", onConfirm:function(reason){
         DATA.updateProfessional(id, { status:"suspended" });
         DATA.logAudit({ admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:id, result:"Suspended", note:reason });
@@ -243,13 +243,13 @@
       }});
     }); });
     document.querySelectorAll("#proBody [data-activate]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=+b.dataset.activate;
+      var id=b.dataset.activate;
       DATA.updateProfessional(id, { status:"active" });
       DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
       UI.toast("Professionnel activé."); drawPros();
     }); });
     document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=+b.dataset.del;
+      var id=b.dataset.del;
       UI.confirmAction({ title:"Supprimer définitivement ?", message:"Cette action est irréversible.", confirmLabel:"Supprimer", onConfirm:function(){
         DATA._store.professionals = DATA._store.professionals.filter(function(p){ return p.id!==id; });
         DATA.persist();
@@ -354,7 +354,7 @@
   function renderProfessionalDetail(id){
     UI.renderSkeleton(6, false);
     setTimeout(function(){
-      var p = DATA.getProfessional(parseInt(id,10));
+      var p = DATA.getProfessional(id);
       if(!p){ UI.renderEmpty("Professionnel introuvable.", "🔍"); return; }
       var uid = DATA._store.users.find(function(u){ return u.id===p.userId; });
       var reviews = DATA.getReviews().filter(function(r){ return r.professionalId===p.id; });
@@ -532,10 +532,10 @@
   // store checklist progress per professional
   global.__verCheck = {};
   function bindVerification(){
-    document.querySelectorAll("[data-audit]").forEach(function(b){ b.addEventListener("click", function(){ showVerHistory(+b.dataset.audit); }); });
-    document.querySelectorAll("[data-approve]").forEach(function(b){ b.addEventListener("click", function(){ quickApprove(+b.dataset.approve); }); });
-    document.querySelectorAll("[data-reject]").forEach(function(b){ b.addEventListener("click", function(){ rejectVer(+b.dataset.reject); }); });
-    document.querySelectorAll("[data-review]").forEach(function(b){ b.addEventListener("click", function(){ openReview(+b.dataset.review); }); });
+    document.querySelectorAll("[data-audit]").forEach(function(b){ b.addEventListener("click", function(){ showVerHistory(b.dataset.audit); }); });
+    document.querySelectorAll("[data-approve]").forEach(function(b){ b.addEventListener("click", function(){ quickApprove(b.dataset.approve); }); });
+    document.querySelectorAll("[data-reject]").forEach(function(b){ b.addEventListener("click", function(){ rejectVer(b.dataset.reject); }); });
+    document.querySelectorAll("[data-review]").forEach(function(b){ b.addEventListener("click", function(){ openReview(b.dataset.review); }); });
   }
   function showVerHistory(id){
     var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
@@ -687,11 +687,11 @@
             (AUTH.can("reviews","delete") ? '<button class="icon-act danger" data-delrev="'+r.id+'" title="Supprimer">🗑️</button>':"") +
           '</td></tr>';
       }).join("") + '</tbody></table></div></div>';
-    document.querySelectorAll("[data-pub]").forEach(function(b){ b.addEventListener("click", function(){ setRev(+"b".replace("b",b.dataset.pub), "published"); }); });
-    document.querySelectorAll("[data-flag]").forEach(function(b){ b.addEventListener("click", function(){ setRev(+b.dataset.flag, "flagged"); }); });
-    document.querySelectorAll("[data-hide]").forEach(function(b){ b.addEventListener("click", function(){ setRev(+b.dataset.hide, "hidden"); }); });
+    document.querySelectorAll("[data-pub]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.pub, "published"); }); });
+    document.querySelectorAll("[data-flag]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.flag, "flagged"); }); });
+    document.querySelectorAll("[data-hide]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.hide, "hidden"); }); });
     document.querySelectorAll("[data-delrev]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=+b.dataset.delrev;
+      var id=b.dataset.delrev;
       UI.confirmAction({title:"Supprimer cet avis ?", confirmLabel:"Supprimer", onConfirm:function(){
         DATA._store.reviews=DATA._store.reviews.filter(function(r){return r.id!==id;}); DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_DELETED", entity:"Review", entityId:id, result:"Deleted"}); UI.toast("Avis supprimé."); drawReviews(currentReviewFilter());
       }});
@@ -739,16 +739,16 @@
         '</div></div>';
     }).join("");
     document.querySelectorAll("[data-viewpro]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("professionals/"+b.dataset.viewpro); }); });
-    document.querySelectorAll("[data-resolve]").forEach(function(b){ b.addEventListener("click", function(){ setReport(+b.dataset.resolve, "resolved"); }); });
-    document.querySelectorAll("[data-rejectrep]").forEach(function(b){ b.addEventListener("click", function(){ setReport(+b.dataset.rejectrep, "rejected"); }); });
+    document.querySelectorAll("[data-resolve]").forEach(function(b){ b.addEventListener("click", function(){ setReport(b.dataset.resolve, "resolved"); }); });
+    document.querySelectorAll("[data-rejectrep]").forEach(function(b){ b.addEventListener("click", function(){ setReport(b.dataset.rejectrep, "rejected"); }); });
     document.querySelectorAll("[data-warn]").forEach(function(b){ b.addEventListener("click", function(){
       UI.confirmAction({title:"Avertir le professionnel ?", reasonRequired:true, reasonLabel:"Motif de l'avertissement", confirmLabel:"Avertir", onConfirm:function(reason){
-        setReport(+b.dataset.warn, "under_review"); UI.toast("Avertissement enregistré.");
+        setReport(b.dataset.warn, "under_review"); UI.toast("Avertissement enregistré.");
       }});
     }); });
     document.querySelectorAll("[data-susprof]").forEach(function(b){ b.addEventListener("click", function(){
       UI.confirmAction({title:"Suspendre le professionnel ?", reasonRequired:true, reasonLabel:"Raison", confirmLabel:"Suspendre", onConfirm:function(reason){
-        var r=DATA._store.reports.find(function(x){return x.id===+b.dataset.susprof;}); if(r){ DATA.updateProfessional(r.professionalId,{status:"suspended"}); r.status="resolved"; DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:r.professionalId, result:"Suspended", note:reason}); } UI.toast("Professionnel suspendu."); drawReports(currentReportFilter());
+        var r=DATA._store.reports.find(function(x){return x.id===b.dataset.susprof;}); if(r){ DATA.updateProfessional(r.professionalId,{status:"suspended"}); r.status="resolved"; DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:r.professionalId, result:"Suspended", note:reason}); } UI.toast("Professionnel suspendu."); drawReports(currentReportFilter());
       }});
     }); });
   }
@@ -818,7 +818,7 @@
       pays.map(function(pa){
         var p = DATA.getProfessional(pa.professionalId);
         return '<tr><td><b>'+esc(pa.reference)+'</b></td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
-          '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+esc(pa.method==="bank_transfer"?"🏦 Virement":pa.method)+'</td><td>'+esc(pa.reference||"—")+'</td><td>'+pa.date+'</td>'+
+          '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+esc(pa.method==="bank_transfer"?"🏦 Virement":pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+pa.date+'</td>'+
           '<td>'+payStatusBadge(pa.status)+'</td>'+
           '<td class="actions-cell">'+
             (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="Confirmer" style="color:var(--green)">✓</button>' : "") +
@@ -830,10 +830,10 @@
       '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. Professionnel choisit le plan</span><span class="step current">2. Virement bancaire</span><span class="step">3. Reçu téléversé</span><span class="step">4. Paiement = En attente</span><span class="step">5. Finance/Admin vérifie</span><span class="step">6. Confirmer/Rejeter</span><span class="step">7. Abonnement activé</span></div>' +
       '<p class="muted" style="margin-top:12px">La confirmation du paiement se fait après vérification du virement. Les réceptions de confirmation sont échangées via WhatsApp.</p></div>'
     );
-    document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(+b.dataset.confp); }); });
-    document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(+b.dataset.rejp); }); });
+    document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(b.dataset.confp); }); });
+    document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(b.dataset.rejp); }); });
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
-      var pa=DATA.getPayments().find(function(x){return x.id===+b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
+      var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
   }
   function confirmPayment(id){

@@ -214,10 +214,12 @@
   function renderNotifications(){
     var panel = document.getElementById("notifPanel");
     var list = DATA.getNotifications();
+    var NOTIF_ICO = { verification:"✅", payment:"💰", report:"🚩", subscription:"📦", user:"👥", system:"⚙️" };
     panel.innerHTML = '<div class="np-head"><span>Notifications</span><span class="muted small">'+list.filter(function(n){return n.unread;}).length+' non lues</span></div>' +
       (list.length ? list.map(function(n){
-        return '<div class="notif-item '+(n.unread?"unread":"")+'" data-id="'+n.id+'" data-route="'+n.route+'">' +
-               '<div class="n-ico">'+n.ico+'</div><div><div class="n-txt">'+esc(n.text)+'</div><div class="n-when">'+esc(n.when)+'</div></div></div>';
+        var ico = NOTIF_ICO[n.type] || "🔔";
+        return '<div class="notif-item '+(n.unread?"unread":"")+'" data-id="'+n.id+'" data-route="'+(n.route||"")+'">' +
+               '<div class="n-ico">'+ico+'</div><div><div class="n-txt">'+esc(n.text)+'</div><div class="n-when">'+esc(n.when)+'</div></div></div>';
       }).join("") : '<div class="sp-empty">Aucune notification</div>');
     DATA.markNotificationsRead();
     updatePills();

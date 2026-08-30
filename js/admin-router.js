@@ -39,6 +39,10 @@
     return clean;
   }
 
+  function decodeSafe(str){
+    try { return decodeURIComponent(str); } catch(e){ return str; }
+  }
+
   // Return matched route or null
   function matchRoute(){
     var parts = currentPath().split("/").filter(Boolean);
@@ -50,7 +54,7 @@
       var params = {};
       var ok = true;
       for(var j=0;j<rp.length;j++){
-        if(rp[j].startsWith(":")){ params[rp[j].slice(1)] = decodeURIComponent(parts[j]); }
+        if(rp[j].startsWith(":")){ params[rp[j].slice(1)] = decodeSafe(parts[j]); }
         else if(rp[j] !== parts[j]){ ok = false; break; }
       }
       if(ok){ return { route:r, params:params }; }

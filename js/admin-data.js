@@ -285,13 +285,13 @@
 
   var PAYMENTS = [
     { id:"PAY-7001", reference:"SNA3TI-48291", professionalId:"PRO-10296", planName:"GOLD", amount:199, method:"bank_transfer",
-      reference:"REF-8821", date:"2026-08-01", status:"confirmed" },
+      bankRef:"REF-8821", date:"2026-08-01", status:"confirmed" },
     { id:"PAY-7002", reference:"SNA3TI-48292", professionalId:"PRO-10294", planName:"VÉRIFIÉ", amount:99, method:"bank_transfer",
-      reference:"REF-5522", date:"2026-07-10", status:"confirmed" },
+      bankRef:"REF-5522", date:"2026-07-10", status:"confirmed" },
     { id:"PAY-7003", reference:"SNA3TI-48293", professionalId:"PRO-10298", planName:"VÉRIFIÉ", amount:99, method:"card",
-      reference:"CARD-7710", date:"2026-06-15", status:"pending" },
+      bankRef:"CARD-7710", date:"2026-06-15", status:"pending" },
     { id:"PAY-7004", reference:"SNA3TI-48294", professionalId:"PRO-10295", planName:"VÉRIFIÉ", amount:99, method:"bank_transfer",
-      reference:"REF-9911", date:"2026-08-28", status:"pending" }
+      bankRef:"REF-9911", date:"2026-08-28", status:"pending" }
   ];
 
   var NOTIFICATIONS = [
@@ -353,15 +353,17 @@
   function todayStr(){ return new Date().toISOString().slice(0,10); }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
+  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config"];
   function persist(){
-    try { ["professionals","users","subscriptions","payments"].forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
+    try { MUTABLE_KEYS.forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
   }
   function hydrate(){
     try {
-      ["professionals","users","subscriptions","payments"].forEach(function(k){
+      MUTABLE_KEYS.forEach(function(k){
         var raw = localStorage.getItem("sna3ti_admin_"+k);
-        if(raw){ var arr = JSON.parse(raw); if(Array.isArray(arr)) store[k] = arr; }
+        if(raw){ var arr = JSON.parse(raw); store[k] = arr; }
       });
+      CONFIG = store.config; // keep CONFIG reference in sync after hydrate
     } catch(e){}
   }
   hydrate();
@@ -486,7 +488,13 @@
     getAuditLogs: function(){ return clone(store.auditLogs); },
     logAudit: function(entry){ store.auditLogs.unshift(Object.assign({ id:uid("AL"), timestamp:new Date().toLocaleString("fr-MA"), result:"Success" }, entry)); },
     getConfig: function(){ return clone(store.config); },
-    updateConfig: function(data){ CONFIG = Object.assign({}, CONFIG, data); store.config=CONFIG; },
+    updateConfig: function(data){
+      var merged = Object.assign({}, CONFIG, data);
+      if(data.verification){ merged.verification = Object.assign({}, CONFIG.verification, data.verification); }
+      CONFIG = merged;
+      store.config = merged;
+      return true;
+    },
     // ---- helpers ----
     cityName: function(id){ var c = store.regions.reduce(function(a,r){ return a.concat(r.cities); },[]).find(function(x){return x.id===id;}); return c ? c.name.fr : id; },
     userName: function(id){ var u=getById(store.users,id); return u?u.name:""; },
