@@ -744,8 +744,9 @@
 
     [dir="rtl"] .hero-card-main {
       top: 24px;
+      left: 50%;
       transform:
-        translateX(0)
+        translateX(-128%)
         rotateY(8deg)
         rotateX(4deg);
     }
@@ -779,6 +780,13 @@
     .reg-pack-selected {
       border-color: #168F80 !important;
       background: rgba(22,143,128,.18) !important;
+      box-shadow: 0 0 0 1px #168F80;
+    }
+
+    /* Popup pack option (selected / hover) */
+    .popup-pack-selected {
+      border-color: #168F80 !important;
+      background: rgba(22,143,128,.10) !important;
       box-shadow: 0 0 0 1px #168F80;
     }
 
@@ -1501,6 +1509,151 @@
   }
 }
 
+/* =========================================================
+   PHOTO GALLERY CAROUSEL
+========================================================= */
+.sna3ti-gallery {
+  position: relative;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: #0d2b26;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 30px 60px rgba(15,92,91,.18);
+}
+
+.sna3ti-gallery-track {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  transition: transform .8s cubic-bezier(.65,.05,.36,1);
+}
+
+.sna3ti-gallery-slide {
+  position: relative;
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sna3ti-gallery-slide img {
+  display: block;
+  max-width: 100%;
+  max-height: clamp(420px, 70vh, 760px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.sna3ti-gallery-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6,21,18,.72), transparent 55%);
+  pointer-events: none;
+}
+
+.sna3ti-gallery-caption {
+  position: absolute;
+  left: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 2;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.sna3ti-gallery-slide.is-active .sna3ti-gallery-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sna3ti-gallery-caption .g-label {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #7fd8cc;
+  margin-bottom: .35rem;
+}
+
+.sna3ti-gallery-caption .g-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.sna3ti-gallery-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255,255,255,.92);
+  color: #0d2b26;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.sna3ti-gallery-nav:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.sna3ti-gallery-prev {
+  left: 1rem;
+}
+
+.sna3ti-gallery-next {
+  right: 1rem;
+}
+
+[dir="rtl"] .sna3ti-gallery-prev {
+  right: 1rem;
+  left: auto;
+}
+
+[dir="rtl"] .sna3ti-gallery-next {
+  left: 1rem;
+  right: auto;
+}
+
+.sna3ti-gallery-dots {
+  position: absolute;
+  bottom: 1.15rem;
+  right: 1.5rem;
+  z-index: 3;
+  display: flex;
+  gap: .45rem;
+}
+
+.sna3ti-gallery-dots button {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: rgba(255,255,255,.45);
+  cursor: pointer;
+  transition: width .25s ease, background .25s ease;
+}
+
+.sna3ti-gallery-dots button.is-active {
+  width: 26px;
+  background: #fff;
+}
+
   </style>
 </head>
 
@@ -1972,24 +2125,10 @@
 
               <div class="flex-1">
 
-                <label
-                  class="
-                    block
-                    text-[11px]
-                    uppercase
-                    tracking-wider
-                    font-bold
-                    text-gray-400
-                  "
-                >
-                  <span data-i18n="hero.service">Service</span>
-                </label>
-
                 <select
                   id="serviceSelect"
                   class="
                     w-full
-                    mt-1
                     outline-none
                     text-sm
                     font-semibold
@@ -2014,17 +2153,12 @@
 
               <div class="flex-1">
 
-                <label
-                  class="block text-[11px] uppercase tracking-wider font-bold text-gray-400"
-                  data-i18n="hero.city"
-                >Ville</label>
+                <div id="locationHint" class="text-[10px] text-gray-400" data-i18n="hero.regionCityHint"></div>
 
                 <select
                   id="citySelect"
-                  class="w-full mt-1 outline-none text-sm font-semibold text-sna3ti-ink bg-transparent cursor-pointer"
+                  class="w-full outline-none text-sm font-semibold text-sna3ti-ink bg-transparent cursor-pointer"
                 ></select>
-
-                <div id="locationHint" class="mt-1 text-[10px] text-gray-400" data-i18n="hero.regionCityHint"></div>
 
               </div>
 
@@ -2198,6 +2332,7 @@
               </div>
 
               <div
+                id="heroCardVerified"
                 class="
                   bg-white/10
                   border
@@ -2221,12 +2356,14 @@
             <div class="mt-12 text-center">
 
               <img
+                id="heroCardPhoto"
                 class="profile-photo mx-auto"
                 src="https://i.pravatar.cc/300?img=12"
                 alt="Professionnel Sna3ti"
               />
 
               <h3
+                id="heroCardName"
                 class="
                   mt-5
                   text-2xl
@@ -2238,6 +2375,7 @@
               </h3>
 
               <p
+                id="heroCardJob"
                 class="
                   mt-1
                   text-sm
@@ -2260,6 +2398,7 @@
                 ★★★★★
 
                 <span
+                  id="heroCardRating"
                   class="
                     text-white/60
                     text-sm
@@ -2295,11 +2434,12 @@
                 "
               >
 
-                <div class="text-white text-sm">
-                  📍 Maarif
+                <div id="heroCardArea" class="text-white text-sm">
+                  📍 Casablanca
                 </div>
 
                 <div
+                  id="heroCardDistance"
                   class="
                     text-white/40
                     text-xs
@@ -2322,11 +2462,12 @@
                 "
               >
 
-                <div class="text-white text-sm">
+                <div id="heroCardStatus" class="text-white text-sm">
                   🟢 Disponible
                 </div>
 
                 <div
+                  id="heroCardStatusDay"
                   class="
                     text-white/40
                     text-xs
@@ -2362,6 +2503,7 @@
               </span>
 
               <strong
+                id="heroCardPrice"
                 class="
                   text-white
                   text-lg
@@ -3438,6 +3580,28 @@
 
   </div>
 
+  <!-- PHOTO GALLERY (auto-rotating) -->
+  <div
+    class="sna3ti-gallery mt-10 max-w-7xl mx-auto px-4 sm:px-6"
+    aria-label="Galerie de réalisations"
+  >
+    <div class="sna3ti-gallery-track"></div>
+
+    <button
+      type="button"
+      class="sna3ti-gallery-nav sna3ti-gallery-prev"
+      aria-label="Photo précédente"
+    >‹</button>
+
+    <button
+      type="button"
+      class="sna3ti-gallery-nav sna3ti-gallery-next"
+      aria-label="Photo suivante"
+    >›</button>
+
+    <div class="sna3ti-gallery-dots"></div>
+  </div>
+
 </section>
 
 
@@ -3927,7 +4091,132 @@
        JAVASCRIPT
   ======================================================== -->
 
+
+<!-- SANA3TI CHATBOT WIDGET -->
+<div id="sna3ti-chat-root" dir="ltr" class="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3" style="font-family:Inter,sans-serif">
+  <section id="sna3ti-chat-panel" class="hidden w-[min(92vw,370px)] flex-col overflow-hidden rounded-3xl bg-white text-left shadow-premium border border-sna3ti-teal/15">
+    <header class="flex items-center justify-between gap-3 bg-sna3ti-ink px-4 py-3 text-white">
+      <div class="flex min-w-0 items-center gap-3">
+        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-xl">💬</div>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-black leading-tight">Sna3ti Assistant</p>
+          <p class="text-[11px] text-sna3ti-mint">En ligne · réponds en direct</p>
+        </div>
+      </div>
+      <button type="button" id="sna3ti-chat-close" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/70 hover:bg-white/10" aria-label="Fermer">✕</button>
+    </header>
+    <div id="sna3ti-chat-msgs" class="flex h-80 flex-col gap-2 overflow-y-auto bg-sna3ti-cream p-3 text-sm"></div>
+    <div id="sna3ti-chat-quick" class="flex flex-wrap gap-1.5 border-t border-sna3ti-teal/10 bg-white px-3 py-2"></div>
+    <form id="sna3ti-chat-form" class="flex items-center gap-2 border-t border-sna3ti-teal/10 bg-white p-2">
+      <input id="sna3ti-chat-input" type="text" autocomplete="off" placeholder="Ta question ici…" class="min-w-0 flex-1 rounded-full border border-sna3ti-teal/15 bg-sna3ti-cream px-4 py-2.5 text-sm outline-none focus:border-sna3ti-teal" />
+      <button type="submit" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-white transition hover:bg-sna3ti-teal2" aria-label="Envoyer">➤</button>
+    </form>
+  </section>
+  <button id="sna3ti-chat-btn" type="button" class="grid h-14 w-14 place-items-center rounded-full bg-sna3ti-ink text-2xl text-white shadow-premium transition hover:scale-105" aria-label="Ouvrir le chat">💬</button>
+</div>
+
   <script>
+
+    /* =========================================================
+       PHOTO GALLERY DATA
+       Declared at the very top so it is always initialized
+       before any gallery init runs (avoids TDZ reference
+       errors when restoring the home page during startup).
+       Each item: { src, fr, ar, en } labels + photo path.
+    ========================================================= */
+    const GALLERY_PHOTOS = [
+      {
+        src: "photos/gallery-01.jpg",
+        fr: "Chantier de rénovation",
+        ar: "أشغال التجديد",
+        en: "Renovation site"
+      },
+      {
+        src: "photos/gallery-02.jpg",
+        fr: "Travaux en cours",
+        ar: "أشغال في التقدم",
+        en: "Works in progress"
+      },
+      {
+        src: "photos/gallery-03.jpg",
+        fr: "Peinture",
+        ar: "الطلاء",
+        en: "Painting"
+      },
+      {
+        src: "photos/gallery-04.jpg",
+        fr: "Mission achevée",
+        ar: "مهمة منجزة",
+        en: "Mission accomplished"
+      },
+      {
+        src: "photos/gallery-05.jpg",
+        fr: "Carrelage",
+        ar: "تركيب البلاط",
+        en: "Tiling"
+      },
+      {
+        src: "photos/gallery-06.jpg",
+        fr: "Finitions",
+        ar: "اللمسات الأخيرة",
+        en: "Finishes"
+      },
+      {
+        src: "photos/gallery-07.jpg",
+        fr: "Détail soigné",
+        ar: "تفصيل مُتقن",
+        en: "Careful detail"
+      },
+      {
+        src: "photos/gallery-08.jpg",
+        fr: "Chantier neuf",
+        ar: "أشغال جديدة",
+        en: "New build"
+      },
+      {
+        src: "photos/gallery-09.jpg",
+        fr: "Réalisation professionnelle",
+        ar: "إنجاز احترافي",
+        en: "Professional work"
+      },
+      {
+        src: "photos/gallery-10.jpg",
+        fr: "Décoration",
+        ar: "ديكور",
+        en: "Decoration"
+      },
+      {
+        src: "photos/gallery-11.jpg",
+        fr: "Aménagement intérieur",
+        ar: "تهيئة داخلية",
+        en: "Interior fitting"
+      },
+      {
+        src: "photos/gallery-12.jpg",
+        fr: "Travaux de précision",
+        ar: "أشغال دقيقة",
+        en: "Precision work"
+      },
+      {
+        src: "photos/gallery-13.jpg",
+        fr: "Finitions parfaites",
+        ar: "لمسات أخيرة مثالية",
+        en: "Perfect finishes"
+      },
+      {
+        src: "photos/gallery-14.jpg",
+        fr: "Peinture",
+        ar: "الطلاء",
+        en: "Painting"
+      },
+      {
+        src: "photos/gallery-15.jpg",
+        fr: "Électricité installée",
+        ar: "تركيب كهربائي",
+        en: "Electrical install"
+      }
+    ];
+
 
     /* =========================================================
        TRANSLATIONS
@@ -3959,7 +4248,7 @@
           service: "Service",
           city: "Ville",
           allRegion: "Toute la région",
-          regionCityHint: "Choisissez la région puis la ville",
+          regionCityHint: "Choisissez une ville",
           search:
             "Rechercher",
           verified:
@@ -4075,6 +4364,8 @@
           step1: "Étape 1 · Choisissez votre formule",
           step2: "Étape 2 · Vos informations",
           choose: "Choisir",
+          popupTitle: "Choisissez votre formule",
+          popupSubtitle: "Sélectionnez un pack pour passer aux informations d'inscription.",
           nom: "Nom",
           prenom: "Prénom",
           metier: "Votre métier",
@@ -4122,7 +4413,7 @@
           service: "الخدمة",
           city: "المدينة",
           allRegion: "كل الجهة",
-          regionCityHint: "اختر الجهة ثم المدينة",
+          regionCityHint: "اختر مدينة",
           search:
             "بحث",
           verified:
@@ -4154,14 +4445,13 @@
             electromenager: { name: "التبريد والأجهزة", sub: "الإصلاح والصيانة" },
             jardinage: { name: "البستنة", sub: "المساحات الخضراء" },
             serrurerie: { name: "الأقفال", sub: "الأمان والولوج" },
-            transport: { name: "النقل", sub: "شاحنة ونقل الأثاث" },
-            menage: { name: "عاملة منزلية", sub: "تنظيف المنزل" }
+            transport: { name: "النقل", sub: "شاحنة ونقل الأثاث" }
           }
         },
 
         how: {
           badge: "كيفاش خاص يعمل",
-          title: "الحاجة ديالك، الحرفي المناسب، فـ3 خطوات",
+          title: "الحاجة ديالك، الحرفي المناسب، فـ 3 خطوات",
           subtitle: "بسيطة، سريعة ومضمونة.",
           s1t: "صيفط الحاجة اللي بغيتي",
           s1d: "ختار خدمة والمدينة — أو خلينا نفهمو الطلب ديالك.",
@@ -4239,6 +4529,8 @@
           step1: "المرحلة 1 · اختر الصيغة",
           step2: "المرحلة 2 · معلوماتك",
           choose: "اختر",
+          popupTitle: "اختر الصيغة ديالك",
+          popupSubtitle: "اختر الصيغة باش تنتقل للمعلومات ديال التسجيل.",
           nom: "اللقب",
           prenom: "الاسم",
           metier: "الصنعة ديالك",
@@ -4285,7 +4577,7 @@
           region: "Region",
           city: "City",
           allRegion: "Whole region",
-          regionCityHint: "Choose a region then a city",
+          regionCityHint: "Choose a city",
           search:
             "Search",
           verified:
@@ -4317,8 +4609,7 @@
             electromenager: { name: "Fridge & Appliances", sub: "Repair & maintenance" },
             jardinage: { name: "Gardening", sub: "Green spaces" },
             serrurerie: { name: "Locksmith", sub: "Security & access" },
-            transport: { name: "Transport & Moving", sub: "Truck & moving" },
-            menage: { name: "House cleaning", sub: "Home cleaning" }
+            transport: { name: "Transport & Moving", sub: "Truck & moving" }
           }
         },
 
@@ -4402,6 +4693,8 @@
           step1: "Step 1 · Choose your plan",
           step2: "Step 2 · Your details",
           choose: "Choose",
+          popupTitle: "Choose your plan",
+          popupSubtitle: "Pick a plan to move on to the registration details.",
           nom: "Last name",
           prenom: "First name",
           metier: "Your trade",
@@ -4517,6 +4810,11 @@
 
       setLanguage(language);
 
+      /* Refresh the photo gallery captions for the new language.
+         Called only on user interaction (after the script has fully
+         loaded), so GALLERY_PHOTOS is always initialized here. */
+      initAllGalleries();
+
     }
 
 
@@ -4532,6 +4830,9 @@
         populateRegCity();
         populateRegMetier();
         populateServiceSelect();
+
+        /* Return to the home page in the chosen language. */
+        window.location.hash = "#/";
 
       }
     );
@@ -4549,6 +4850,9 @@
         populateRegCity();
         populateRegMetier();
         populateServiceSelect();
+
+        /* Return to the home page in the chosen language. */
+        window.location.hash = "#/";
 
       }
     );
@@ -4579,6 +4883,57 @@
 
       }
     );
+
+    /* Close the mobile menu when clicking outside of it. */
+    document.addEventListener(
+      "click",
+      (e) => {
+
+        if (
+          !mobileMenu.classList.contains(
+            "hidden"
+          ) &&
+          !mobileMenu.contains(e.target) &&
+          !mobileButton.contains(e.target)
+        ) {
+          mobileMenu.classList.add(
+            "hidden"
+          );
+        }
+
+      }
+    );
+
+    /* And when tapping any link inside the menu. */
+    mobileMenu.addEventListener(
+      "click",
+      (e) => {
+
+        if (e.target.closest("a")) {
+          mobileMenu.classList.add(
+            "hidden"
+          );
+        }
+
+      }
+    );
+
+    /* Close the menu when a mobile language is chosen. */
+    const mobileLang =
+      document.getElementById(
+        "mobileLanguage"
+      );
+
+    if (mobileLang) {
+      mobileLang.addEventListener(
+        "change",
+        () => {
+          mobileMenu.classList.add(
+            "hidden"
+          );
+        }
+      );
+    }
 
 
     /* =========================================================
@@ -4770,8 +5125,7 @@ const SERVICE_CANONICAL = [
   { key: "electromenager", slug: "electromenager" },
   { key: "jardinage",      slug: "jardinage" },
   { key: "serrurerie",     slug: "serrurerie" },
-  { key: "transport",      slug: "transport" },
-  { key: "menage",         slug: "menage" }
+  { key: "transport",      slug: "transport" }
 ];
 
 /* Return the localized display name of a service-card key. */
@@ -4883,6 +5237,13 @@ function populateRegMetier() {
 
       if (heroCard && heroVisual) {
 
+      const isRtl =
+        document.documentElement.dir === "rtl";
+
+      const tx =
+        isRtl ? "-128%" : "-50%";
+
+
         heroVisual.addEventListener(
           "mousemove",
           event => {
@@ -4902,7 +5263,7 @@ function populateRegMetier() {
 
             heroCard.style.transform =
               `
-                translateX(-50%)
+                translateX(${tx})
                 rotateY(${x * 12}deg)
                 rotateX(${-y * 8}deg)
               `;
@@ -4916,7 +5277,7 @@ function populateRegMetier() {
 
             heroCard.style.transform =
               `
-                translateX(-50%)
+                translateX(${tx})
                 rotateY(-8deg)
                 rotateX(4deg)
               `;
@@ -5074,7 +5435,7 @@ const sna3tiProfessionals = [
     job: "Plombier professionnel",
     category: "plomberie",
     city: "casablanca",
-    area: "Maarif",
+    area: "Casablanca",
     rating: 4.9,
     reviews: 127,
     price: 250,
@@ -5090,8 +5451,8 @@ const sna3tiProfessionals = [
     name: "Amine Berrada",
     job: "Électricien",
     category: "electricite",
-    city: "casablanca",
-    area: "Bourgogne",
+    city: "rabat",
+    area: "Rabat",
     rating: 4.8,
     reviews: 94,
     price: 200,
@@ -5107,8 +5468,8 @@ const sna3tiProfessionals = [
     name: "Omar El Idrissi",
     job: "Peintre professionnel",
     category: "peinture",
-    city: "casablanca",
-    area: "Ain Sebaa",
+    city: "marrakech",
+    area: "Marrakech",
     rating: 4.7,
     reviews: 68,
     price: 180,
@@ -5124,8 +5485,8 @@ const sna3tiProfessionals = [
     name: "Mehdi Alaoui",
     job: "Plâtrier / Gypsum",
     category: "platrerie",
-    city: "casablanca",
-    area: "Californie",
+    city: "fes",
+    area: "Fès",
     rating: 4.9,
     reviews: 81,
     price: 300,
@@ -5141,8 +5502,8 @@ const sna3tiProfessionals = [
     name: "Hicham Benali",
     job: "Menuisier",
     category: "menuiserie",
-    city: "casablanca",
-    area: "Sidi Maarouf",
+    city: "tanger",
+    area: "Tanger",
     rating: 4.6,
     reviews: 51,
     price: 220,
@@ -5158,8 +5519,8 @@ const sna3tiProfessionals = [
     name: "Karim Tazi",
     job: "Technicien climatisation",
     category: "climatisation",
-    city: "casablanca",
-    area: "Oasis",
+    city: "agadir",
+    area: "Agadir",
     rating: 4.8,
     reviews: 73,
     price: 250,
@@ -5168,23 +5529,6 @@ const sna3tiProfessionals = [
     distance: "4.8 km",
     image: "https://i.pravatar.cc/300?img=17",
     phone: "212600000006"
-  },
-
-  {
-    id: 7,
-    name: "Yassine Berrada",
-    job: "Carreleur / Zellige",
-    category: "carrelage",
-    city: "casablanca",
-    area: "Aïn Sebaâ",
-    rating: 4.7,
-    reviews: 66,
-    price: 280,
-    verified: true,
-    available: true,
-    distance: "5.3 km",
-    image: "https://i.pravatar.cc/300?img=32",
-    phone: "212600000007"
   }
 
 ];
@@ -5277,11 +5621,6 @@ const aiServiceAliases = {
     "transport", "deplacement", "déplacement", "camion", "estafette", "deménagement",
     "déménagement", "debarra", "débarras", "livraison", "fourgon", "location",
     "نقل", "النقل", "شاحنة", "نقل الأثاث", "توصيل", "أثاث"
-  ],
-  "menage": [
-    "menage", "ménage", "femme de menage", "nettoyage", "ménagère", "cleaning",
-    "cleaner", "repassage", "vitres", "house", "domestic",
-    "عاملة", "منزلية", "تنظيف", "نظافة", "عامل نظافة"
   ],
   "vitrage": [
     "aluminium", "vitrage", "vitre", "verre", "menuisier aluminium",
@@ -5461,6 +5800,17 @@ function cityName(citySlug, lang) {
     if (c) return c.name[lang] || c.name.fr;
   }
   return citySlug;
+}
+
+/* Localized city label for a professional's location.
+   Falls back to the stored area text (city name) if unknown. */
+function proCityLabel(pro) {
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+  const slug = pro.city || "";
+  const known = cityName(slug, lang);
+  if (known && known !== slug) return known;
+  return pro.area || cityName("casablanca", lang) || "Casablanca";
 }
 
 const aiUrgentWords = [
@@ -5663,7 +6013,7 @@ function renderProfessionalCard(pro) {
       <div class="pro-meta">
 
         <span class="meta-pill">
-          📍 ${pro.area}
+          📍 ${proCityLabel(pro)}
         </span>
 
         <span class="meta-pill">
@@ -6421,7 +6771,7 @@ function openProfessional(id) {
             >
 
               <div class="meta-pill">
-                📍 ${pro.area}
+                📍 ${proCityLabel(pro)}
               </div>
 
               <div class="meta-pill">
@@ -6502,6 +6852,25 @@ function openProfessional(id) {
 
             </div>
 
+            <!-- REVIEWS SECTION -->
+            <div style="margin-top:40px; padding-top:30px; border-top:1px solid #edf0ef;">
+              <h2 style="font-size:22px; font-weight:900;">&#9733; Avis</h2>
+
+              <div id="reviewFormBox" style="margin-top:20px; padding:20px; background:#f8fffe; border-radius:20px; border:1px solid #edf0ef;">
+                <div id="starRating" style="margin-bottom:12px; font-size:28px; cursor:pointer; display:flex; gap:4px;">
+                  <span data-star="1" style="color:#d1d5db; transition:color .15s">&#9733;</span>
+                  <span data-star="2" style="color:#d1d5db; transition:color .15s">&#9733;</span>
+                  <span data-star="3" style="color:#d1d5db; transition:color .15s">&#9733;</span>
+                  <span data-star="4" style="color:#d1d5db; transition:color .15s">&#9733;</span>
+                  <span data-star="5" style="color:#d1d5db; transition:color .15s">&#9733;</span>
+                </div>
+                <textarea id="reviewText" rows="3" placeholder="Partagez votre experience avec ce professionnel..." style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:14px; resize:vertical; font-size:14px; outline:none; font-family:inherit; box-sizing:border-box;"></textarea>
+                <button id="submitReview" style="margin-top:12px; padding:12px 28px; background:#168F80; color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size:14px;">Publier mon avis</button>
+              </div>
+
+              <div id="reviewsList" style="margin-top:20px;"></div>
+            </div>
+
           </div>
 
         </div>
@@ -6513,6 +6882,49 @@ function openProfessional(id) {
   /* Reset scroll so the freshly-rendered profile page is
      shown from the top. */
   window.scrollTo(0, 0);
+
+  /* --- Reviews Logic --- */
+  (function() {
+    var proId = "${pro.id}";
+    var STORAGE_KEY = "sna3ti-reviews";
+    var allReviews = {};
+    try { allReviews = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch(e) {}
+    var reviews = allReviews[proId] || [];
+    var selectedRating = 0;
+
+    function starHTML(rating) { var s=""; for (var i=0;i<5;i++) s+='<span style="color:'+(i<rating?'#f59e0b':'#d1d5db')+'">&#9733;</span>'; return s; }
+    function reviewCard(r) { return '<div style="padding:16px; margin-bottom:12px; background:white; border-radius:16px; border:1px solid #edf0ef;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; gap:4px;">'+starHTML(r.rating)+'</div><span style="font-size:12px; color:#94a3b8;">'+r.date+'</span></div><p style="margin-top:8px; color:#334155; line-height:1.6;">'+r.text+'</p></div>'; }
+    var list = document.getElementById("reviewsList");
+    if (list && reviews.length) { list.innerHTML = reviews.map(reviewCard).join(""); }
+
+    var starsEl = document.getElementById("starRating");
+    if (starsEl) {
+      starsEl.addEventListener("click", function(e) {
+        var sp = e.target.closest("[data-star]");
+        if (!sp) return;
+        selectedRating = parseInt(sp.dataset.star);
+        Array.from(starsEl.children).forEach(function(el, i) { el.style.color = i < selectedRating ? "#f59e0b" : "#d1d5db"; });
+      });
+    }
+
+    var btn = document.getElementById("submitReview");
+    if (btn) {
+      btn.addEventListener("click", function() {
+        var txt = (document.getElementById("reviewText") || {}).value || "";
+        if (!selectedRating) { alert("Veuillez selectionner une note."); return; }
+        if (!txt.trim()) { alert("Veuillez ecrire un commentaire."); return; }
+        var entry = { rating: selectedRating, text: txt.trim(), date: new Date().toLocaleDateString("fr-FR") };
+        if (!allReviews[proId]) allReviews[proId] = [];
+        allReviews[proId].unshift(entry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allReviews));
+        alert("Merci pour votre avis !");
+        if (list) { list.innerHTML = allReviews[proId].map(reviewCard).join(""); }
+        document.getElementById("reviewText").value = "";
+        selectedRating = 0;
+        Array.from(starsEl.children).forEach(function(el) { el.style.color = "#d1d5db"; });
+      });
+    }
+  })();
 
 }
 
@@ -6569,6 +6981,45 @@ function regSelectPack(pack) {
     s2.classList.remove("hidden");
     s2.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+}
+
+function openPackPopup(preselected) {
+  const popup = document.getElementById("packPopup");
+  if (!popup) return;
+
+  document.querySelectorAll("#packPopup [data-pack]").forEach(function (b) {
+    b.classList.remove("popup-pack-selected");
+  });
+
+  if (preselected) {
+    const opt = popup.querySelector('[data-pack="' + preselected + '"]');
+    if (opt) opt.classList.add("popup-pack-selected");
+  }
+
+  popup.classList.remove("hidden");
+  popup.classList.add("flex");
+}
+
+function closePackPopup() {
+  const popup = document.getElementById("packPopup");
+  if (!popup) return;
+  popup.classList.add("hidden");
+  popup.classList.remove("flex");
+}
+
+function choosePack(pack) {
+  closePackPopup();
+
+  /* The register section lives in the home markup; if a search /
+     profile page replaced <main>, restore the home first. */
+  if (!document.getElementById("register")) {
+    restoreHome();
+  }
+
+  if (!document.getElementById("register")) return;
+
+  window.location.hash = "#register";
+  regSelectPack(pack);
 }
 
 function regSubmit() {
@@ -6673,10 +7124,36 @@ document.addEventListener("click", function (e) {
     return;
   }
 
-  /* Pricing CTAs that pre-select a pack (data-reg-preselect). */
+  /* Pack-choice popup: backdrop or close button. */
+  if (
+    e.target.closest("#packPopupBackdrop") ||
+    e.target.closest("#packPopupClose")
+  ) {
+    closePackPopup();
+    return;
+  }
+
+  /* Pack-choice popup: pick a pack -> go to the form. */
+  const packBtn = e.target.closest("#packPopup [data-pack]");
+  if (packBtn) {
+    choosePack(packBtn.getAttribute("data-pack"));
+    return;
+  }
+
+  /* Pricing CTAs that pre-select a pack (data-reg-preselect):
+     open the popup with that pack highlighted. */
   const pre = e.target.closest("[data-reg-preselect]");
   if (pre) {
-    regSelectPack(pre.getAttribute("data-reg-preselect"));
+    e.preventDefault();
+    openPackPopup(pre.getAttribute("data-reg-preselect"));
+    return;
+  }
+
+  /* Any other register CTA opens the pack-choice popup. */
+  const regCta = e.target.closest('a[href="#register"]');
+  if (regCta) {
+    e.preventDefault();
+    openPackPopup();
   }
 });
 
@@ -6796,6 +7273,8 @@ function restoreHome() {
   populateRegCity();
   populateRegMetier();
   populateServiceSelect();
+  initAllGalleries();
+  startHeroRotation();
 
 }
 
@@ -6815,7 +7294,175 @@ if (mainEl) {
 handleSna3tiRoute();
 
 /* =========================================================
-   CHATBOT — "Sana3ti Assistant" (knowledge base + Q&A)
+   HERO CARD — ROTATING PROFESSIONAL PROFILE
+   Cycles through the site's professionals so the home
+   visual card doesn't always show the same person.
+========================================================= */
+let heroTimer = null;
+
+function startHeroRotation() {
+
+  const card = document.getElementById("heroCard");
+  if (!card) return;
+
+  if (!sna3tiProfessionals || !sna3tiProfessionals.length) return;
+
+  let i = Math.floor(Math.random() * sna3tiProfessionals.length);
+
+  const els = {
+    photo: document.getElementById("heroCardPhoto"),
+    name: document.getElementById("heroCardName"),
+    job: document.getElementById("heroCardJob"),
+    rating: document.getElementById("heroCardRating"),
+    area: document.getElementById("heroCardArea"),
+    distance: document.getElementById("heroCardDistance"),
+    status: document.getElementById("heroCardStatus"),
+    statusDay: document.getElementById("heroCardStatusDay"),
+    price: document.getElementById("heroCardPrice"),
+    verified: document.getElementById("heroCardVerified")
+  };
+
+  function render() {
+    const p = sna3tiProfessionals[i];
+    i = (i + 1) % sna3tiProfessionals.length;
+
+    if (els.photo) els.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
+    if (els.name) els.name.textContent = p.name || "";
+    if (els.job) els.job.textContent = p.job || "";
+
+    if (els.rating) {
+      const stars = "★★★★★";
+      els.rating.textContent =
+        stars + " " + (p.rating || "5").toFixed(1) + " · " + (p.reviews || 0) + " avis";
+    }
+
+    if (els.area) els.area.textContent = "📍 " + proCityLabel(p);
+    if (els.distance) els.distance.textContent = p.distance || "";
+    if (els.price) els.price.textContent = (p.price || 0) + " DH";
+
+    if (els.status) {
+      els.status.textContent = p.available ? "🟢 Disponible" : "🔴 Indisponible";
+    }
+    if (els.statusDay) {
+      els.statusDay.textContent = p.available ? "Aujourd'hui" : "Plus tard";
+    }
+
+    if (els.verified) {
+      els.verified.style.display =
+        p.verified === false ? "none" : "";
+    }
+  }
+
+  render();
+  if (heroTimer) clearInterval(heroTimer);
+  heroTimer = setInterval(render, 4500);
+}
+
+startHeroRotation();
+
+function initGallery(root) {
+
+  /* Make this idempotent: if the gallery was already initialized,
+     drop the old timer and old button listeners first. Otherwise
+     repeated inits (page load + every language change) create
+     duplicate intervals/listeners that make the carousel race. */
+  if (root._galleryTimer) {
+    clearInterval(root._galleryTimer);
+    root._galleryTimer = null;
+  }
+
+  const track = root.querySelector(".sna3ti-gallery-track");
+  if (!track || !GALLERY_PHOTOS.length) return;
+
+  const lang =
+    localStorage.getItem("sna3ti-language") || "fr";
+
+  track.innerHTML = GALLERY_PHOTOS.map((p, i) => {
+    const label = p[lang] || p.fr || "";
+    return `
+      <div class="sna3ti-gallery-slide${i === 0 ? " is-active" : ""}" data-index="${i}">
+        <img src="${p.src}" alt="${label}" />
+        <div class="sna3ti-gallery-caption">
+          ${p.fr ? '<span class="g-label">Réalisation</span>' : ""}
+          <div class="g-title">${label}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const slides = track.children;
+  const count = slides.length;
+  let index = 0;
+
+  /* Rebuild nav buttons each time (avoids accumulating listeners). */
+  const navKeys = ["prev", "next"];
+
+  navKeys.forEach(kind => {
+    let btn = root.querySelector(".sna3ti-gallery-" + kind);
+    const fresh = document.createElement("button");
+    fresh.type = "button";
+    fresh.className = "sna3ti-gallery-nav sna3ti-gallery-" + kind;
+    fresh.setAttribute("aria-label", kind === "prev" ? "Photo précédente" : "Photo suivante");
+    fresh.innerHTML = kind === "prev" ? "‹" : "›";
+    if (btn.parentNode) btn.parentNode.replaceChild(fresh, btn);
+  });
+
+  const prevBtn = root.querySelector(".sna3ti-gallery-prev");
+  const nextBtn = root.querySelector(".sna3ti-gallery-next");
+  const dotsWrap = root.querySelector(".sna3ti-gallery-dots");
+
+  if (dotsWrap) {
+    dotsWrap.innerHTML = "";
+  }
+
+  function setIndex(i) {
+    index = (i + count) % count;
+    track.style.transform = "translateX(-" + index * 100 + "%)";
+    Array.from(slides).forEach((s, n) => {
+      s.classList.toggle("is-active", n === index);
+    });
+    if (dotsWrap) {
+      Array.from(dotsWrap.children).forEach((d, n) => {
+        d.classList.toggle("is-active", n === index);
+      });
+    }
+  }
+
+  function next() { setIndex(index + 1); }
+  function prev() { setIndex(index - 1); }
+
+  function restart() {
+    if (root._galleryTimer) clearInterval(root._galleryTimer);
+    root._galleryTimer = setInterval(next, 4000);
+  }
+
+  if (count > 1) {
+    for (let i = 0; i < count; i++) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "Photo " + (i + 1));
+      if (i === 0) b.classList.add("is-active");
+      b.addEventListener("click", () => { setIndex(i); restart(); });
+      dotsWrap.appendChild(b);
+    }
+    prevBtn.addEventListener("click", () => { prev(); restart(); });
+    nextBtn.addEventListener("click", () => { next(); restart(); });
+    restart();
+  }
+
+  setIndex(0);
+}
+
+/* Wire up every gallery (also re-run after the home page is
+   restored, since innerHTML swaps recreate the elements). */
+function initAllGalleries() {
+  document.querySelectorAll(".sna3ti-gallery").forEach(initGallery);
+}
+
+initAllGalleries();
+
+/* =========================================================
+   CHATBOT — "Sna3ti Assistant" (knowledge base + Q&A)
 ========================================================= */
 (function () {
   "use strict";
@@ -6869,7 +7516,6 @@ handleSna3tiRoute();
     jardinage: "jardinage et espaces verts : tonte, gazon, haies, irrigation, clôtures et aménagement extérieur.",
     serrurerie: "serrurerie : clés, serrures, portes blindées, volets, coffres et dépannage.",
     transport: "déplacement et transport : camion, estafette, déménagement, débarras et location avec chauffeur.",
-    menage: "ménage et nettoyage : domicile, bureaux, après-chantier, vitres et repassage.",
     vitrage: "menuiserie aluminium et vitrage : portes, fenêtres, façades, verrière et double vitrage."
   };
 
@@ -6931,7 +7577,7 @@ handleSna3tiRoute();
     if (matches.length) {
       out += "\n🎯 <b>" + matches.length + "</b> pro(s) disponible(s)" + (city ? " à <b>" + esc(titleCase(city)) + "</b>" : "") + ", dont :\n";
       out += matches.slice(0, 3).map(function (p) {
-        return "· " + esc(p.name) + " (" + esc(p.area || "Casablanca") + ", " + p.price + " DH, ★" + p.rating + ")";
+        return "· " + esc(p.name) + " (" + esc(proCityLabel(p)) + ", " + p.price + " DH, ★" + p.rating + ")";
       }).join("\n");
       out += "\n👉 <a href='#/search?service=" + serv + (city ? ("&city=" + city) : "") + "' class='text-sna3ti-teal underline'>Voir tous les pros →</a>";
     } else {
@@ -6951,7 +7597,7 @@ handleSna3tiRoute();
     return head + " Des pros sont déjà à Casablanca (Maarif, Bourgogne, Californie…). 👉 <a href='#/search' class='text-sna3ti-teal underline'>Voir tous →</a>";
   }
   function generalProsAnswer() {
-    return "🧰 Sana3ti.ma réunit des professionnels de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
+    return "🧰 Sna3ti.ma réunit des professionnels de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
   }
   function fallbackAnswer(q) {
     return "Désolé, je n'ai pas bien compris. 🤔 Essaie avec des mots-clés, ex. « tarifs », « plombier à Casablanca », « comment ça marche », « GOLD », « m3allem zellige ».";
@@ -6963,7 +7609,7 @@ handleSna3tiRoute();
     var n = norm(q);
 
     if (/\b(hi|hello|hey|salut|bonjour|bonsoir|salam|slm|marhba|ahlan|ahlaw|aw ba)\b/.test(n))
-      return "Salam ! 👋 Je suis l'assistant de Sana3ti.ma. Demande-moi pour trouver un professionnel, connaître les tarifs, ou en savoir plus sur le site.";
+      return "Salam ! 👋 Je suis l'assistant de Sna3ti.ma. Demande-moi pour trouver un professionnel, connaître les tarifs, ou en savoir plus sur le site.";
     if (/merci|chokran|choukran|thanks|thank you|شكرا|صحا/.test(n))
       return "De rien ! 😊 Si tu as une autre question, je suis là. À bientôt !";
 
@@ -7039,9 +7685,28 @@ handleSna3tiRoute();
   var chips = [
     { label: "💰 Tarifs", ask: "montre moi les tarifs" },
     { label: "🧰 Services", ask: "quels sont les services disponibles" },
-    { label: "📍 À Casablanca", ask: "professionnels à casablanca" },
     { label: "ℹ️ Comment ça marche", ask: "comment ça marche" },
     { label: "👑 GOLD", ask: "parle moi de l offre gold" }
+  ];
+  var cities = [
+    { slug: "casablanca", label: "Casablanca" },
+    { slug: "rabat", label: "Rabat" },
+    { slug: "marrakech", label: "Marrakech" },
+    { slug: "tanger", label: "Tanger" },
+    { slug: "fes", label: "Fès" },
+    { slug: "meknes", label: "Meknès" },
+    { slug: "agadir", label: "Agadir" },
+    { slug: "kenitra", label: "Kénitra" },
+    { slug: "tetouan", label: "Tétouan" },
+    { slug: "oujda", label: "Oujda" },
+    { slug: "el jadida", label: "El Jadida" },
+    { slug: "nador", label: "Nador" },
+    { slug: "safi", label: "Safi" },
+    { slug: "settat", label: "Settat" },
+    { slug: "beni mellal", label: "Béni Mellal" },
+    { slug: "mohammedia", label: "Mohammedia" },
+    { slug: "khouribga", label: "Khouribga" },
+    { slug: "laayoune", label: "Laâyoune" }
   ];
   function buildChips() {
     el.quick.innerHTML = "";
@@ -7053,6 +7718,23 @@ handleSna3tiRoute();
       b.addEventListener("click", function () { ask(c.ask); });
       el.quick.appendChild(b);
     });
+
+    var sel = document.createElement("select");
+    sel.className = "rounded-full bg-sna3ti-mint px-3 py-1 text-xs font-bold text-sna3ti-teal outline-none cursor-pointer";
+    var ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = "Choisir une ville";
+    sel.appendChild(ph);
+    cities.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.slug;
+      o.textContent = c.label;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function () {
+      if (sel.value) { ask("professionnels a " + sel.value); sel.value = ""; }
+    });
+    el.quick.appendChild(sel);
   }
 
   var OPEN = false;
@@ -7063,7 +7745,7 @@ handleSna3tiRoute();
     el.btn.style.display = "none";
     applyDir();
     if (!el.msgs.children.length) {
-      addMsg("Salam ! 👋 Bienvenue sur Sana3ti.ma. Je peux t'aider à trouver un professionnel, connaître les tarifs ou en savoir plus. Qu'est-ce que tu cherches ?", "bot");
+      addMsg("Salam ! 👋 Bienvenue sur Sna3ti.ma. Je peux t'aider à trouver un professionnel, connaître les tarifs ou en savoir plus. Qu'est-ce que tu cherches ?", "bot");
     }
     el.input.focus();
   }
@@ -7101,28 +7783,59 @@ populateServiceSelect();
 
   </script>
 
-<!-- SANA3TI CHATBOT WIDGET -->
-<div id="sna3ti-chat-root" dir="ltr" class="fixed bottom-5 right-5 z-[70] flex flex-col items-end gap-3" style="font-family:Inter,sans-serif">
-  <section id="sna3ti-chat-panel" class="hidden w-[min(92vw,370px)] flex-col overflow-hidden rounded-3xl bg-white text-left shadow-premium border border-sna3ti-teal/15">
-    <header class="flex items-center justify-between gap-3 bg-sna3ti-ink px-4 py-3 text-white">
-      <div class="flex min-w-0 items-center gap-3">
-        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-xl">💬</div>
-        <div class="min-w-0">
-          <p class="truncate text-sm font-black leading-tight">Sana3ti Assistant</p>
-          <p class="text-[11px] text-sna3ti-mint">En ligne · réponds en direct</p>
-        </div>
-      </div>
-      <button type="button" id="sna3ti-chat-close" class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/70 hover:bg-white/10" aria-label="Fermer">✕</button>
-    </header>
-    <div id="sna3ti-chat-msgs" class="flex h-80 flex-col gap-2 overflow-y-auto bg-sna3ti-cream p-3 text-sm"></div>
-    <div id="sna3ti-chat-quick" class="flex flex-wrap gap-1.5 border-t border-sna3ti-teal/10 bg-white px-3 py-2"></div>
-    <form id="sna3ti-chat-form" class="flex items-center gap-2 border-t border-sna3ti-teal/10 bg-white p-2">
-      <input id="sna3ti-chat-input" type="text" autocomplete="off" placeholder="Ta question ici…" class="min-w-0 flex-1 rounded-full border border-sna3ti-teal/15 bg-sna3ti-cream px-4 py-2.5 text-sm outline-none focus:border-sna3ti-teal" />
-      <button type="submit" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sna3ti-teal text-white transition hover:bg-sna3ti-teal2" aria-label="Envoyer">➤</button>
-    </form>
-  </section>
-  <button id="sna3ti-chat-btn" type="button" class="grid h-14 w-14 place-items-center rounded-full bg-sna3ti-ink text-2xl text-white shadow-premium transition hover:scale-105" aria-label="Ouvrir le chat">💬</button>
+<!-- PACK CHOICE POPUP -->
+<div id="packPopup" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">
+  <div id="packPopupBackdrop" class="absolute inset-0 bg-sna3ti-ink/70 backdrop-blur-sm"></div>
+  <div class="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-premium">
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="text-lg font-black text-sna3ti-ink" data-i18n="register.popupTitle">Choisissez votre formule</h3>
+      <button type="button" id="packPopupClose" class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sna3ti-ink/50 transition hover:bg-sna3ti-cream hover:text-sna3ti-ink" aria-label="Fermer">✕</button>
+    </div>
+    <p class="mt-1 text-sm text-sna3ti-ink/60" data-i18n="register.popupSubtitle">Sélectionnez un pack pour passer aux informations d'inscription.</p>
+    <div class="mt-5 grid gap-3">
+
+      <button type="button" data-pack="gratuit" class="popup-pack flex w-full items-center gap-4 rounded-2xl border-2 border-sna3ti-ink/10 p-4 text-left transition hover:border-sna3ti-teal">
+        <span class="text-2xl">💼</span>
+        <span class="flex-1">
+          <span class="block text-base font-black text-sna3ti-ink" data-i18n="pricing.gratuit">Gratuit</span>
+          <span class="block text-xs text-sna3ti-ink/50" data-i18n="pricing.freeSub">Pour démarrer</span>
+        </span>
+        <span class="text-right">
+          <span class="block text-lg font-black text-sna3ti-ink">0 <span data-i18n="unit.dh">DH</span></span>
+          <span class="block text-[11px] font-bold text-sna3ti-teal" data-i18n="register.choose">Choisir</span>
+        </span>
+      </button>
+
+      <button type="button" data-pack="verifie" class="popup-pack flex w-full items-center gap-4 rounded-2xl border-2 border-sna3ti-teal bg-sna3ti-teal/5 p-4 text-left transition hover:border-sna3ti-teal2">
+        <span class="relative text-2xl">🛡️
+          <span class="absolute -top-2 -right-2 rounded-full bg-sna3ti-orange px-2 py-0.5 text-[9px] font-black tracking-wide text-white" data-i18n="pricing.recommended">⭐ Recommandé</span>
+        </span>
+        <span class="flex-1">
+          <span class="block text-base font-black text-sna3ti-ink" data-i18n="pricing.verifie">Vérifié</span>
+          <span class="block text-xs text-sna3ti-ink/50" data-i18n="pricing.verifieSub">Confiance &amp; visibilité</span>
+        </span>
+        <span class="text-right">
+          <span class="block text-lg font-black text-sna3ti-ink">99 <span data-i18n="unit.dh">DH</span><small class="text-sna3ti-ink/50" data-i18n="unit.perMonth">/mois</small></span>
+          <span class="block text-[11px] font-bold text-sna3ti-teal" data-i18n="register.choose">Choisir</span>
+        </span>
+      </button>
+
+      <button type="button" data-pack="gold" class="popup-pack flex w-full items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-left transition hover:border-amber-400">
+        <span class="text-2xl">👑</span>
+        <span class="flex-1">
+          <span class="block text-base font-black text-sna3ti-ink"><span data-i18n="pricing.gold">GOLD</span></span>
+          <span class="block text-xs text-sna3ti-ink/50" data-i18n="pricing.goldSub">Maximum impact</span>
+        </span>
+        <span class="text-right">
+          <span class="block text-lg font-black text-sna3ti-ink">199 <span data-i18n="unit.dh">DH</span><small class="text-sna3ti-ink/50" data-i18n="unit.perMonth">/mois</small></span>
+          <span class="block text-[11px] font-bold text-sna3ti-amber" data-i18n="register.choose">Choisir</span>
+        </span>
+      </button>
+
+    </div>
+  </div>
 </div>
+
 
 </body>
 </html>
