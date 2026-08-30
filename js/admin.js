@@ -521,45 +521,73 @@
     var lim = DATA.packageLimits(pkg);
     var use = DATA.getMediaUsage(p.id);
     var media = (p.media||[]);
-    var pct = lim.total>0 ? Math.min(100, Math.round(use.total/lim.total*100)) : 100;
-    var grant = pkg==="gold" ? "20 photos + 3 vidéos" : pkg==="verified" ? "10 médias (photos ou vidéos)" : "3 photos, aucune vidéo";
-    var items = media.length
-      ? media.map(function(m){ return '<div class="media-item"><div class="media-thumb">'+(m.type==="video"?"🎬":"🖼️")+'</div><div class="media-body"><b>'+esc(m.label||(m.type==="video"?"Vidéo":"Photo"))+'</b><div class="muted">'+(m.type==="video"?"Vidéo":"Photo")+' · '+esc(m.added||"")+'</div></div>'+
-          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="Retirer">🗑️</button></div>'; }).join("")
-      : '<div class="empty">Aucun média téléversé.</div>';
+    var profile = media.filter(function(m){ return m.kind==="profile"; });
+    var echant = media.filter(function(m){ return m.kind==="echantillon"; });
+    var echantPct = lim.echantillonTotal>0 ? Math.min(100, Math.round(use.echantillonTotal/lim.echantillonTotal*100)) : 100;
+    var badge = pkg==="gold" ? "orange" : pkg==="verified" ? "teal" : "gray";
+    var grant = lim.kind;
+
+    // Profile photo block
+    var profHtml = '<h4>Photo de profil</h4>' +
+      '<div class="media-grid" style="margin-top:10px">' +
+        (profile.length ? profile.map(function(m){ return '<div class="media-item"><div class="media-thumb">👤</div><div class="media-body"><b>Photo de profil</b><div class="muted">'+esc(m.added||"")+'</div>'+
+          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="Retirer">🗑️</button></div></div>'; }).join("")
+          : '<div class="media-item"><div class="media-thumb">➕</div><div class="media-body"><b>Photo de profil</b><div class="muted">1 requise (tous les packs)</div></div></div>') +
+      '</div>';
+
+    // Échantillons block
+    var echantHtml = '<h4 style="margin-top:20px">Échantillons de travail</h4>' +
+      '<div class="muted" style="margin:8px 0">Quota échantillons : <b>'+use.echantillonTotal+'</b> / '+lim.echantillonTotal+' (photos ou vidéos) · vidéos <b>'+use.echantillonVideos+'</b> / '+lim.echantillonVideos+'</div>' +
+      '<div class="usage-bar"><div class="usage-fill" style="width:'+echantPct+'%"></div></div>' +
+      '<div class="media-grid" id="mediaGrid">' +
+        (echant.length ? echant.map(function(m){ return '<div class="media-item"><div class="media-thumb">'+(m.type==="video"?"🎬":"🖼️")+'</div><div class="media-body"><b>'+esc(m.label||(m.type==="video"?"Vidéo":"Photo"))+'</b><div class="muted">'+(m.type==="video"?"Vidéo":"Photo")+' · '+esc(m.added||"")+'</div>'+
+          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="Retirer">🗑️</button></div></div>'; }).join("")
+          : '<div class="empty">Aucun échantillon téléversé.</div>') +
+      '</div>' +
+      '<div class="toolbar" style="margin-top:16px">' +
+        '<div class="field grow"><label>Libellé</label><input type="text" id="medLabel" placeholder="Ex : Cuisine rénovée"></div>' +
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medProfile">👤 Ajouter photo de profil</button></div>' +
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medPhoto">🖼️ Ajouter échantillon</button></div>' +
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medVideo">🎬 Ajouter vidéo</button></div>' +
+      '</div>';
+
     return '<div class="card"><div class="card-head"><div class="card-title">Uploads & médias ('+pkg+')</div>'+
-      '<span class="badge '+(pkg==="gold"?"orange":pkg==="verified"?"teal":"gray")+'">'+pkgBadge({package:pkg})+' · '+grant+'</span></div>'+
-      '<div class="muted" style="margin:12px 0">Quota : <b>'+use.photos+'</b> photo(s) / '+lim.photos+' · <b>'+use.videos+'</b> vidéo(s) / '+(lim.videos||"0")+'</div>'+
-      '<div class="usage-bar"><div class="usage-fill" style="width:'+pct+'%"></div></div>'+
-      '<div class="media-grid" id="mediaGrid">'+items+'</div>'+
-      '<div class="toolbar" style="margin-top:16px">'+
-        '<div class="field grow"><label>Libellé</label><input type="text" id="medLabel" placeholder="Ex : Cuisine rénovée"></div>'+
-        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medPhoto">🖼️ Ajouter photo</button></div>'+
-        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medVideo">🎬 Ajouter vidéo</button></div>'+
-      '</div></div>';
+      '<span class="badge '+badge+'">'+grant+'</span></div>'+
+      '<div style="margin-top:14px">'+profHtml+echantHtml+'</div></div>';
   }
   function bindMedia(p){
     document.querySelectorAll("[data-mdel]").forEach(function(btn){ btn.addEventListener("click", function(){
       DATA.removeMedia(btn.dataset.mdel, btn.dataset.mid); UI.toast("Média retiré."); renderProfessionalDetail(p.id);
     }); });
-    var ph = document.getElementById("medPhoto"); if(ph) ph.addEventListener("click", function(){ tryUpload(p, "photo"); });
-    var vd = document.getElementById("medVideo"); if(vd) vd.addEventListener("click", function(){ tryUpload(p, "video"); });
+    var pf = document.getElementById("medProfile"); if(pf) pf.addEventListener("click", function(){ tryUpload(p, "profile"); });
+    var ph = document.getElementById("medPhoto"); if(ph) ph.addEventListener("click", function(){ tryUpload(p, "echantillon-photo"); });
+    var vd = document.getElementById("medVideo"); if(vd) vd.addEventListener("click", function(){ tryUpload(p, "echantillon-video"); });
   }
-  function tryUpload(p, type){
+  function tryUpload(p, kind){
     var label = (document.getElementById("medLabel")&&document.getElementById("medLabel").value)||"";
-    var gate = DATA.canUploadMedia(p.id, type);
+    var isProfile = kind==="profile";
+    var type = kind==="echantillon-video" ? "video" : "photo";
+    var k = kind==="echantillon-video"||kind==="echantillon-photo" ? "echantillon" : "profile";
+    var gate = DATA.canUploadMedia(p.id, { kind: k, type: type });
     if(!gate.ok){
       UI.confirmAction({
-        title: type==="video" ? "Vidéo non autorisée sur ce pack" : "Limite de médias atteinte",
-        message: gate.reason + " " + (gate.upgrade ? "Faites évoluer votre pack pour débloquer davantage de médias." : ""),
+        title: isProfile ? "Photo de profil" : (type==="video" ? "Vidéo non autorisée sur ce pack" : "Limite d'échantillons atteinte"),
+        message: gate.reason + (gate.upgrade ? " Faites évoluer votre pack pour débloquer davantage de médias." : ""),
         confirmLabel: gate.upgrade ? "Voir les packs" : "Fermer",
         cancelLabel: gate.upgrade ? "Annuler" : "",
         onConfirm: gate.upgrade ? function(){ ROUTER.navigate("subscriptions"); } : function(){}
       });
       return;
     }
-    var res = DATA.addMedia(p.id, { type:type, label:label || (type==="video"?"Vidéo":"Photo") });
-    if(res.ok){ UI.toast((type==="video"?"Vidéo":"Photo")+" ajoutée ("+res.usage.photos+" photos, "+res.usage.videos+" vidéos)."); renderProfessionalDetail(p.id); }
+    var res = DATA.addMedia(p.id, { kind: k, type: type, label: isProfile ? "Photo de profil" : (label || (type==="video"?"Vidéo":"Échantillon")) });
+    if(res.ok){
+      var u = res.usage;
+      UI.toast((isProfile?"Photo de profil":"Média")+" ajouté (profil "+(u.profileCount||0)+", échantillons "+u.echantillonTotal+").");
+      renderProfessionalDetail(p.id);
+    }
+  }
+  function qcCount(p){
+    try { return DATA.getMediaUsage(p.id).echantillonTotal || (p.portfolio?p.portfolio.length:0) || 6; } catch(e){ return 6; }
   }
 
   /* ============================================================
@@ -680,7 +708,7 @@
       var corner = isPlan
         ? '<div class="req-corner '+(isGold?"gold":"verified")+'"><span class="star">'+(isGold?"👑":"✅")+'</span> '+(isGold?"GOLD":"VÉRIFIÉ")+'</div>'
         : isJoin ? '<div class="req-corner join"><span class="star">🤝</span> GRATUIT</div>' : "";
-      return '<div class="req">'+ corner + '<div class="req-top'+(isPlan?' req-top-pad':'')+'"><div class="grow">' +
+      return '<div class="req">'+ corner + '<div class="req-top'+(isPlan||isJoin?' req-top-pad':'')+'"><div class="grow">' +
         '<div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div><div class="pro-name">'+esc(p?p.name:"?")+'</div><div class="pro-job">'+esc(p?p.job+" · "+p.city:"")+'</div></div></div></div>' +
         kindBadge + slaBadge + prio +
         '<span class="badge '+(v.status==="pending"?"amber":v.status==="approved"?"green":"red")+'">'+esc(v.status)+'</span></div>' +
@@ -794,9 +822,12 @@
       '<div class="review-workspace" style="grid-template-columns:220px 1fr 260px;gap:16px">' +
         '<div class="rw-col"><h4>Professionnel</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
           '<div class="detail-grid" style="margin-top:14px">'+drow("Ville", p.city)+drow("Expérience", p.experience||"—")+drow("Niveau", v.level)+'</div></div>' +
-        '<div class="rw-col"><h4>Documents & portfolio</h4>' +
-          (v.documents||[]).map(function(d){ return '<div class="doc">📄 '+esc(d)+'</div>'; }).join("") +
-          '<div class="muted" style="margin-top:12px">Portfolio : 6 images fournies (aperçu dans la version finale).</div></div>' +
+        '<div class="rw-col"><h4>Photo de profil</h4>' +
+          '<div class="prof-photo"><div class="p-avatar" style="width:96px;height:96px;font-size:34px">'+initials(p.name)+'</div>' +
+          '<div class="muted small" style="margin-top:8px">1 photo de profil requise (tous les packs).</div></div>' +
+          '<h4 style="margin-top:18px">Échantillons de travail</h4>' +
+          '<div class="muted" style="font-size:12.5px;margin-top:6px">'+qcCount(p)+' échantillon(s) fourni(s). Vérifiez : clarté, cadrage, travail conforme.</div>' +
+          '<div class="muted small" style="font-size:12px;margin-top:6px">Documents attendus : '+'Photo de profil · Échantillons'.split(" · ").map(function(d){ return '<span class="doc" style="padding:6px 10px;font-size:12px">📄 '+esc(d)+'</span>'; }).join(" ")+'</div></div>' +
         '<div class="rw-col"><h4>Liste de contrôle</h4><div class="checklist" id="verChecks">' +
           cfg.requiredChecks.map(function(c){
             return '<label><input type="checkbox" data-check="'+c+'" '+(checks[c]?"checked":"")+'><span>'+esc(cfg.checkLabels[c]||c)+'</span></label>';

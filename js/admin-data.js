@@ -67,22 +67,18 @@
     phone: "212600000000",
     defaultLanguage: "fr",
     verification: {
-      requiredDocuments: ["CIN", "Photo de profil", "Justificatif professionnel (si applicable)"],
+      requiredDocuments: ["Photo de profil", "Photo de travail (échantillons)"],
       requiredChecks: [
-        "identity_checked",
-        "phone_confirmed",
-        "profession_reviewed",
-        "portfolio_reviewed",
-        "documents_reviewed",
-        "references_reviewed"
+        "profile_photo_clear",
+        "profile_photo_no_sunglasses",
+        "profile_photo_main_frame",
+        "echantillons_reviewed"
       ],
       checkLabels: {
-        identity_checked: "Identité vérifiée",
-        phone_confirmed: "Téléphone confirmé",
-        profession_reviewed: "Profession vérifiée",
-        portfolio_reviewed: "Portfolio vérifié",
-        documents_reviewed: "Documents vérifiés",
-        references_reviewed: "Références vérifiées"
+        profile_photo_clear: "Photo de profil nette (pas floue)",
+        profile_photo_no_sunglasses: "Photo sans lunettes de soleil",
+        profile_photo_main_frame: "Personne dans le cadre principal",
+        echantillons_reviewed: "Échantillons de travail conformes"
       }
     }
   };
@@ -284,14 +280,14 @@
 
   var SUBSCRIPTION_PLANS = [
     { id:"PLAN-FREE", name:"GRATUIT", price:0, period:"mois", badge:"gray", active:true, hot:false,
-      description:"Pour démarrer", limits:{ photos:3, videos:0, kind:"Gratuit — photos uniquement" },
-      advantages:["Profil de base","Visibilité dans les recherches","Réception de leads","Téléphone / WhatsApp","Avis","Disponibilité","Statistiques de base","3 photos (pas de vidéo)"] },
+      description:"Pour démarrer", limits:{ profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:"1 photo de profil + 3 échantillons (pas de vidéo)" },
+      advantages:["Profil de base","Visibilité dans les recherches","Réception de leads","Téléphone / WhatsApp","Avis","Disponibilité","Statistiques de base","1 photo de profil + 3 échantillons (pas de vidéo)"] },
     { id:"PLAN-VERIFIED", name:"VÉRIFIÉ", price:99, period:"mois", badge:"teal", active:true, hot:false,
-      description:"Confiance & visibilité", limits:{ photos:10, videos:10, total:10, kind:"10 médias (photos ou vidéos)" },
-      advantages:["Tout ce qui est inclus dans Gratuit","Badge Professionnel Vérifié SI approuvé séparément","Meilleur classement","Visibilité accrue","Portfolio professionnel","Statistiques avancées","Mise en avant du profil","Meilleure exposition aux leads","Support prioritaire","10 médias (photos ou vidéos)"] },
+      description:"Confiance & visibilité", limits:{ profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:"1 photo de profil + 10 échantillons (photos ou max 3 vidéos)" },
+      advantages:["Tout ce qui est inclus dans Gratuit","Badge Professionnel Vérifié SI approuvé séparément","Meilleur classement","Visibilité accrue","Portfolio professionnel","Statistiques avancées","Mise en avant du profil","Meilleure exposition aux leads","Support prioritaire","1 photo de profil + 10 échantillons (incl. jusqu'à 3 vidéos)"] },
     { id:"PLAN-GOLD", name:"GOLD", price:199, period:"mois", badge:"orange", active:true, hot:true,
-      description:"Impact maximal", limits:{ photos:20, videos:3, kind:"20 photos + 3 vidéos" },
-      advantages:["Tout ce qui est inclus dans Vérifié","Badge GOLD","Placement premium","Profil mis en avant","Boost de visibilité","Analytiques avancées","Leads prioritaires","Assistant IA de profil","Portfolio premium","Support VIP","Éligibilité au statut Top Pro","20 photos + 3 vidéos"] }
+      description:"Impact maximal", limits:{ profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:"1 photo de profil + 20 échantillons (photos ou max 3 vidéos)" },
+      advantages:["Tout ce qui est inclus dans Vérifié","Badge GOLD","Placement premium","Profil mis en avant","Boost de visibilité","Analytiques avancées","Leads prioritaires","Assistant IA de profil","Portfolio premium","Support VIP","Éligibilité au statut Top Pro","1 photo de profil + 20 échantillons (incl. jusqu'à 3 vidéos)"] }
   ];
 
   var SUBSCRIPTIONS = [
@@ -628,43 +624,56 @@
       return true;
     },
     // Media upload quotas by package.
+    // Profile photo = 1 for every package. Échantillon budgets:
+    //   Gratuit = 3 photos (no video); VÉRIFIÉ = 10 total (incl. max 3 video); GOLD = 20 total (incl. max 3 video).
     packageLimits: function(pkg){
       var key = String(pkg||"free").toLowerCase();
-      if(key==="gold") return { photos:20, videos:3, total:23, kind:"20 photos + 3 vidéos" };
-      if(key==="verified") return { photos:10, videos:10, total:10, kind:"10 médias (photos ou vidéos)" };
-      return { photos:3, videos:0, total:3, kind:"3 photos uniquement (pas de vidéo)" };
+      if(key==="gold") return { profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:"1 photo de profil + 20 échantillons (photos ou max 3 vidéos)" };
+      if(key==="verified") return { profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:"1 photo de profil + 10 échantillons (photos ou max 3 vidéos)" };
+      return { profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:"1 photo de profil + 3 échantillons (pas de vidéo)" };
     },
     getMediaUsage: function(proId){
       var p = getById(store.professionals, proId);
       var media = (p && p.media) || [];
-      return { photos: media.filter(function(m){ return m.type==="photo"; }).length, videos: media.filter(function(m){ return m.type==="video"; }).length, total: media.length };
+      return {
+        profileCount: media.filter(function(m){ return m.kind==="profile"; }).length,
+        echantillonPhotos: media.filter(function(m){ return m.kind==="echantillon" && m.type==="photo"; }).length,
+        echantillonVideos: media.filter(function(m){ return m.kind==="echantillon" && m.type==="video"; }).length,
+        echantillonTotal: media.filter(function(m){ return m.kind==="echantillon"; }).length
+      };
     },
-    // Can this professional upload a photo/video? Returns { ok, reason, upgrade }.
-    canUploadMedia: function(proId, type){
+    // Can this professional upload media? opts: { kind:"profile"|"echantillon", type:"photo"|"video" }.
+    canUploadMedia: function(proId, opts){
       var p = getById(store.professionals, proId);
       var pkg = (p && String(p.package||"free").toLowerCase()) || "free";
       var lim = Sna3tiData.packageLimits(pkg);
       var use = Sna3tiData.getMediaUsage(proId);
-      var upg = "Pour dépasser cette limite, faites évoluer votre pack : GOLD = 20 photos + 3 vidéos, VÉRIFIÉ = 10 médias (photos ou vidéos).";
+      var upg = "Pour débloquer plus de médias, faites évoluer votre pack : GOLD = 1 photo de profil + 20 échantillons, VÉRIFIÉ = 1 photo de profil + 10 échantillons.";
+      var kind = (opts&&opts.kind) || "echantillon";
+      var type = (opts&&opts.type) || "photo";
+      if(kind==="profile"){
+        if(use.profileCount >= lim.profile){ return { ok:false, reason:"Une seule photo de profil est autorisée pour tous les packs.", upgrade:false, msg:"" }; }
+        return { ok:true };
+      }
+      // échantillon
       if(type==="video"){
-        if(lim.videos===0){ return { ok:false, reason:"Le pack Gratuit n'autorise pas les vidéos.", upgrade:true, msg:upg }; }
-        if(pkg==="verified" && use.total >= lim.total){ return { ok:false, reason:"Pack VÉRIFIÉ : 10 médias maximum (photos ou vidéos) atteint.", upgrade:true, msg:upg }; }
-        if(use.videos >= lim.videos){ return { ok:false, reason:"Pack GOLD : 3 vidéos maximum atteintes.", upgrade:true, msg:upg }; }
-      } else { // photo
-        if(lim.videos===0 && use.photos >= lim.photos){ return { ok:false, reason:"Pack Gratuit : 3 photos maximum. Passez à VÉRIFIÉ ou GOLD pour en ajouter davantage.", upgrade:true, msg:upg }; }
-        if(pkg==="verified" && use.total >= lim.total){ return { ok:false, reason:"Pack VÉRIFIÉ : 10 médias maximum (photos ou vidéos) atteint.", upgrade:true, msg:upg }; }
-        if(use.photos >= lim.photos){ return { ok:false, reason:"Pack GOLD : 20 photos maximum atteintes.", upgrade:true, msg:upg }; }
+        if(lim.echantillonVideos<=0){ return { ok:false, reason:"Le pack Gratuit n'autorise pas les vidéos d'échantillons.", upgrade:true, msg:upg }; }
+        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:"Quota d'échantillons atteint ("+lim.echantillonTotal+" max).", upgrade:true, msg:upg }; }
+        if(use.echantillonVideos >= lim.echantillonVideos){ return { ok:false, reason:"Maximum de "+lim.echantillonVideos+" vidéo(s) pour ce pack.", upgrade:true, msg:upg }; }
+      } else {
+        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:"Quota d'échantillons atteint ("+lim.echantillonTotal+" max).", upgrade:true, msg:upg }; }
       }
       return { ok:true };
     },
     addMedia: function(proId, item){
       var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:"Professionnel introuvable." };
-      var type = item.type==="video" ? "video" : "photo";
-      var gate = Sna3tiData.canUploadMedia(proId, type);
+      var kind = (item&&item.kind) || "echantillon";
+      var type = (item&&item.type==="video") ? "video" : "photo";
+      var gate = Sna3tiData.canUploadMedia(proId, { kind:kind, type:type });
       if(!gate.ok) return gate;
       p.media = p.media || [];
-      var freeCount = p.media.filter(function(m){ return m.type==="photo"; }).length + p.media.filter(function(m){ return m.type==="video"; }).length;
-      p.media.push({ id: uid("MED"), type: type, label: item.label||"", src: item.src||"", added: todayStr(), order: freeCount+1 });
+      var n = p.media.length;
+      p.media.push({ id: uid("MED"), kind:kind, type:type, label: item.label||"", src: item.src||"", added: todayStr(), order: n+1 });
       persist();
       return { ok:true, usage: Sna3tiData.getMediaUsage(proId), limits: Sna3tiData.packageLimits(p.package) };
     },
