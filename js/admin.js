@@ -30,7 +30,7 @@
         show +
         '<form class="form" id="loginForm">' +
           '<div class="frm"><label for="email">Email</label><input id="loginEmail" type="email" placeholder="admin@sna3ti.ma" autocomplete="username" required /></div>' +
-          '<div class="frm"><label for="password">Mot de passe</label><div class="pw-wrap"><input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" required /><button type="button" class="pw-toggle" id="pwToggle" aria-label="Afficher le mot de passe">👁️</button></div></div>' +
+          '<div class="frm"><label for="password">Mot de passe</label><div class="pw-wrap"><input id="loginPassword" type="password" placeholder="Sna3ti@@2030" autocomplete="current-password" required /><button type="button" class="pw-toggle" id="pwToggle" aria-label="Afficher le mot de passe">👁️</button></div></div>' +
           '<label class="field-check"><input type="checkbox" id="loginRemember" /> Se souvenir de moi</label>' +
           '<button class="btn btn-primary btn-block" id="loginBtn" type="submit" style="justify-content:center">Se connecter</button>' +
         '</form>' +
@@ -467,6 +467,8 @@
           p.portfolio.map(function(w){ return '<div class="port-item"><div class="port-thumb">🖼️</div><div class="port-body"><b>'+esc(w.title||w.name||w.label||"")+'</b><div class="muted">'+esc(w.desc||w.description||"")+'</div></div></div>'; }).join("") +
         '</div></div>' : "") +
 
+        mediaSection(p) +
+
         '<div class="card"><div class="card-head"><div class="card-title">Paiements ('+payments.length+')</div><a class="btn btn-ghost btn-small" href="#/admin/payments">Tous les paiements</a></div><div class="table-wrap"><table><thead><tr><th>Référence</th><th>Date</th><th>Montant</th><th>Méthode</th><th>Statut</th></tr></thead><tbody>' +
           (payments.length ? payments.slice(0,6).map(function(pa){
             return '<tr><td>'+esc(pa.reference||pa.id)+'</td><td>'+esc(pa.date)+'</td><td>'+pa.amount+' DH</td><td>'+esc(pa.method||"—")+'</td><td>'+statusBadge(pa.status)+'</td></tr>';
@@ -480,6 +482,7 @@
         '</div>';
 
       UI.setContent(html);
+      bindMedia(p);
 
       var ds = document.getElementById("dSuspend"); if(ds) ds.addEventListener("click", function(){
         UI.confirmAction({ title:"Suspendre ce professionnel ?", reasonRequired:true, reasonLabel:"Raison", confirmLabel:"Suspendre", onConfirm:function(reason){
@@ -509,6 +512,55 @@
   function drow(k, v){ return '<div class="detail-row"><div class="dk">'+esc(k)+'</div><div class="dv">'+v+'</div></div>'; }
   function leadRow(ico,k,v){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+ico+' '+esc(k)+' — <b>'+esc(v)+'</b></div></div>'; }
   function mkStars(r){ var h=""; for(var i=1;i<=5;i++){ h+='<span class="star">'+(i<=Math.round(r)?"★":"☆")+'</span>'; } return h; }
+
+  /* ============================================================
+     MEDIA / UPLOADS (visibility + package quotas)
+     ============================================================ */
+  function mediaSection(p){
+    var pkg = String(p.package||"free").toLowerCase();
+    var lim = DATA.packageLimits(pkg);
+    var use = DATA.getMediaUsage(p.id);
+    var media = (p.media||[]);
+    var pct = lim.total>0 ? Math.min(100, Math.round(use.total/lim.total*100)) : 100;
+    var grant = pkg==="gold" ? "20 photos + 3 vidéos" : pkg==="verified" ? "10 médias (photos ou vidéos)" : "3 photos, aucune vidéo";
+    var items = media.length
+      ? media.map(function(m){ return '<div class="media-item"><div class="media-thumb">'+(m.type==="video"?"🎬":"🖼️")+'</div><div class="media-body"><b>'+esc(m.label||(m.type==="video"?"Vidéo":"Photo"))+'</b><div class="muted">'+(m.type==="video"?"Vidéo":"Photo")+' · '+esc(m.added||"")+'</div></div>'+
+          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="Retirer">🗑️</button></div>'; }).join("")
+      : '<div class="empty">Aucun média téléversé.</div>';
+    return '<div class="card"><div class="card-head"><div class="card-title">Uploads & médias ('+pkg+')</div>'+
+      '<span class="badge '+(pkg==="gold"?"orange":pkg==="verified"?"teal":"gray")+'">'+pkgBadge({package:pkg})+' · '+grant+'</span></div>'+
+      '<div class="muted" style="margin:12px 0">Quota : <b>'+use.photos+'</b> photo(s) / '+lim.photos+' · <b>'+use.videos+'</b> vidéo(s) / '+(lim.videos||"0")+'</div>'+
+      '<div class="usage-bar"><div class="usage-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="media-grid" id="mediaGrid">'+items+'</div>'+
+      '<div class="toolbar" style="margin-top:16px">'+
+        '<div class="field grow"><label>Libellé</label><input type="text" id="medLabel" placeholder="Ex : Cuisine rénovée"></div>'+
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medPhoto">🖼️ Ajouter photo</button></div>'+
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="medVideo">🎬 Ajouter vidéo</button></div>'+
+      '</div></div>';
+  }
+  function bindMedia(p){
+    document.querySelectorAll("[data-mdel]").forEach(function(btn){ btn.addEventListener("click", function(){
+      DATA.removeMedia(btn.dataset.mdel, btn.dataset.mid); UI.toast("Média retiré."); renderProfessionalDetail(p.id);
+    }); });
+    var ph = document.getElementById("medPhoto"); if(ph) ph.addEventListener("click", function(){ tryUpload(p, "photo"); });
+    var vd = document.getElementById("medVideo"); if(vd) vd.addEventListener("click", function(){ tryUpload(p, "video"); });
+  }
+  function tryUpload(p, type){
+    var label = (document.getElementById("medLabel")&&document.getElementById("medLabel").value)||"";
+    var gate = DATA.canUploadMedia(p.id, type);
+    if(!gate.ok){
+      UI.confirmAction({
+        title: type==="video" ? "Vidéo non autorisée sur ce pack" : "Limite de médias atteinte",
+        message: gate.reason + " " + (gate.upgrade ? "Faites évoluer votre pack pour débloquer davantage de médias." : ""),
+        confirmLabel: gate.upgrade ? "Voir les packs" : "Fermer",
+        cancelLabel: gate.upgrade ? "Annuler" : "",
+        onConfirm: gate.upgrade ? function(){ ROUTER.navigate("subscriptions"); } : function(){}
+      });
+      return;
+    }
+    var res = DATA.addMedia(p.id, { type:type, label:label || (type==="video"?"Vidéo":"Photo") });
+    if(res.ok){ UI.toast((type==="video"?"Vidéo":"Photo")+" ajoutée ("+res.usage.photos+" photos, "+res.usage.videos+" vidéos)."); renderProfessionalDetail(p.id); }
+  }
 
   /* ============================================================
      USERS
@@ -608,23 +660,26 @@
     el.innerHTML = list.map(function(v){
       var p = DATA.getProfessional(v.professionalId);
       var isPlan = v.level === "plan";
+      var isJoin = v.level === "join";
       var steps = isPlan
         ? '<div class="muted" style="margin-top:8px">Demande plan · '+
             '<span class="badge '+(String(v.requestedPlan).toLowerCase()==="gold"?"orange":"teal")+'">'+(String(v.requestedPlan).toUpperCase()==="GOLD"?"👑 GOLD":v.requestedPlan)+'</span> '+
             '<span class="muted">· '+v.price+' DH / mois</span></div>'
-        : '<div class="verif-steps">' +
-          '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. Identité</span>' +
-          '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. Professionnel</span>' +
-          '</div>';
+        : isJoin
+          ? '<div class="muted" style="margin-top:8px">Adhésion pack <span class="badge gray">GRATUIT</span> · 0 DH</div>'
+          : '<div class="verif-steps">' +
+            '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. Identité</span>' +
+            '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. Professionnel</span>' +
+            '</div>';
       var waiting = slaDays(v.submitted);
       var slaBadge = v.status==="pending" || v.status==="needs_info"
         ? '<span class="badge '+(waiting<=1?"green":waiting<=3?"amber":"red")+'">SLA '+waiting+' j</span>' : "";
       var prio = v.priority ? '<span class="badge '+(v.priority==="high"?"red":"blue")+'">'+ (v.priority==="high"?"Priorité haute":"Priorité") +'</span>' : "";
-      var kindBadge = isPlan ? '<span class="badge purple">Abonnement</span>' : '<span class="badge gray">Vérification</span>';
+      var kindBadge = isPlan ? '<span class="badge purple">Abonnement</span>' : (isJoin ? '<span class="badge gray">Adhésion</span>' : '<span class="badge gray">Vérification</span>');
       var isGold = String(v.requestedPlan||"").toUpperCase()==="GOLD";
       var corner = isPlan
         ? '<div class="req-corner '+(isGold?"gold":"verified")+'"><span class="star">'+(isGold?"👑":"✅")+'</span> '+(isGold?"GOLD":"VÉRIFIÉ")+'</div>'
-        : "";
+        : isJoin ? '<div class="req-corner join"><span class="star">🤝</span> GRATUIT</div>' : "";
       return '<div class="req">'+ corner + '<div class="req-top'+(isPlan?' req-top-pad':'')+'"><div class="grow">' +
         '<div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div><div class="pro-name">'+esc(p?p.name:"?")+'</div><div class="pro-job">'+esc(p?p.job+" · "+p.city:"")+'</div></div></div></div>' +
         kindBadge + slaBadge + prio +
@@ -634,7 +689,7 @@
         '<div class="req-actions">' +
           '<button class="btn btn-ghost btn-small" data-audit="'+v.id+'">📜 Historique</button>' +
           (AUTH.can("verification","reject") ? '<button class="btn btn-danger btn-small" data-reject="'+v.id+'">✖ Rejeter</button>' : "") +
-          (AUTH.can("verification","approve") && v.status!=="approved" ? '<button class="btn btn-primary btn-small" data-approve="'+v.id+'">✓ Approuver</button>' : "") +
+          (AUTH.can("verification","approve") && v.status!=="approved" ? '<button class="btn btn-primary btn-small" data-approve="'+(isJoin?"j":"")+v.id+'">'+(isJoin?"🤝 Confirmer adhésion":"✓ Approuver")+'</button>' : "") +
           (AUTH.can("verification","approve") ? '<button class="btn btn-soft btn-small" data-review="'+v.id+'">🔍 Réviser</button>' : "") +
           (isPlan && v.status!=="approved" ? '<button class="btn btn-soft btn-small" data-gopay="'+v.id+'" title="Voir le paiement">💰 Voir paiement</button>' : "") +
         '</div></div>';
@@ -658,10 +713,13 @@
       '</div><div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">Fermer</button></div>');
   }
   function quickApprove(id){
-    UI.confirmAction({ title:"Approuver cette vérification ?", confirmLabel:"Approuver", onConfirm:function(){
-      DATA.approveVerification(id, AUTH.getSession().name);
-      DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"});
-      UI.toast("Vérification approuvée."); drawVerification(currentFilter()); updatePillsSafe();
+    var isJoin = String(id).charAt(0)==="j";
+    if(isJoin) id = id.slice(1);
+    var verb = isJoin ? "Confirmer cette adhésion GRATUIT ?" : "Approuver cette vérification ?";
+    UI.confirmAction({ title: verb, confirmLabel: isJoin ? "Confirmer adhésion" : "Approuver", onConfirm:function(){
+      if(isJoin){ DATA.approveJoin(id, AUTH.getSession().name); DATA.logAudit({admin:AUTH.getSession().name, action:"JOIN_APPROVED", entity:"VerificationRequest", entityId:id, result:"Admis (Gratuit)"}); UI.toast("Adhésion GRATUIT confirmée — professionnel admis."); }
+      else { DATA.approveVerification(id, AUTH.getSession().name); DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"}); UI.toast("Vérification approuvée."); }
+      drawVerification(currentFilter()); updatePillsSafe();
     }});
   }
   function currentFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.tab:"all"; }
@@ -682,6 +740,28 @@
     var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
     if(!v) return;
     var p = DATA.getProfessional(v.professionalId);
+    if(v.level==="join"){
+      UI.openModal(
+        '<h3>Examen de l\'adhésion GRATUIT</h3>' +
+        '<div class="review-workspace" style="grid-template-columns:1fr 1fr;gap:16px">' +
+          '<div class="rw-col"><h4>Professionnel</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
+            '<div class="detail-grid" style="margin-top:14px">'+drow("Ville", p.city)+drow("Métier", p.job)+drow("Pack", pkgBadge({package:"free"}))+'</div></div>' +
+          '<div class="rw-col"><h4>Pack Gratuit — 0 DH / mois</h4>' +
+            '<p class="muted" style="margin-top:8px;font-size:13px">Admission sur la plateforme Sna3ti.ma · Constat : <b>3 photos max, aucune vidéo</b>.</p>' +
+            (v.documents||[]).map(function(d){ return '<div class="doc">📄 '+esc(d)+'</div>'; }).join("") +
+            '<div class="modal-actions" style="justify-content:flex-start;margin-top:16px">' +
+              (AUTH.can("verification","reject")?'<button class="btn btn-danger" id="rvReject">Rejeter</button>':"") +
+              (AUTH.can("verification","approve")?'<button class="btn btn-primary" id="rvApprove">🤝 Confirmer l\'adhésion</button>':"") +
+            '</div></div>' +
+        '</div>');
+      var app = document.getElementById("rvApprove"); if(app) app.addEventListener("click", function(){
+        UI.closeModal(); DATA.approveJoin(id, AUTH.getSession().name);
+        DATA.logAudit({admin:AUTH.getSession().name, action:"JOIN_APPROVED", entity:"VerificationRequest", entityId:id, result:"Admis (Gratuit)"});
+        UI.toast("Adhésion GRATUIT confirmée."); drawVerification(currentFilter()); updatePillsSafe();
+      });
+      var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){ UI.closeModal(); rejectVer(id); });
+      return;
+    }
     if(v.level==="plan"){
       UI.openModal(
         '<h3>Examen de la demande d\'abonnement</h3>' +

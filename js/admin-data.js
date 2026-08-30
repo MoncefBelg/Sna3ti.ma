@@ -259,6 +259,11 @@
       documents:["Virement bancaire"], history:[
         { date:"2026-08-29", text:"Demande d'abonnement GOLD soumise" },
         { date:"2026-08-29", text:"Virement bancaire reçu, en attente de confirmation" }
+      ] },
+    { id:"VR-206", professionalId:"PRO-10299", level:"join", status:"pending", submitted:"2026-08-30", submittedAt:"2026-08-30T08:00:00", priority:"medium",
+      documents:["CIN","Justificatif de domicile"], history:[
+        { date:"2026-08-30", text:"Demande d'adhésion Gratuite soumise" },
+        { date:"2026-08-30", text:"Documents fournis, en attente de confirmation" }
       ] }
   ];
 
@@ -279,11 +284,14 @@
 
   var SUBSCRIPTION_PLANS = [
     { id:"PLAN-FREE", name:"GRATUIT", price:0, period:"mois", badge:"gray", active:true, hot:false,
-      description:"Pour démarrer", advantages:["Profil de base","Visibilité dans les recherches","Réception de leads","Téléphone / WhatsApp","Avis","Disponibilité","Statistiques de base"] },
+      description:"Pour démarrer", limits:{ photos:3, videos:0, kind:"Gratuit — photos uniquement" },
+      advantages:["Profil de base","Visibilité dans les recherches","Réception de leads","Téléphone / WhatsApp","Avis","Disponibilité","Statistiques de base","3 photos (pas de vidéo)"] },
     { id:"PLAN-VERIFIED", name:"VÉRIFIÉ", price:99, period:"mois", badge:"teal", active:true, hot:false,
-      description:"Confiance & visibilité", advantages:["Tout ce qui est inclus dans Gratuit","Badge Professionnel Vérifié SI approuvé séparément","Meilleur classement","Visibilité accrue","Portfolio professionnel","Statistiques avancées","Mise en avant du profil","Meilleure exposition aux leads","Support prioritaire"] },
+      description:"Confiance & visibilité", limits:{ photos:10, videos:10, total:10, kind:"10 médias (photos ou vidéos)" },
+      advantages:["Tout ce qui est inclus dans Gratuit","Badge Professionnel Vérifié SI approuvé séparément","Meilleur classement","Visibilité accrue","Portfolio professionnel","Statistiques avancées","Mise en avant du profil","Meilleure exposition aux leads","Support prioritaire","10 médias (photos ou vidéos)"] },
     { id:"PLAN-GOLD", name:"GOLD", price:199, period:"mois", badge:"orange", active:true, hot:true,
-      description:"Impact maximal", advantages:["Tout ce qui est inclus dans Vérifié","Badge GOLD","Placement premium","Profil mis en avant","Boost de visibilité","Analytiques avancées","Leads prioritaires","Assistant IA de profil","Portfolio premium","Support VIP","Éligibilité au statut Top Pro"] }
+      description:"Impact maximal", limits:{ photos:20, videos:3, kind:"20 photos + 3 vidéos" },
+      advantages:["Tout ce qui est inclus dans Vérifié","Badge GOLD","Placement premium","Profil mis en avant","Boost de visibilité","Analytiques avancées","Leads prioritaires","Assistant IA de profil","Portfolio premium","Support VIP","Éligibilité au statut Top Pro","20 photos + 3 vidéos"] }
   ];
 
   var SUBSCRIPTIONS = [
@@ -589,12 +597,81 @@
       v.history.push({ date: todayStr(), text:"Rejetée par "+adminName+(reason?" — "+reason:"") });
       var p = getById(store.professionals, v.professionalId);
       if(p && v.level==="plan"){ p.planEligible = false; return true; }
+      if(p && v.level==="join"){ p.professionStatus="rejected"; p.status="rejected"; return true; }
       if(p && v.level==="professionnel"){ p.professionStatus="rejected"; } else { p.identityStatus="rejected"; }
       return true;
     },
     requestMoreInfo: function(id, note, adminName){
       var v = getById(store.verificationRequests, id); if(!v) return false;
       v.status="needs_info"; v.history.push({ date: todayStr(), text:"Informations demandées par "+adminName+(note?" — "+note:"") });
+      return true;
+    },
+
+    // ---- Gratuit (join) admission + media upload quotas ----
+    // Joining the platform on the GRATUIT pack generates a "join" request the admin confirms.
+    approveJoin: function(id, adminName){
+      var v = getById(store.verificationRequests, id); if(!v || v.level!=="join") return false;
+      v.status="approved"; v.reviewedAt=new Date().toISOString();
+      v.history.push({ date: todayStr(), text:"Adhésion confirmée par "+adminName });
+      var p = getById(store.professionals, v.professionalId);
+      if(p && p.status!=="active"){ p.status="active"; p.professionStatus="pending"; }
+      // Activate the (free) subscription so the profile is live on the platform.
+      var s = store.subscriptions.find(function(x){ return x.professionalId===v.professionalId; });
+      if(s){ s.status="active"; s.paymentStatus="confirmed"; }
+      else { store.subscriptions.push({ id: uid("SUB"), professionalId:v.professionalId, planId:"PLAN-FREE", planName:"GRATUIT", status:"active", paymentStatus:"confirmed", price:0, since: todayStr(), renewal:"—" }); }
+      return true;
+    },
+    rejectJoin: function(id, reason, adminName){
+      var v = getById(store.verificationRequests, id); if(!v || v.level!=="join") return false;
+      v.status="rejected"; v.reason=reason||"";
+      v.history.push({ date: todayStr(), text:"Adhésion rejetée par "+adminName+(reason?" — "+reason:"") });
+      return true;
+    },
+    // Media upload quotas by package.
+    packageLimits: function(pkg){
+      var key = String(pkg||"free").toLowerCase();
+      if(key==="gold") return { photos:20, videos:3, total:23, kind:"20 photos + 3 vidéos" };
+      if(key==="verified") return { photos:10, videos:10, total:10, kind:"10 médias (photos ou vidéos)" };
+      return { photos:3, videos:0, total:3, kind:"3 photos uniquement (pas de vidéo)" };
+    },
+    getMediaUsage: function(proId){
+      var p = getById(store.professionals, proId);
+      var media = (p && p.media) || [];
+      return { photos: media.filter(function(m){ return m.type==="photo"; }).length, videos: media.filter(function(m){ return m.type==="video"; }).length, total: media.length };
+    },
+    // Can this professional upload a photo/video? Returns { ok, reason, upgrade }.
+    canUploadMedia: function(proId, type){
+      var p = getById(store.professionals, proId);
+      var pkg = (p && String(p.package||"free").toLowerCase()) || "free";
+      var lim = Sna3tiData.packageLimits(pkg);
+      var use = Sna3tiData.getMediaUsage(proId);
+      var upg = "Pour dépasser cette limite, faites évoluer votre pack : GOLD = 20 photos + 3 vidéos, VÉRIFIÉ = 10 médias (photos ou vidéos).";
+      if(type==="video"){
+        if(lim.videos===0){ return { ok:false, reason:"Le pack Gratuit n'autorise pas les vidéos.", upgrade:true, msg:upg }; }
+        if(pkg==="verified" && use.total >= lim.total){ return { ok:false, reason:"Pack VÉRIFIÉ : 10 médias maximum (photos ou vidéos) atteint.", upgrade:true, msg:upg }; }
+        if(use.videos >= lim.videos){ return { ok:false, reason:"Pack GOLD : 3 vidéos maximum atteintes.", upgrade:true, msg:upg }; }
+      } else { // photo
+        if(lim.videos===0 && use.photos >= lim.photos){ return { ok:false, reason:"Pack Gratuit : 3 photos maximum. Passez à VÉRIFIÉ ou GOLD pour en ajouter davantage.", upgrade:true, msg:upg }; }
+        if(pkg==="verified" && use.total >= lim.total){ return { ok:false, reason:"Pack VÉRIFIÉ : 10 médias maximum (photos ou vidéos) atteint.", upgrade:true, msg:upg }; }
+        if(use.photos >= lim.photos){ return { ok:false, reason:"Pack GOLD : 20 photos maximum atteintes.", upgrade:true, msg:upg }; }
+      }
+      return { ok:true };
+    },
+    addMedia: function(proId, item){
+      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:"Professionnel introuvable." };
+      var type = item.type==="video" ? "video" : "photo";
+      var gate = Sna3tiData.canUploadMedia(proId, type);
+      if(!gate.ok) return gate;
+      p.media = p.media || [];
+      var freeCount = p.media.filter(function(m){ return m.type==="photo"; }).length + p.media.filter(function(m){ return m.type==="video"; }).length;
+      p.media.push({ id: uid("MED"), type: type, label: item.label||"", src: item.src||"", added: todayStr(), order: freeCount+1 });
+      persist();
+      return { ok:true, usage: Sna3tiData.getMediaUsage(proId), limits: Sna3tiData.packageLimits(p.package) };
+    },
+    removeMedia: function(proId, mediaId){
+      var p = getById(store.professionals, proId); if(!p) return false;
+      p.media = (p.media||[]).filter(function(m){ return m.id!==mediaId; });
+      persist();
       return true;
     },
 

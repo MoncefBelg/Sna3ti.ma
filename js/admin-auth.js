@@ -16,9 +16,13 @@
   var SESSION_KEY = "sna3ti_admin_session";
   var SESSION_DURATION_MS = 60 * 60 * 1000; // 60 min
 
-  // Demo credentials are clearly mock — never for production.
-  // password: any non-empty value is accepted for demo purposes.
+  // Private demo login — only this credential is accepted.
+  // NOTE: prototype only; change the password here/in the DOM for your own use.
+  var DEMO_PASSWORD = { email: "mbelgas@sna3ti.ma", password: "Sna3ti@@2030" };
+
+  // Internal profiles (roles) that sessions may resolve to.
   var DEMO_ACCOUNTS = [
+    { email: "mbelgas@sna3ti.ma", name: "Admin User", role: "super_admin" },
     { email: "admin@sna3ti.ma", name: "Admin User", role: "super_admin" },
     { email: "admin@example.com", name: "Admin User", role: "super_admin" },
     { email: "finance@sna3ti.ma", name: "Finance Manager", role: "finance" },
@@ -62,12 +66,12 @@
       setTimeout(function(){
         if(!email || !password){ reject({ code:"invalid", message:"Veuillez saisir votre email et mot de passe." }); return; }
         email = email.toLowerCase().trim();
+        var ok = (email === DEMO_PASSWORD.email && password === DEMO_PASSWORD.password);
         var account = DEMO_ACCOUNTS.find(function(a){ return a.email === email; });
-        if(!account){
-          reject({ code:"invalid", message:"Identifiants invalides. Essayez admin@sna3ti.ma avec un mot de passe quelconque." });
+        if(!ok || !account){
+          reject({ code:"invalid", message:"Identifiants invalides." });
           return;
         }
-        // Accept any non-empty password for demo.
         session = {
           email: account.email,
           name: account.name,
