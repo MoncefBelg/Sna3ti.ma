@@ -59,7 +59,7 @@
   }
 
   /* ============================================================
-     DASHBOARD
+     DASHBOARD — actionable, clickable
      ============================================================ */
   function renderDashboard(){
     UI.setTitle("Tableau de bord");
@@ -69,30 +69,77 @@
       var alerts = DATA.getAlerts();
       var activity = DATA.getActivity();
       var html =
+        '<div class="page-head"><h1>Tableau de bord</h1><div class="spacer"></div>'+
+          '<span class="muted">'+new Date().toLocaleDateString("fr-MA",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+'</span></div>'+
         '<div class="kpi-grid grid-4">' +
-          kpiCard("Utilisateurs", "👥", k.users, "▲ 8.2% vs mois dernier", "up") +
-          kpiCard("Professionnels", "🧑‍🔧", k.professionals, "▲ 12.4% vs mois dernier", "up") +
-          kpiCard("Vérifiés", "✅", k.verified, "▲ 4.1% vs mois dernier", "up") +
-          kpiCard("Vérifications en attente", "⏳", k.pendingVerification, "à traiter", "") +
-          kpiCard("Professionnels actifs", "🟢", k.active, "▲ 3.0% vs mois dernier", "up") +
-          kpiCard("Recherches aujourd&rsquo;hui", "🔍", secara(k.searches), "▲ 18% vs hier", "up") +
-          kpiCard("Demandes de contact", "📞", secara(k.contactRequests), "▽ 2.2% vs hier", "down") +
-          kpiCard("Revenus mensuels", "💰", secara(k.monthlyRevenue)+" DH", "▲ 9.7% vs mois dernier", "up") +
+          dashKpi("Utilisateurs","👥", k.users, "8,2%", "vs mois dernier", true, "users") +
+          dashKpi("Professionnels","🧑‍🔧", k.professionals, "12,4%", "vs mois dernier", true, "professionals") +
+          dashKpi("Vérifiés","✅", k.verified, "4,1%", "vs mois dernier", true, "professionals") +
+          dashKpi("Vérifications en attente","⏳", k.pendingVerification, null, "à traiter", null, "verification") +
+          dashKpi("Abonnements actifs","📦", k.activeSubscriptions, "6,2%", "vs mois dernier", true, "subscriptions") +
+          dashKpi("Paiements en attente","💰", k.pendingPayments, null, "à confirmer", null, "payments") +
+          dashKpi("Recherches","🔍", secara(k.searches), "18%", "vs hier", true, "analytics") +
+          dashKpi("Revenus mensuels","💵", secara(k.monthlyRevenue)+" DH", "9,7%", "vs mois dernier", true, "payments") +
         '</div>' +
-        '<div class="grid-2" style="margin-top:20px;align-items:stretch">' +
+        '<div class="grid-2" style="margin-top:22px;align-items:stretch">' +
+          workQueueCard() +
           '<div class="card"><div class="card-head"><div class="card-title">Alertes</div></div>' +
             alerts.map(function(a){ return '<div class="alert '+a.type+'" data-route="'+a.route+'"><span class="a-ico">'+a.icon+'</span><div><div class="a-title">'+esc(a.title)+'</div><div class="a-sub">'+esc(a.sub)+'</div></div></div>'; }).join("") +
           '</div>' +
-          '<div class="card"><div class="card-head"><div class="card-title">Activité récente</div></div><div class="feed">' +
-            activity.map(function(a){ return '<div class="feed-item"><div class="feed-dot '+a.type+'"></div><div class="f-txt">'+esc(a.text)+'</div><div class="f-when">'+esc(a.when)+'</div></div>'; }).join("") +
-          '</div></div>' +
-        '</div>';
+        '</div>' +
+        '<div class="card"><div class="card-head"><div class="card-title">Activité récente</div><a class="btn btn-ghost btn-small" href="#/admin/audit-logs">Audit complet</a></div><div class="feed">' +
+          activity.map(function(a){ return '<div class="feed-item"><div class="feed-dot '+a.type+'"></div><div class="f-txt">'+esc(a.text)+'</div><div class="f-when">'+esc(a.when)+'</div></div>'; }).join("") +
+        '</div></div>';
       UI.setContent(html);
-      UI.getContent().querySelectorAll(".alert[data-route]").forEach(function(el){
-        el.addEventListener("click", function(){ ROUTER.navigate(el.dataset.route); });
+      UI.getContent().querySelectorAll(".alert[data-route], .kpi-link[data-route]").forEach(function(el){
+        el.addEventListener("click", function(){ if(el.dataset.route) ROUTER.navigate(el.dataset.route); });
       });
     }, 350);
   }
+
+  // dashKpi(title, ico, value, trend%, comparisonText, isUp, route)
+  function dashKpi(title, ico, val, trend, cmp, up, route){
+    var resource = route || "";
+    var allowed = !route || AUTH.can(resource, "read");
+    var trendHtml;
+    if(trend){
+      trendHtml = '<span class="chg '+(up?"up":"down")+'">'+(up?'▲':'▼')+' '+esc(trend)+'</span> <span class="cmp">'+esc(cmp||"")+'</span>';
+    } else {
+      trendHtml = '<span class="cmp">'+esc(cmp||"")+'</span>';
+    }
+    var link = allowed && route ? '<a class="kpi-view" href="#/admin/'+route+'">Voir →</a>' : '';
+    return '<div class="kpi'+(allowed&&route?' kpi-link':'')+'" data-route="'+(allowed?route:'')+'">' +
+      '<div class="k-top"><span class="k-title">'+esc(title)+'</span><span class="k-ico">'+ico+'</span></div>' +
+      '<div class="k-val">'+val+'</div>' +
+      '<div class="k-delta">'+trendHtml+'</div>' +
+      link +
+    '</div>';
+  }
+
+  // Admin work queue — actionable tasks requiring a human decision
+  function workQueueCard(){
+    var q = DATA.getWorkQueue();
+    var order = { critical:0, high:1, medium:2, low:3 };
+    q.sort(function(a,b){ return (order[a.pclass]||9)-(order[b.pclass]||9) || String(a.created).localeCompare(String(b.created)); });
+    var rows = q.slice(0,8).map(function(w){
+      return '<tr>' +
+        '<td><div class="pro"><div class="p-avatar" style="'+wqIcoColor(w.type)+'">'+wqIco(w.type)+'</div><div><div class="pro-name">'+esc(w.label)+'</div><div class="pro-job">'+esc(w.ref||w.id)+'</div></div></div></td>' +
+        '<td><span class="badge '+prioClass(w.pclass)+'">'+esc(w.priority)+'</span></td>' +
+        '<td>'+esc(w.created)+'</td>' +
+        '<td>'+esc(w.assigned||"—")+'</td>' +
+        '<td>'+statusBadge(w.status)+'</td>' +
+        '<td class="actions-cell"><button class="btn btn-primary btn-small" data-wq="'+w.route+'">Traiter</button></td>' +
+      '</tr>';
+    }).join("");
+    return '<div class="card"><div class="card-head"><div class="card-title">File de travail Admin <small>Actions humaines requises</small></div>' +
+      '<span class="badge orange">'+q.length+' en attente</span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th>Type</th><th>Priorité</th><th>Créé</th><th>Assigné</th><th>Statut</th><th>Action</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="6"><div class="empty">Aucune tâche en attente. 🎉</div></td></tr>') +
+      '</tbody></table></div></div>';
+  }
+  function wqIco(t){ return { verification:"✅", payment:"💰", report:"🚩", review:"⭐", subscription:"📦" }[t] || "📋"; }
+  function wqIcoColor(t){ var m={ verification:"background:var(--mint)", payment:"background:#fdf1e0", report:"background:#fdeaea", review:"background:#f1ebff" }; return m[t]||""; }
+  function prioClass(p){ var m={ critical:"red", high:"amber", medium:"blue", low:"gray" }; return m[p]||"gray"; }
 
   function secara(n){ return typeof n === "number" ? n.toLocaleString("fr-MA") : n; }
 
@@ -104,22 +151,28 @@
   /* ============================================================
      PROFESSIONALS (list)
      ============================================================ */
-  var proState = { page:1, q:"", city:"", category:"", verification:"", status:"", sort:"name", dir:1, perPage:6, selected:{} };
+  var proState = { page:1, q:"", city:"", category:"", job:"", verification:"", package:"", rating:"", created:"", status:"", sort:"name", dir:1, perPage:6, selected:{} };
   function renderProfessionals(){
     UI.setTitle("Professionnels");
     var cities = unique(DATA.getProfessionals().map(function(p){ return p.city; }));
     var cats = unique(DATA.getProfessionals().map(function(p){ return p.category; }));
+    var jobs = unique(DATA.getProfessionals().map(function(p){ return p.job; }));
     var html =
       '<div class="page-head"><h1>Professionnels</h1><div class="spacer"></div>' +
         (AUTH.can("professionals","update") ? '<button class="btn btn-primary" id="btnNewPro">+ Nouveau professionnel</button>' : "") +
         (AUTH.can("professionals","read") ? '<button class="btn btn-ghost" id="btnExportPro">⬇ Exporter CSV</button>' : "") +
+        (AUTH.can("professionals","export") ? "" : "") +
       '</div>' +
       '<div class="card">' +
         '<div class="toolbar">' +
           '<div class="field"><label>Recherche</label><input type="search" id="proQ" placeholder="Nom, métier, ville..." value="'+esc(proState.q)+'" /></div>' +
           '<div class="field"><label>Ville</label><select id="proCity"><option value="">Toutes</option>'+opts(cities, proState.city)+'</select></div>' +
           '<div class="field"><label>Catégorie</label><select id="proCat"><option value="">Toutes</option>'+opts(cats, proState.category)+'</select></div>' +
+          '<div class="field"><label>Profession</label><select id="proJob"><option value="">Toutes</option>'+opts(jobs, proState.job)+'</select></div>' +
           '<div class="field"><label>Vérification</label><select id="proVer"><option value="">Tous</option><option value="verified" '+sel(proState.verification,"verified")+'>Vérifiés</option><option value="unverified" '+sel(proState.verification,"unverified")+'>Non vérifiés</option></select></div>' +
+          '<div class="field"><label>Abonnement</label><select id="proPkg"><option value="">Tous</option><option value="free" '+sel(proState.package,"free")+'>GRATUIT</option><option value="verified" '+sel(proState.package,"verified")+'>VÉRIFIÉ</option><option value="gold" '+sel(proState.package,"gold")+'>GOLD</option></select></div>' +
+          '<div class="field"><label>Note min.</label><select id="proRating"><option value="">Toutes</option><option value="4" '+sel(proState.rating,"4")+'>4★ et +</option><option value="4.5" '+sel(proState.rating,"4.5")+'>4.5★ et +</option></select></div>' +
+          '<div class="field"><label>Inscrit</label><select id="proCreated"><option value="">Toute date</option><option value="7d" '+sel(proState.created,"7d")+'>7 derniers jours</option><option value="30d" '+sel(proState.created,"30d")+'>30 derniers jours</option><option value="older" '+sel(proState.created,"older")+'>Plus de 30 jours</option></select></div>' +
           '<div class="field"><label>Statut</label><select id="proStatus"><option value="">Tous</option>'+["active","pending","suspended","rejected"].map(function(s){return '<option '+sel(proState.status,s)+'>'+s+'</option>';}).join("")+'</select></div>' +
           '<div style="flex:1"></div>' +
           (AUTH.hasAny("professionals") ? '<button class="btn btn-soft" id="btnBulk">Sélection groupée</button>' : "") +
@@ -128,7 +181,7 @@
           '<th style="width:30px"><input type="checkbox" id="proCheckAll"></th>' +
           '<th class="sortable" data-sort="name">Nom</th><th>Profession</th><th>Ville</th>' +
           '<th class="sortable" data-sort="rating">Note</th><th class="sortable" data-sort="reviewsCount">Avis</th>' +
-          '<th>Vérification</th><th>Package</th><th class="sortable" data-sort="status">Statut</th><th>Actions</th>' +
+          '<th>Vérification</th><th>Abonnement</th><th class="sortable" data-sort="created">Inscrit</th><th class="sortable" data-sort="status">Statut</th><th>Actions</th>' +
         '</tr></thead><tbody id="proBody"></tbody></table></div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><span id="proCount" class="muted"></span><div id="proPager"></div></div>' +
         '<div id="bulkBar" class="hidden" style="margin-top:12px;padding:12px;background:var(--mint);border-radius:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>'+proCountSelected()+' sélectionné(s)</b>' +
@@ -144,6 +197,10 @@
     document.getElementById("proCity").addEventListener("change", function(){ proState.city=this.value; proState.page=1; drawPros(); });
     document.getElementById("proCat").addEventListener("change", function(){ proState.category=this.value; proState.page=1; drawPros(); });
     document.getElementById("proVer").addEventListener("change", function(){ proState.verification=this.value; proState.page=1; drawPros(); });
+    document.getElementById("proPkg").addEventListener("change", function(){ proState.package=this.value; proState.page=1; drawPros(); });
+    document.getElementById("proJob").addEventListener("change", function(){ proState.job=this.value; proState.page=1; drawPros(); });
+    document.getElementById("proRating").addEventListener("change", function(){ proState.rating=this.value; proState.page=1; drawPros(); });
+    document.getElementById("proCreated").addEventListener("change", function(){ proState.created=this.value; proState.page=1; drawPros(); });
     document.getElementById("proStatus").addEventListener("change", function(){ proState.status=this.value; proState.page=1; drawPros(); });
     var head = document.querySelector("thead");
     head.querySelectorAll("th.sortable").forEach(function(th){
@@ -193,12 +250,18 @@
 
   function opts(list, cur){ return list.map(function(o){ return '<option value="'+esc(o)+'" '+sel(o,cur)+'>'+esc(o)+'</option>'; }).join(""); }
   function sel(a, b){ return a === b ? "selected" : ""; }
+  function proCreatedText(p){
+    var d = p.created ? new Date(p.created) : null;
+    if(!d || isNaN(d)) return "—";
+    return d.toLocaleDateString("fr-MA",{day:"2-digit",month:"short",year:"numeric"});
+  }
   function unique(arr){ return arr.filter(function(v,i){ return arr.indexOf(v)===i; }); }
 
   function drawPros(){
     var list = DATA.getProfessionals({
       q: proState.q, city: proState.city, category: proState.category,
-      verification: proState.verification, status: proState.status
+      job: proState.job, verification: proState.verification, subscription: proState.package,
+      minRating: proState.rating, created: proState.created, status: proState.status
     });
     list.sort(function(a,b){
       var va=a[proState.sort], vb=b[proState.sort];
@@ -215,16 +278,17 @@
         '<td>'+esc(p.job)+'</td><td>'+esc(p.city)+'</td>' +
         '<td><span class="star">★</span> '+p.rating+'</td><td>'+p.reviewsCount+'</td>' +
         '<td>'+verBadge(p)+'</td><td>'+pkgBadge(p)+'</td>' +
+        '<td>'+esc(proCreatedText(p))+'</td>' +
         '<td>'+statusBadge(p.status)+'</td>' +
         '<td class="actions-cell">' +
-          '<button class="icon-act" title="Voir" data-view="professionals/'+p.id+'">👁️</button>' +
+          '<button class="icon-act" title="Voir le profil" data-view="professionals/'+p.id+'">👁️</button>' +
           (AUTH.can("professionals","update")?'<button class="icon-act" title="Modifier" data-edit="'+p.id+'">✏️</button>':"") +
           (AUTH.can("professionals","verify")?'<button class="icon-act" title="Vérifier" data-verify="'+p.id+'" style="color:var(--teal)">✅</button>':"") +
           (AUTH.can("professionals","suspend") && (p.status==="active"||p.status==="pending") ?'<button class="icon-act" title="Suspendre" data-suspend="'+p.id+'" style="color:var(--amber)">⏸️</button>':"") +
           (AUTH.can("professionals","activate") && p.status==="suspended" ?'<button class="icon-act" title="Activer" data-activate="'+p.id+'" style="color:var(--green)">▶️</button>':"") +
           (AUTH.can("professionals","delete") ?'<button class="icon-act danger" title="Supprimer" data-del="'+p.id+'">🗑️</button>':"") +
         '</td></tr>';
-    }).join("") : '<tr><td colspan="10"><div class="empty" style="padding:30px">Aucun professionnel trouvé.</div></td></tr>';
+    }).join("") : '<tr><td colspan="11"><div class="empty" style="padding:30px">Aucun professionnel trouvé.</div></td></tr>';
 
     document.querySelectorAll("#proBody .row-check").forEach(function(ch){
       ch.addEventListener("change", function(){ proState.selected[ch.dataset.id] = ch.checked; refreshSelected(); });
@@ -388,13 +452,24 @@
 
         '<div class="grid-2" style="margin-top:20px;align-items:start">' +
           '<div class="card"><div class="card-title">Abonnement</div>' + subSection(sub) + '</div>' +
-          '<div class="card"><div class="card-title">Leads & activité</div><div class="feed" style="margin-top:10px">' +
-            '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt"><b>1 240</b> clics WhatsApp</div></div>' +
-            '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt"><b>842</b> clics téléphone</div></div>' +
-            '<div class="feed-item"><div class="feed-dot orange"></div><div class="f-txt"><b>437</b> demandes de contact</div></div>' +
-            '<div class="feed-item"><div class="feed-dot green"></div><div class="f-txt">Taux de conversion <b>3.4%</b></div></div>' +
+          '<div class="card"><div class="card-title">Leads & performance</div><div class="feed" style="margin-top:10px">' +
+            leadRow("📞","Clics téléphone", p.leads?p.leads.phoneClicks:842) +
+            leadRow("💬","Clics WhatsApp", p.leads?p.leads.whatsappClicks:1240) +
+            leadRow("👁️","Vues profil", p.leads?p.leads.profileViews:(p.leads&&p.leads.phone)||820) +
+            leadRow("🤝","Demandes de contact", p.leads?p.leads.contactRequests:437) +
+            leadRow("📈","Taux de conversion", (p.leads&&p.leads.conversion!==undefined?p.leads.conversion:3.4)+"%") +
           '</div></div>' +
         '</div>' +
+
+        (p.portfolio && p.portfolio.length ? '<div class="card"><div class="card-head"><div class="card-title">Portfolio ('+p.portfolio.length+')</div></div><div class="portfolio-grid">' +
+          p.portfolio.map(function(w){ return '<div class="port-item"><div class="port-thumb">🖼️</div><div class="port-body"><b>'+esc(w.title||w.name||w.label||"")+'</b><div class="muted">'+esc(w.desc||w.description||"")+'</div></div></div>'; }).join("") +
+        '</div></div>' : "") +
+
+        '<div class="card"><div class="card-head"><div class="card-title">Paiements ('+payments.length+')</div><a class="btn btn-ghost btn-small" href="#/admin/payments">Tous les paiements</a></div><div class="table-wrap"><table><thead><tr><th>Référence</th><th>Date</th><th>Montant</th><th>Méthode</th><th>Statut</th></tr></thead><tbody>' +
+          (payments.length ? payments.slice(0,6).map(function(pa){
+            return '<tr><td>'+esc(pa.reference||pa.id)+'</td><td>'+esc(pa.date)+'</td><td>'+pa.amount+' DH</td><td>'+esc(pa.method||"—")+'</td><td>'+statusBadge(pa.status)+'</td></tr>';
+          }).join("") : '<tr><td colspan="5"><div class="empty">Aucun paiement.</div></td></tr>') +
+        '</tbody></table></div></div>' +
 
         '<div class="card"><div class="card-head"><div class="card-title">Avis ('+reviews.length+')</div></div>' +
           (reviews.length ? reviews.map(function(r){
@@ -430,6 +505,7 @@
     '</div>';
   }
   function drow(k, v){ return '<div class="detail-row"><div class="dk">'+esc(k)+'</div><div class="dv">'+v+'</div></div>'; }
+  function leadRow(ico,k,v){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+ico+' '+esc(k)+' — <b>'+esc(v)+'</b></div></div>'; }
   function mkStars(r){ var h=""; for(var i=1;i<=5;i++){ h+='<span class="star">'+(i<=Math.round(r)?"★":"☆")+'</span>'; } return h; }
 
   /* ============================================================
@@ -462,6 +538,7 @@
         '<td>'+esc(u.email)+'</td><td>'+esc(u.phone||"—")+'</td><td>'+esc(cityFr(u.cityId))+'</td><td>'+u.registered+'</td>' +
         '<td>'+userStatusBadge(u.status)+'</td>' +
         '<td class="actions-cell">' +
+          '<button class="icon-act" title="Activité & recherche" data-activity="'+u.id+'" style="color:var(--blue)">🕘</button>' +
           (AUTH.can("users","suspend") && u.status==="active" ? '<button class="icon-act" title="Suspendre" data-susp="'+u.id+'" style="color:var(--amber)">⏸️</button>':"") +
           (AUTH.can("users","suspend") && u.status!=="active" ? '<button class="icon-act" title="Activer" data-act="'+u.id+'" style="color:var(--green)">▶️</button>':"") +
           (AUTH.can("users","delete") ? '<button class="icon-act danger" title="Supprimer" data-del="'+u.id+'">🗑️</button>':"") +
@@ -482,6 +559,21 @@
       UI.confirmAction({title:"Supprimer cet utilisateur ?", message:"Action irréversible.", confirmLabel:"Supprimer", onConfirm:function(){
         DATA._store.users=DATA._store.users.filter(function(u){return u.id!==id;}); UI.toast("Utilisateur supprimé."); drawUsers();
       }});
+    }); });
+    document.querySelectorAll("#uBody [data-activity]").forEach(function(b){ b.addEventListener("click", function(){
+      var id=b.dataset.activity;
+      var u=DATA.getUsers().find(function(x){return x.id===id;});
+      var acts=DATA.getUserActivity(id);
+      UI.openModal(
+        '<h3>Activité — '+esc(u?u.name:id)+'</h3>'+
+        '<p class="muted" style="font-size:13px">Historique de recherche & interactions</p>'+
+        '<div class="feed" style="margin:14px 0">'+
+        (acts.length?acts.map(function(a){ return '<div class="feed-item"><div class="feed-dot '+(a.type||"teal")+'"></div><div class="f-txt">'+esc(a.text)+'</div><div class="f-when">'+esc(a.when)+'</div></div>'; }).join(""):'<div class="empty">Aucune activité.</div>')+
+        '</div>'+
+        '<div class="card-title" style="margin-top:8px">Recherches récentes</div>'+
+        '<div class="chip-grid" style="margin-top:8px">'+(["plombier Casablanca","électricien Rabat","peinture Marrakech","maçon Agadir"].map(function(s){return '<span class="chip">'+esc(s)+'</span>';}).join(""))+'</div>'+
+        '<div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">Fermer</button></div>'
+      , true);
     }); });
   }
   function userStatusBadge(s){ var m={active:["green","Actif"],suspended:["amber","Suspendu"],blocked:["red","Bloqué"],deleted:["gray","Supprimé"]}; var e=m[s]||["gray",s]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
@@ -515,8 +607,13 @@
       var p = DATA.getProfessional(v.professionalId);
       var steps = '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. Identité</span>' +
                   '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. Professionnel</span>';
+      var waiting = slaDays(v.submitted);
+      var slaBadge = v.status==="pending" || v.status==="needs_info"
+        ? '<span class="badge '+(waiting<=1?"green":waiting<=3?"amber":"red")+'">SLA '+waiting+' j</span>' : "";
+      var prio = v.priority ? '<span class="badge '+(v.priority==="high"?"red":"blue")+'">'+ (v.priority==="high"?"Priorité haute":"Priorité") +'</span>' : "";
       return '<div class="req"><div class="req-top"><div class="grow">' +
         '<div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div><div class="pro-name">'+esc(p?p.name:"?")+'</div><div class="pro-job">'+esc(p?p.job+" · "+p.city:"")+'</div></div></div></div>' +
+        slaBadge + prio +
         '<span class="badge '+(v.status==="pending"?"amber":v.status==="approved"?"green":"red")+'">'+esc(v.status)+'</span></div>' +
         '<div class="verif-steps">'+steps+'</div>' +
         '<div class="muted" style="margin-top:8px">Soumis le '+v.submitted+' · '+v.level+'</div>' +
@@ -552,6 +649,11 @@
     }});
   }
   function currentFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.tab:"all"; }
+  function slaDays(dateStr){
+    var d = new Date(dateStr);
+    if(isNaN(d)) return 0;
+    return Math.max(0, Math.floor((Date.now() - d.getTime())/864e5));
+  }
   function updatePillsSafe(){ try{ UI.setActiveNav("verification"); }catch(e){} }
   function rejectVer(id){
     UI.confirmAction({ title:"Rejeter cette vérification ?", reasonRequired:true, reasonLabel:"Raison du rejet", confirmLabel:"Rejeter", onConfirm:function(reason){
@@ -623,7 +725,7 @@
             '<div class="muted">FR: '+esc(c.label.fr)+' · AR: '+esc(c.label.ar)+' · EN: '+esc(c.label.en)+'</div>'+
             '<div class="chip-grid" style="margin-top:8px">'+(c.services||[]).map(function(s){ return '<span class="chip">'+esc(s.label.fr)+'</span>'; }).join("")+'</div></div>'+
             '<span class="badge '+(c.active?"green":"gray")+'">'+(c.active?"Actif":"Inactif")+'</span>'+
-            (AUTH.can("categories","update")?'<button class="icon-act" data-delcat="'+c.id+'" title="Supprimer">🗑️</button>':"")+'</div>';
+            (AUTH.can("categories","update")?'<button class="icon-act" data-togcat="'+c.id+'" title="'+(c.active?"Désactiver":"Activer")+'">'+(c.active?"⏸️":"▶️")+'</button><button class="icon-act" data-editcat="'+c.id+'" title="Modifier">✏️</button><button class="icon-act" data-delcat="'+c.id+'" title="Supprimer">🗑️</button>':"")+'</div>';
         }).join("") +
       '</div><div class="card"><div class="card-title">Structure</div><div class="muted" style="margin-top:8px">Catégorie → Services (normalisés multilingue FR/AR/EN).<br>Exemple : Plomberie → Fuite d’eau, Débouchage, Chauffe-eau, Installation.</div></div></div>'
     );
@@ -637,6 +739,14 @@
       var fr=prompt("Nom (FR) :"), ar=prompt("Nom (AR) :"), en=prompt("Nom (EN) :"), ic=prompt("Icône (emoji) :")||"📁";
       if(fr&&fr.trim()){ DATA._store.categories.push({id:"CAT-"+Date.now(), code:"", icon:ic, order:DATA._store.categories.length+1, active:true, label:{fr:fr.trim(),ar:ar||"",en:en||""}, services:[]}); UI.toast("Catégorie ajoutée."); renderCategories(); }
     });
+    document.querySelectorAll("[data-togcat]").forEach(function(b){ b.addEventListener("click", function(){
+      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.togcat;}); if(c){ c.active=!c.active; DATA.logAudit({admin:AUTH.getSession().name, action:c.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED", entity:"Category", entityId:c.id, result:c.active?"Active":"Inactive"}); UI.toast("Catégorie "+(c.active?"activée":"désactivée")+"."); renderCategories(); }
+    }); });
+    document.querySelectorAll("[data-editcat]").forEach(function(b){ b.addEventListener("click", function(){
+      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.editcat;});
+      var fr=prompt("Nom (FR) :", c.label.fr), ar=prompt("Nom (AR) :", c.label.ar), en=prompt("Nom (EN) :", c.label.en);
+      if(fr!==null){ c.label.fr=fr||c.label.fr; c.label.ar=ar===null?c.label.ar:ar; c.label.en=en===null?c.label.en:en; DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:c.id, result:"Updated"}); UI.toast("Catégorie modifiée."); renderCategories(); }
+    }); });
   }
 
   function renderCities(){
@@ -646,12 +756,20 @@
       '<div class="page-head"><h1>Villes & localisation</h1></div>' +
       (AUTH.can("cities","update")?'<div class="card" style="margin-top:0"><div class="card-title">Structure Région → Villes → Quartiers</div></div>':"") +
       regions.map(function(r){
-        return '<div class="card"><div class="card-head"><div class="card-title">'+esc(r.name.fr)+'</div></div>' + r.cities.map(function(c){
+        return '<div class="card"><div class="card-head"><div class="card-title">'+esc(r.name.fr)+'</div>'+
+          (AUTH.can("cities","update")?'<button class="btn btn-ghost btn-small" data-addcity="'+r.id+'">+ Ville</button>':"")+'</div>' + r.cities.map(function(c){
           return '<div class="row-item"><div class="grow"><b>'+esc(c.name.fr)+'</b> <span class="muted">('+esc(c.name.ar)+' / '+esc(c.name.en)+')</span>'+
-            '<div class="chip-grid" style="margin-top:8px">'+(c.neighborhoods||[]).map(function(n){return '<span class="chip">'+esc(n)+'</span>';}).join("")+'</div></div></div>';
+            '<div class="chip-grid" style="margin-top:8px">'+(c.neighborhoods||[]).map(function(n){return '<span class="chip">'+esc(n)+'</span>';}).join("")+'</div></div>'+
+            (AUTH.can("cities","update")?'<button class="icon-act danger" data-delcity="'+r.id+'" data-cid="'+c.id+'" title="Supprimer">🗑️</button>':"")+'</div>';
         }).join("") + '</div>';
       }).join("")
     );
+    document.querySelectorAll("[data-addcity]").forEach(function(b){ b.addEventListener("click", function(){
+      var n=prompt("Nom de la ville (FR) :"); if(n&&n.trim()){ var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.addcity;}); if(rr){ rr.cities.push({id:"CTY-"+Date.now(), name:{fr:n.trim(),ar:"",en:n.trim()}, neighborhoods:[]}); UI.toast("Ville ajoutée."); renderCities(); } }
+    }); });
+    document.querySelectorAll("[data-delcity]").forEach(function(b){ b.addEventListener("click", function(){
+      var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.delcity;}); if(rr){ rr.cities=rr.cities.filter(function(c){return c.id!==b.dataset.cid;}); UI.toast("Ville supprimée."); renderCities(); }
+    }); });
   }
 
   /* ============================================================
@@ -679,17 +797,20 @@
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>Client</th><th>Professionnel</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>' +
       list.map(function(r){
         var p = DATA.getProfessional(r.professionalId);
-        return '<tr><td><b>'+esc(r.customer)+'</b></td><td>'+esc(p?p.name:"—")+'</td><td>'+mkStars(r.rating)+'</td><td style="max-width:260px">'+esc(r.comment)+'</td><td>'+r.date+'</td><td>'+revStatus(r.status)+'</td>'+
+        var flagInfo = r.status==="flagged" ? '<div class="muted" style="margin-top:4px;color:var(--red)">🚩 '+(r.flaggedReason||"Signalé")+'</div>' : "";
+        return '<tr><td><b>'+esc(r.customer)+'</b></td><td>'+esc(p?p.name:"—")+'</td><td>'+mkStars(r.rating)+'</td><td style="max-width:240px">'+esc(r.comment)+flagInfo+'</td><td>'+r.date+'</td><td>'+revStatus(r.status)+'</td>'+
           '<td class="actions-cell">'+
             (AUTH.can("reviews","moderate") && r.status!=="published" ? '<button class="icon-act" data-pub="'+r.id+'" title="Publier" style="color:var(--green)">✓</button>':"") +
+            (AUTH.can("reviews","moderate") && (r.status==="hidden") ? '<button class="icon-act" data-rst="'+r.id+'" title="Restaurer" style="color:var(--teal)">♻️</button>':"") +
             (AUTH.can("reviews","moderate") && r.status!=="flagged" ? '<button class="icon-act" data-flag="'+r.id+'" title="Signaler/suspect" style="color:var(--amber)">🚩</button>':"") +
             (AUTH.can("reviews","moderate") ? '<button class="icon-act" data-hide="'+r.id+'" title="Masquer" style="color:var(--muted)">🙈</button>':"") +
             (AUTH.can("reviews","delete") ? '<button class="icon-act danger" data-delrev="'+r.id+'" title="Supprimer">🗑️</button>':"") +
           '</td></tr>';
       }).join("") + '</tbody></table></div></div>';
     document.querySelectorAll("[data-pub]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.pub, "published"); }); });
-    document.querySelectorAll("[data-flag]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.flag, "flagged"); }); });
+    document.querySelectorAll("[data-flag]").forEach(function(b){ b.addEventListener("click", function(){ flagRev(b.dataset.flag); }); });
     document.querySelectorAll("[data-hide]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.hide, "hidden"); }); });
+    document.querySelectorAll("[data-rst]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.rst, "published"); }); });
     document.querySelectorAll("[data-delrev]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.delrev;
       UI.confirmAction({title:"Supprimer cet avis ?", confirmLabel:"Supprimer", onConfirm:function(){
@@ -699,6 +820,13 @@
   }
   function currentReviewFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
   function setRev(id, status){ var r=DATA._store.reviews.find(function(x){return x.id===id;}); if(r){ r.status=status; DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_"+status.toUpperCase(), entity:"Review", entityId:id, result:status}); UI.toast("Avis "+status+"."); drawReviews(currentReviewFilter()); } }
+  function flagRev(id){
+    UI.confirmAction({ title:"Signaler cet avis ?", reasonRequired:true, reasonLabel:"Raison du signalement", confirmLabel:"Signaler", onConfirm:function(reason){
+      var r=DATA._store.reviews.find(function(x){return x.id===id;}); if(r){ r.status="flagged"; r.flaggedReason=reason; }
+      DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_FLAGGED", entity:"Review", entityId:id, result:"Flagged", note:reason});
+      UI.toast("Avis signalé."); drawReviews(currentReviewFilter());
+    }});
+  }
   function revStatus(s){ var m={published:["green","Publié"],pending:["amber","En attente"],flagged:["red","Signalé"],hidden:["gray","Masqué"],deleted:["gray","Supprimé"]}; var e=m[s]||["gray",s]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
 
   /* ============================================================
@@ -731,6 +859,8 @@
         '<div class="muted" style="margin:8px 0">'+esc(r.description)+'<br>Signalé par '+esc(r.reporter)+' le '+r.date+'</div>'+
         '<div class="req-actions">'+
           '<button class="btn btn-ghost btn-small" data-viewpro="'+r.professionalId+'">👤 Voir</button>'+
+          (AUTH.can("reports","resolve")?
+            '<button class="btn btn-ghost btn-small" data-assignrep="'+r.id+'" title="Assigner à un modérateur">👥 Assigner'+(r.assignedTo?(" · "+esc(DATA.adminName(r.assignedTo))):"")+'</button>' : "")+
           (r.status!=="resolved"?
             '<button class="btn btn-primary btn-small" data-resolve="'+r.id+'" '+(AUTH.can("reports","resolve")?"":"disabled")+'>✓ Résoudre</button>'+
             '<button class="btn btn-danger btn-small" data-warn="'+r.id+'" '+(AUTH.can("reports","warn")?"":"disabled")+'>⚠️ Avertir</button>'+
@@ -751,6 +881,34 @@
         var r=DATA._store.reports.find(function(x){return x.id===b.dataset.susprof;}); if(r){ DATA.updateProfessional(r.professionalId,{status:"suspended"}); r.status="resolved"; DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:r.professionalId, result:"Suspended", note:reason}); } UI.toast("Professionnel suspendu."); drawReports(currentReportFilter());
       }});
     }); });
+    document.querySelectorAll("[data-assignrep]").forEach(function(b){ b.addEventListener("click", function(){
+      assignReport(b.dataset.assignrep);
+    }); });
+  }
+  function assignReport(id){
+    var admins = DATA.getAdminUsers();
+    var r = DATA._store.reports.find(function(x){return x.id===id;});
+    UI.openModal(
+      '<h3>Assigner le signalement '+esc(id)+'</h3>'+
+      '<p class="muted" style="font-size:13px">Choisir un modérateur pour traiter ce signalement.</p>'+
+      '<div class="assign-list" style="margin:14px 0">'+
+      admins.filter(function(a){return a.status==="active";}).map(function(a){
+        return '<div class="assign-row" data-aid="'+a.id+'" style="cursor:pointer;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">'+
+          '<div><b>'+esc(a.name)+'</b><div class="muted" style="font-size:12px">'+esc(a.role)+'</div></div>'+
+          (r&&r.assignedTo===a.id?'<span class="badge green">Assigné</span>':'<span class="badge gray">Assigner</span>')+
+        '</div>';
+      }).join("")+
+      '</div>'+
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">Annuler</button></div>'
+    , true);
+    document.querySelectorAll(".assign-row").forEach(function(row){
+      row.addEventListener("click", function(){
+        var aid=row.dataset.aid;
+        DATA.assignTask("report", id, aid);
+        DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_ASSIGNED", entity:"Report", entityId:id, result:"Assigned", note:DATA.adminName(aid)});
+        UI.toast("Signalement assigné."); UI.closeModal(); drawReports(currentReportFilter());
+      });
+    });
   }
   function currentReportFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
   function setReport(id, status){ var r=DATA._store.reports.find(function(x){return x.id===id;}); if(r){ r.status=status; DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_"+status.toUpperCase(), entity:"Report", entityId:id, result:status}); UI.toast("Signalement "+status+"."); drawReports(currentReportFilter()); } }
@@ -769,9 +927,21 @@
           '<div class="p-price">'+pl.price+' <span class="muted small">DH / '+esc(pl.period)+'</span></div>'+
           '<div class="muted" style="margin:4px 0 10px">'+esc(pl.description)+'</div>'+
           '<span class="badge '+(pl.active?"green":"gray")+'">'+(pl.active?"Actif":"Inactif")+'</span> <span class="muted small">· '+count+' abonné(s)</span>'+
-          (AUTH.can("subscriptions","update")?'<div class="modal-actions" style="margin-top:14px;justify-content:flex-start"><button class="btn btn-ghost btn-small" data-subsedit="'+pl.id+'">✏️ Modifier</button><button class="btn btn-ghost btn-small" data-subsview="'+pl.id+'">Abonnés</button></div>':"")+
+          (AUTH.can("subscriptions","update")?'<div class="modal-actions" style="margin-top:14px;justify-content:flex-start"><button class="btn btn-ghost btn-small" data-subsedit="'+pl.id+'">✏️ Modifier</button><button class="btn btn-ghost btn-small" data-subsview="'+pl.id+'">Abonnés</button><button class="btn btn-ghost btn-small" data-substoggle="'+pl.id+'">'+(pl.active?"⏸️ Désactiver":"▶️ Activer")+'</button></div>':"")+
           '</div>';
       }).join("") + '</div>' +
+      '<div class="card"><div class="card-head"><div class="card-title">Comparatif des offres</div><span class="muted small">* Le badge Professionnel Vérifié dépend d’une vérification distincte (indépendante de l’abonnement).</span></div>'+
+        '<div class="table-wrap"><table class="matrix"><thead><tr><th>Avantage</th>'+ plans.map(function(pl){ return '<th>'+esc(pl.name)+'</th>'; }).join("") +'</tr></thead><tbody>'+
+        '<tr><td><b>Prix</b></td>'+ plans.map(function(pl){ return '<td><b>'+pl.price+' DH</b></td>'; }).join("") +'</tr>'+
+        '<tr><td>Profil de base</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Profil de base")>-1)+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Réception de leads</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Réception de leads")>-1)+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Téléphone / WhatsApp</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Téléphone / WhatsApp")>-1)+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Badge Professionnel Vérifié *</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.name!=="GRATUIT")+' <span class="muted small">*</span></td>'; }).join("") +'</tr>'+
+        '<tr><td>Portfolio professionnel</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Portfolio/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Statistiques avancées</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Statistiques avanc/.test(a);}))+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Support prioritaire / VIP</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Support|VIP/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
+        '<tr><td>Placement premium</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /placement premium/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
+        '</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">Abonnés</div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Professionnel</th><th>Plan</th><th>Prix</th><th>Début</th><th>Renouvellement</th><th>Statut</th><th>Paiement</th></tr></thead><tbody>'+
       subs.map(function(s){
         var p=DATA.getProfessional(s.professionalId);
@@ -783,7 +953,15 @@
     UI.setContent(html);
     document.querySelectorAll("[data-subsedit]").forEach(function(b){ b.addEventListener("click", function(){ editPlan(b.dataset.subsedit); }); });
     document.querySelectorAll("[data-subsview]").forEach(function(b){ b.addEventListener("click", function(){ viewPlanSubs(b.dataset.subsview); }); });
+    document.querySelectorAll("[data-substoggle]").forEach(function(b){ b.addEventListener("click", function(){
+      var pl = DATA.getSubscriptionPlans().find(function(x){ return x.id===b.dataset.substoggle; });
+      var toActive = !pl.active;
+      DATA.setPlanActive(pl.id, toActive);
+      DATA.logAudit({admin:AUTH.getSession().name, action: toActive?"SUBSCRIPTION_PLAN_ACTIVATED":"SUBSCRIPTION_PLAN_DEACTIVATED", entity:"SubscriptionPlan", entityId:pl.id, result: toActive?"Active":"Inactive"});
+      UI.toast("Plan "+(toActive?"activé":"désactivé")+"."); renderSubscriptions();
+    }); });
   }
+  function tick(on){ return on ? '<span class="tick yes">✓</span>' : '<span class="tick no">—</span>'; }
   function payStatusBadge(s){ var m={confirmed:["green","Confirmé"],pending:["amber","En attente"],rejected:["red","Rejeté"],refunded:["gray","Remboursé"]}; var e=m[s]||["gray",s]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
   function editPlan(id){
     var pl = DATA.getSubscriptionPlans().find(function(x){ return x.id===id; });
@@ -818,20 +996,23 @@
       pays.map(function(pa){
         var p = DATA.getProfessional(pa.professionalId);
         return '<tr><td><b>'+esc(pa.reference)+'</b></td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
-          '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+esc(pa.method==="bank_transfer"?"🏦 Virement":pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+pa.date+'</td>'+
+          '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+payMethodBadge(pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+pa.date+'</td>'+
           '<td>'+payStatusBadge(pa.status)+'</td>'+
           '<td class="actions-cell">'+
             (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="Confirmer" style="color:var(--green)">✓</button>' : "") +
             (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="Rejeter">✖</button>' : "") +
+            (AUTH.can("payments","update") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="Demander des informations" style="color:var(--amber)">💡</button>' : "") +
             '<button class="icon-act" data-whats="'+pa.id+'" title="Discuter sur WhatsApp">💬</button>' +
           '</td></tr>';
       }).join("") + '</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">Workflow virement bancaire</div>' +
       '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. Professionnel choisit le plan</span><span class="step current">2. Virement bancaire</span><span class="step">3. Reçu téléversé</span><span class="step">4. Paiement = En attente</span><span class="step">5. Finance/Admin vérifie</span><span class="step">6. Confirmer/Rejeter</span><span class="step">7. Abonnement activé</span></div>' +
-      '<p class="muted" style="margin-top:12px">La confirmation du paiement se fait après vérification du virement. Les réceptions de confirmation sont échangées via WhatsApp.</p></div>'
+      '<p class="muted" style="margin-top:12px">La confirmation du paiement se fait après vérification du virement. Les réceptions de confirmation sont échangées via WhatsApp.</p></div>' +
+      '<div class="card"><div class="card-title">Paiement en ligne (carte)</div><p class="muted" style="margin:8px 0">L’intégration du prestataire de paiement par carte (CMI / paymob / autre) est prévue comme prochaine étape. Actuellement, tous les paiements passent par virement bancaire manuel.</p><span class="badge gray">🔧 Bientôt disponible</span></div>'
     );
     document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(b.dataset.confp); }); });
     document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(b.dataset.rejp); }); });
+    document.querySelectorAll("[data-infop]").forEach(function(b){ b.addEventListener("click", function(){ requestPaymentInfo(b.dataset.infop); }); });
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
       var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
@@ -845,11 +1026,19 @@
   }
   function rejectPayment(id){
     UI.confirmAction({ title:"Rejeter ce paiement ?", reasonRequired:true, reasonLabel:"Raison du rejet", confirmLabel:"Rejeter", onConfirm:function(reason){
-      DATA.rejectPayment(id);
+      DATA.rejectPayment(id, reason);
       DATA.logAudit({admin:AUTH.getSession().name, action:"REJECT_PAYMENT", entity:"Payment", entityId:id, result:"Rejected", note:reason});
       UI.toast("Paiement rejeté."); renderPayments();
     }});
   }
+  function requestPaymentInfo(id){
+    UI.confirmAction({ title:"Demander des informations", reasonRequired:true, reasonLabel:"Note au professionnel", confirmLabel:"Envoyer", onConfirm:function(note){
+      DATA.requestPaymentInfo(id, note);
+      DATA.logAudit({admin:AUTH.getSession().name, action:"PAYMENT_INFO_REQUESTED", entity:"Payment", entityId:id, result:"Needs info", note:note});
+      UI.toast("Demande d'information envoyée."); renderPayments();
+    }});
+  }
+  function payMethodBadge(m){ var map={ bank_transfer:["blue","🏦 Virement"], card:["purple","💳 Carte"], cash:["green","💵 Espèces"], paypal:["amber","🅿️ PayPal"] }; var e=map[m]||["gray",m||"—"]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
 
   /* ============================================================
      ANALYTICS
@@ -859,21 +1048,41 @@
   function renderAnalytics(){
     UI.setTitle("Analytiques");
     var a = DATA.getAnalytics();
+    var slice = a.visits.slice();
+    var fLbl = {"today":"Aujourd'hui","7d":"7 jours","30d":"30 jours","90d":"90 jours","12m":"12 mois","custom":"Période"}[analyticsFilter];
+    function sub(ar){ return ar.slice(-periodN()); }
+    function periodN(){
+      var m={ today:1, "7d":2, "30d":6, "90d":9, "12m":12, custom:12 };
+      return m[analyticsFilter]||12;
+    }
+    function sum(ar){ return ar.reduce(function(x,y){return x+y;},0); }
+    function last(ar){ return ar.length?ar[ar.length-1]:0; }
+    var visits = sub(a.visits), signups = sub(a.signups), mrr = sub(a.mrr), churn = sub(a.churn), conv = sub(a.conversion);
     var html =
       '<div class="page-head"><h1>Analytiques</h1><div class="spacer"><div class="tabs" style="border:none;padding:0;margin:0">'+
-        ["today","7d","30d","90d","12m"].map(function(f){ return '<button class="tab '+(f===analyticsFilter?"active":"")+'" data-f="'+f+'">'+{"today":"Aujourd'hui","7d":"7 jours","30d":"30 jours","90d":"90 jours","12m":"12 mois"}[f]+'</button>'; }).join("")+
+        ["today","7d","30d","90d","12m","custom"].map(function(f){ return '<button class="tab '+(f===analyticsFilter?"active":"")+'" data-f="'+f+'">'+{"today":"Aujourd'hui","7d":"7 jours","30d":"30 jours","90d":"90 jours","12m":"12 mois","custom":"Période"}[f]+'</button>'; }).join("")+
       '</div></div></div>' +
       '<div class="kpi-grid grid-4">'+
-        kpiCard("Utilisateurs", "👥", "8 492","▲ 8,2%","up") + kpiCard("Recherches", "🔍", "1 845","▲ 18%","up") +
-        kpiCard("Demandes de contact", "📞", secara(a.leads.contact),"▲ 6%","up") + kpiCard("Revenus", "💰", "67 430 DH","▲ 9,7%","up") +
+        kpiCard("Utilisateurs", "👥", "8 492","▲ 8,2%","up") + kpiCard("Recherches", "🔍", secara(sum(visits)),"▲ 18%","up") +
+        kpiCard("Demandes de contact", "📞", secara(sum(signups)*22),"▲ 6%","up") + kpiCard("MRR ("+fLbl+")", "💰", secara(last(mrr))+" DH", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"▲ 9,7%":"▽ 1,2%", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"up":"down") +
       '</div>' +
       '<div class="grid-2" style="margin-top:20px">'+
-        '<div class="card"><div class="card-title">Visites (12 mois)</div><div class="chart-bars">'+bars(a.visits)+'</div></div>'+
-        '<div class="card"><div class="card-title">Nouvelles inscriptions</div><div class="chart-bars">'+bars(a.signups, true)+'</div></div>'+
+        '<div class="card"><div class="card-title">Visites ('+fLbl+')</div><div class="chart-bars">'+bars(visits)+'</div></div>'+
+        '<div class="card"><div class="card-title">MRR (récurrent mensuel) — DH</div><div class="chart-bars">'+bars(mrr)+'</div></div>'+
+      '</div>' +
+      '<div class="grid-2" style="margin-top:20px">'+
+        '<div class="card"><div class="card-title">Taux de conversion (%)</div><div class="chart-bars">'+bars(conv)+'</div></div>'+
+        '<div class="card"><div class="card-title">Churn (%)</div><div class="chart-bars">'+bars(churn)+'</div></div>'+
+      '</div>' +
+      '<div class="kpi-grid grid-4" style="margin-top:20px">'+
+        '<div class="kpi"><div class="k-title">Vérifiés</div><div class="k-val">'+ (a.verifiedPercent||54)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">GOLD</div><div class="k-val">'+(a.goldPercent||26)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">Free → Payant</div><div class="k-val">'+(a.freeToPaid||12.4)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">Note moyenne</div><div class="k-val">★ '+(a.avgRating||4.6)+'</div></div>'+
       '</div>' +
       '<div class="grid-2" style="margin-top:20px;align-items:start">'+
         '<div class="card"><div class="card-title">Top services</div>' + a.topServices.map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
-        '<div class="card"><div class="card-title">Top villes</div>' + a.topCities.map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
+        '<div class="card"><div class="card-title">Recherches sans résultat</div>' + bars(sub(a.failedSearches)) + '</div>'+
       '</div>';
     UI.setContent(html);
     document.querySelectorAll(".tab[data-f]").forEach(function(t){ t.addEventListener("click", function(){ analyticsFilter=t.dataset.f; renderAnalytics(); }); });
@@ -891,31 +1100,65 @@
   function renderAI(){
     UI.setTitle("AI Center");
     var html =
-      '<div class="page-head"><h1>AI Center</h1><div class="spacer"><span class="badge purple">Bientôt disponible</span></div></div>' +
-      '<div class="card"><div class="card-title">Recherche IA</div>' +
+      '<div class="page-head"><h1>AI Center</h1><div class="spacer"><span class="badge purple">Prototype</span></div></div>' +
+      '<div class="card"><div class="card-title">Recherche IA — testez une requête</div>' +
         '<p class="muted">Interprétation d\'une requête utilisateur en service, localisation et disponibilité.</p>' +
-        '<div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
+        '<div class="toolbar"><div class="field grow"><label>Requête utilisateur</label><input type="text" id="aiQuery" placeholder="Ex : plombier à Casablanca disponible aujourd\'hui"></div>'+
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="aiRun">Interpréter</button></div></div>' +
+        '<div id="aiResult"><div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
           '<div class="muted" style="margin-bottom:8px"><b>Requête utilisateur :</b> « بغيت شي معلم ديال الجبس قريب ليا اليوم »</div>'+
           '<div class="verif-steps"><span class="step done">Service : Plâtrerie</span><span class="step done">Localisation : Position utilisateur</span><span class="step done">Disponibilité : Aujourd\'hui</span></div>'+
-        '</div></div>' +
+        '</div></div></div>' +
       '<div class="card"><div class="card-title">Capacités futures</div><div class="kpi-grid grid-3" style="margin-top:12px">'+
         '<div class="kpi"><div class="k-title">Recherche IA</div><div class="k-val" style="font-size:20px">Requête → service</div></div>'+
         '<div class="kpi"><div class="k-title">Mise en relation</div><div class="k-val" style="font-size:20px">Matching pro</div></div>'+
         '<div class="kpi"><div class="k-title">Assistant profil</div><div class="k-val" style="font-size:20px">Descriptions IA</div></div>'+
       '</div></div>';
     UI.setContent(html);
+    function parseQuery(q){
+      q=q.toLowerCase();
+      var services={ plombier:"Plomberie", "plombier":"Plomberie", electricien:"Électricité", électricien:"Électricité", menuisier:"Menuiserie", maçon:"Maçonnerie", "معلّم":"Maçonnerie", peintre:"Peinture", "djib":"Plâtrerie", "جبس":"Plâtrerie", coiffeur:"Coiffure", "مكوى":"Coiffure" };
+      var svc=null; for(var k in services){ if(q.indexOf(k)>-1){ svc=services[k]; break; } } svc = svc || (q.indexOf("eau")>-1||q.indexOf("فايض")>-1?"Plomberie":(q.indexOf("نور")>-1?"Électricité":"Plâtrerie"));
+      var cities=["Casablanca","Rabat","Marrakech","Fès","Agadir","Tanger"]; var city=null; cities.forEach(function(c){ if(q.indexOf(c.toLowerCase())>-1) city=c; }); city=city||"Position utilisateur";
+      var avail = (q.indexOf("aujourd")>-1||q.indexOf("اليوم")>-1||q.indexOf("auj")>-1)?"Aujourd'hui":(q.indexOf("demain")>-1||q.indexOf("غدا")>-1)?"Demain":"À définir";
+      return { svc:svc, city:city, avail:avail };
+    }
+    function render(res){
+      document.getElementById("aiResult").innerHTML = '<div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
+        '<div class="verif-steps"><span class="step done">Service : '+esc(res.svc)+'</span><span class="step done">Localisation : '+esc(res.city)+'</span><span class="step done">Disponibilité : '+esc(res.avail)+'</span></div></div>';
+    }
+    document.getElementById("aiRun").addEventListener("click", function(){
+      var q=document.getElementById("aiQuery").value.trim();
+      if(!q){ UI.toast("Saisissez une requête.", true); return; }
+      UI.toast("Interprétation en cours…"); setTimeout(function(){ render(parseQuery(q)); }, 350);
+    });
+    document.getElementById("aiQuery").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("aiRun").click(); });
   }
 
   /* ============================================================
      NOTIFICATIONS, SETTINGS, ADMIN USERS, AUDIT
      ============================================================ */
+  var notifFilter = "all";
   function renderNotifications(){
     UI.setTitle("Notifications");
     var list = DATA.getNotifications();
-    UI.setContent('<div class="page-head"><h1>Notifications</h1></div><div class="card">'+
-      (list.length ? list.map(function(n){ return '<div class="row-item"><span>'+(n.unread?'<span class="badge teal">Nouveau</span> ':'')+'</span><div class="grow">'+esc(n.text)+'<br><span class="muted">'+esc(n.when)+'</span></div></div>'; }).join("") : '<div class="empty">Aucune notification.</div>') +
+    var cats = { all:"Toutes", payment:"Paiement", verification:"Vérification", sub:"Abonnement", report:"Signalement", review:"Avis", system:"Système" };
+    var filtered = notifFilter==="all" ? list : list.filter(function(n){ var t=n.type||n.cat||n.ico; return t===notifFilter || (notifFilter==="sub"&&t==="subscription"); });
+    var unread = list.filter(function(n){return n.unread;}).length;
+    UI.setContent('<div class="page-head"><h1>Notifications</h1><div class="spacer">'+
+      (AUTH.can("notifications","read") && unread ? '<button class="btn btn-soft" id="markAll">Tout marquer lu</button>' : "")+'</div></div>' +
+      '<div class="tabs"><button class="tab '+(notifFilter==="all"?"active":"")+'" data-nf="all">Toutes <span class="cnt">'+list.length+'</span></button>'+
+        ['payment','verification','sub','report','review','system'].map(function(c){ var n=list.filter(function(x){ var t=x.type||x.cat||x.ico; return t===c || (c==="sub"&&t==="subscription"); }).length; return '<button class="tab '+(notifFilter===c?"active":"")+'" data-nf="'+c+'">'+esc(cats[c])+' <span class="cnt">'+n+'</span></button>'; }).join("")+
+      '</div><div class="card">'+
+      (filtered.length ? filtered.map(function(n){
+        return '<div class="row-item" data-nav="'+(n.route||"")+'"><span class="n-ico '+(n.type||"teal")+'">'+notifIcon(n.type||n.cat||n.ico)+'</span><div class="grow">'+(n.unread?'<span class="badge teal">Nouveau</span> ':'')+esc(n.text)+'<br><span class="muted">'+esc(n.when)+'</span></div>'+(n.unread?'<span class="dot unread"></span>':'')+'</div>';
+      }).join("") : '<div class="empty">Aucune notification.</div>') +
       '</div>');
+    document.querySelectorAll(".tab[data-nf]").forEach(function(t){ t.addEventListener("click", function(){ notifFilter=t.dataset.nf; renderNotifications(); }); });
+    document.querySelectorAll("[data-nav]").forEach(function(row){ row.addEventListener("click", function(){ var r=row.dataset.nav; if(r) ROUTER.navigate(r); }); });
+    var ma = document.getElementById("markAll"); if(ma) ma.addEventListener("click", function(){ DATA.markNotificationsRead(); UI.toast("Toutes les notifications lues."); renderNotifications(); });
   }
+  function notifIcon(k){ var m={ payment:"💰", verification:"✅", sub:"📦", subscription:"📦", report:"🚩", review:"⭐", search:"🔍", view:"👁️", contact:"🤝", system:"🔔" }; return m[k]||"🔔"; }
 
   function renderSettings(){
     UI.setTitle("Réglages");
@@ -963,7 +1206,14 @@
         return '<tr><td><div class="pro"><div class="p-avatar">'+initials(u.name)+'</div><div class="pro-name">'+esc(u.name)+'</div></div></td><td>'+esc(u.email)+'</td>'+
           '<td><span class="badge '+rl.color+'">'+esc(rl.label)+'</span></td><td>'+userStatusBadge(u.status)+'</td><td>'+u.lastLogin+'</td><td>'+u.created+'</td>'+
           '<td class="actions-cell">'+(AUTH.can("adminUsers","update")?'<button class="icon-act" data-editau="'+u.id+'">✏️</button>':"")+'</td></tr>';
-      }).join("") + '</tbody></table></div></div>');
+      }).join("") + '</tbody></table></div></div>'+
+      '<div class="card" style="margin-top:20px"><div class="card-head"><div class="card-title">Matrice de permissions (RBAC)</div></div><div class="table-wrap"><table class="matrix"><thead><tr><th>Ressource</th>'+
+        Object.keys(AUTH.roles).map(function(r){ return '<th>'+esc(AUTH.roles[r].label)+'</th>'; }).join("")+'</tr></thead><tbody>'+
+        Object.keys(DATA.permissionsCatalog).map(function(res){
+          return '<tr><td><b>'+esc(res)+'</b><div class="muted" style="font-size:11px">'+(DATA.permissionsCatalog[res].join(", "))+'</div></td>'+
+            Object.keys(AUTH.roles).map(function(r){ var perms=AUTH.roles[r].permissions; return '<td>'+(perms[res]&&perms[res].length?tick(true):tick(false))+'</td>'; }).join("")+'</tr>';
+        }).join("")+
+      '</tbody></table></div></div>');
     if(AUTH.can("adminUsers","update")){
       document.querySelectorAll("[data-editau]").forEach(function(b){ b.addEventListener("click", function(){ editAdminUser(b.dataset.editau); }); });
       document.getElementById("auAdd").addEventListener("click", function(){ editAdminUser(null); });
@@ -987,10 +1237,20 @@
     UI.setTitle("Audit Logs");
     var logs = DATA.getAuditLogs();
     UI.setContent('<div class="page-head"><h1>Audit Logs</h1><div class="spacer">'+(AUTH.can("auditLogs","export")?'<button class="btn btn-ghost" id="auExport">⬇ Exporter</button>':"")+'</div></div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>Horodatage</th><th>Admin</th><th>Action</th><th>Entité</th><th>ID</th><th>Résultat</th><th>Note</th></tr></thead><tbody>'+
-      logs.map(function(l){ return '<tr><td>'+esc(l.timestamp)+'</td><td>'+esc(l.admin)+'</td><td><code>'+esc(l.action)+'</code></td><td>'+esc(l.entity)+'</td><td>'+esc(l.entityId)+(l.prev?'<div class="muted">'+esc(l.prev)+' → '+esc(l.next)+'</div>':"")+'</td>'+
-        '<td><span class="badge '+(String(l.result).toLowerCase()==="success"||String(l.result).toLowerCase()==="approved"||String(l.result).toLowerCase()==="confirmed"?"green":"amber")+'">'+esc(l.result)+'</span></td><td class="muted">'+esc(l.note||"—")+'</td></tr>'; }).join("") +
-      '</tbody></table></div></div>');
+      '<div class="card"><div class="toolbar"><div class="field"><label>Recherche</label><input type="search" id="auQ" placeholder="Action, admin, entité, ID..."></div>'+
+        '<div class="field"><label>Résultat</label><select id="auRes"><option value="">Tous</option><option>Success</option><option>Approved</option><option>Rejected</option><option>Flagged</option><option>Updated</option></select></div></div>'+
+      '<div class="table-wrap"><table><thead><tr><th>Horodatage</th><th>Admin</th><th>Action</th><th>Entité</th><th>ID</th><th>Résultat</th><th>Note</th></tr></thead><tbody id="auBody"></tbody></table></div></div>');
+    function drawAudit(){
+      var q=(document.getElementById("auQ").value||"").toLowerCase();
+      var rs=document.getElementById("auRes").value;
+      var rows=logs.filter(function(l){ return (!q || (l.action+" "+l.admin+" "+l.entity+" "+l.entityId+" "+(l.note||"")).toLowerCase().indexOf(q)>-1) && (!rs || String(l.result)===rs); });
+      document.getElementById("auBody").innerHTML = rows.length ? rows.map(function(l){ return '<tr><td>'+esc(l.timestamp)+'</td><td>'+esc(l.admin)+'</td><td><code>'+esc(l.action)+'</code></td><td>'+esc(l.entity)+'</td><td>'+esc(l.entityId)+(l.prev?'<div class="muted">'+esc(l.prev)+' → '+esc(l.next)+'</div>':"")+'</td>'+
+        '<td><span class="badge '+(String(l.result).toLowerCase()==="success"||String(l.result).toLowerCase()==="approved"||String(l.result).toLowerCase()==="confirmed"?"green":"amber")+'">'+esc(l.result)+'</span></td><td class="muted">'+esc(l.note||"—")+'</td></tr>'; }).join("")
+        : '<tr><td colspan="7"><div class="empty">Aucun résultat.</div></td></tr>';
+    }
+    document.getElementById("auQ").addEventListener("input", UI.debounce(drawAudit, 220));
+    document.getElementById("auRes").addEventListener("change", drawAudit);
+    drawAudit();
     var ex = document.getElementById("auExport"); if(ex) ex.addEventListener("click", function(){
       var rows=[["Timestamp","Admin","Action","Entité","ID","Résultat","Note"]]; logs.forEach(function(l){ rows.push([l.timestamp,l.admin,l.action,l.entity,l.entityId,l.result,l.note||""]); });
       UI.exportCSV("audit-logs-sna3ti.csv", rows); UI.toast("Export généré.");

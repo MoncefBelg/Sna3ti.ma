@@ -190,21 +190,27 @@
       subscriptionPlanId:"PLAN-VERIFIED", subscriptionStatus:"active", verified:true, package:"verified",
       status:"active", available:true, distance:2, phone:"0612345678", email:"yassine.elamrani@mail.ma",
       experience:"12 ans", languages:["français","arabe"], created:"2025-03-12",
-      description:"Plombier professionnel spécialisé dans les installations et dépannages." },
+      description:"Plombier professionnel spécialisé dans les installations et dépannages.",
+      leads:{ profileViews:1240, phoneClicks:842, whatsappClicks:1200, contactRequests:437, conversion:3.4 },
+      portfolio:[ { id:"PF-1", src:"", label:"Installation salle de bain" }, { id:"PF-2", src:"", label:"Dépannage chauffe-eau" } ] },
     { id:"PRO-10295", userId:"USR-2", professionId:"SVC-ELEC-1", name:"Ahmed Benali", job:"Électricien", categoryId:"CAT-ELEC", category:"Électricité",
       cityId:"CITY-RABA", city:"Rabat", area:"Agdal", rating:4.5, reviewsCount:98, price:180,
       identityStatus:"pending", verificationStatus:"pending", professionStatus:"pending",
       subscriptionPlanId:"PLAN-FREE", subscriptionStatus:"active", verified:false, package:"free",
       status:"pending", available:true, distance:5, phone:"0611223344", email:"ahmed.benali@mail.ma",
       experience:"8 ans", languages:["français","anglais"], created:"2025-06-01",
-      description:"Électricien pour installations et dépannages électriques." },
+      description:"Électricien pour installations et dépannages électriques.",
+      leads:{ profileViews:410, phoneClicks:205, whatsappClicks:360, contactRequests:118, conversion:2.1 },
+      portfolio:[ { id:"PF-3", src:"", label:"Tableau électrique" } ] },
     { id:"PRO-10296", userId:"USR-3", professionId:"SVC-MENU-1", name:"Karim Alaoui", job:"Menuisier", categoryId:"CAT-MENU", category:"Menuiserie",
       cityId:"CITY-MARR", city:"Marrakech", area:"Guéliz", rating:4.9, reviewsCount:210, price:200,
       identityStatus:"verified", verificationStatus:"approved", professionStatus:"verified",
       subscriptionPlanId:"PLAN-GOLD", subscriptionStatus:"active", verified:true, package:"gold",
       status:"active", available:true, distance:3, phone:"0622334455", email:"karim.alaoui@mail.ma",
       experience:"20 ans", languages:["français","arabe","amazigh"], created:"2024-11-20",
-      description:"Menuisier d'art, meubles sur mesure et agencements haut de gamme." },
+      description:"Menuisier d'art, meubles sur mesure et agencements haut de gamme.",
+      leads:{ profileViews:2300, phoneClicks:1420, whatsappClicks:1900, contactRequests:621, conversion:4.1 },
+      portfolio:[ { id:"PF-4", src:"", label:"Bibliothèque sur mesure" }, { id:"PF-5", src:"", label:"Dressing GOLD" } ] },
     { id:"PRO-10297", userId:"USR-4", professionId:"SVC-PEIN-1", name:"Omar Tazi", job:"Peintre", categoryId:"CAT-PEIN", category:"Peinture",
       cityId:"CITY-CASA", city:"Casablanca", area:"Gauthier", rating:3.9, reviewsCount:41, price:90,
       identityStatus:"rejected", verificationStatus:"rejected", professionStatus:"rejected",
@@ -229,20 +235,20 @@
   ];
 
   var VERIFICATION_REQUESTS = [
-    { id:"VR-201", professionalId:"PRO-10295", level:"identity", status:"pending", submitted:"2026-08-22",
+    { id:"VR-201", professionalId:"PRO-10295", level:"identity", status:"pending", submitted:"2026-08-22", submittedAt:"2026-08-22T09:14:00", priority:"high", reviewerId:"AU-3",
       documents:["CIN","Justificatif de domicile"], history:[
         { date:"2026-08-22", text:"Documents soumis" },
         { date:"2026-08-22", text:"Téléphone vérifié" }
       ] },
-    { id:"VR-202", professionalId:"PRO-10299", level:"professionnel", status:"pending", submitted:"2026-08-23",
+    { id:"VR-202", professionalId:"PRO-10299", level:"professionnel", status:"pending", submitted:"2026-08-23", submittedAt:"2026-08-23T14:40:00", priority:"medium", reviewerId:"AU-2",
       documents:["CIN","Attestation","Portfolio"], history:[
         { date:"2026-08-23", text:"Documents soumis" }
       ] },
-    { id:"VR-203", professionalId:"PRO-10296", level:"identity", status:"approved", submitted:"2024-10-01",
+    { id:"VR-203", professionalId:"PRO-10296", level:"identity", status:"approved", submitted:"2024-10-01", submittedAt:"2024-10-01T10:00:00", reviewedAt:"2024-10-03T16:20:00", reviewerId:"AU-1", priority:"medium",
       documents:["CIN"], history:[
         { date:"2024-10-01", text:"Documents soumis" },
         { date:"2024-10-03", text:"Identité examinée" },
-        { date:"2024-10-03", text:"Approuvée par Karim Alaoui (Super Admin)" }
+        { date:"2024-10-03", text:"Approuvée par Admin User" }
       ] }
   ];
 
@@ -326,12 +332,27 @@
     { id:"AC-5", icon:"sub", text:"Abonnement VÉRIFIÉ renouvelé", when:"il y a 31 min", type:"teal" }
   ];
 
+  var USER_ACTIVITY = [
+    { userId:"USR-1", icon:"view", text:"A consulté son profil 12 fois", when:"aujourd'hui", type:"teal" },
+    { userId:"USR-2", icon:"search", text:"5 recherches effectuées cette semaine", when:"il y a 2 h", type:"teal" },
+    { userId:"USR-3", icon:"contact", text:"2 demandes de contact envoyées", when:"hier", type:"orange" },
+    { userId:"USR-4", icon:"report", text:"A signalé un professionnel", when:"il y a 3 jours", type:"red" }
+  ];
+
   var ANALYTICS = {
     visits: [240,320,410,380,520,610,720,690,810,940,1010,1120],
     signups: [12,18,15,22,28,31,35,30,42,48,55,61],
     leads: { phone:842, whatsapp:1240, contact:437 },
     topServices: ["Plomberie","Électricité","Menuiserie","Coiffure","Peinture"],
-    topCities: ["Casablanca","Rabat","Marrakech","Fès","Agadir"]
+    topCities: ["Casablanca","Rabat","Marrakech","Fès","Agadir"],
+    failedSearches: [14,22,19,31,27,33,41,35,48,52,60,66],
+    conversion: [2.8,3.0,2.9,3.2,3.1,3.4,3.3,3.6,3.5,3.8,3.9,4.0],
+    churn: [6.1,5.8,5.9,5.4,5.2,4.9,4.6,4.4,4.1,3.9,3.8,3.6],
+    mrr: [4200,4650,5120,5380,5900,6400,7050,7420,8060,8620,9140,9740],
+    goldPercent: 26,
+    verifiedPercent: 54,
+    freeToPaid: 12.4,
+    avgRating: 4.6
   };
 
   // ============================================================
@@ -345,7 +366,8 @@
     subscriptionPlans: SUBSCRIPTION_PLANS, subscriptions: SUBSCRIPTIONS,
     payments: PAYMENTS, notifications: NOTIFICATIONS, adminUsers: ADMIN_USERS,
     auditLogs: AUDIT_LOGS, verificationRequests: VERIFICATION_REQUESTS,
-    activity: ACTIVITY, analytics: ANALYTICS, config: CONFIG
+    activity: ACTIVITY, analytics: ANALYTICS, config: CONFIG,
+    userActivity: USER_ACTIVITY
   };
 
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -353,7 +375,7 @@
   function todayStr(){ return new Date().toISOString().slice(0,10); }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
-  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config"];
+  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics"];
   function persist(){
     try { MUTABLE_KEYS.forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
   }
@@ -370,6 +392,14 @@
 
   function where(list, fn){ return list.filter(fn); }
   function getById(list, id){ return list.find(function(x){ return x.id === id; }) || null; }
+  function reviewerName(idOrName){
+    if(!idOrName) return "";
+    var a = getById(store.adminUsers, idOrName);
+    if(a) return a.name;
+    var b = store.adminUsers.find(function(x){ return (x.email||"").toLowerCase()===String(idOrName).toLowerCase(); });
+    if(b) return b.name;
+    return String(idOrName);
+  }
 
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
@@ -382,7 +412,25 @@
         if(params.q){ var q=params.q.toLowerCase(); list = list.filter(function(p){ return (p.name+" "+p.job+" "+p.city+" "+p.category).toLowerCase().indexOf(q)>-1; }); }
         if(params.city) list = list.filter(function(p){ return p.city === params.city; });
         if(params.category) list = list.filter(function(p){ return p.category === params.category; });
+        if(params.job) list = list.filter(function(p){ return (p.job||"").toLowerCase() === params.job.toLowerCase(); });
         if(params.package) list = list.filter(function(p){ return p.package === params.package; });
+        if(params.subscription){
+          var m = { free:"PLAN-FREE", verified:"PLAN-VER", gold:"PLAN-GOLD" };
+          var sub = params.subscription;
+          list = list.filter(function(p){ return (p.package||"free")===sub || (p.subscriptionPlanId||"").indexOf(m[sub]||sub)>-1; });
+        }
+        if(params.minRating) list = list.filter(function(p){ return (p.rating||0) >= params.minRating; });
+        if(params.created){
+          var D28 = 28, D8 = 8;
+          if(params.created === "7d") D28 = 7;
+          if(params.created === "30d") D28 = 30;
+          if(params.created === "older") D28 = 0;
+          list = list.filter(function(p){
+            var c = new Date(p.created||"2000-01-01");
+            if(params.created === "older") return c < new Date(Date.now()-30*864e5);
+            return Date.now() - c.getTime() <= D28*864e5;
+          });
+        }
         if(params.verification){ if(params.verification==="verified") list = list.filter(function(p){ return p.verificationStatus==="approved"; }); else if(params.verification==="unverified") list = list.filter(function(p){ return p.verificationStatus!=="approved"; }); }
         if(params.status) list = list.filter(function(p){ return p.status === params.status; });
       }
@@ -454,8 +502,87 @@
     getSubscriptions: function(){ return clone(store.subscriptions); },
     updateSubscriptionPlan: function(id, data){ var p=getById(store.subscriptionPlans,id); if(!p)return false; Object.keys(data).forEach(function(k){ if(data[k]!==undefined)p[k]=data[k]; }); return true; },
     getPayments: function(){ return clone(store.payments); },
-    confirmPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="confirmed"; var s=store.subscriptions.find(function(x){return x.professionalId===p.professionalId && x.planName===p.planName;}); if(s){s.paymentStatus="confirmed"; s.status="active";} return true; },
-    rejectPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; return true; },
+    confirmPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="confirmed"; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; var s=store.subscriptions.find(function(x){return x.professionalId===p.professionalId && x.planName===p.planName;}); if(s){s.paymentStatus="confirmed"; s.status="active"; s.activeAt=p.reviewedAt;} return true; },
+    rejectPayment: function(id, reason){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; p.rejectionReason=reason||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
+    requestPaymentInfo: function(id, note){ var p=getById(store.payments,id); if(!p)return false; p.status="needs_info"; p.infoRequested=note||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
+    addPayment: function(data){
+      var np = { id:uid("PAY"), reference:"SNA3TI-"+(48290+Math.floor(Math.random()*900)), status:"pending", currency:"MAD", method:"bank_transfer", date:todayStr(), createdAt:new Date().toISOString(),
+        professionalId:"", planName:"VÉRIFIÉ", amount:99, bankRef:"", receipt:"" };
+      store.payments.unshift(Object.assign(np, data));
+      return clone(np);
+    },
+    // ---- Subscriptions lifecycle ----
+    setPlanActive: function(id, active){
+      var p=getById(store.subscriptionPlans,id); if(!p)return false;
+      p.active=!!active; return true;
+    },
+    setSubscription: function(proId, planId){
+      var p=getById(store.professionals,proId); if(!p)return false;
+      var plan=getById(store.subscriptionPlans,planId); if(!plan)return false;
+      p.subscriptionPlanId=plan.id; p.package=plan.id.replace("PLAN-","").toLowerCase(); p.subscriptionStatus="active";
+      var s=store.subscriptions.find(function(x){return x.professionalId===proId;});
+      if(s){ s.planId=plan.id; s.planName=plan.name; s.price=plan.price; s.status="active"; s.paymentStatus="confirmed"; s.since=todayStr(); s.renewal="—"; }
+      else {
+        store.subscriptions.push({ id:uid("SUB"), professionalId:proId, planId:plan.id, planName:plan.name, status:"active", paymentStatus:"confirmed", price:plan.price, since:todayStr(), renewal:"—" });
+      }
+      return true;
+    },
+    // ---- Work queue (dashboard) ----
+    getWorkQueue: function(){
+      var q = [];
+      store.verificationRequests.forEach(function(v){
+        if(v.status==="pending"||v.status==="needs_info"){
+          q.push({ type:"verification", label:"Vérification", id:v.id, ref:(getById(store.professionals,v.professionalId)||{}).name||v.professionalId,
+            priority:v.priority==="high"?"Critique":v.priority==="medium"?"Haute":"Moyenne", pclass:v.priority||"medium",
+            created:v.submitted, assigned:reviewerName(v.reviewerId), status:v.status, route:"verification" });
+        }
+      });
+      store.payments.forEach(function(p){
+        if(p.status==="pending"){
+          q.push({ type:"payment", label:"Paiement", id:p.id, ref:p.reference+" · "+(getById(store.professionals,p.professionalId)||{}).name||"",
+            priority:"Critique", pclass:"critical", created:p.date, assigned:reviewerName(p.reviewedBy)||"Finance", status:p.status, route:"payments" });
+        }
+      });
+      store.reports.forEach(function(r){
+        if(r.status==="new"||r.status==="under_review"){
+          var pr = r.priority||(r.status==="new"?"high":"medium");
+          q.push({ type:"report", label:"Signalement", id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||r.professionalId,
+            priority:pr==="critical"?"Critique":pr==="high"?"Haute":pr==="low"?"Basse":"Moyenne", pclass:pr||"medium",
+            created:r.date, assigned:reviewerName(r.assignedTo)||"—", status:r.status, route:"reports" });
+        }
+      });
+      store.reviews.forEach(function(r){
+        if(r.status==="flagged"){
+          q.push({ type:"review", label:"Avis signalé", id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||"",
+            priority:"Moyenne", pclass:"medium", created:r.date, assigned:reviewerName(r.assignedTo)||"—", status:r.status, route:"reviews" });
+        }
+      });
+      store.subscriptions.forEach(function(s){
+        if(s.status==="pending"||s.paymentStatus==="pending"){
+          q.push({ type:"subscription", label:"Abonnement", id:s.id, ref:(getById(store.professionals,s.professionalId)||{}).name||"",
+            priority:"Moyenne", pclass:"medium", created:s.since, assigned:reviewerName(s.assignedTo)||"—", status:s.status, route:"subscriptions" });
+        }
+      });
+      return q;
+    },
+    // ---- Delegation: assign verification/report/payment to an admin ----
+    assignTask: function(kind, id, adminId){
+      if(kind==="verification"){ var v=getById(store.verificationRequests,id); if(v){ v.reviewerId=adminId; return true; } }
+      if(kind==="report"){ var r=getById(store.reports,id); if(r){ r.assignedTo=adminId; return true; } }
+      if(kind==="payment"){ var p=getById(store.payments,id); if(p){ p.assignedTo=adminId; return true; } }
+      return false;
+    },
+    // ---- User activity ----
+    getUserActivity: function(userId){
+      var a = [];
+      (store.userActivity||[]).forEach(function(x){ if(x.userId===userId) a.push(clone(x)); });
+      if(a.length===0){
+        a.push({ icon:"search", text:"5 recherches effectuées cette semaine", when:"il y a 2 h", type:"teal" });
+        a.push({ icon:"view", text:"A consulté 3 professionnels (Maçon, Plombier)", when:"il y a 1 h", type:"blue" });
+        a.push({ icon:"contact", text:"2 demandes de contact envoyées", when:"hier", type:"orange" });
+      }
+      return a;
+    },
     // ---- Dashboard ----
     getKPIs: function(){
       var pros = store.professionals;
@@ -465,6 +592,10 @@
         verified: pros.filter(function(p){ return p.verificationStatus==="approved"; }).length,
         pendingVerification: store.verificationRequests.filter(function(v){ return v.status==="pending"; }).length,
         active: pros.filter(function(p){ return p.status==="active"; }).length,
+        activeSubscriptions: store.subscriptions.filter(function(s){ return s.status==="active"; }).length,
+        pendingSubscriptions: store.subscriptions.filter(function(s){ return s.status==="pending" || s.paymentStatus==="pending"; }).length,
+        flaggedReviews: store.reviews.filter(function(r){ return r.status==="flagged"; }).length,
+        openReports: store.reports.filter(function(r){ return r.status==="new" || r.status==="under_review"; }).length,
         searches: 1845,
         contactRequests: 437,
         monthlyRevenue: 67430,
@@ -498,6 +629,8 @@
     // ---- helpers ----
     cityName: function(id){ var c = store.regions.reduce(function(a,r){ return a.concat(r.cities); },[]).find(function(x){return x.id===id;}); return c ? c.name.fr : id; },
     userName: function(id){ var u=getById(store.users,id); return u?u.name:""; },
+    adminName: function(id){ var a=getById(store.adminUsers,id); return a? a.name : (id||"—"); },
+    adminIdByEmail: function(email){ var a=store.adminUsers.find(function(x){return (x.email||"").toLowerCase()===String(email||"").toLowerCase();}); return a?a.id:""; },
     _store: store,
     persist: persist
   };
