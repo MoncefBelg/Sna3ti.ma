@@ -249,6 +249,16 @@
         { date:"2024-10-01", text:"Documents soumis" },
         { date:"2024-10-03", text:"Identité examinée" },
         { date:"2024-10-03", text:"Approuvée par Admin User" }
+      ] },
+    { id:"VR-204", professionalId:"PRO-10295", level:"plan", planId:"PLAN-VERIFIED", requestedPlan:"VÉRIFIÉ", price:99, status:"pending", submitted:"2026-08-28", submittedAt:"2026-08-28T09:00:00", priority:"high", paymentId:"PAY-7004",
+      documents:["Virement bancaire"], history:[
+        { date:"2026-08-28", text:"Demande d'abonnement VÉRIFIÉ soumise" },
+        { date:"2026-08-28", text:"Virement bancaire reçu, en attente de confirmation" }
+      ] },
+    { id:"VR-205", professionalId:"PRO-10299", level:"plan", planId:"PLAN-GOLD", requestedPlan:"GOLD", price:199, status:"pending", submitted:"2026-08-29", submittedAt:"2026-08-29T11:30:00", priority:"high", paymentId:"PAY-7005",
+      documents:["Virement bancaire"], history:[
+        { date:"2026-08-29", text:"Demande d'abonnement GOLD soumise" },
+        { date:"2026-08-29", text:"Virement bancaire reçu, en attente de confirmation" }
       ] }
   ];
 
@@ -297,7 +307,9 @@
     { id:"PAY-7003", reference:"SNA3TI-48293", professionalId:"PRO-10298", planName:"VÉRIFIÉ", amount:99, method:"card",
       bankRef:"CARD-7710", date:"2026-06-15", status:"pending" },
     { id:"PAY-7004", reference:"SNA3TI-48294", professionalId:"PRO-10295", planName:"VÉRIFIÉ", amount:99, method:"bank_transfer",
-      bankRef:"REF-9911", date:"2026-08-28", status:"pending" }
+      bankRef:"REF-9911", date:"2026-08-28", status:"pending" },
+    { id:"PAY-7005", reference:"SNA3TI-48295", professionalId:"PRO-10299", planName:"GOLD", amount:199, method:"bank_transfer",
+      bankRef:"REF-3312", date:"2026-08-29", status:"pending" }
   ];
 
   var NOTIFICATIONS = [
@@ -401,6 +413,32 @@
     return String(idOrName);
   }
 
+  // Map a payment's plan name to a concrete paid plan (VÉRIFIÉ or GOLD). Returns null for free/unknown.
+  function paidPlanByPayment(p){
+    var name = String((p && p.planName)||"").toLowerCase();
+    if(name.indexOf("gold")>-1) return "PLAN-GOLD";
+    if(name.indexOf("vérifié")>-1 || name.indexOf("verifie")>-1 || name.indexOf("verified")>-1) return "PLAN-VERIFIED";
+    return null;
+  }
+
+  // Apply a paid plan badge to a professional profile (drives the VÉRIFIÉ / GOLD icon).
+  function applyPlanToProfessional(proId, planId){
+    var p = getById(store.professionals, proId); if(!p) return false;
+    var plan = getById(store.subscriptionPlans, planId) || null;
+    p.subscriptionPlanId = planId;
+    p.package = String(planId).replace("PLAN-","").toLowerCase();
+    p.subscriptionStatus = "active";
+    if(plan){ p.subscriptionPlanName = plan.name; }
+    var s = store.subscriptions.find(function(x){ return x.professionalId === proId; });
+    if(s){
+      if(plan){ s.planId = plan.id; s.planName = plan.name; s.price = plan.price; }
+      s.paymentStatus = "confirmed"; s.status = "active"; s.since = todayStr(); s.renewal = "—";
+    } else if(plan){
+      store.subscriptions.push({ id: uid("SUB"), professionalId: proId, planId: plan.id, planName: plan.name, status:"active", paymentStatus:"confirmed", price: plan.price, since: todayStr(), renewal:"—" });
+    }
+    return true;
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -443,8 +481,74 @@
       Object.keys(data).forEach(function(k){ if(data[k]!==undefined) p[k]=data[k]; });
       return true;
     },
+    // ---- AI lead capture ----
+    logLead: function(proId, via){
+      var p = getById(store.professionals, proId); if(!p) return false;
+      p.leads = p.leads || { profileViews:0, phoneClicks:0, whatsappClicks:0, contactRequests:0, conversion:0 };
+      p.leads.contactRequests = (p.leads.contactRequests||0) + 1;
+      persist();
+      return p.leads.contactRequests;
+    },
     getProfessionalsAsync: function(params){
       return new Promise(function(resolve){ setTimeout(function(){ resolve(Sna3tiData.getProfessionals(params)); }, 300); });
+    },
+
+    // ---- AI search: match professionals from a parsed user intent ----
+    // intent: { svc (resolved category or job token), city, cityId, avail }
+    searchByIntent: function(intent){
+      intent = intent || {};
+      var svc = String(intent.svc||"").toLowerCase().trim();
+      var city = String(intent.city||"");
+      var cityId = intent.cityId || "";
+      var avail = String(intent.avail||"").toLowerCase();
+      var cityMatched = !!(city && city!=="Position utilisateur" && String(city).toLowerCase()!=="position utilisateur");
+      var results = [];
+      store.professionals.forEach(function(p){
+        if(p.status!=="active" && p.status!=="pending") return;
+        var score = 0;
+        var matchedService = false;
+        var category = String(p.category||"").toLowerCase();
+        var job = String(p.job||"").toLowerCase();
+        var hay = category + " " + job;
+        if(svc){
+          if(svc.length>=3 && (hay.indexOf(svc)>-1)){ score += 55; matchedService = true; }
+          else if(svc.length<3 && category.indexOf(svc)>-1){ score += 55; matchedService = true; }
+          // For an intent search, only surface professionals whose service matches the query.
+          if(!matchedService){ return; }
+        }
+        // city
+        var pCity = String(p.city||"").toLowerCase();
+        var pCityId = p.cityId || "";
+        if(cityMatched){
+          if((cityId && pCityId===cityId) || (pCity && pCity===city.toLowerCase())){ score += 30; }
+          else { return; } // city filter: exclude other cities
+        } else {
+          score += 15;
+        }
+        // availability
+        var wantsToday = avail.indexOf("aujourd")>-1 || avail.indexOf("اليوم")>-1;
+        var wantsTomorrow = avail.indexOf("demain")>-1 || avail.indexOf("غدا")>-1;
+        if(!wantsToday && !wantsTomorrow){ score += 8; }
+        else if(wantsToday && p.available){ score += 10; }
+        else if(wantsToday && !p.available){ return; }
+        // quality
+        if(p.rating >= 4.7) score += 6; else if(p.rating >= 4.2) score += 4; else if(p.rating >= 3.8) score += 2;
+        if(String(p.package||"")==="gold") score += 7;
+        else if(String(p.package||"")==="verified") score += 4;
+        if(p.verificationStatus==="approved") score += 4;
+        results.push({
+          professionalId: p.id,
+          score: score,
+          serviceMatched: matchedService,
+          name: p.name, job: p.job, category: p.category, city: p.city, area: p.area,
+          rating: p.rating, reviewsCount: p.reviewsCount, price: p.price,
+          package: p.package, verified: p.verificationStatus==="approved", available: p.available,
+          phone: p.phone, idCode: p.id,
+          leads: p.leads ? clone(p.leads) : null
+        });
+      });
+      results.sort(function(a,b){ return (b.score-a.score) || (b.rating-a.rating); });
+      return results.slice(0, 8);
     },
 
     // ---- Users ----
@@ -468,6 +572,13 @@
       var v = getById(store.verificationRequests, id); if(!v || v.status==="approved") return false;
       v.status="approved";
       v.history.push({ date: todayStr(), text:"Approuvée par "+adminName });
+      if(v.level==="plan"){
+        // Plan (VÉRIFIÉ/GOLD) request: approval is a review step only.
+        // The badge is granted when the matching payment is confirmed (never here).
+        var p = getById(store.professionals, v.professionalId);
+        if(p){ p.planEligible = true; }
+        return true;
+      }
       var p = getById(store.professionals, v.professionalId);
       if(p){ p.verificationStatus="approved"; p.verified=true; if(v.level==="professionnel"){ p.professionStatus="verified"; } else { p.identityStatus="verified"; } }
       return true;
@@ -477,6 +588,7 @@
       v.status="rejected"; v.reason=reason||"";
       v.history.push({ date: todayStr(), text:"Rejetée par "+adminName+(reason?" — "+reason:"") });
       var p = getById(store.professionals, v.professionalId);
+      if(p && v.level==="plan"){ p.planEligible = false; return true; }
       if(p && v.level==="professionnel"){ p.professionStatus="rejected"; } else { p.identityStatus="rejected"; }
       return true;
     },
@@ -502,7 +614,17 @@
     getSubscriptions: function(){ return clone(store.subscriptions); },
     updateSubscriptionPlan: function(id, data){ var p=getById(store.subscriptionPlans,id); if(!p)return false; Object.keys(data).forEach(function(k){ if(data[k]!==undefined)p[k]=data[k]; }); return true; },
     getPayments: function(){ return clone(store.payments); },
-    confirmPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="confirmed"; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; var s=store.subscriptions.find(function(x){return x.professionalId===p.professionalId && x.planName===p.planName;}); if(s){s.paymentStatus="confirmed"; s.status="active"; s.activeAt=p.reviewedAt;} return true; },
+    confirmPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="confirmed"; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; var s=store.subscriptions.find(function(x){return x.professionalId===p.professionalId && x.planName===p.planName;}); if(s){s.paymentStatus="confirmed"; s.status="active"; s.activeAt=p.reviewedAt;}
+      // Auto-apply the paid-plan badge (VÉRIFIÉ / GOLD) on the professional profile once payment is confirmed.
+      var planId = paidPlanByPayment(p);
+      if(planId){ applyPlanToProfessional(p.professionalId, planId); }
+      // Close the linked plan request (Verification centre) so both areas stay in sync.
+      var vr = store.verificationRequests.find(function(x){ return x.paymentId === p.id && x.level==="plan"; });
+      if(vr && vr.status!=="approved" && vr.status!=="rejected"){
+        vr.status="approved"; vr.reviewedAt=p.reviewedAt; vr.history.push({ date: todayStr(), text:"Paiement confirmé — plan "+ (vr.requestedPlan||"") +" activé" });
+        if(planId){ applyPlanToProfessional(vr.professionalId, planId); }
+      }
+      return true; },
     rejectPayment: function(id, reason){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; p.rejectionReason=reason||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
     requestPaymentInfo: function(id, note){ var p=getById(store.payments,id); if(!p)return false; p.status="needs_info"; p.infoRequested=note||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
     addPayment: function(data){

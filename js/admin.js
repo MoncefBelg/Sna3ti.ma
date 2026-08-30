@@ -49,6 +49,8 @@
       btn.disabled = true; btn.textContent = "Connexion...";
       AUTH.login(document.getElementById("loginEmail").value, document.getElementById("loginPassword").value, document.getElementById("loginRemember").checked)
         .then(function(){
+          UI.buildAppShell();
+          UI.afterShell();
           location.hash = "#/admin/dashboard";
         })
         .catch(function(err){
@@ -605,23 +607,36 @@
     if(!list.length){ el.innerHTML='<div class="empty">Aucune demande.</div>'; return; }
     el.innerHTML = list.map(function(v){
       var p = DATA.getProfessional(v.professionalId);
-      var steps = '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. Identité</span>' +
-                  '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. Professionnel</span>';
+      var isPlan = v.level === "plan";
+      var steps = isPlan
+        ? '<div class="muted" style="margin-top:8px">Demande plan · '+
+            '<span class="badge '+(String(v.requestedPlan).toLowerCase()==="gold"?"orange":"teal")+'">'+(String(v.requestedPlan).toUpperCase()==="GOLD"?"👑 GOLD":v.requestedPlan)+'</span> '+
+            '<span class="muted">· '+v.price+' DH / mois</span></div>'
+        : '<div class="verif-steps">' +
+          '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. Identité</span>' +
+          '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. Professionnel</span>' +
+          '</div>';
       var waiting = slaDays(v.submitted);
       var slaBadge = v.status==="pending" || v.status==="needs_info"
         ? '<span class="badge '+(waiting<=1?"green":waiting<=3?"amber":"red")+'">SLA '+waiting+' j</span>' : "";
       var prio = v.priority ? '<span class="badge '+(v.priority==="high"?"red":"blue")+'">'+ (v.priority==="high"?"Priorité haute":"Priorité") +'</span>' : "";
-      return '<div class="req"><div class="req-top"><div class="grow">' +
+      var kindBadge = isPlan ? '<span class="badge purple">Abonnement</span>' : '<span class="badge gray">Vérification</span>';
+      var isGold = String(v.requestedPlan||"").toUpperCase()==="GOLD";
+      var corner = isPlan
+        ? '<div class="req-corner '+(isGold?"gold":"verified")+'"><span class="star">'+(isGold?"👑":"✅")+'</span> '+(isGold?"GOLD":"VÉRIFIÉ")+'</div>'
+        : "";
+      return '<div class="req">'+ corner + '<div class="req-top'+(isPlan?' req-top-pad':'')+'"><div class="grow">' +
         '<div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div><div class="pro-name">'+esc(p?p.name:"?")+'</div><div class="pro-job">'+esc(p?p.job+" · "+p.city:"")+'</div></div></div></div>' +
-        slaBadge + prio +
+        kindBadge + slaBadge + prio +
         '<span class="badge '+(v.status==="pending"?"amber":v.status==="approved"?"green":"red")+'">'+esc(v.status)+'</span></div>' +
-        '<div class="verif-steps">'+steps+'</div>' +
+        steps +
         '<div class="muted" style="margin-top:8px">Soumis le '+v.submitted+' · '+v.level+'</div>' +
         '<div class="req-actions">' +
           '<button class="btn btn-ghost btn-small" data-audit="'+v.id+'">📜 Historique</button>' +
           (AUTH.can("verification","reject") ? '<button class="btn btn-danger btn-small" data-reject="'+v.id+'">✖ Rejeter</button>' : "") +
           (AUTH.can("verification","approve") && v.status!=="approved" ? '<button class="btn btn-primary btn-small" data-approve="'+v.id+'">✓ Approuver</button>' : "") +
           (AUTH.can("verification","approve") ? '<button class="btn btn-soft btn-small" data-review="'+v.id+'">🔍 Réviser</button>' : "") +
+          (isPlan && v.status!=="approved" ? '<button class="btn btn-soft btn-small" data-gopay="'+v.id+'" title="Voir le paiement">💰 Voir paiement</button>' : "") +
         '</div></div>';
     }).join("");
     bindVerification();
@@ -633,6 +648,7 @@
     document.querySelectorAll("[data-approve]").forEach(function(b){ b.addEventListener("click", function(){ quickApprove(b.dataset.approve); }); });
     document.querySelectorAll("[data-reject]").forEach(function(b){ b.addEventListener("click", function(){ rejectVer(b.dataset.reject); }); });
     document.querySelectorAll("[data-review]").forEach(function(b){ b.addEventListener("click", function(){ openReview(b.dataset.review); }); });
+    document.querySelectorAll("[data-gopay]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("payments"); }); });
   }
   function showVerHistory(id){
     var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
@@ -666,6 +682,31 @@
     var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
     if(!v) return;
     var p = DATA.getProfessional(v.professionalId);
+    if(v.level==="plan"){
+      UI.openModal(
+        '<h3>Examen de la demande d\'abonnement</h3>' +
+        '<div class="review-workspace" style="grid-template-columns:220px 1fr;gap:16px">' +
+          '<div class="rw-col"><h4>Professionnel</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
+            '<div class="detail-grid" style="margin-top:14px">'+drow("Ville", p.city)+drow("Expérience", p.experience||"—")+'</div></div>' +
+          '<div class="rw-col"><h4>Plan demandé</h4>' +
+            '<div style="display:flex;gap:10px;align-items:center;margin:10px 0">' +
+              '<span class="badge '+(String(v.requestedPlan).toLowerCase()==="gold"?"orange":"teal")+'" style="font-size:14px;padding:6px 10px">'+(String(v.requestedPlan).toUpperCase()==="GOLD"?"👑 GOLD":v.requestedPlan)+'</span>' +
+              '<span class="muted">'+v.price+' DH / mois</span></div>' +
+            (v.documents||[]).map(function(d){ return '<div class="doc">📄 '+esc(d)+'</div>'; }).join("") +
+            '<p class="muted" style="margin-top:12px">Vuirement bancaire reçu. Le badge '+(String(v.requestedPlan).toUpperCase()==="GOLD"?"GOLD":"VÉRIFIÉ")+' est activé sur le profil dès la confirmation du paiement dans Paiements.</p>' +
+            '<div class="modal-actions" style="justify-content:flex-start;margin-top:16px">' +
+              (AUTH.can("verification","reject")?'<button class="btn btn-danger" id="rvReject">Rejeter</button>':"") +
+              (AUTH.can("verification","approve")?'<button class="btn btn-primary" id="rvApprove">✓ Approuver (éligibilité)</button>':"") +
+            '</div></div>' +
+        '</div>');
+      var app = document.getElementById("rvApprove"); if(app) app.addEventListener("click", function(){
+        UI.closeModal(); DATA.approveVerification(id, AUTH.getSession().name);
+        DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"});
+        UI.toast("Éligibilité validée. Le badge s'activera à la confirmation du paiement."); drawVerification(currentFilter()); updatePillsSafe();
+      });
+      var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){ UI.closeModal(); rejectVer(id); });
+      return;
+    }
     var cfg = DATA.getConfig().verification;
     var checks = global.__verCheck[id] || {};
     var html =
@@ -995,33 +1036,36 @@
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>Référence</th><th>Professionnel</th><th>Plan</th><th>Montant</th><th>Méthode</th><th>Réf. bancaire</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'+
       pays.map(function(pa){
         var p = DATA.getProfessional(pa.professionalId);
-        return '<tr><td><b>'+esc(pa.reference)+'</b></td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
+        var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
+        return '<tr><td><b>'+esc(pa.reference)+'</b>'+(linkReq?'<br><span class="badge purple">Demande abonnement</span>':"")+'</td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
           '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+payMethodBadge(pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+pa.date+'</td>'+
           '<td>'+payStatusBadge(pa.status)+'</td>'+
           '<td class="actions-cell">'+
-            (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="Confirmer" style="color:var(--green)">✓</button>' : "") +
+            (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="Confirmer (active le badge VÉRIFIÉ/GOLD)" style="color:var(--green)">✓</button>' : "") +
             (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="Rejeter">✖</button>' : "") +
             (AUTH.can("payments","update") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="Demander des informations" style="color:var(--amber)">💡</button>' : "") +
             '<button class="icon-act" data-whats="'+pa.id+'" title="Discuter sur WhatsApp">💬</button>' +
+            (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="Voir en vérification">✅</button>' : "") +
           '</td></tr>';
       }).join("") + '</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">Workflow virement bancaire</div>' +
-      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. Professionnel choisit le plan</span><span class="step current">2. Virement bancaire</span><span class="step">3. Reçu téléversé</span><span class="step">4. Paiement = En attente</span><span class="step">5. Finance/Admin vérifie</span><span class="step">6. Confirmer/Rejeter</span><span class="step">7. Abonnement activé</span></div>' +
-      '<p class="muted" style="margin-top:12px">La confirmation du paiement se fait après vérification du virement. Les réceptions de confirmation sont échangées via WhatsApp.</p></div>' +
+      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. Professionnel choisit le plan</span><span class="step current">2. Virement bancaire</span><span class="step">3. Reçu téléversé</span><span class="step">4. Paiement = En attente</span><span class="step">5. Finance/Admin vérifie</span><span class="step">6. Confirmer/Rejeter</span><span class="step">7. Badge VÉRIFIÉ/GOLD activé sur le profil</span></div>' +
+      '<p class="muted" style="margin-top:12px">Confirmer le paiement active automatiquement le badge VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois) sur le profil du professionnel.</p></div>' +
       '<div class="card"><div class="card-title">Paiement en ligne (carte)</div><p class="muted" style="margin:8px 0">L’intégration du prestataire de paiement par carte (CMI / paymob / autre) est prévue comme prochaine étape. Actuellement, tous les paiements passent par virement bancaire manuel.</p><span class="badge gray">🔧 Bientôt disponible</span></div>'
     );
     document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(b.dataset.confp); }); });
     document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(b.dataset.rejp); }); });
     document.querySelectorAll("[data-infop]").forEach(function(b){ b.addEventListener("click", function(){ requestPaymentInfo(b.dataset.infop); }); });
+    document.querySelectorAll("[data-openbk]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("verification"); }); });
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
       var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
   }
   function confirmPayment(id){
-    UI.confirmAction({ title:"Confirmer ce paiement ?", message:"Active l'abonnement correspondant après contrôle du virement.", confirmLabel:"Confirmer", onConfirm:function(){
+    UI.confirmAction({ title:"Confirmer ce paiement ?", message:"Après contrôle du virement, le badge VÉRIFIÉ ou GOLD sera activé automatiquement sur le profil du professionnel.", confirmLabel:"Confirmer", onConfirm:function(){
       DATA.confirmPayment(id);
       DATA.logAudit({admin:AUTH.getSession().name, action:"CONFIRM_PAYMENT", entity:"Payment", entityId:id, result:"Confirmed"});
-      UI.toast("Paiement confirmé — abonnement activé."); renderPayments();
+      UI.toast("Paiement confirmé — badge plan activé sur le profil."); renderPayments();
     }});
   }
   function rejectPayment(id){
@@ -1102,35 +1146,110 @@
     var html =
       '<div class="page-head"><h1>AI Center</h1><div class="spacer"><span class="badge purple">Prototype</span></div></div>' +
       '<div class="card"><div class="card-title">Recherche IA — testez une requête</div>' +
-        '<p class="muted">Interprétation d\'une requête utilisateur en service, localisation et disponibilité.</p>' +
+        '<p class="muted">Interprétation d\'une requête utilisateur en service, localisation et disponibilité, puis mise en relation avec les professionnels correspondants.</p>' +
         '<div class="toolbar"><div class="field grow"><label>Requête utilisateur</label><input type="text" id="aiQuery" placeholder="Ex : plombier à Casablanca disponible aujourd\'hui"></div>'+
-        '<div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="aiRun">Interpréter</button></div></div>' +
-        '<div id="aiResult"><div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
-          '<div class="muted" style="margin-bottom:8px"><b>Requête utilisateur :</b> « بغيت شي معلم ديال الجبس قريب ليا اليوم »</div>'+
-          '<div class="verif-steps"><span class="step done">Service : Plâtrerie</span><span class="step done">Localisation : Position utilisateur</span><span class="step done">Disponibilité : Aujourd\'hui</span></div>'+
-        '</div></div></div>' +
-      '<div class="card"><div class="card-title">Capacités futures</div><div class="kpi-grid grid-3" style="margin-top:12px">'+
-        '<div class="kpi"><div class="k-title">Recherche IA</div><div class="k-val" style="font-size:20px">Requête → service</div></div>'+
-        '<div class="kpi"><div class="k-title">Mise en relation</div><div class="k-val" style="font-size:20px">Matching pro</div></div>'+
-        '<div class="kpi"><div class="k-title">Assistant profil</div><div class="k-val" style="font-size:20px">Descriptions IA</div></div>'+
+        '<div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="aiRun">Interpréter & match</button></div></div>' +
+        '<div id="aiResult"></div></div>' +
+      '<div class="card"><div class="card-title">Capacités</div><div class="kpi-grid grid-3" style="margin-top:12px">'+
+        '<div class="kpi"><div class="k-title">Recherche IA</div><div class="k-val" style="font-size:20px">Requête → match pros</div></div>'+
+        '<div class="kpi"><div class="k-title">Mise en relation</div><div class="k-val" style="font-size:20px">Score + profil</div></div>'+
+        '<div class="kpi"><div class="k-title">Leads</div><div class="k-val" style="font-size:20px">Capture de contact</div></div>'+
       '</div></div>';
     UI.setContent(html);
+
+    var CITIES = { casablanca:["CITY-CASA","Casablanca","الدار البيضاء","casa","casanegra"], rabat:["CITY-RABA","Rabat","الرباط"], marrakech:["CITY-MARR","Marrakech","مراكش"], fes:["CITY-FES","Fès","فاس","fes"], agadir:["CITY-AGAD","Agadir","أكادير","اكادير"], tanger:["CITY-TANG","Tanger","طنجة"], kenitra:["CITY-KENI","Kénitra","القنيطرة"], mohammedia:["CITY-MOHAM","Mohammedia","المحمدية"], "el jadida":["CITY-ELJ","El Jadida","الجديدة"] };
+
+    // Expanded FR + Darija/Arabic keyword map -> resolved category (matches seed data)
+    function resolveService(q){
+      var services = {
+        "Plomberie": ["plombier","plomberie","plomb","jbab","سباك","سبّاك","كوطو"],
+        "Électricité": ["electricien","électricien","electricite","électricité","elec","kahraba","كهربائي","كهرباء","نور","triki"],
+        "Menuiserie": ["menuisier","menuiserie","menuiser","najjar","نجار","خشب","bois"],
+        "Maçonnerie": ["macon","maçon","maconnerie","maçonnerie","malla","معلم","بناء","bani"],
+        "Peinture": ["peintre","peinture","peint","sabagh","صباغ","دهان"],
+        "Coiffure": ["coiffeur","coiffeuse","coiffure","coiff","hajjam","حلاق","حلاقة","مجعد"],
+        "Mécanique": ["mecanicien","mécanicien","mecanique","mécanique","mecano","ميكانيكي","ميكانيك"]
+      };
+      var ql = q.toLowerCase();
+      for(var cat in services){
+        var keys = services[cat];
+        for(var i=0;i<keys.length;i++){ if(ql.indexOf(keys[i].toLowerCase())>-1){ return cat; } }
+      }
+      return null;
+    }
+    // city detection
+    function resolveCity(q){
+      var norm = q.toLowerCase();
+      for(var c in CITIES){
+        var def = CITIES[c];
+        for(var i=1;i<def.length;i++){ if(norm.indexOf(def[i].toLowerCase())>-1){ return { name:def[1], cityId:def[0] }; } }
+      }
+      return { name:"Position utilisateur", cityId:"" };
+    }
+    function resolveAvail(q){
+      var norm = q.toLowerCase();
+      if(norm.indexOf("aujourd")>-1 || norm.indexOf("اليوم")>-1 || norm.indexOf("liyouma")>-1 || norm.indexOf("دابا")>-1) return "Aujourd'hui";
+      if(norm.indexOf("demain")>-1 || norm.indexOf("غدا")>-1 || norm.indexOf("gedda")>-1) return "Demain";
+      if(norm.indexOf("goudam")>-1 || norm.indexOf("هذا")>-1 || norm.indexOf("maintenant")>-1) return "Aujourd'hui";
+      return "À définir";
+    }
+
     function parseQuery(q){
-      q=q.toLowerCase();
-      var services={ plombier:"Plomberie", "plombier":"Plomberie", electricien:"Électricité", électricien:"Électricité", menuisier:"Menuiserie", maçon:"Maçonnerie", "معلّم":"Maçonnerie", peintre:"Peinture", "djib":"Plâtrerie", "جبس":"Plâtrerie", coiffeur:"Coiffure", "مكوى":"Coiffure" };
-      var svc=null; for(var k in services){ if(q.indexOf(k)>-1){ svc=services[k]; break; } } svc = svc || (q.indexOf("eau")>-1||q.indexOf("فايض")>-1?"Plomberie":(q.indexOf("نور")>-1?"Électricité":"Plâtrerie"));
-      var cities=["Casablanca","Rabat","Marrakech","Fès","Agadir","Tanger"]; var city=null; cities.forEach(function(c){ if(q.indexOf(c.toLowerCase())>-1) city=c; }); city=city||"Position utilisateur";
-      var avail = (q.indexOf("aujourd")>-1||q.indexOf("اليوم")>-1||q.indexOf("auj")>-1)?"Aujourd'hui":(q.indexOf("demain")>-1||q.indexOf("غدا")>-1)?"Demain":"À définir";
-      return { svc:svc, city:city, avail:avail };
+      var svc = resolveService(q.toLowerCase());
+      var city = resolveCity(q.toLowerCase());
+      var avail = resolveAvail(q);
+      return {
+        svc: svc || (q.toLowerCase().indexOf("جبس")>-1||q.toLowerCase().indexOf("djib")>-1?"Plâtrerie":"—"),
+        city: city.name,
+        cityId: city.cityId,
+        avail: avail,
+        raw: q
+      };
     }
-    function render(res){
-      document.getElementById("aiResult").innerHTML = '<div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
+
+    function renderResult(res){
+      var matches = DATA.searchByIntent({ svc: res.svc==="—"? "": res.svc, city: res.city, cityId: res.cityId, avail: res.avail });
+      var agg = (matches.length>0?" — "+matches.length+" correspondance(s)":"");
+      var header = '<div class="req" style="background:var(--sand);border:1px dashed var(--line-strong)">'+
+        '<div class="muted" style="margin-bottom:8px"><b>Requête :</b> « '+esc(res.raw)+' »</div>'+
         '<div class="verif-steps"><span class="step done">Service : '+esc(res.svc)+'</span><span class="step done">Localisation : '+esc(res.city)+'</span><span class="step done">Disponibilité : '+esc(res.avail)+'</span></div></div>';
+      var body;
+      if(!matches.length){
+        body = '<div class="req" style="margin-top:12px"><div class="empty">Aucun professionnel actif ne correspond (essayez sans ville, ou un autre métier).</div></div>';
+      } else {
+        body = '<div class="card" style="margin-top:12px"><div class="card-head"><div class="card-title">Professionnels matchés'+agg+'</div><span class="muted small">Triés par pertinence</span></div>'+
+          matches.map(function(m){
+            var pct = Math.min(100, Math.round(m.score/95*100));
+            return '<div class="row-item ai-m" data-pro="'+m.professionalId+'">' +
+              '<div class="p-avatar" style="width:44px;height:44px">'+initials(m.name)+'</div>' +
+              '<div class="grow">' +
+                '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>'+esc(m.name)+'</b>'+esc(m.job)+' <span class="muted">· '+esc(m.city)+'</span></div>' +
+                '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+pkgBadge({package:m.package})+(m.verified?'<span class="badge green">✅ Vérifié</span>':"")+'<span class="badge amber">★ '+m.rating+'</span>'+'<span class="muted small">'+m.price+' DH</span>'+
+                  '<span class="badge '+(pct>=70?"green":pct>=45?"amber":"blue")+'">'+pct+'% match</span></div>' +
+              '</div>'+
+              (AUTH.can("ai","read")?'<div style="display:flex;gap:6px;align-items:center">'+
+                '<button class="icon-act" data-aiopen="'+m.professionalId+'" title="Voir le profil">👁️</button>'+
+                '<button class="icon-act" data-ailead="'+m.professionalId+'" title="Créer un lead de contact" style="color:var(--teal)">🤝</button>'+
+              '</div>':"")+
+            '</div>';
+          }).join("") + '</div>';
+      }
+      document.getElementById("aiResult").innerHTML = header + body;
+      document.querySelectorAll("[data-aiopen]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("professionals/"+b.dataset.aiopen); }); });
+      document.querySelectorAll("[data-ailead]").forEach(function(b){ b.addEventListener("click", function(){ createLead(b.dataset.ailead); }); });
+      document.querySelectorAll(".ai-m[data-pro]").forEach(function(row){ row.addEventListener("click", function(){ ROUTER.navigate("professionals/"+row.dataset.pro); }); });
     }
+    function createLead(proId){
+      var p = DATA.getProfessional(proId);
+      var n = DATA.logLead(proId, "ai");
+      DATA.logAudit({admin:AUTH.getSession().name, action:"LEAD_AI", entity:"Professional", entityId:proId, result:"Contact request", note:(p?p.name:"")});
+      UI.toast("Lead de contact créé pour "+(p?p.name:proId)+" (total "+n+").");
+    }
+
     document.getElementById("aiRun").addEventListener("click", function(){
       var q=document.getElementById("aiQuery").value.trim();
       if(!q){ UI.toast("Saisissez une requête.", true); return; }
-      UI.toast("Interprétation en cours…"); setTimeout(function(){ render(parseQuery(q)); }, 350);
+      UI.toast("Interprétation en cours…"); setTimeout(function(){ renderResult(parseQuery(q)); }, 350);
     });
     document.getElementById("aiQuery").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("aiRun").click(); });
   }
@@ -1273,6 +1392,7 @@
      ROUTE DISPATCH
      ============================================================ */
   function dispatch(route){
+    if(route.route.view === "login"){ renderLogin(); return; }
     UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : route.route.view);
     switch(route.route.view){
       case "dashboard": renderDashboard(); break;
