@@ -3893,7 +3893,7 @@
               <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPriority">Apparition prioritaire dans la recherche</span></li>
               <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
               <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
-              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotos10">10 photos</span></li>
+              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotos10">8 photos + 2 vidéos</span></li>
               <li class="flex items-start gap-2"><span>📁</span> <span data-i18n="pricing.features.fPortfolio">Portfolio</span></li>
               <li class="flex items-start gap-2"><span>⭐</span> <span data-i18n="pricing.features.fAvis">Avis clients</span></li>
               <li class="flex items-start gap-2"><span>🗓️</span> <span data-i18n="pricing.features.fDispo">Disponibilité</span></li>
@@ -3924,7 +3924,7 @@
               <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPremium">Apparition premium dans la recherche</span></li>
               <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
               <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
-              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotosUnlimited">Photos illimitées</span></li>
+              <li class="flex items-start gap-2"><span>📷</span> <span data-i18n="pricing.features.fPhotosUnlimited">17 photos + 3 vidéos</span></li>
               <li class="flex items-start gap-2"><span>📁</span> <span data-i18n="pricing.features.fPortfolio">Portfolio</span></li>
               <li class="flex items-start gap-2"><span>⭐</span> <span data-i18n="pricing.features.fAvis">Avis clients</span></li>
               <li class="flex items-start gap-2"><span>🗓️</span> <span data-i18n="pricing.features.fDispo">Disponibilité</span></li>
@@ -4018,6 +4018,9 @@
 
       <!-- STEP 2 : FORM -->
       <div id="regStep2" class="mt-10 hidden">
+        <div id="regPackBanner" class="hidden mb-5 flex items-center justify-center gap-2 rounded-2xl border-2 border-sna3ti-teal bg-sna3ti-teal/15 px-4 py-3 text-center text-sm font-black text-white">
+          <span id="regPackBannerIcon">🛡️</span><span>Inscription pour la formule <span id="regPackBannerName">Vérifié</span></span>
+        </div>
         <div class="mb-6 text-center text-xs font-black uppercase tracking-[.2em] text-white/50" data-i18n="register.step2">
           Étape 2 · Vos informations
         </div>
@@ -4059,17 +4062,38 @@
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.photoProfil">Photo de profil</label>
             <label class="reg-file flex cursor-pointer items-center gap-3 rounded-xl bg-white/10 border border-white/15 px-4 py-3">
               <input id="regPhotoProfil" type="file" accept="image/*" class="sr-only" />
+              <img class="reg-file-prev hidden h-10 w-10 shrink-0 rounded-lg object-cover ring-2 ring-sna3ti-teal" alt="Aperçu photo de profil" />
               <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseFile">Choisir un fichier</span>
               <span class="reg-file-name truncate text-sm text-white/50" data-i18n="register.noFile">Aucun fichier sélectionné</span>
+              <span class="reg-file-replaced hidden shrink-0 text-[11px] font-bold uppercase tracking-wide text-sna3ti-orange">✕ Remplacée</span>
             </label>
           </div>
-          <div>
-            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.photoTravail">Photo de travail (échantillon)</label>
+          <div class="sm:col-span-2">
+            <div class="flex items-center justify-between gap-2">
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.photoTravail">Photo de travail (échantillon)</label>
+              <span id="regEchantCounter" class="rounded-full bg-sna3ti-teal/20 px-2.5 py-0.5 text-[11px] font-bold text-sna3ti-mint">Échantillons : 0 / 3</span>
+            </div>
             <label class="reg-file flex cursor-pointer items-center gap-3 rounded-xl bg-white/10 border border-white/15 px-4 py-3">
-              <input id="regPhotoTravail" type="file" accept="image/*" class="sr-only" />
-              <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseFile">Choisir un fichier</span>
+              <input id="regPhotoTravail" type="file" accept="image/*" multiple class="sr-only" />
+              <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseFile">Choisir des fichiers</span>
               <span class="reg-file-name truncate text-sm text-white/50" data-i18n="register.noFile">Aucun fichier sélectionné</span>
             </label>
+            <div id="regEchantNotice" class="hidden mt-2 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-3 py-2 text-xs font-semibold text-white">⚠️ Limite atteinte pour votre formule. Passez à <b>Vérifié</b> ou <b>GOLD</b> pour publier plus de photos d'échantillons.</div>
+            <div id="regEchantGallery" class="mt-2 flex flex-wrap gap-2"></div>
+          </div>
+          <div class="sm:col-span-2">
+            <div class="flex items-center justify-between gap-2">
+              <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.videoTravail">Vidéo d'échantillon (max 1 min)</label>
+              <span id="regVideoCounter" class="rounded-full bg-sna3ti-teal/20 px-2.5 py-0.5 text-[11px] font-bold text-sna3ti-mint">Vidéos : 0 / 0</span>
+            </div>
+            <label class="reg-file flex cursor-pointer items-center gap-3 rounded-xl bg-white/10 border border-white/15 px-4 py-3">
+              <input id="regVideoTravail" type="file" accept="video/*" multiple class="sr-only" />
+              <span class="shrink-0 rounded-lg bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white" data-i18n="register.chooseVid">Choisir des vidéos</span>
+              <span class="reg-file-name truncate text-sm text-white/50" data-i18n="register.noVid">Aucune vidéo sélectionnée</span>
+            </label>
+            <div id="regVideoNotice" class="hidden mt-2 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-3 py-2 text-xs font-semibold text-white">⏱️ Vidéo trop longue : chaque vidéo doit durer <b>moins de 1 minute</b>.</div>
+            <div id="regVideoNoticeLimit" class="hidden mt-2 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-3 py-2 text-xs font-semibold text-white">⚠️ Limite atteinte pour votre formule. Passez à <b>Vérifié</b> ou <b>GOLD</b> pour ajouter plus de vidéos.</div>
+            <div id="regVideoGallery" class="mt-2 flex flex-wrap gap-2"></div>
           </div>
         </form>
 
@@ -4341,8 +4365,8 @@
             fBadge: "Badge vérifié",
             fWhatsapp: "WhatsApp",
             fPhotos3: "3 photos",
-            fPhotos10: "10 photos",
-            fPhotosUnlimited: "Photos illimitées",
+            fPhotos10: "8 photos + 2 vidéos",
+            fPhotosUnlimited: "17 photos + 3 vidéos",
             fPortfolio: "Portfolio",
             fAvis: "Avis clients",
             fDispo: "Disponibilité",
@@ -4506,8 +4530,8 @@
             fBadge: "شارة موثّق",
             fWhatsapp: "واتساب",
             fPhotos3: "3 صور",
-            fPhotos10: "10 صور",
-            fPhotosUnlimited: "صور غير محدودة",
+            fPhotos10: "8 صور + فيديوهان",
+            fPhotosUnlimited: "17 صورة + 3 فيديوهات",
             fPortfolio: "المعرض",
             fAvis: "آراء العملاء",
             fDispo: "التوفر",
@@ -4670,8 +4694,8 @@
             fBadge: "Verified badge",
             fWhatsapp: "WhatsApp",
             fPhotos3: "3 photos",
-            fPhotos10: "10 photos",
-            fPhotosUnlimited: "Unlimited photos",
+            fPhotos10: "8 photos + 2 videos",
+            fPhotosUnlimited: "17 photos + 3 videos",
             fPortfolio: "Portfolio",
             fAvis: "Client reviews",
             fDispo: "Availability",
@@ -6981,6 +7005,14 @@ function regSelectPack(pack) {
     s2.classList.remove("hidden");
     s2.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  if (typeof sna3tiRenderEchantGallery === "function") sna3tiRenderEchantGallery();
+  if (typeof sna3tiRenderVideoGallery === "function") sna3tiRenderVideoGallery();
+
+  if (typeof sna3tiSetPackBanner === "function") {
+    if (pack === "gratuit") sna3tiHidePackBanner();
+    else sna3tiSetPackBanner(pack);
+  }
 }
 
 function openPackPopup(preselected) {
@@ -7018,8 +7050,71 @@ function choosePack(pack) {
 
   if (!document.getElementById("register")) return;
 
+  const prevSel = document.querySelector(".reg-pack.reg-pack-selected");
+  const prevPack = prevSel ? prevSel.getAttribute("data-pack") : null;
+  const changed = prevPack && prevPack !== pack;
+
   window.location.hash = "#register";
+
+  if (changed) {
+    sna3tiResetRegForm();
+    sna3tiSetPackBanner(pack);
+  }
+
   regSelectPack(pack);
+}
+
+function sna3tiResetRegForm() {
+  if (window.Sna3tiEchantPhotos) window.Sna3tiEchantPhotos.length = 0;
+  if (window.Sna3tiEchantSeen) window.Sna3tiEchantSeen = {};
+  const gal = document.getElementById("regEchantGallery");
+  if (gal) gal.innerHTML = "";
+  const notice = document.getElementById("regEchantNotice");
+  if (notice) notice.classList.add("hidden");
+
+  if (window.Sna3tiVideos) window.Sna3tiVideos.length = 0;
+  if (window.Sna3tiVideoSeen) window.Sna3tiVideoSeen = {};
+  const vgal = document.getElementById("regVideoGallery");
+  if (vgal) vgal.innerHTML = "";
+  const vnotice = document.getElementById("regVideoNotice");
+  if (vnotice) vnotice.classList.add("hidden");
+  const vlim = document.getElementById("regVideoNoticeLimit");
+  if (vlim) vlim.classList.add("hidden");
+
+  ["regNom", "regPrenom", "regPrix", "regPhone"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  ["regMetier", "regVille"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.selectedIndex = 0;
+  });
+
+  const prof = document.getElementById("regPhotoProfil");
+  if (prof) prof.value = "";
+  const profLabel = document.querySelector('#regPhotoProfil') && document.querySelector('#regPhotoProfil').closest(".reg-file");
+  const pname = profLabel ? profLabel.querySelector(".reg-file-name") : null;
+  if (pname) pname.textContent = "Aucun fichier sélectionné";
+  const prevEl = profLabel ? profLabel.querySelector(".reg-file-prev") : null;
+  if (prevEl) { prevEl.classList.add("hidden"); prevEl.removeAttribute("src"); prevEl.classList.remove("opacity-40", "ring-sna3ti-orange"); prevEl.style.filter = ""; }
+  window.Sna3tiRegPrevId = null;
+}
+
+function sna3tiSetPackBanner(pack) {
+  const banner = document.getElementById("regPackBanner");
+  if (!banner) return;
+  const names = { gratuit: "Gratuit", verifie: "Vérifié", gold: "GOLD" };
+  const icons = { verifie: "🛡️", gold: "👑" };
+  const nameEl = document.getElementById("regPackBannerName");
+  if (nameEl) nameEl.textContent = names[pack] || pack;
+  const iconEl = document.getElementById("regPackBannerIcon");
+  if (iconEl) iconEl.textContent = icons[pack] || "✅";
+  banner.classList.remove("hidden");
+}
+
+function sna3tiHidePackBanner() {
+  const banner = document.getElementById("regPackBanner");
+  if (banner) banner.classList.add("hidden");
 }
 
 function regSubmit() {
@@ -7164,21 +7259,235 @@ document.addEventListener("submit", function (e) {
   }
 });
 
+window.Sna3tiEchantPhotos = [];
+window.Sna3tiEchantSeen = {};
+window.Sna3tiEchantLimits = { gratuit: 3, verifie: 8, gold: 17 };
+
+function sna3tiCurrentEchantLimit() {
+  const sel = document.querySelector(".reg-pack.reg-pack-selected");
+  const pack = sel ? sel.getAttribute("data-pack") : "gratuit";
+  return (window.Sna3tiEchantLimits && window.Sna3tiEchantLimits[pack]) || 3;
+}
+
+function sna3tiRenderEchantGallery() {
+  const gal = document.getElementById("regEchantGallery");
+  const counter = document.getElementById("regEchantCounter");
+  const notice = document.getElementById("regEchantNotice");
+  if (gal) {
+    gal.innerHTML = "";
+    window.Sna3tiEchantPhotos.forEach(function (url, i) {
+      const wrap = document.createElement("div");
+      wrap.className = "relative h-20 w-20 overflow-hidden rounded-lg ring-2 ring-sna3ti-teal";
+      wrap.title = "Échantillon " + (i + 1);
+      const img = document.createElement("img");
+      img.src = url;
+      img.className = "h-full w-full object-cover";
+      wrap.appendChild(img);
+      const idx = document.createElement("span");
+      idx.className = "absolute bottom-0 right-0 rounded-tl-lg bg-sna3ti-ink/80 px-1.5 text-[10px] font-black text-white";
+      idx.textContent = i + 1;
+      wrap.appendChild(idx);
+      gal.appendChild(wrap);
+    });
+  }
+  if (counter) counter.textContent = "Échantillons : " + window.Sna3tiEchantPhotos.length + " / " + sna3tiCurrentEchantLimit();
+  if (notice) {
+    if (window.Sna3tiEchantPhotos.length < sna3tiCurrentEchantLimit()) notice.classList.add("hidden");
+  }
+  const nameEl = document.querySelector('#regPhotoTravail').closest(".reg-file");
+  const labelEl = nameEl ? nameEl.querySelector(".reg-file-name") : null;
+  if (labelEl) labelEl.textContent = window.Sna3tiEchantPhotos.length + " fichier(s)";
+}
+
+window.Sna3tiVideos = [];
+window.Sna3tiVideoSeen = {};
+window.Sna3tiVideoLimits = { gratuit: 0, verifie: 2, gold: 3 };
+window.Sna3tiVideoMaxSec = 60;
+
+function sna3tiCurrentVideoLimit() {
+  const sel = document.querySelector(".reg-pack.reg-pack-selected");
+  const pack = sel ? sel.getAttribute("data-pack") : "gratuit";
+  return (window.Sna3tiVideoLimits && window.Sna3tiVideoLimits[pack]) || 0;
+}
+
+function sna3tiRenderVideoGallery() {
+  const gal = document.getElementById("regVideoGallery");
+  const counter = document.getElementById("regVideoCounter");
+  const limNotice = document.getElementById("regVideoNoticeLimit");
+  if (gal) {
+    gal.innerHTML = "";
+    window.Sna3tiVideos.forEach(function (v, i) {
+      const wrap = document.createElement("div");
+      wrap.className = "relative h-20 w-20 overflow-hidden rounded-lg ring-2 ring-sna3ti-teal";
+      wrap.title = "Vidéo " + (i + 1);
+      const vd = document.createElement("video");
+      vd.src = v.url;
+      vd.muted = true;
+      vd.preload = "metadata";
+      vd.className = "h-full w-full object-cover";
+      wrap.appendChild(vd);
+      const secs = document.createElement("span");
+      secs.className = "absolute bottom-0 right-0 rounded-tl-lg bg-sna3ti-ink/80 px-1.5 text-[10px] font-black text-white";
+      secs.textContent = Math.round(v.duration) + "s";
+      wrap.appendChild(secs);
+      gal.appendChild(wrap);
+    });
+  }
+  if (counter) counter.textContent = "Vidéos : " + window.Sna3tiVideos.length + " / " + sna3tiCurrentVideoLimit();
+  if (limNotice) {
+    if (window.Sna3tiVideos.length < sna3tiCurrentVideoLimit()) limNotice.classList.add("hidden");
+  }
+  const nameEl = document.getElementById("regVideoTravail") ? document.getElementById("regVideoTravail").closest(".reg-file") : null;
+  const labelEl = nameEl ? nameEl.querySelector(".reg-file-name") : null;
+  if (labelEl) labelEl.textContent = window.Sna3tiVideos.length + " vidéo(s)";
+}
+
+function sna3tiLoadVideoDuration(file, cb) {
+  try {
+    const url = URL.createObjectURL(file);
+    const vd = document.createElement("video");
+    vd.preload = "metadata";
+    vd.src = url;
+    let done = false;
+    function finish(dur) { if (done) return; done = true; URL.revokeObjectURL(url); cb(dur); }
+    vd.onloadedmetadata = function () { finish(vd.duration || 0); };
+    vd.onerror = function () { finish(0); };
+    setTimeout(function () { finish(vd.duration || 0); }, 3000);
+  } catch (err) {
+    cb(0);
+  }
+}
+
 document.addEventListener("change", function (e) {
   const input = e.target;
   if (!input || input.type !== "file") return;
-  if (input.id !== "regPhotoProfil" && input.id !== "regPhotoTravail") return;
+  if (input.id !== "regPhotoProfil" && input.id !== "regPhotoTravail" && input.id !== "regVideoTravail") return;
+
+  if (input.id === "regVideoTravail") {
+    const files = input.files ? Array.prototype.slice.call(input.files) : [];
+    if (files.length) {
+      const pending = [];
+      files.forEach(function (file) {
+        const key = file.name + "|" + (file.size || 0) + "|" + (file.lastModified || 0);
+        if (window.Sna3tiVideoSeen[key]) return;
+        if (window.Sna3tiVideos.length >= sna3tiCurrentVideoLimit()) {
+          const limNotice = document.getElementById("regVideoNoticeLimit");
+          if (limNotice) {
+            const sel = document.querySelector(".reg-pack.reg-pack-selected");
+            const pack = sel ? sel.getAttribute("data-pack") : "gratuit";
+            limNotice.innerHTML = '⚠️ Limite atteinte pour votre formule. Passez à <b>' +
+              (pack === "verifie" ? "GOLD" : "Vérifié</b> ou <b>GOLD") +
+              '</b> pour ajouter plus de vidéos.';
+            limNotice.classList.remove("hidden");
+          }
+          return;
+        }
+        pending.push(file);
+      });
+
+      let handled = 0;
+      const total = pending.length;
+      pending.forEach(function (file) {
+        sna3tiLoadVideoDuration(file, function (dur) {
+          const key = file.name + "|" + (file.size || 0) + "|" + (file.lastModified || 0);
+          if (dur > window.Sna3tiVideoMaxSec) {
+            const notice = document.getElementById("regVideoNotice");
+            if (notice) {
+              notice.innerHTML = "⏱️ Cette vidéo dépasse <b>1 minute</b>. Chaque vidéo ne doit pas dépasser 1 minute.";
+              notice.classList.remove("hidden");
+              setTimeout(function () { const n = document.getElementById("regVideoNotice"); if (n) n.classList.add("hidden"); }, 3000);
+            }
+          } else {
+            const key2 = file.name + "|" + (file.size || 0) + "|" + (file.lastModified || 0);
+            if (!window.Sna3tiVideoSeen[key2] && window.Sna3tiVideos.length < sna3tiCurrentVideoLimit()) {
+              window.Sna3tiVideoSeen[key2] = true;
+              window.Sna3tiVideos.push({ url: URL.createObjectURL(file), duration: dur });
+            }
+          }
+          handled++;
+          if (handled === total) {
+            sna3tiRenderVideoGallery();
+            input.value = "";
+          }
+        });
+      });
+      if (total === 0) {
+        sna3tiRenderVideoGallery();
+        input.value = "";
+      }
+    }
+    return;
+  }
+
+  if (input.id === "regPhotoTravail") {
+    const files = input.files ? Array.prototype.slice.call(input.files) : [];
+    if (files.length) {
+      files.forEach(function (file) {
+        const key = file.name + "|" + (file.size || 0) + "|" + (file.lastModified || 0);
+        if (window.Sna3tiEchantSeen[key]) return;
+        if (window.Sna3tiEchantPhotos.length >= sna3tiCurrentEchantLimit()) {
+          const notice = document.getElementById("regEchantNotice");
+          if (notice) {
+            const sel = document.querySelector(".reg-pack.reg-pack-selected");
+            const pack = sel ? sel.getAttribute("data-pack") : "gratuit";
+            notice.innerHTML = '⚠️ Limite atteinte pour votre formule. Passez à <b>' +
+              (pack === "verifie" ? "GOLD" : "Vérifié</b> ou <b>GOLD") +
+              '</b> pour publier plus de photos d\'échantillons.';
+            notice.classList.remove("hidden");
+          }
+          return;
+        }
+        window.Sna3tiEchantSeen[key] = true;
+        window.Sna3tiEchantPhotos.push(URL.createObjectURL(file));
+      });
+      sna3tiRenderEchantGallery();
+      input.value = "";
+    }
+    return;
+  }
 
   const nameEl = input.closest(".reg-file");
   if (!nameEl) return;
   const labelEl = nameEl.querySelector(".reg-file-name");
   if (!labelEl) return;
+  const prevEl = nameEl.querySelector(".reg-file-prev");
+  const replacedEl = nameEl.querySelector(".reg-file-replaced");
+  const isProfile = input.id === "regPhotoProfil";
 
   if (input.files && input.files[0]) {
-    labelEl.textContent = input.files[0].name;
+    const file = input.files[0];
+
+    // Profile: only one profile photo allowed. If one was already chosen,
+    // cross it out and mark it as replaced before showing the new one.
+    if (isProfile && prevEl && prevEl.src && window.Sna3tiRegPrevId === input.id) {
+      prevEl.classList.remove("ring-sna3ti-teal");
+      prevEl.classList.add("opacity-40", "ring-sna3ti-orange");
+      prevEl.style.filter = "grayscale(1)";
+      if (replacedEl) {
+        replacedEl.classList.remove("hidden");
+        setTimeout(function () { if (replacedEl) replacedEl.classList.add("hidden"); }, 2200);
+      }
+    }
+    window.Sna3tiRegPrevId = input.id;
+
+    // Show a small preview thumbnail (local object URL).
+    if (prevEl) {
+      const url = URL.createObjectURL(file);
+      prevEl.onload = function () { URL.revokeObjectURL(url); };
+      prevEl.src = url;
+      prevEl.classList.remove("hidden");
+    }
+
+    labelEl.textContent = file.name + (isProfile && replacedEl && !replacedEl.classList.contains("hidden") ? " (précédente annulée)" : "");
     labelEl.removeAttribute("data-i18n");
     labelEl.classList.add("text-white/90");
+
+    // Show full path (webkitRelativePath or name) as title tooltip.
+    labelEl.title = file.webkitRelativePath || file.name;
   } else {
+    window.Sna3tiRegPrevId = null;
+    if (prevEl) { prevEl.classList.add("hidden"); prevEl.removeAttribute("src"); prevEl.classList.remove("opacity-40", "ring-sna3ti-orange"); prevEl.style.filter = ""; }
+    if (replacedEl) replacedEl.classList.add("hidden");
     const lang = localStorage.getItem("sna3ti-language") || "fr";
     labelEl.textContent =
       (translations[lang] && translations[lang].register && translations[lang].register.noFile) ||
@@ -7614,9 +7923,9 @@ initAllGalleries();
       return "De rien ! 😊 Si tu as une autre question, je suis là. À bientôt !";
 
     if (/gold|💛|👑|💛/.test(n))
-      return "L'offre <b>GOLD</b> (199 DH/mois) est la formule premium 💛 : apparition premium dans la recherche, badge vérifié, photos illimitées, portfolio, statistiques avancées, mise en avant 4×/mois, AI Profile Advanced et support VIP.";
+      return "L'offre <b>GOLD</b> (199 DH/mois) est la formule premium 💛 : apparition premium dans la recherche, badge vérifié, 17 photos + 3 vidéos, portfolio, statistiques avancées, mise en avant 4×/mois, AI Profile Advanced et support VIP.";
     if (/v[ée]rif[ée]|verif|recommand[ée]/.test(n))
-      return "L'offre <b>Vérifié</b> (99 DH/mois) donne : apparition prioritaire dans la recherche, badge vérifié, 10 photos, portfolio, statistiques de base… C'est le choix recommandé pour gagner la confiance des clients. ✅";
+      return "L'offre <b>Vérifié</b> (99 DH/mois) donne : apparition prioritaire dans la recherche, badge vérifié, 8 photos + 2 vidéos, portfolio, statistiques de base… C'est le choix recommandé pour gagner la confiance des clients. ✅";
     if (/gratuit|gratuite|\bfree\b|0 dh|zero/.test(n))
       return "L'offre <b>Gratuit</b> (0 DH) te permet de créer ton compte et d'apparaître dans la recherche gratuitement, avec 3 photos et un profil standard. Idéal pour démarrer !";
 
