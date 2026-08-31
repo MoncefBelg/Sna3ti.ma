@@ -452,7 +452,9 @@
           (AUTH.can("professionals","suspend") && p.status!=="suspended" ? '<button class="btn btn-warn" id="dSuspend">⏸️ '+T("Suspendre")+'</button>' : "") +
           (AUTH.can("professionals","activate") && p.status==="suspended" ? '<button class="btn btn-soft" id="dActivate">▶️ '+T("Activer")+'</button>' : "") +
           (AUTH.can("professionals","verify") && p.verificationStatus!=="approved" ? '<button class="btn btn-primary" id="dVerify">✅ '+T("Vérifier")+'</button>' : "") +
+          (AUTH.can("professionals","verify") && p.verificationStatus!=="approved" ? '<button class="btn btn-danger" id="dReject">✖ '+T("Rejeter vérification")+'</button>' : "") +
           (AUTH.can("professionals","update") ? '<button class="btn btn-ghost" id="dEdit">✏️ '+T("Modifier")+'</button>' : "") +
+          (AUTH.can("professionals","delete") ? '<button class="btn btn-danger" id="dDelete">🗑️ '+T("Supprimer")+'</button>' : "") +
         '</div></div>' +
         '<div class="card" style="margin-top:0"><div class="pro" style="align-items:flex-start"><div class="p-avatar" style="width:64px;height:64px;font-size:24px">'+initials(p.name)+'</div>' +
           '<div><div style="font-size:18px;font-weight:800;font-family:var(--font-head)">'+esc(p.job)+'</div>' +
@@ -480,7 +482,7 @@
         '</div>' +
 
         '<div class="grid-2" style="margin-top:20px;align-items:start">' +
-          '<div class="card"><div class="card-title">'+T("Abonnement")+'</div>' + subSection(sub) + '</div>' +
+          '<div class="card"><div class="card-title">'+T("Abonnement")+'</div>' + subSection(sub, p.id) + '</div>' +
           '<div class="card"><div class="card-title">'+T("Leads & performance")+'</div><div class="feed" style="margin-top:10px">' +
             leadRow("📞",T("Clics téléphone"), p.leads?p.leads.phoneClicks:842) +
             leadRow("💬",T("Clics WhatsApp"), p.leads?p.leads.whatsappClicks:1240) +
@@ -537,15 +539,61 @@
           UI.toast(next ? p.name+T(" est maintenant disponible.") : p.name+T(" est maintenant sur rendez-vous.")); renderProfessionalDetail(id);
         }});
       });
+      var drj = document.getElementById("dReject"); if(drj) drj.addEventListener("click", function(){
+        var pend = verifs.filter(function(v){ return v.status==="pending" || v.status==="needs_info"; });
+        UI.confirmAction({ title:T("Rejeter la vérification de ce professionnel ?"), reasonRequired:true, reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
+          pend.forEach(function(v){ if(v) DATA.rejectVerification(v.id, reason, AUTH.getSession().name); });
+          DATA.updateProfessional(p.id, { verificationStatus:"rejected", verified:false, professionStatus:"rejected" });
+          DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_REJECTED", entity:"Professional", entityId:p.id, result:"Rejected", note:reason});
+          UI.toast(T("Vérification rejetée.")); renderProfessionalDetail(id); updatePillsSafe();
+        }});
+      });
+      var ddel = document.getElementById("dDelete"); if(ddel) ddel.addEventListener("click", function(){
+        UI.confirmAction({ title:T("Supprimer ce professionnel ?"), message:T("Action irréversible. Le profil, ses abonnements, paiements, avis et demandes seront retirés de la plateforme."), confirmLabel:T("Supprimer"), onConfirm:function(){
+          DATA.deleteProfessional(p.id);
+          DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Deleted"});
+          UI.toast(T("Professionnel supprimé.")); ROUTER.navigate("professionals");
+        }});
+      });
+      var dcp = document.getElementById("dChangePlan"); if(dcp) dcp.addEventListener("click", function(){ changePlanModal(p.id, sub); });
     }, 300);
   }
 
-  function subSection(sub){
+  function changePlanModal(proId, sub){
+    var plans = DATA.getSubscriptionPlans().filter(function(pl){ return pl.active; });
+    var current = sub ? sub.planId : "";
+    var radio = plans.map(function(pl){
+      var checked = pl.id===current ? " checked" : "";
+      return '<label class="plan-radio"><input type="radio" name="newplan" value="'+pl.id+'"'+checked+' data-price="'+pl.price+'">'+
+        '<span class="promo '+(pl.badge||"gray")+'">'+(String(pl.name).toUpperCase()==="GOLD"?"👑 ":"")+esc(pl.name)+'</span> '+
+        '<span class="muted">'+pl.price+' DH / '+T("mois")+'</span><div class="muted small">'+esc(pl.description||"")+'</div></label>';
+    }).join("");
+    UI.openModal(
+      '<h3>'+T("Changer l'abonnement")+'</h3>'+
+      '<p class="muted" style="font-size:13px">'+T("Sélectionnez le nouveau plan de ce professionnel.")+'</p>'+
+      '<div class="plan-grid" style="margin:14px 0">'+radio+'</div>'+
+      '<div class="modal-actions">'+
+        '<button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button>'+
+        '<button class="btn btn-primary" id="cpApply">'+T("Appliquer le plan")+'</button>'+
+      '</div>');
+    var apply=document.getElementById("cpApply"); if(apply) apply.addEventListener("click", function(){
+      var sel=document.querySelector('input[name="newplan"]:checked');
+      var plan=sel && DATA.getSubscriptionPlans().filter(function(x){return x.active;}).find(function(x){return x.id===sel.value;});
+      if(!plan){ UI.toast(T("Sélectionnez un plan."), true); return; }
+      DATA.setSubscription(proId, plan.id);
+      DATA.logAudit({admin:AUTH.getSession().name, action:"CHANGE_SUBSCRIPTION", entity:"Professional", entityId:proId, result:plan.name, note:plan.price+" DH/"+T("mois")});
+      UI.closeModal(); UI.toast(T("Abonnement changé vers ")+plan.name+".");
+      renderProfessionalDetail(proId);
+    });
+  }
+
+  function subSection(sub, proId){
     if(!sub) return '<div class="empty" style="padding:20px">'+T("Aucun abonnement.")+'</div>';
     return '<div class="detail-grid" style="margin-top:12px">' +
       drow(T("Plan"), pkgBadge({package: sub.planName.toLowerCase()==="gold"?"gold":sub.planName.toLowerCase()==="vérifié"?"verified":"free"})) +
       drow(T("Prix"), sub.price+" DH") + drow(T("Début"), sub.since) + drow(T("Renouvellement"), sub.renewal) +
       drow(T("Statut"), statusBadge(sub.status)) + drow(T("Paiement"), '<span class="badge '+ (sub.paymentStatus==="confirmed"?"green":"amber")+'">'+esc(sub.paymentStatus)+'</span>') +
+      (AUTH.can("subscriptions","update") && proId ? '<div class="drow"><div class="dk"></div><div class="dv"><button class="btn btn-soft btn-small" id="dChangePlan">🔄 '+T("Changer d'abonnement")+'</button></div></div>' : "") +
     '</div>';
   }
   function drow(k, v){ return '<div class="detail-row"><div class="dk">'+esc(k)+'</div><div class="dv">'+v+'</div></div>'; }
@@ -762,12 +810,35 @@
     var valid = { all:1, pending:1, needs_info:1, approved:1, rejected:1 };
     var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
     var all = DATA.getVerificationRequests();
+    var citySet={}, profSet={}, revSet={};
+    all.forEach(function(v){
+      var p = DATA.getProfessional(v.professionalId);
+      if(p && p.city) citySet[p.city]=1;
+      if(p && p.job) profSet[p.job]=1;
+      if(v.reviewerId) revSet[DATA.adminName(v.reviewerId)]=1;
+    });
+    var cityOpts = Object.keys(citySet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
+    var profOpts = Object.keys(profSet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
+    var revOpts = Object.keys(revSet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
     var html =
       '<div class="page-head"><h1>'+T("Vérification")+'</h1><div class="spacer muted">'+T("Vérification et abonnement sont indépendants.")+'</div></div>' +
       '<div class="tabs">' +
         tabBtn("all", T("Toutes"), all.length) + tabBtn("pending", T("En attente"), count(all,"pending")) +
         tabBtn("needs_info", T("Infos demandées"), count(all,"needs_info")) + tabBtn("approved", T("Approuvées"), count(all,"approved")) + tabBtn("rejected", T("Rejetées"), count(all,"rejected")) +
-      '</div><div id="verList"></div>';
+      '</div>' +
+      '<div class="vfilter-bar"><div class="vf-grid">' +
+        '<label class="vf-field">'+T("Ville")+'<select id="vfCity"><option value="">'+T("Toutes")+'</option>'+cityOpts+'</select></label>' +
+        '<label class="vf-field">'+T("Métier")+'<select id="vfProf"><option value="">'+T("Tous")+'</option>'+profOpts+'</select></label>' +
+        '<label class="vf-field">'+T("Date de soumission")+'<input type="date" id="vfDate"></label>' +
+        '<label class="vf-field">'+T("Priorité")+'<select id="vfPrio"><option value="">'+T("Toutes")+'</option><option value="high">'+T("Haute")+'</option><option value="medium">'+T("Moyenne")+'</option><option value="low">'+T("Basse")+'</option></select></label>' +
+        '<label class="vf-field">'+T("Relecteur")+'<select id="vfRev"><option value="">'+T("Tous")+'</option>'+revOpts+'</select></label>' +
+      '</div><div class="vf-sort">' +
+        '<span class="muted">'+T("Trier :")+'</span>' +
+        '<button class="btn btn-soft btn-small" data-sort="old">⏫ '+T("Plus ancien d'abord")+'</button>' +
+        '<button class="btn btn-soft btn-small" data-sort="new">⏬ '+T("Plus récent d'abord")+'</button>' +
+        '<button class="btn btn-soft btn-small" data-sort="prio">🔥 '+T("Priorité la plus haute")+'</button>' +
+        '<button class="btn btn-ghost btn-small" id="vfReset">'+T("Réinitialiser")+'</button>' +
+      '</div></div><div id="verList"></div>';
     UI.setContent(html);
     drawVerification(filter);
   }
@@ -778,7 +849,7 @@
       t.classList.toggle("active", t.dataset.tab===filter);
       t.onclick=function(){ drawVerification(t.dataset.tab); };
     });
-    var list = DATA.getVerificationRequests({ status: filter==="all"?"":filter });
+    var list = sortVer( applyVerFilters( DATA.getVerificationRequests({ status: filter==="all"?"":filter }) ), _verSort );
     var el = document.getElementById("verList");
     if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucune demande.")+'</div>'; return; }
     el.innerHTML = list.map(function(v){
@@ -819,6 +890,48 @@
         '</div></div>';
     }).join("");
     bindVerification();
+    bindVerFilters();
+  }
+  var _verSort = "new";
+  function applyVerFilters(list){
+    var g=function(id){ var e=document.getElementById(id); return e?e.value:""; };
+    var city=g("vfCity"), prof=g("vfProf"), date=g("vfDate"), prio=g("vfPrio"), rev=g("vfRev");
+    return list.filter(function(v){
+      var p = DATA.getProfessional(v.professionalId) || {};
+      if(city && p.city!==city) return false;
+      if(prof && p.job!==prof) return false;
+      if(prio && v.priority!==prio) return false;
+      if(rev && DATA.adminName(v.reviewerId)!==rev) return false;
+      if(date && String(v.submitted||"").slice(0,10)!==date) return false;
+      return true;
+    });
+  }
+  function sortVer(list, mode){
+    var pr={ high:0, medium:1, low:2 };
+    var arr = list.slice();
+    arr.sort(function(a,b){
+      if(mode==="old") return String(a.submitted).localeCompare(String(b.submitted));
+      if(mode==="prio"){
+        var pa = pr[a.priority]!==undefined?pr[a.priority]:3;
+        var pb = pr[b.priority]!==undefined?pr[b.priority]:3;
+        if(pa!==pb) return pa-pb;
+        return String(b.submitted).localeCompare(String(a.submitted));
+      }
+      return String(b.submitted).localeCompare(String(a.submitted));
+    });
+    return arr;
+  }
+  function bindVerFilters(){
+    ["vfCity","vfProf","vfDate","vfPrio","vfRev"].forEach(function(id){
+      var e=document.getElementById(id); if(e) e.addEventListener("change", function(){ drawVerification(currentFilter()); });
+    });
+    document.querySelectorAll("[data-sort]").forEach(function(b){
+      b.addEventListener("click", function(){ _verSort=b.dataset.sort; drawVerification(currentFilter()); });
+    });
+    var r=document.getElementById("vfReset"); if(r) r.addEventListener("click", function(){
+      ["vfCity","vfProf","vfDate","vfPrio","vfRev"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
+      _verSort="new"; drawVerification(currentFilter());
+    });
   }
   // store checklist progress per professional
   global.__verCheck = {};

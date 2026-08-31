@@ -644,3 +644,31 @@ td.actions-cell { white-space:nowrap; text-align:right; }
 :root[data-theme="dark"] .menu-item,
 :root[data-theme="dark"] .sp-main,
 :root[data-theme="dark"] .n-txt { color:var(--ink); }
+
+/* ---- verification center: filters + sort ---- */
+.vfilter-bar {
+  display:flex; flex-direction:column; gap:12px;
+  margin:14px 0; padding:14px 16px;
+  border:1px solid var(--line); border-radius:14px; background:var(--card);
+}
+.vf-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.vf-field { display:flex; flex-direction:column; gap:6px; font-size:12.5px; font-weight:700; color:var(--muted); }
+.vf-field select,
+.vf-field input { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--field); color:var(--ink); font-size:13px; }
+.vf-sort { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.vf-sort .muted { margin-right:4px; }
+
+/* ---- change-subscription plan picker ---- */
+.plan-grid { display:flex; flex-direction:column; gap:10px; }
+.plan-radio {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  border:1px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; background:var(--card);
+}
+.plan-radio:hover { border-color:var(--line-strong); background:var(--sand); }
+.plan-radio input { accent-color:var(--accent); }
+.plan-radio .small { width:100%; margin-left:26px; }
+
+:root[data-theme="dark"] .vfilter-bar { background:var(--sand); border-color:var(--line-strong); }
+:root[data-theme="dark"] .vf-field select,
+:root[data-theme="dark"] .vf-field input { background:var(--sand); color:var(--ink); border-color:var(--line-strong); }
+:root[data-theme="dark"] .plan-radio { background:var(--sand); border-color:var(--line-strong); }

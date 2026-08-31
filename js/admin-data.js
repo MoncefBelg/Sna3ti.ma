@@ -509,6 +509,17 @@
       Object.keys(data).forEach(function(k){ if(data[k]!==undefined) p[k]=data[k]; });
       return true;
     },
+    deleteProfessional: function(id){
+      var p = getById(store.professionals, id); if(!p) return false;
+      store.professionals = store.professionals.filter(function(x){ return x.id!==id; });
+      store.verificationRequests = store.verificationRequests.filter(function(x){ return x.professionalId!==id; });
+      store.subscriptions = store.subscriptions.filter(function(x){ return x.professionalId!==id; });
+      store.payments = store.payments.filter(function(x){ return x.professionalId!==id; });
+      store.reviews = store.reviews.filter(function(x){ return x.professionalId!==id; });
+      store.reports = store.reports.filter(function(x){ return x.professionalId!==id; });
+      persist();
+      return true;
+    },
     // ---- AI lead capture ----
     logLead: function(proId, via){
       var p = getById(store.professionals, proId); if(!p) return false;
