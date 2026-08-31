@@ -223,6 +223,48 @@
     "Assistant IA de profil": "AI Profile Assistant",
     "Support VIP": "VIP support",
 
+    // ---- reports (req 22) ----
+    "Ouvrir": "Open",
+    "Ouvrir / prendre en charge": "Open / take charge",
+    "Créé": "Created",
+    "Assigné à": "Assigned to",
+    "Nouvelle": "New",
+    "Signalement ouvert (en cours de traitement).": "Report opened (in progress).",
+    "Faux professionnel": "Fake professional",
+    "Prix trompeur": "Misleading price",
+    "Faux avis": "Fake review",
+    "Fraude": "Fraud",
+    "Spam": "Spam",
+    "Contenu inapproprié": "Inappropriate content",
+    "Mauvaise information": "Wrong information",
+    "Harcèlement": "Harassment",
+    "Réclamation client": "Customer complaint",
+    "Signalé par": "Reported by",
+
+    // ---- users (req 20) ----
+    "Trier": "Sort",
+    "Inscription": "Registration",
+    "Voir le profil": "View profile",
+    "Page": "Page",
+    "Précédent": "Previous",
+    "Suivant": "Next",
+    "utilisateurs": "users",
+    "Inscrit le": "Registered on",
+    "Activité de recherche": "Search activity",
+    "recherches récentes enregistrées": "recent recorded searches",
+    "Professionnels consultés": "Viewed professionals",
+    "Demandes de contact": "Contact requests",
+    "demandes de contact envoyées": "contact requests sent",
+    "Profils gérés": "Managed profiles",
+    "Signalements": "Reports",
+
+    // ---- payments copy aligned with rule 19 ----
+    "Confirmer (active la souscription VÉRIFIÉ/GOLD)": "Confirm (activates VÉRIFIÉ/GOLD subscription)",
+    "Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)": "VÉRIFIÉ/GOLD subscription activated (verified badge = separate process)",
+    "Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.": "Confirming the payment activates the VÉRIFIÉ (99 DH/month) or GOLD (199 DH/month) subscription. The \"Verified Professional\" badge remains subject to a separate verification and is never triggered automatically by the payment alone.",
+    "Après contrôle du virement, la souscription VÉRIFIÉ ou GOLD sera activée sur le profil. Le badge « Professionnel Vérifié » reste soumis à une vérification distincte, indépendante du paiement.": "After checking the transfer, the VÉRIFIÉ or GOLD subscription will be activated on the profile. The \"Verified Professional\" badge remains subject to a separate verification, independent of the payment.",
+    "Paiement confirmé — souscription activée (vérification du badge = processus distinct).": "Payment confirmed - subscription activated (badge verification = separate process).",
+
     // ---- professionals (list/filters) ----
     "Nouveau professionnel": "New professional",
     "Exporter CSV": "Export CSV",

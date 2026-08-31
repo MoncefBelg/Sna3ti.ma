@@ -272,14 +272,14 @@
     { id:"RV-302", professionalId:"PRO-10295", customer:"Leila Mansouri", rating:4, comment:"Bonne intervention, ponctuel.", status:"published", date:"2026-08-16" },
     { id:"RV-303", professionalId:"PRO-10296", customer:"Reda Alaoui", rating:5, comment:"Meubles superbes, je recommande.", status:"published", date:"2026-08-19" },
     { id:"RV-304", professionalId:"PRO-10294", customer:"Yassine M.", rating:5, comment:"Excellent rapport qualité/prix.", status:"pending", date:"2026-08-24" },
-    { id:"RV-305", professionalId:"PRO-10297", customer:"Anonyme", rating:1, comment:"Travail bâclé, à éviter.", status:"flagged", date:"2026-08-25" },
+    { id:"RV-305", professionalId:"PRO-10297", customer:"Anonyme", rating:1, comment:"Travail bâclé, à éviter.", status:"flagged", date:"2026-08-25", flaggedReason:"Avis jugé non objectif", flaggedReporter:"Nadia Cherkaoui", flaggedDate:"2026-08-26" },
     { id:"RV-306", professionalId:"PRO-10298", customer:"Nabila K.", rating:5, comment:"Très sérieuse, bel ouvrage.", status:"published", date:"2026-08-26" }
   ];
 
   var REPORTS = [
-    { id:"RP-401", professionalId:"PRO-10297", reason:"Fausse publicité", description:"Les photos du portfolio ne correspondent pas à la réalité.", reporter:"Omar Berrada", status:"new", date:"2026-08-20" },
-    { id:"RP-402", professionalId:"PRO-10295", reason:"Prix trompeur", description:"Tarif annoncé différent en pratique.", reporter:"Leila Mansouri", status:"new", date:"2026-08-21" },
-    { id:"RP-403", professionalId:"PRO-10299", reason:"Fake review", description:"Revue suspecte, semble fausse.", reporter:"Système", status:"under_review", date:"2026-08-24" }
+    { id:"RP-401", professionalId:"PRO-10297", reason:"Fausse publicité", type:"false_professional", priority:"high", description:"Les photos du portfolio ne correspondent pas à la réalité.", reporter:"Omar Tazi", status:"new", date:"2026-08-20", created:"2026-08-20T09:10:00", assignedTo:"" },
+    { id:"RP-402", professionalId:"PRO-10295", reason:"Prix trompeur", type:"price_misleading", priority:"medium", description:"Tarif annoncé différent en pratique.", reporter:"Ahmed Benali", status:"new", date:"2026-08-21", created:"2026-08-21T15:40:00", assignedTo:"" },
+    { id:"RP-403", professionalId:"PRO-10299", reason:"Fake review", type:"false_review", priority:"high", description:"Revue suspecte, semble fausse.", reporter:"Système", status:"under_review", date:"2026-08-24", created:"2026-08-24T11:05:00", assignedTo:"AU-3" }
   ];
 
   var SUBSCRIPTION_PLANS = [
@@ -735,6 +735,11 @@
     },
     // ---- Reports ----
     getReports: function(params){ var list=clone(store.reports); if(params&&params.status) list=list.filter(function(r){return r.status===params.status;}); return list; },
+    openReport: function(id, adminName){
+      var r=getById(store.reports,id); if(!r) return false; 
+      if(r.status==="new"){ r.status="under_review"; r.openedAt=new Date().toISOString(); }
+      return true;
+    },
     // ---- Support tickets ----
     getSupportTickets: function(params){
       var list = clone(store.supportTickets);
@@ -868,6 +873,36 @@
         a.push({ icon:"contact", text:T("2 demandes de contact envoyées"), when:T("hier"), type:"orange" });
       }
       return a;
+    },
+    // ---- Users: rich detail (search activity, viewed professionals, contact requests, reviews, reports) ----
+    getUserDetail: function(userId){
+      var u = getById(store.users, userId);
+      var name = u ? u.name : (userId||"");
+      var own = store.professionals.filter(function(p){ return p.userId===userId; });
+      var others = store.professionals.filter(function(p){ return p.userId!==userId; });
+      // deterministic pseudo-random offsets from the user id
+      var h = 0; (String(userId)).split("").forEach(function(ch){ h=(h*31+ch.charCodeAt(0))>>>0; });
+      function pick(arr, i){ return arr[Math.max(0,1)%arr.length] || arr[0]; }
+      var searches = [
+        { q:"plombier Casablanca", when:"il y a 2 h" },
+        { q:"électricien Rabat", when:"hier" },
+        { q:"peintre Marrakech", when:"il y a 2 j" },
+        { q:"maçon Agadir", when:"il y a 5 j" }
+      ];
+      var searchActivity = searches.map(function(s,i){ return { q:s.q, when:s.when, count:(h+i)%5+1 }; });
+      var viewedProfessionals = others.slice(0,(h%3)+2).map(function(p){ return { id:p.id, name:p.name, job:p.job, city:p.city }; });
+      var contactRequests = (h%3)+1;
+      var reviews = store.reviews.filter(function(r){ return r.customer===name; }).map(function(r){ return { id:r.id, professionalId:r.professionalId, rating:r.rating, comment:r.comment, date:r.date, status:r.status }; });
+      var reports = store.reports.filter(function(r){ return r.reporter===name; }).map(function(r){ return { id:r.id, professionalId:r.professionalId, reason:r.reason, status:r.status }; });
+      var recentSearches = searches.map(function(s){ return s.q; });
+      return {
+        searches: searchActivity,
+        recentSearches: recentSearches,
+        viewed: viewedProfessionals,
+        contactRequests: contactRequests,
+        reviews: reviews,
+        reports: reports
+      };
     },
     // ---- Dashboard ----
     getKPIs: function(){
