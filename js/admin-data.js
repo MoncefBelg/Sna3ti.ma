@@ -49,7 +49,7 @@
     "moderator": {
       label: T("Moderator"),
       color: "blue",
-      permissions: { dashboard:["read"], users:["read"], professionals:["read","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"] }
     },
     "support": {
       label: T("Support"),
