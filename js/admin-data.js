@@ -393,16 +393,15 @@
   function uid(prefix){ return prefix + "-" + Math.floor(100000 + Math.random()*900000); }
   function todayStr(){ return new Date().toISOString().slice(0,10); }
 
-  // Monotonic professional ID counter: seeded from the highest existing PRO- number
-  // in the live store and only ever incremented, so IDs are never reused after a delete.
-  var nextProNum = 10000;
+  // Monotonic professional ID counter: a persisted plain number that is never derived
+  // from (or parsed from) an entity ID string, so all PRO- ids remain opaque strings.
+  var PRO_COUNTER_KEY = "sna3ti_admin_pro_counter";
   function nextProfessionalId(){
-    store.professionals.forEach(function(p){
-      var n = parseInt(String(p.id||"").replace(/^PRO-/,""), 10);
-      if(!isNaN(n) && n > nextProNum) nextProNum = n;
-    });
-    nextProNum += 1;
-    return "PRO-" + nextProNum;
+    var cur = 10000;
+    try { var raw = localStorage.getItem(PRO_COUNTER_KEY); if(raw && /^\d+$/.test(raw)){ cur = Number(raw); } } catch(e){}
+    cur += 1;
+    try { localStorage.setItem(PRO_COUNTER_KEY, String(cur)); } catch(e){}
+    return "PRO-" + cur;
   }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
