@@ -79,8 +79,8 @@
         '<div class="kpi-grid grid-4">' +
           dashKpi(T("Utilisateurs"),"👥", k.users, "8,2%", T("vs mois dernier"), true, "users") +
           dashKpi(T("Professionnels"),"🧑‍🔧", k.professionals, "12,4%", T("vs mois dernier"), true, "professionals") +
-          dashKpi(T("Vérifiés"),"✅", k.verified, "4,1%", T("vs mois dernier"), true, "professionals") +
-          dashKpi(T("Vérifications en attente"),"⏳", k.pendingVerification, null, T("à traiter"), null, "verification") +
+          dashKpi(T("Vérifiés"),"✅", k.verified, "4,1%", T("vs mois dernier"), true, "professionals?ver=verified") +
+          dashKpi(T("Vérifications en attente"),"⏳", k.pendingVerification, null, T("à traiter"), null, "verification?status=pending") +
           dashKpi(T("Abonnements actifs"),"📦", k.activeSubscriptions, "6,2%", T("vs mois dernier"), true, "subscriptions") +
           dashKpi(T("Paiements en attente"),"💰", k.pendingPayments, null, T("à confirmer"), null, "payments") +
           dashKpi(T("Recherches"),"🔍", secara(k.searches), "18%", T("vs hier"), true, "analytics") +
@@ -104,7 +104,7 @@
 
   // dashKpi(title, ico, value, trend%, comparisonText, isUp, route)
   function dashKpi(title, ico, val, trend, cmp, up, route){
-    var resource = route || "";
+    var resource = (route||"").split("?")[0];
     var allowed = !route || AUTH.can(resource, "read");
     var trendHtml;
     if(trend){
@@ -142,8 +142,8 @@
       (rows || '<tr><td colspan="6"><div class="empty">'+T("Aucune tâche en attente.")+' 🎉</div></td></tr>') +
       '</tbody></table></div></div>';
   }
-  function wqIco(t){ return { verification:"✅", payment:"💰", report:"🚩", review:"⭐", subscription:"📦" }[t] || "📋"; }
-  function wqIcoColor(t){ var m={ verification:"background:var(--mint)", payment:"background:#fdf1e0", report:"background:#fdeaea", review:"background:#f1ebff" }; return m[t]||""; }
+  function wqIco(t){ return { verification:"✅", payment:"💰", report:"🚩", review:"⭐", subscription:"📦", support:"🧰" }[t] || "📋"; }
+  function wqIcoColor(t){ var m={ verification:"background:var(--mint)", payment:"background:#fdf1e0", report:"background:#fdeaea", review:"background:#f1ebff", support:"background:#fff4e0" }; return m[t]||""; }
   function prioClass(p){ var m={ critical:"red", high:"amber", medium:"blue", low:"gray" }; return m[p]||"gray"; }
 
   function secara(n){ return typeof n === "number" ? n.toLocaleString("fr-MA") : n; }
@@ -157,8 +157,15 @@
      PROFESSIONALS (list)
      ============================================================ */
   var proState = { page:1, q:"", city:"", category:"", job:"", verification:"", package:"", rating:"", created:"", status:"", sort:"name", dir:1, perPage:6, selected:{} };
-  function renderProfessionals(){
+  function renderProfessionals(q){
     UI.setTitle(T("Professionnels"));
+    q = q || {};
+    if(q.ver) proState.verification = q.ver;
+    if(q.pkg) proState.package = q.pkg;
+    if(q.status) proState.status = q.status;
+    if(q.city) proState.city = q.city;
+    if(q.category) proState.category = q.category;
+    proState.page = 1;
     var cities = unique(DATA.getProfessionals().map(function(p){ return p.city; }));
     var cats = unique(DATA.getProfessionals().map(function(p){ return p.category; }));
     var jobs = unique(DATA.getProfessionals().map(function(p){ return p.job; }));
@@ -679,8 +686,10 @@
   /* ============================================================
      VERIFICATION CENTER
      ============================================================ */
-  function renderVerification(){
+  function renderVerification(initialFilter){
     UI.setTitle(T("Centre de vérification"));
+    var valid = { all:1, pending:1, needs_info:1, approved:1, rejected:1 };
+    var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
     var all = DATA.getVerificationRequests();
     var html =
       '<div class="page-head"><h1>'+T("Vérification")+'</h1><div class="spacer muted">'+T("Vérification et abonnement sont indépendants.")+'</div></div>' +
@@ -689,7 +698,7 @@
         tabBtn("needs_info", T("Infos demandées"), count(all,"needs_info")) + tabBtn("approved", T("Approuvées"), count(all,"approved")) + tabBtn("rejected", T("Rejetées"), count(all,"rejected")) +
       '</div><div id="verList"></div>';
     UI.setContent(html);
-    drawVerification("all");
+    drawVerification(filter);
   }
   function count(list, s){ return list.filter(function(v){ return v.status===s; }).length; }
   function tabBtn(id, label, n){ return '<button class="tab" data-tab="'+id+'">'+label+' <span class="cnt">'+n+'</span></button>'; }
@@ -943,16 +952,19 @@
   /* ============================================================
      REVIEWS
      ============================================================ */
-  function renderReviews(){
+  function renderReviews(initialFilter){
     UI.setTitle(T("Avis"));
     var labels = { all:T("Tous"), published:T("Publié"), pending:T("En attente"), flagged:T("Signalé"), hidden:T("Masqué") };
+    var valid = { all:1, published:1, pending:1, flagged:1, hidden:1 };
+    var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
+    var order = ["all","published","pending","flagged","hidden"];
     var html =
-      '<div class="tabs">'+["all","published","pending","flagged","hidden"].map(function(s,i){
+      '<div class="tabs">'+order.map(function(s,i){
         var list = DATA.getReviews(); var n = list.length; if(s!=="all") n = list.filter(function(r){return r.status===s;}).length;
-        return '<button class="tab '+(i===0?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
+        return '<button class="tab '+(s===filter?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
       }).join("")+'</div><div id="revBody"></div>';
     UI.setContent(html);
-    drawReviews("all");
+    drawReviews(filter);
   }
   function drawReviews(filter){
     document.querySelectorAll("#content .tab").forEach(function(t){
@@ -1001,16 +1013,19 @@
   /* ============================================================
      REPORTS
      ============================================================ */
-  function renderReports(){
+  function renderReports(initialFilter){
     UI.setTitle(T("Centre de modération"));
     var labels = { all:T("Toutes"), new:T("Nouvelles"), under_review:T("En cours"), resolved:T("Résolues"), rejected:T("Rejetées") };
+    var valid = { all:1, new:1, under_review:1, resolved:1, rejected:1 };
+    var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
+    var order = ["all","new","under_review","resolved","rejected"];
     var html =
-      '<div class="tabs">'+["all","new","under_review","resolved","rejected"].map(function(s,i){
+      '<div class="tabs">'+order.map(function(s,i){
         var list=DATA.getReports(); var n=list.length; if(s!=="all") n=list.filter(function(r){return r.status===s;}).length;
-        return '<button class="tab '+(i===0?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
+        return '<button class="tab '+(s===filter?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
       }).join("")+'</div><div id="repBody"></div>';
     UI.setContent(html);
-    drawReports("all");
+    drawReports(filter);
   }
   function reportReasons(){ return [T("Faux professionnel"),T("Fraude"),T("Faux avis"),T("Spam"),T("Contenu inapproprié"),T("Mauvaise information"),T("Harcèlement"),T("Réclamation client")]; }
   function drawReports(filter){
@@ -1084,6 +1099,100 @@
   }
   function currentReportFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
   function setReport(id, status){ var r=DATA._store.reports.find(function(x){return x.id===id;}); if(r){ r.status=status; DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_"+status.toUpperCase(), entity:"Report", entityId:id, result:status}); UI.toast(T("Signalement ")+status+"."); drawReports(currentReportFilter()); } }
+
+  /* ============================================================
+     SUPPORT TICKETS
+     ============================================================ */
+  var supportLabels = { all:T("Toutes"), open:T("Ouvertes"), pending:T("En attente"), resolved:T("Résolues") };
+  var supportValid = { all:1, open:1, pending:1, resolved:1 };
+  var supportPrioOrder = { critical:0, high:1, medium:2, low:3 };
+  function supportPrioClass(p){ return { critical:"red", high:"amber", medium:"blue", low:"gray" }[p] || "gray"; }
+  function supportPrioLabel(p){ return { critical:T("Critique"), high:T("Haute"), medium:T("Moyenne"), low:T("Basse") }[p] || p; }
+  function supportStatusBadge(s){
+    var m = { open:["blue",T("Ouverte")], pending:["amber",T("En attente")], resolved:["green",T("Résolue")], closed:["gray",T("Fermée")] };
+    var x = m[s] || ["gray", s];
+    return '<span class="badge '+x[0]+'">'+x[1]+'</span>';
+  }
+  function renderSupport(initialFilter){
+    UI.setTitle(T("Support"));
+    var filter = (initialFilter && supportValid[initialFilter]) ? initialFilter : "all";
+    var all = DATA.getSupportTickets();
+    var html =
+      '<div class="page-head"><h1>'+T("Demandes de support")+'</h1><div class="spacer muted">'+T("Tickets des professionnels et utilisateurs.")+'</div></div>' +
+      '<div class="tabs">'+["all","open","pending","resolved"].map(function(s){
+        var n = s==="all" ? all.length : all.filter(function(t){return t.status===s;}).length;
+        return '<button class="tab '+(s===filter?"active":"")+'" data-ts="'+s+'">'+supportLabels[s]+' <span class="cnt">'+n+'</span></button>';
+      }).join("")+'</div><div id="supBody"></div>';
+    UI.setContent(html);
+    drawSupport(filter);
+  }
+  function drawSupport(filter){
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      t.classList.toggle("active", t.dataset.ts===filter);
+      t.onclick=function(){ drawSupport(t.dataset.ts); };
+    });
+    var list = DATA.getSupportTickets({ status: filter==="all"?"":filter });
+    list.sort(function(a,b){ return (supportPrioOrder[a.priority]||9)-(supportPrioOrder[b.priority]||9) || String(a.created).localeCompare(String(b.created)); });
+    var el = document.getElementById("supBody");
+    if(!el) return;
+    if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucun ticket.")+'</div>'; return; }
+    el.innerHTML = list.map(function(t){
+      var p = DATA.getProfessional(t.professionalId);
+      return '<div class="card" style="margin-bottom:10px"><div class="row-item" style="align-items:flex-start">'+
+        '<div class="p-avatar" style="background:#fff4e0">🧰</div>'+
+        '<div class="grow"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
+          '<b>'+esc(t.subject)+'</b>'+
+          '<span class="badge '+supportPrioClass(t.priority)+'">'+esc(supportPrioLabel(t.priority))+'</span>'+
+          supportStatusBadge(t.status)+
+        '</div>'+
+        '<div class="muted" style="font-size:12.5px;margin:4px 0">'+esc(t.user||"")+(p?' · '+esc(p.name):"")+' · '+esc(t.cat||"")+' · créé le '+esc(t.created)+'</div>'+
+        '<div style="font-size:13px">'+esc(t.message)+'</div>'+
+        (t.history&&t.history.length?'<div class="muted" style="font-size:12px;margin-top:6px">🕒 '+t.history.map(function(h){return esc(h.text);}).join(" · ")+'</div>':"")+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+          '<span class="badge gray">'+T("Assigné")+': '+esc(DATA.adminName(t.assignedTo))+'</span>'+
+          (AUTH.can("support","update") ? '<button class="btn btn-primary btn-small" data-closet="'+t.id+'" '+(t.status==="resolved"||t.status==="closed"?"disabled":"")+'>✓ '+T("Marquer résolu")+'</button>' : "")+
+          (AUTH.can("support","update") ? '<button class="btn btn-ghost btn-small" data-replt="'+t.id+'">✎ '+T("Répondre")+'</button>' : "")+
+          (AUTH.can("support","assign") ? '<button class="btn btn-ghost btn-small" data-assignt="'+t.id+'">👤 '+T("Assigner")+'</button>' : "")+
+        '</div></div></div>';
+    }).join("");
+    document.querySelectorAll("[data-closet]").forEach(function(b){ b.addEventListener("click", function(){
+      if(DATA.updateSupportTicket(b.dataset.closet,{ status:"resolved" })){
+        DATA.logAudit({admin:AUTH.getSession().name, action:"SUPPORT_RESOLVED", entity:"SupportTicket", entityId:b.dataset.closet, result:"Resolved"});
+        UI.toast(T("Ticket résolu.")); drawSupport(currentSupportFilter());
+      }
+    }); });
+    document.querySelectorAll("[data-replt]").forEach(function(b){ b.addEventListener("click", function(){
+      var t=DATA._store.supportTickets.find(function(x){return x.id===b.dataset.replt;});
+      UI.confirmAction({title:T("Répondre au ticket"), reasonLabel:T("Réponse"), confirmLabel:T("Envoyer"), onConfirm:function(reason){
+        if(t){ t.history.push({ date: new Date().toISOString().slice(0,10), text:T("Réponse de ")+AUTH.getSession().name+": "+reason }); t.status="pending"; DATA.persist(); }
+        DATA.logAudit({admin:AUTH.getSession().name, action:"SUPPORT_REPLIED", entity:"SupportTicket", entityId:b.dataset.replt, result:"Replied"});
+        UI.toast(T("Réponse envoyée.")); drawSupport(currentSupportFilter());
+      }});
+    }); });
+    document.querySelectorAll("[data-assignt]").forEach(function(b){ b.addEventListener("click", function(){ assignSupport(b.dataset.assignt); }); });
+  }
+  function currentSupportFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.ts:"all"; }
+  function assignSupport(id){
+    var admins = DATA.getAdminUsers().filter(function(a){ return a.status==="active"; });
+    UI.openModal(
+      '<h3>'+T("Assigner le ticket ")+esc(id)+'</h3>'+
+      '<div class="assign-list" style="margin:14px 0">'+
+      admins.map(function(a){
+        return '<div class="assign-row" data-aid="'+a.id+'" style="cursor:pointer;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">'+
+          '<div><b>'+esc(a.name)+'</b><div class="muted" style="font-size:12px">'+esc(a.role)+'</div></div>'+
+          '<span class="badge gray">'+T("Assigner")+'</span></div>';
+      }).join("")+
+      '</div><div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button></div>'
+    , true);
+    document.querySelectorAll(".assign-row").forEach(function(row){
+      row.addEventListener("click", function(){
+        var aid=row.dataset.aid;
+        DATA.assignSupportTask(id, aid);
+        DATA.logAudit({admin:AUTH.getSession().name, action:"SUPPORT_ASSIGNED", entity:"SupportTicket", entityId:id, result:"Assigned", note:DATA.adminName(aid)});
+        UI.toast(T("Ticket assigné.")); UI.closeModal(); drawSupport(currentSupportFilter());
+      });
+    });
+  }
 
   /* ============================================================
      SUBSCRIPTIONS / PLANS
@@ -1410,8 +1519,10 @@
      NOTIFICATIONS, SETTINGS, ADMIN USERS, AUDIT
      ============================================================ */
   var notifFilter = "all";
-  function renderNotifications(){
+  function renderNotifications(initialFilter){
     UI.setTitle(T("Notifications"));
+    var valid = { all:1, payment:1, verification:1, sub:1, report:1, review:1, system:1 };
+    if(initialFilter && valid[initialFilter]) notifFilter = initialFilter;
     var list = DATA.getNotifications();
     var cats = { all:T("Toutes"), payment:T("Paiement"), verification:T("Vérification"), sub:T("Abonnement"), report:T("Signalement"), review:T("Avis"), system:T("Système") };
     var filtered = notifFilter==="all" ? list : list.filter(function(n){ var t=n.type||n.cat||n.ico; return t===notifFilter || (notifFilter==="sub"&&t==="subscription"); });
@@ -1552,19 +1663,20 @@
     UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : route.route.view);
     switch(route.route.view){
       case "dashboard": renderDashboard(); break;
-      case "professionals": renderProfessionals(); break;
-      case "professionalDetail": renderProfessionalDetail(route.params.id); break;
+      case "professionals": renderProfessionals(route.query||{}); break;
+      case "professionalDetail": renderProfessionalDetail(route.params.id, route.query||{}); break;
       case "users": renderUsers(); break;
-      case "verification": renderVerification(); break;
+      case "verification": renderVerification((route.query||{}).status || "all"); break;
       case "categories": renderCategories(); break;
       case "cities": renderCities(); break;
-      case "reviews": renderReviews(); break;
-      case "reports": renderReports(); break;
+      case "reviews": renderReviews((route.query||{}).status || "all"); break;
+      case "reports": renderReports((route.query||{}).status || "all"); break;
+      case "support": renderSupport((route.query||{}).status || "all"); break;
       case "subscriptions": renderSubscriptions(); break;
-      case "payments": renderPayments(); break;
+      case "payments": renderPayments((route.query||{}).status || "all"); break;
       case "analytics": renderAnalytics(); break;
       case "ai": renderAI(); break;
-      case "notifications": renderNotifications(); break;
+      case "notifications": renderNotifications((route.query||{}).filter || ""); break;
       case "settings": renderSettings(); break;
       case "adminUsers": renderAdminUsers(); break;
       case "auditLogs": renderAuditLogs(); break;

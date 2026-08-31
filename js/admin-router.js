@@ -22,6 +22,7 @@
     { path:"cities", view:"cities", perm:["cities","read"] },
     { path:"reviews", view:"reviews", perm:["reviews","read"] },
     { path:"reports", view:"reports", perm:["reports","read"] },
+    { path:"support", view:"support", perm:["support","read"] },
     { path:"subscriptions", view:"subscriptions", perm:["subscriptions","read"] },
     { path:"payments", view:"payments", perm:["payments","read"] },
     { path:"analytics", view:"analytics", perm:["analytics","read"] },
@@ -43,9 +44,26 @@
     try { return decodeURIComponent(str); } catch(e){ return str; }
   }
 
+  function parseQuery(q){
+    var out = {};
+    if(!q) return out;
+    String(q).replace(/^\?/,"").split("&").forEach(function(pair){
+      if(!pair) return;
+      var kv = pair.split("=");
+      var k = decodeSafe(kv[0]);
+      var v = kv.length>1 ? decodeSafe(kv.slice(1).join("=")) : "";
+      out[k] = v;
+    });
+    return out;
+  }
+
   // Return matched route or null
   function matchRoute(){
-    var parts = currentPath().split("/").filter(Boolean);
+    var path = currentPath();
+    var qIdx = path.indexOf("?");
+    var query = qIdx>-1 ? parseQuery(path.slice(qIdx)) : {};
+    if(qIdx>-1) path = path.slice(0,qIdx);
+    var parts = path.split("/").filter(Boolean);
     if(parts.length === 0){ parts = ["dashboard"]; }
     for(var i=0;i<ROUTES.length;i++){
       var r = ROUTES[i];
@@ -57,7 +75,7 @@
         if(rp[j].startsWith(":")){ params[rp[j].slice(1)] = decodeSafe(parts[j]); }
         else if(rp[j] !== parts[j]){ ok = false; break; }
       }
-      if(ok){ return { route:r, params:params }; }
+      if(ok){ return { route:r, params:params, query:query }; }
     }
     return null;
   }

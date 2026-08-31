@@ -144,7 +144,8 @@
       { label:T("Confiance et sécurité"), items:[
           { route:"verification", ico:"✅", label:T("Vérification"), pill:"verification" },
           { route:"reviews", ico:"⭐", label:T("Avis") },
-          { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" }
+          { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" },
+          { route:"support", ico:"🧰", label:T("Support"), pill:"support" }
         ]},
       { label:T("Business"), items:[
           { route:"subscriptions", ico:"📦", label:T("Abonnements") },
@@ -183,7 +184,8 @@
   var ROUTE_PERM = {
     dashboard:["dashboard","read"], professionals:["professionals","read"], users:["users","read"],
     verification:["verification","read"], categories:["categories","read"], cities:["cities","read"],
-    reviews:["reviews","read"], reports:["reports","read"], subscriptions:["subscriptions","read"],
+    reviews:["reviews","read"], reports:["reports","read"], support:["support","read"],
+    subscriptions:["subscriptions","read"],
     payments:["payments","read"], analytics:["analytics","read"], ai:["ai","read"],
     notifications:["notifications","read"], settings:["settings","read"],
     "admin-users":["adminUsers","read"], "audit-logs":["auditLogs","read"]
@@ -230,6 +232,8 @@
     set("verification", kpi.pendingVerification);
     set("reports", DATA.getReports().filter(function(r){ return r.status==="new"||r.status==="under_review"; }).length);
     set("payments", kpi.pendingPayments);
+    var openSupport = (DATA.getSupportTickets ? DATA.getSupportTickets().filter(function(t){ return t.status==="open"||t.status==="pending"; }).length : 0);
+    set("support", openSupport);
     var dot = document.getElementById("notifDot");
     var unread = DATA.getNotifications().filter(function(n){ return n.unread; }).length;
     if(dot) dot.style.display = unread>0 ? "" : "none";

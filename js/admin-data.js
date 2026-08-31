@@ -23,6 +23,7 @@
     verification: ["read", "approve", "reject"],
     reviews: ["read", "moderate", "delete"],
     reports: ["read", "resolve", "warn", "suspend"],
+    support: ["read", "update", "assign"],
     categories: ["read", "update"],
     cities: ["read", "update"],
     subscriptions: ["read", "update"],
@@ -39,12 +40,12 @@
     "super_admin": {
       label: T("Super Admin"),
       color: "purple",
-      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
     },
     "admin": {
       label: T("Admin"),
       color: "teal",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read"], auditLogs:["read"] }
     },
     "moderator": {
       label: T("Moderator"),
@@ -54,7 +55,7 @@
     "support": {
       label: T("Support"),
       color: "orange",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], notifications:["read","send"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"] }
     },
     "finance": {
       label: T("Finance"),
@@ -334,6 +335,13 @@
     { id:"AU-4", name:"Support Agent", email:"support@sna3ti.ma", role:"support", status:"inactive", lastLogin:"2026-08-10 12:00", created:"2024-06-01" }
   ];
 
+  var SUPPORT_TICKETS = [
+    { id:"SP-6001", professionalId:"PRO-10295", user:"Sophie Martin", subject:T("Issue de paiement"), message:T("Mon virement est parti mais le badge n'est pas encore activé."), category:"billing", priority:"high", status:"open", created:"2026-08-29 10:15", assignedTo:"AU-4", history:[{ date:"2026-08-29 10:15", text:T("Créé par Sophie Martin") }] },
+    { id:"SP-6002", professionalId:"PRO-10296", user:"Karim Alaoui", subject:T("Modification du profil"), message:T("Je souhaite changer ma photo de profil et mon numéro de téléphone."), category:"account", priority:"medium", status:"open", created:"2026-08-29 11:40", assignedTo:"", history:[{ date:"2026-08-29 11:40", text:T("Créé par Karim Alaoui") }] },
+    { id:"SP-6003", professionalId:"PRO-10298", user:"Amine Bennani", subject:T("Signalement d'un avis"), message:T("Un avis négatif non justifié a été publié sur mon profil."), category:"moderation", priority:"critical", status:"pending", created:"2026-08-30 09:05", assignedTo:"AU-3", history:[{ date:"2026-08-30 09:05", text:T("Créé par Amine Bennani") }, { date:"2026-08-30 09:30", text:T("Assigné à Moderator Team") }] },
+    { id:"SP-6004", professionalId:"PRO-10294", user:"Yassine El Amrani", subject:T("Questions sur le pack GOLD"), message:T("Comment passer au pack GOLD et combien ça coûte ?"), category:"billing", priority:"low", status:"resolved", created:"2026-08-27 14:22", assignedTo:"AU-4", history:[{ date:"2026-08-27 14:22", text:T("Créé par Yassine El Amrani") }, { date:"2026-08-27 15:00", text:T("Clôturé") }] }
+  ];
+
   var AUDIT_LOGS = [
     { id:"AL-1", timestamp:"2026-08-30 17:42", admin:"Admin User", action:"LOGIN", entity:"Admin", entityId:"AU-1", result:"Success" },
     { id:"AL-2", timestamp:"2026-08-30 17:20", admin:"Admin User", action:"VERIFY_PROFESSIONAL", entity:"Professional", entityId:"PRO-10296", result:"Approved" },
@@ -384,6 +392,7 @@
     regions: REGIONS, reviews: REVIEWS, reports: REPORTS,
     subscriptionPlans: SUBSCRIPTION_PLANS, subscriptions: SUBSCRIPTIONS,
     payments: PAYMENTS, notifications: NOTIFICATIONS, adminUsers: ADMIN_USERS,
+    supportTickets: SUPPORT_TICKETS,
     auditLogs: AUDIT_LOGS, verificationRequests: VERIFICATION_REQUESTS,
     activity: ACTIVITY, analytics: ANALYTICS, config: CONFIG,
     userActivity: USER_ACTIVITY
@@ -405,7 +414,7 @@
   }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
-  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics"];
+  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics","supportTickets"];
   function persist(){
     try { MUTABLE_KEYS.forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
   }
@@ -707,6 +716,24 @@
     },
     // ---- Reports ----
     getReports: function(params){ var list=clone(store.reports); if(params&&params.status) list=list.filter(function(r){return r.status===params.status;}); return list; },
+    // ---- Support tickets ----
+    getSupportTickets: function(params){
+      var list = clone(store.supportTickets);
+      if(params && params.status) list = list.filter(function(t){ return t.status===params.status; });
+      if(params && params.priority) list = list.filter(function(t){ return t.priority===params.priority; });
+      return list;
+    },
+    updateSupportTicket: function(id, data){
+      var t = getById(store.supportTickets, id); if(!t) return false;
+      Object.keys(data||{}).forEach(function(k){ if(data[k]!==undefined) t[k]=data[k]; });
+      return true;
+    },
+    assignSupportTask: function(id, adminId){
+      var t = getById(store.supportTickets, id); if(!t) return false;
+      t.assignedTo = adminId;
+      t.history.push({ date: todayStr(), text:T("Assigné à ")+this.adminName(adminId) });
+      return true;
+    },
     // ---- Categories / cities ----
     getCategories: function(){ return clone(store.categories); },
     getRegions: function(){ return clone(store.regions); },
@@ -793,6 +820,14 @@
         if(s.status==="pending"||s.paymentStatus==="pending"){
           q.push({ type:"subscription", label:T("Abonnement"), id:s.id, ref:(getById(store.professionals,s.professionalId)||{}).name||"",
             priority:T("Moyenne"), pclass:"medium", created:s.since, assigned:reviewerName(s.assignedTo)||"—", status:s.status, route:"subscriptions" });
+        }
+      });
+      store.supportTickets.forEach(function(t){
+        if(t.status==="open"||t.status==="pending"){
+          var pr = t.priority||"medium";
+          q.push({ type:"support", label:T("Support"), id:t.id, ref:t.subject,
+            priority:pr==="critical"?T("Critique"):pr==="high"?T("Haute"):pr==="low"?T("Basse"):T("Moyenne"), pclass:pr||"medium",
+            created:t.created, assigned:reviewerName(t.assignedTo)||"—", status:t.status, route:"support" });
         }
       });
       return q;
