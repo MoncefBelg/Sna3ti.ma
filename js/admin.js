@@ -356,6 +356,9 @@
     var e = m[s] || ["gray", s];
     return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
   }
+  function rateBadge(p){
+    return '<span class="badge" style="background:#f1ebff"><b style="color:#6440c4">★ '+p.rating+'</b> ('+p.reviewsCount+' '+T("avis")+')</span>';
+  }
 
   function exportPros(idsOnly){
     var rows = [[T("Nom"),T("Profession"),T("Ville"),T("Catégorie"),T("Note"),T("Avis"),T("Vérification"),T("Package"),T("Statut"),"ID"]];
@@ -441,6 +444,7 @@
       var reviews = DATA.getReviews().filter(function(r){ return r.professionalId===p.id; });
       var sub = DATA.getSubscriptions().find(function(s){ return s.professionalId===p.id; });
       var payments = DATA.getPayments().filter(function(pa){ return pa.professionalId===p.id; });
+      var verifs = DATA.getVerificationRequests().filter(function(v){ return v.professionalId===p.id; });
 
       UI.setTitle(p.name);
       var html =
@@ -453,16 +457,21 @@
         '<div class="card" style="margin-top:0"><div class="pro" style="align-items:flex-start"><div class="p-avatar" style="width:64px;height:64px;font-size:24px">'+initials(p.name)+'</div>' +
           '<div><div style="font-size:18px;font-weight:800;font-family:var(--font-head)">'+esc(p.job)+'</div>' +
           '<div class="muted">'+esc(p.city)+' · '+esc(p.area)+' · ID '+esc(p.id)+'</div>' +
-          '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+verBadge(p)+pkgBadge(p)+statusBadge(p.status)+'</div></div></div></div>' +
+          '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+rateBadge(p)+verBadge(p)+pkgBadge(p)+statusBadge(p.status)+'</div></div></div></div>' +
 
         '<div class="grid-2" style="margin-top:20px;align-items:start">' +
           '<div class="card"><div class="card-title">'+T("Identité")+'</div><div class="detail-grid" style="margin-top:12px">' +
             drow(T("Nom complet"), p.name) + drow(T("Téléphone"), p.phone) + drow("Email", p.email) +
+            drow(T("WhatsApp"), '<a href="https://wa.me/'+esc(String(p.whatsapp||p.phone||"").replace(/\D/g,""))+'" target="_blank" rel="noopener">💬 '+esc(p.whatsapp||p.phone||"—")+'</a>') +
             drow(T("Identité"), '<span class="badge '+(p.identityStatus==="verified"?"green":"amber")+'">'+(p.identityStatus==="verified"?T("✓ Vérifiée"):p.identityStatus)+'</span>') +
             drow("CIN", p.identityStatus==="verified"?T("Fourni"):"—") +
           '</div></div>' +
           '<div class="card"><div class="card-title">'+T("Professionnel")+'</div><div class="detail-grid" style="margin-top:12px">' +
-            drow(T("Métier"), p.job) + drow(T("Expérience"), p.experience||"—") + drow(T("Langues"), (p.languages||[]).join(", ")) +
+            drow(T("Métier"), p.job) + drow(T("Expérience"), p.experience||"—") +
+            (p.description ? '<div class="drow"><div class="dlabel">'+T("Description")+'</div><div class="dvalue" style="line-height:1.55">'+esc(p.description)+'</div></div>' : "") +
+            ((p.services&&p.services.length) ? '<div class="drow"><div class="dlabel">'+T("Services")+'</div><div class="dvalue">'+p.services.map(function(s){ return '<span class="badge blue">'+esc(s)+'</span>'; }).join(" ")+'</div></div>' : "") +
+            ((p.serviceAreas&&p.serviceAreas.length) ? '<div class="drow"><div class="dlabel">'+T("Zones d'intervention")+'</div><div class="dvalue">'+p.serviceAreas.map(function(s){ return '<span class="badge gray">'+esc(s)+'</span>'; }).join(" ")+'</div></div>' : "") +
+            drow(T("Langues"), (p.languages||[]).join(", ")) +
             drow(T("Vérification pro"), p.professionStatus==="verified"?T("🛡️ Professionnel Vérifié"):p.professionStatus) +
             '<div class="drow"><div class="dlabel">'+T("Disponibilité")+'</div><div class="dvalue"><span class="badge '+(p.available?"green":"gray")+'">'+(p.available?T("Disponible"):T("Sur rendez-vous"))+'</span>'+
               (AUTH.can("professionals","update") ? '<button class="btn btn-ghost btn-small" id="dAvail" style="margin-left:8px">'+(p.available?T("Marquer sur rendez-vous"):T("Marquer disponible"))+'</button>' : '') +
@@ -487,17 +496,21 @@
 
         mediaSection(p) +
 
+        verificationSection(verifs) +
+
+        activityTimeline(p, verifs, payments, sub) +
+
         '<div class="card"><div class="card-head"><div class="card-title">'+T("Paiements")+' ('+payments.length+')</div><a class="btn btn-ghost btn-small" href="#/admin/payments">'+T("Tous les paiements")+'</a></div><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Date")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Statut")+'</th></tr></thead><tbody>' +
           (payments.length ? payments.slice(0,6).map(function(pa){
             return '<tr><td>'+esc(pa.reference||pa.id)+'</td><td>'+esc(pa.date)+'</td><td>'+pa.amount+' DH</td><td>'+esc(pa.method||"—")+'</td><td>'+statusBadge(pa.status)+'</td></tr>';
           }).join("") : '<tr><td colspan="5"><div class="empty">'+T("Aucun paiement.")+'</div></td></tr>') +
         '</tbody></table></div></div>' +
 
-        '<div class="card"><div class="card-head"><div class="card-title">'+T("Avis")+' ('+reviews.length+')</div></div>' +
-          (reviews.length ? reviews.map(function(r){
-            return '<div class="row-item"><div class="grow"><div>'+mkStars(r.rating)+' '+esc(r.customer)+'</div><div class="muted">'+esc(r.comment)+'</div></div><span class="badge '+(r.status==="flagged"?"red":r.status==="pending"?"amber":"green")+'">'+esc(r.status)+'</span></div>';
+        '<div class="card"><div class="card-head"><div class="card-title">'+T("Avis")+' ('+reviews.length+')</div><div style="display:flex;gap:8px;flex-wrap:wrap">'+reviewSummary(p, reviews)+'</div></div><div class="feed" style="margin-top:10px">' +
+          (reviews.length ? reviews.slice(0,6).map(function(r){
+            return '<div class="feed-item"><div style="flex:1"><div>'+mkStars(r.rating)+' '+esc(r.customer)+' <span class="badge '+(r.status==="flagged"?"red":r.status==="pending"?"amber":"green")+'">'+esc(r.status)+'</span></div><div class="muted">'+esc(r.comment)+'</div></div></div>';
           }).join("") : '<div class="empty">'+T("Aucun avis.")+'</div>') +
-        '</div>';
+        '</div></div>';
 
       UI.setContent(html);
       bindMedia(p);
@@ -538,6 +551,59 @@
   function drow(k, v){ return '<div class="detail-row"><div class="dk">'+esc(k)+'</div><div class="dv">'+v+'</div></div>'; }
   function leadRow(ico,k,v){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+ico+' '+esc(k)+' — <b>'+esc(v)+'</b></div></div>'; }
   function mkStars(r){ var h=""; for(var i=1;i<=5;i++){ h+='<span class="star">'+(i<=Math.round(r)?"★":"☆")+'</span>'; } return h; }
+
+  function verDecisionBadge(v){
+    if(v.status==="approved") return '<span class="badge green">'+T("Approuvée")+'</span>';
+    if(v.status==="rejected") return '<span class="badge red">'+T("Rejetée")+'</span>';
+    if(v.status==="needs_info") return '<span class="badge amber">'+T("Infos demandées")+'</span>';
+    return '<span class="badge amber">'+T("En attente")+'</span>';
+  }
+  function verificationSection(verifs){
+    if(!verifs || !verifs.length){
+      return '<div class="card"><div class="card-title">'+T("Vérification")+'</div><div class="empty" style="padding:20px">'+T("Aucune demande de vérification.")+'</div></div>';
+    }
+    return '<div class="card"><div class="card-head"><div class="card-title">'+T("Vérification")+' ('+verifs.length+')</div>'+
+      '<a class="btn btn-ghost btn-small" href="#/admin/verification">'+T("Centre de vérification")+'</a></div>'+
+      verifs.map(function(v){
+        var reviewer = v.reviewerId ? DATA.adminName(v.reviewerId) : "—";
+        var decidedOn = v.reviewedAt ? new Date(v.reviewedAt).toLocaleDateString("fr-MA") : "—";
+        var reason = v.reason || (v.status==="pending" ? T("En attente de décision.") : "—");
+        return '<div class="detail-grid" style="margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px">' +
+          '<div class="drow"><div class="dk">'+T("Demande")+'</div><div class="dv"><b>'+esc(v.id)+'</b> · '+esc(v.level)+' '+verDecisionBadge(v)+'</div></div>' +
+          '<div class="drow"><div class="dk">'+T("Statut")+'</div><div class="dv">'+verDecisionBadge(v)+'</div></div>' +
+          '<div class="drow"><div class="dk">'+T("Documents soumis")+'</div><div class="dv">'+(v.documents&&v.documents.length?v.documents.map(function(x){ return '<span class="badge gray">'+esc(x)+'</span>'; }).join(" "):"—")+'</div></div>' +
+          '<div class="drow"><div class="dk">'+T("Relecteur")+'</div><div class="dv">'+esc(reviewer)+'</div></div>' +
+          '<div class="drow"><div class="dk">'+T("Décision")+'</div><div class="dv">'+verDecisionBadge(v)+'</div></div>' +
+          '<div class="drow"><div class="dk">'+T("Date de décision")+'</div><div class="dv">'+esc(decidedOn)+'</div></div>' +
+          (v.reason ? '<div class="drow"><div class="dk">'+T("Raison")+'</div><div class="dv">'+esc(v.reason)+'</div></div>' : "") +
+        '</div>';
+      }).join("") + '</div>';
+  }
+
+  function activityTimeline(p, verifs, payments, sub){
+    var events = [];
+    var push = function(when, ico, text, type){ events.push({ when: when, ico: ico, text: text, type: type||"teal" }); };
+    if(p.created) push(p.created, "📝", T("Compte professionnel créé"), "blue");
+    if(sub && sub.since) push(sub.since, "📦", T("Abonnement ")+(sub.planName||"")+" ("+sub.price+" DH) — "+sub.status, "teal");
+    (payments||[]).forEach(function(pa){ push(pa.date, "💰", T("Paiement ")+(pa.reference||pa.id)+" "+pa.amount+" DH — "+pa.status, "orange"); });
+    (verifs||[]).forEach(function(v){
+      push(v.submitted, "✅", T("Demande de vérification ")+v.id+" ("+v.level+") soumise — "+v.status, "teal");
+      (v.history||[]).forEach(function(h){ push(h.date, "🕒", h.text, "gray"); });
+    });
+    events.sort(function(a,b){ return String(a.when).localeCompare(String(b.when)); });
+    return '<div class="card"><div class="card-head"><div class="card-title">'+T("Activité")+'</div><span class="muted small">'+T("Chronologique")+'</span></div><div class="feed" style="margin-top:10px">' +
+      (events.length ? events.map(function(e){
+        return '<div class="feed-item"><div class="feed-dot '+e.type+'"></div><div class="f-txt">'+e.ico+' '+esc(e.text)+'</div><div class="f-when">'+esc(e.when)+'</div></div>';
+      }).join("") : '<div class="empty">'+T("Aucune activité.")+'</div>') +
+    '</div></div>';
+  }
+
+  function reviewSummary(p, reviews){
+    var flagged = reviews.filter(function(r){ return r.status==="flagged"; }).length;
+    return '<span class="badge" style="background:#f1ebff">★ '+p.rating+' / 5</span>' +
+      '<span class="badge blue">'+T("Total")+': '+p.reviewsCount+'</span>' +
+      '<span class="badge red">🚩 '+T("Signalés")+': '+flagged+'</span>';
+  }
 
   /* ============================================================
      MEDIA / UPLOADS (visibility + package quotas)

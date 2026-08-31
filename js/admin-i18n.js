@@ -152,6 +152,27 @@
     "Assigné à": "Assigned to",
     "Clôturé": "Closed",
 
+    // ---- professional 360 detail ----
+    "avis": "reviews",
+    "Description": "Description",
+    "Services": "Services",
+    "Zones d'intervention": "Service areas",
+    "Relecteur": "Reviewer",
+    "Documents soumis": "Submitted documents",
+    "Décision": "Decision",
+    "Date de décision": "Decision date",
+    "Aucune demande de vérification.": "No verification request.",
+    "Centre de vérification": "Verification center",
+    "Approuvée": "Approved",
+    "Rejetée": "Rejected",
+    "En attente de décision.": "Pending a decision.",
+    "Chronologique": "Chronological",
+    "Activité": "Activity",
+    "Compte professionnel créé": "Professional account created",
+    "soumise": "submitted",
+    "Total": "Total",
+    "Signalés": "Flagged",
+
     // ---- professionals (list/filters) ----
     "Nouveau professionnel": "New professional",
     "Exporter CSV": "Export CSV",
