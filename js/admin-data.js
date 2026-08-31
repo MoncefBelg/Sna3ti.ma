@@ -394,8 +394,50 @@
   // Each *Async returns a Promise to mimic a backend.
   // ============================================================
 
+  // Normalize categories to the 3-level structure:
+  //   Category → Subcategory → Service
+  // Each Service carries fr/ar/en name, icon, description, status, order.
+  // Legacy categories that only had a flat `services` array are upgraded
+  // into a default subcategory so nothing is lost.
+  function normalizeService(s, i){
+    return {
+      id: s.id, code: s.code || "", icon: s.icon || "🔧",
+      order: s.order || (i + 1), status: s.status || "active",
+      description: s.description || "",
+      label: s.label || { fr: s.name || "", ar: s.ar || "", en: s.en || "" }
+    };
+  }
+  function normalizeSubcategory(sc, si){
+    return {
+      id: sc.id, code: sc.code || "", icon: sc.icon || "📁",
+      order: sc.order || (si + 1), active: sc.active !== false,
+      description: sc.description || "",
+      label: sc.label || { fr: sc.fr || "", ar: "", en: "" },
+      services: (sc.services || []).map(function(s, i){ return normalizeService(s, i); })
+    };
+  }
+  function normalizeCategories(list){
+    return list.map(function(c){
+      var subs = (c.subcategories || []).map(function(sc, i){ return normalizeSubcategory(sc, i); });
+      if(!subs.length && c.services && c.services.length){
+        subs = [{
+          id: c.id + "-G", code: (c.code || "") + "-general", icon: c.icon || "📁",
+          order: 1, active: c.active !== false, description: "",
+          label: { fr: c.label.fr + " — général", ar: c.label.ar || "", en: c.label.en || "" },
+          services: c.services.map(function(s, i){ return normalizeService(s, i); })
+        }];
+      }
+      return {
+        id: c.id, code: c.code || "", icon: c.icon || "📁", order: c.order || 1,
+        active: c.active !== false, description: c.description || "",
+        label: c.label || { fr: "", ar: "", en: "" },
+        subcategories: subs
+      };
+    });
+  }
+
   var store = {
-    users: USERS, professionals: PROFESSIONALS, categories: CATEGORIES,
+    users: USERS, professionals: PROFESSIONALS, categories: normalizeCategories(CATEGORIES),
     regions: REGIONS, reviews: REVIEWS, reports: REPORTS,
     subscriptionPlans: SUBSCRIPTION_PLANS, subscriptions: SUBSCRIPTIONS.concat(SUBSCRIPTIONS_HISTORICAL),
     payments: PAYMENTS, notifications: NOTIFICATIONS, adminUsers: ADMIN_USERS,
@@ -761,6 +803,13 @@
     // ---- Categories / cities ----
     getCategories: function(){ return clone(store.categories); },
     getRegions: function(){ return clone(store.regions); },
+    // "No hard-delete" guards for referenced categories/services/locations.
+    isCategoryUsed: function(catId){ return store.professionals.some(function(p){ return p.categoryId === catId; }); },
+    isServiceUsed: function(svcId){ return store.professionals.some(function(p){ return p.professionId === svcId; }); },
+    isRegionUsed: function(regId){ return store.professionals.some(function(p){ return p.regionId === regId; }); },
+    isProvinceUsed: function(provId){ return store.professionals.some(function(p){ return p.provinceId === provId; }); },
+    isCityUsed: function(cityId){ return store.professionals.some(function(p){ return p.cityId === cityId; }) || store.users.some(function(u){ return u.cityId === cityId; }); },
+    isNeighborhoodUsed: function(hoodId){ return store.professionals.some(function(p){ return p.neighborhoodId === hoodId || (p.area && p.area === hoodId); }); },
     // ---- Plans / subs / payments ----
     getSubscriptionPlans: function(){ return clone(store.subscriptionPlans); },
     getSubscriptions: function(){ return clone(store.subscriptions); },

@@ -1143,61 +1143,267 @@
      ============================================================ */
   function renderCategories(){
     UI.setTitle(T("Catégories"));
-    var cats = DATA.getCategories();
+    var cats = DATA.getCategories().slice().sort(function(a,b){ return a.order-b.order; });
+    var canU = AUTH.can("categories","update");
+    function svcBadge(s){ return '<span class="badge '+(s.status==="active"?"green":"gray")+'">'+(s.status==="active"?T("Actif"):T("Inactif"))+'</span>'; }
+    function svcRows(c, sc){
+      return (sc.services||[]).slice().sort(function(a,b){ return a.order-b.order; }).map(function(s,i){
+        return '<div class="row-item cat-svc"><div class="grow"><b style="display:flex;gap:8px"><span>'+s.icon+'</span> '+esc(s.label.fr)+'</b>'+
+          '<div class="muted">FR: '+esc(s.label.fr)+' · AR: '+esc(s.label.ar)+' · EN: '+esc(s.label.en)+'</div>'+
+          (s.description?'<div class="muted" style="font-size:12px">'+esc(s.description)+'</div>':"")+
+          '<div class="muted" style="font-size:11px">'+T("Ordre")+': '+s.order+' · '+T("Code")+': '+esc(s.code||"—")+'</div></div>'+
+          svcBadge(s)+
+          (canU? ('<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-up" title="'+T("Monter")+'">↑</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-dn" title="'+T("Descendre")+'">↓</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-edit" title="'+T("Modifier")+'">✏️</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-dup" title="'+T("Dupliquer")+'">⧉</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-tog" title="'+(s.status==="active"?T("Désactiver"):T("Activer"))+'">'+(s.status==="active"?"⏸️":"▶️")+'</button>'+
+            '<button class="icon-act danger" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-svcid="'+s.id+'" data-act="svc-del" title="'+T("Supprimer")+'">🗑️</button>') : "")+'</div>';
+      }).join("");
+    }
+    function subRows(c){
+      return (c.subcategories||[]).slice().sort(function(a,b){ return a.order-b.order; }).map(function(sc,i){
+        return '<div class="row-item cat-sub"><div class="grow"><b style="display:flex;gap:8px"><span>'+sc.icon+'</span> '+esc(sc.label.fr)+'</b>'+
+          '<div class="muted">FR: '+esc(sc.label.fr)+' · AR: '+esc(sc.label.ar)+' · EN: '+esc(sc.label.en)+'</div>'+
+          (sc.description?'<div class="muted" style="font-size:12px">'+esc(sc.description)+'</div>':"")+
+          '<div class="muted" style="font-size:11px">'+T("Ordre")+': '+sc.order+' · '+sc.services.length+' '+T("services")+'</div></div>'+
+          '<span class="badge '+(sc.active?"green":"gray")+'">'+(sc.active?T("Actif"):T("Inactif"))+'</span>'+
+          (canU? ('<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-up" title="'+T("Monter")+'">↑</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-dn" title="'+T("Descendre")+'">↓</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-addsvc" title="+ '+T("Service")+'">➕</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-edit" title="'+T("Modifier")+'">✏️</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-dup" title="'+T("Dupliquer")+'">⧉</button>'+
+            '<button class="icon-act" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-tog" title="'+(sc.active?T("Désactiver"):T("Activer"))+'">'+(sc.active?"⏸️":"▶️")+'</button>'+
+            '<button class="icon-act danger" data-catid="'+c.id+'" data-subid="'+sc.id+'" data-act="sub-del" title="'+T("Supprimer")+'">🗑️</button>') : "")+'</div>'+
+          ('<div>'+svcRows(c, sc)+'</div>');
+      }).join("");
+    }
     UI.setContent(
       '<div class="page-head"><h1>'+T("Catégories")+'</h1><div class="spacer">'+
-        (AUTH.can("categories","update")?'<button class="btn btn-primary" id="cAdd">+ '+T("Catégorie")+'</button>':"")+'</div></div>' +
-      '<div class="grid-2" style="align-items:start"><div class="card">'+
-        cats.map(function(c){
-          return '<div class="row-item"><div class="grow"><b style="display:flex;gap:8px"><span>'+c.icon+'</span> '+esc(c.label.fr)+'</b>'+
+        (canU?'<button class="btn btn-primary" data-act="cat-add">+ '+T("Catégorie")+'</button>':"")+'</div></div>' +
+      '<div class="card"><div class="card-title">'+T("Catégorie → Sous-catégorie → Service")+'</div>' +
+      (canU?'<div class="muted" style="margin:6px 0 12px">'+T("Chaque service : nom FR/AR/EN, icône, description, statut et ordre d'affichage.")+'</div>':"") +
+      cats.map(function(c){
+        return '<div class="cat-block" style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px">'+
+          '<div class="row-item"><div class="grow"><b style="display:flex;gap:8px"><span>'+c.icon+'</span> '+esc(c.label.fr)+'</b>'+
             '<div class="muted">FR: '+esc(c.label.fr)+' · AR: '+esc(c.label.ar)+' · EN: '+esc(c.label.en)+'</div>'+
-            '<div class="chip-grid" style="margin-top:8px">'+(c.services||[]).map(function(s){ return '<span class="chip">'+esc(s.label.fr)+'</span>'; }).join("")+'</div></div>'+
+            (c.description?'<div class="muted" style="font-size:12px">'+esc(c.description)+'</div>':"")+
+            '<div class="muted" style="font-size:11px">'+T("Ordre")+': '+c.order+' · '+c.subcategories.length+' '+T("sous-catégories")+'</div></div>'+
             '<span class="badge '+(c.active?"green":"gray")+'">'+(c.active?T("Actif"):T("Inactif"))+'</span>'+
-            (AUTH.can("categories","update")?'<button class="icon-act" data-togcat="'+c.id+'" title="'+(c.active?T("Désactiver"):T("Activer"))+'">'+(c.active?"⏸️":"▶️")+'</button><button class="icon-act" data-editcat="'+c.id+'" title="'+T("Modifier")+'">✏️</button><button class="icon-act" data-delcat="'+c.id+'" title="'+T("Supprimer")+'">🗑️</button>':"")+'</div>';
-        }).join("") +
-      '</div><div class="card"><div class="card-title">'+T("Structure")+'</div><div class="muted" style="margin-top:8px">'+T("Catégorie → Services (normalisés multilingue FR/AR/EN).")+'<br>'+T("Exemple : Plomberie → Fuite d'eau, Débouchage, Chauffe-eau, Installation.")+'</div></div></div>'
+            (canU? '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-up" title="'+T("Monter")+'">↑</button>'+
+              '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-dn" title="'+T("Descendre")+'">↓</button>'+
+              '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-addsub" title="+ '+T("Sous-catégorie")+'">➕</button>'+
+              '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-edit" title="'+T("Modifier")+'">✏️</button>'+
+              '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-dup" title="'+T("Dupliquer")+'">⧉</button>'+
+              '<button class="icon-act" data-catid="'+c.id+'" data-act="cat-tog" title="'+(c.active?T("Désactiver"):T("Activer"))+'">'+(c.active?"⏸️":"▶️")+'</button>'+
+              '<button class="icon-act danger" data-catid="'+c.id+'" data-act="cat-del" title="'+T("Supprimer")+'">🗑️</button>' : "")+'</div>'+
+        '<div>'+subRows(c)+'</div></div>';
+      }).join("") + '</div>'
     );
-    document.querySelectorAll("[data-delcat]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=b.dataset.delcat;
-      UI.confirmAction({title:T("Supprimer cette catégorie ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.categories=DATA._store.categories.filter(function(c){return c.id!==id;}); DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:id, result:"Deleted"}); UI.toast(T("Catégorie supprimée.")); renderCategories();
-      }});
-    }); });
-    var add=document.getElementById("cAdd"); if(add) add.addEventListener("click", function(){
-      var fr=prompt(T("Nom (FR) :")), ar=prompt(T("Nom (AR) :")), en=prompt(T("Nom (EN) :")), ic=prompt(T("Icône (emoji) :"))||"📁";
-      if(fr&&fr.trim()){ DATA._store.categories.push({id:"CAT-"+Date.now(), code:"", icon:ic, order:DATA._store.categories.length+1, active:true, label:{fr:fr.trim(),ar:ar||"",en:en||""}, services:[]}); DATA.persist(); UI.toast(T("Catégorie ajoutée.")); renderCategories(); }
-    });
-    document.querySelectorAll("[data-togcat]").forEach(function(b){ b.addEventListener("click", function(){
-      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.togcat;}); if(c){ c.active=!c.active; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:c.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED", entity:"Category", entityId:c.id, result:c.active?"Active":"Inactive"}); UI.toast(T("Catégorie ")+(c.active?T("activée"):T("désactivée"))+"."); renderCategories(); }
-    }); });
-    document.querySelectorAll("[data-editcat]").forEach(function(b){ b.addEventListener("click", function(){
-      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.editcat;});
-      var fr=prompt(T("Nom (FR) :"), c.label.fr), ar=prompt(T("Nom (AR) :"), c.label.ar), en=prompt(T("Nom (EN) :"), c.label.en);
-      if(fr!==null){ c.label.fr=fr||c.label.fr; c.label.ar=ar===null?c.label.ar:ar; c.label.en=en===null?c.label.en:en; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:c.id, result:"Updated"}); UI.toast(T("Catégorie modifiée.")); renderCategories(); }
-    }); });
+    bindCatActions();
   }
+  function bindCatActions(){
+    document.querySelectorAll("[data-act]").forEach(function(b){
+      b.addEventListener("click", function(){ catAction(b.dataset.act, b.dataset.catid||"", b.dataset.subid||"", b.dataset.svcid||""); });
+    });
+  }
+  var catUsedToast = function(){ UI.toast(T("Impossible : élément utilisé par un professionnel."), true); };
+  function catAction(act, catId, subId, svcId){
+    var cats = DATA._store.categories;
+    var c = cats.find(function(x){ return x.id===catId; });
+    function catIndex(){ return cats.indexOf(c); }
+    function reindexCat(){ cats.sort(function(a,b){ return a.order-b.order; }); cats.forEach(function(x,i){ x.order=i+1; }); }
+    function subIndex(){ var sc=c.subcategories.find(function(x){return x.id===subId;}); return c.subcategories.indexOf(sc); }
+    function reindexSub(){ c.subcategories.sort(function(a,b){return a.order-b.order;}); c.subcategories.forEach(function(x,i){ x.order=i+1; }); }
+    function getSc(){ return c.subcategories.find(function(x){ return x.id===subId; }); }
+    function svcIndex(){ var s=getSc().services.find(function(x){return x.id===svcId;}); return getSc().services.indexOf(s); }
+    function reindexSvc(){ var arr=getSc().services; arr.sort(function(a,b){return a.order-b.order;}); arr.forEach(function(x,i){ x.order=i+1; }); }
+    function swap(arr, i, dir){ var j=i+dir; if(j<0||j>=arr.length){ UI.toast(T("Déjà en limite.")); return; } var t=arr[i]; arr[i]=arr[j]; arr[j]=t; }
+    function done(msg){ DATA.persist(); if(msg) UI.toast(msg); renderCategories(); }
+    function audit(action, ent, id, result){ DATA.logAudit({admin:AUTH.getSession().name, action:action, entity:ent, entityId:id, result:result}); }
+    // ---- CATEGORY actions ----
+    if(act==="cat-add"){
+      var fr=prompt(T("Nom (FR) :")), ar=prompt(T("Nom (AR) :")), en=prompt(T("Nom (EN) :")), ic=prompt(T("Icône (emoji) :"))||"📁", desc=prompt(T("Description :"))||"";
+      if(fr&&fr.trim()){ cats.push({id:"CAT-"+Date.now(), code:"", icon:ic, order:cats.length+1, active:true, description:desc, label:{fr:fr.trim(),ar:ar||"",en:en||""}, subcategories:[]}); audit("CATEGORY_CREATED","Category",cats[cats.length-1].id,"Created"); done(T("Catégorie ajoutée.")); }
+      return;
+    }
+    if(act==="cat-edit"){
+      var nfr=prompt(T("Nom (FR) :"), c.label.fr), nar=prompt(T("Nom (AR) :"), c.label.ar), nen=prompt(T("Nom (EN) :"), c.label.en), nico=prompt(T("Icône (emoji) :"), c.icon), ndesc=prompt(T("Description :"), c.description||"");
+      if(nfr!==null){ c.label.fr=nfr||c.label.fr; if(nar!==null)c.label.ar=nar; if(nen!==null)c.label.en=nen; if(nico!==null)c.icon=nico; if(ndesc!==null)c.description=ndesc; audit("CATEGORY_CHANGED","Category",c.id,"Updated"); done(T("Catégorie modifiée.")); }
+      return;
+    }
+    if(act==="cat-dup"){
+      var copy=cloneObj(c); copy.id="CAT-"+Date.now(); copy.order=Math.max.apply(null, cats.map(function(x){return x.order;}))+1; copy.label={fr:c.label.fr+" (copie)", ar:c.label.ar, en:c.label.en};
+      copy.subcategories=(c.subcategories||[]).map(function(sc){ var sc2=cloneObj(sc); sc2.id="SUB-"+Date.now()+"-"+Math.floor(Math.random()*999); sc2.services=(sc.services||[]).map(function(s){ var s2=cloneObj(s); s2.id="SVC-"+Date.now()+"-"+Math.floor(Math.random()*999); return s2; }); return sc2; });
+      cats.push(copy); audit("CATEGORY_DUPLICATED","Category",copy.id,"Duplicated"); done(T("Catégorie dupliquée."));
+      return;
+    }
+    if(act==="cat-tog"){ c.active=!c.active; audit(c.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED","Category",c.id,c.active?"Active":"Inactive"); done(T("Statut mis à jour.")); return; }
+    if(act==="cat-up"||act==="cat-dn"){ var dir=act==="cat-up"?-1:1; swap(cats, catIndex(), dir); reindexCat(); done(); return; }
+    if(act==="cat-del"){
+      if(DATA.isCategoryUsed(c.id)){ catUsedToast(); return; }
+      UI.confirmAction({title:T("Supprimer cette catégorie ?"), message:T("La catégorie et ses sous-catégories/services seront retirés."), confirmLabel:T("Supprimer"), onConfirm:function(){
+        cats.splice(cats.indexOf(c),1); reindexCat(); audit("CATEGORY_DELETED","Category",c.id,"Deleted"); done(T("Catégorie supprimée."));
+      }});
+      return;
+    }
+    if(act==="cat-addsub"){
+      var sfr=prompt(T("Nom (FR) :")), sar=prompt(T("Nom (AR) :")), sen=prompt(T("Nom (EN) :")), sic=prompt(T("Icône (emoji) :"))||"📁", sdesc=prompt(T("Description :"))||"";
+      if(sfr&&sfr.trim()){ c.subcategories.push({id:"SUB-"+Date.now(), code:"", icon:sic, order:c.subcategories.length+1, active:true, description:sdesc, label:{fr:sfr.trim(),ar:sar||"",en:sen||""}, services:[]}); audit("CATEGORY_CHANGED","Subcategory",c.subcategories[c.subcategories.length-1].id,"Created"); done(T("Sous-catégorie ajoutée.")); }
+      return;
+    }
+    if(!c) return;
+    // ---- SUBCATEGORY actions ----
+    var sc = getSc();
+    if(act==="sub-up"||act==="sub-dn"){ swap(c.subcategories, subIndex(), act==="sub-up"?-1:1); reindexSub(); done(); return; }
+    if(act==="sub-edit"){
+      var xfr=prompt(T("Nom (FR) :"), sc.label.fr), xar=prompt(T("Nom (AR) :"), sc.label.ar), xen=prompt(T("Nom (EN) :"), sc.label.en), xico=prompt(T("Icône (emoji) :"), sc.icon), xdesc=prompt(T("Description :"), sc.description||"");
+      if(xfr!==null){ sc.label.fr=xfr||sc.label.fr; if(xar!==null)sc.label.ar=xar; if(xen!==null)sc.label.en=xen; if(xico!==null)sc.icon=xico; if(xdesc!==null)sc.description=xdesc; audit("CATEGORY_CHANGED","Subcategory",sc.id,"Updated"); done(T("Sous-catégorie modifiée.")); }
+      return;
+    }
+    if(act==="sub-dup"){
+      var sc2=cloneObj(sc); sc2.id="SUB-"+Date.now(); sc2.order=Math.max.apply(null, c.subcategories.map(function(x){return x.order;}))+1; sc2.label={fr:sc.label.fr+" (copie)", ar:sc.label.ar, en:sc.label.en}; sc2.services=(sc.services||[]).map(function(s){ var s2=cloneObj(s); s2.id="SVC-"+Date.now()+"-"+Math.floor(Math.random()*999); return s2; }); c.subcategories.push(sc2); audit("CATEGORY_CHANGED","Subcategory",sc2.id,"Duplicated"); done(T("Sous-catégorie dupliquée."));
+      return;
+    }
+    if(act==="sub-tog"){ sc.active=!sc.active; audit(sc.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED","Subcategory",sc.id,sc.active?"Active":"Inactive"); done(T("Statut mis à jour.")); return; }
+    if(act==="sub-addsvc"){
+      var vfr=prompt(T("Nom (FR) :")), var2=prompt(T("Nom (AR) :")), ven=prompt(T("Nom (EN) :")), vic=prompt(T("Icône (emoji) :"))||"🔧", vdesc=prompt(T("Description :"))||"";
+      if(vfr&&vfr.trim()){ sc.services.push({id:"SVC-"+Date.now(), code:"", icon:vic, order:sc.services.length+1, status:"active", description:vdesc, label:{fr:vfr.trim(),ar:var2||"",en:ven||""}}); audit("CATEGORY_CHANGED","Service",sc.services[sc.services.length-1].id,"Created"); done(T("Service ajouté.")); }
+      return;
+    }
+    if(act==="sub-del"){
+      if((sc.services||[]).some(function(s){ return DATA.isServiceUsed(s.id); })){ catUsedToast(); return; }
+      UI.confirmAction({title:T("Supprimer cette sous-catégorie ?"), message:T("La sous-catégorie et ses services seront retirés."), confirmLabel:T("Supprimer"), onConfirm:function(){
+        c.subcategories.splice(c.subcategories.indexOf(sc),1); reindexSub(); audit("CATEGORY_DELETED","Subcategory",sc.id,"Deleted"); done(T("Sous-catégorie supprimée."));
+      }});
+      return;
+    }
+    // ---- SERVICE actions ----
+    if(!sc) return;
+    var s = sc.services.find(function(x){ return x.id===svcId; });
+    if(!s) return;
+    if(act==="svc-up"||act==="svc-dn"){ swap(sc.services, svcIndex(), act==="svc-up"?-1:1); reindexSvc(); done(); return; }
+    if(act==="svc-edit"){
+      var efr=prompt(T("Nom (FR) :"), s.label.fr), ear=prompt(T("Nom (AR) :"), s.label.ar), een=prompt(T("Nom (EN) :"), s.label.en), eico=prompt(T("Icône (emoji) :"), s.icon), edesc=prompt(T("Description :"), s.description||"");
+      if(efr!==null){ s.label.fr=efr||s.label.fr; if(ear!==null)s.label.ar=ear; if(een!==null)s.label.en=een; if(eico!==null)s.icon=eico; if(edesc!==null)s.description=edesc; audit("CATEGORY_CHANGED","Service",s.id,"Updated"); done(T("Service modifié.")); }
+      return;
+    }
+    if(act==="svc-dup"){
+      var s2=cloneObj(s); s2.id="SVC-"+Date.now(); s2.order=Math.max.apply(null, sc.services.map(function(x){return x.order;}))+1; s2.label={fr:s.label.fr+" (copie)", ar:s.label.ar, en:s.label.en}; sc.services.push(s2); audit("CATEGORY_CHANGED","Service",s2.id,"Duplicated"); done(T("Service dupliqué."));
+      return;
+    }
+    if(act==="svc-tog"){ s.status=s.status==="active"?"inactive":"active"; audit(s.status==="active"?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED","Service",s.id,s.status); done(T("Statut mis à jour.")); return; }
+    if(act==="svc-del"){
+      if(DATA.isServiceUsed(s.id)){ catUsedToast(); return; }
+      UI.confirmAction({title:T("Supprimer ce service ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
+        sc.services.splice(sc.services.indexOf(s),1); reindexSvc(); audit("CATEGORY_DELETED","Service",s.id,"Deleted"); done(T("Service supprimé."));
+      }});
+      return;
+    }
+  }
+  function cloneObj(o){ return JSON.parse(JSON.stringify(o)); }
+
 
   function renderCities(){
     UI.setTitle(T("Villes"));
-    var regions = DATA.getRegions();
+    var regions = DATA.getRegions().slice().sort(function(a,b){ return a.order-b.order; });
+    var canU = AUTH.can("cities","update");
     UI.setContent(
-      '<div class="page-head"><h1>'+T("Villes & localisation")+'</h1></div>' +
-      (AUTH.can("cities","update")?'<div class="card" style="margin-top:0"><div class="card-title">'+T("Structure Région → Villes → Quartiers")+'</div></div>':"") +
+      '<div class="page-head"><h1>'+T("Villes & localisation")+'</h1><div class="spacer">'+
+        (canU?'<button class="btn btn-primary" data-act="cty-reg-add">+ '+T("Région")+'</button>':"")+'</div></div>' +
+      (canU?'<div class="muted" style="margin-bottom:12px">'+T("Structure Région → Ville → Quartiers, multilingue FR/AR/EN avec statut et ordre.")+'</div>':"") +
       regions.map(function(r){
-        return '<div class="card"><div class="card-head"><div class="card-title">'+esc(r.name.fr)+'</div>'+
-          (AUTH.can("cities","update")?'<button class="btn btn-ghost btn-small" data-addcity="'+r.id+'">+ '+T("Ville")+'</button>':"")+'</div>' + r.cities.map(function(c){
-          return '<div class="row-item"><div class="grow"><b>'+esc(c.name.fr)+'</b> <span class="muted">('+esc(c.name.ar)+' / '+esc(c.name.en)+')</span>'+
-            '<div class="chip-grid" style="margin-top:8px">'+(c.neighborhoods||[]).map(function(n){return '<span class="chip">'+esc(n)+'</span>';}).join("")+'</div></div>'+
-            (AUTH.can("cities","update")?'<button class="icon-act danger" data-delcity="'+r.id+'" data-cid="'+c.id+'" title="'+T("Supprimer")+'">🗑️</button>':"")+'</div>';
-        }).join("") + '</div>';
+        return '<div class="cat-block" style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px">'+
+          '<div class="row-item"><div class="grow"><b style="display:flex;gap:8px"><span>📍</span>'+esc(r.name.fr)+'</b>'+
+            '<div class="muted">FR: '+esc(r.name.fr)+' · AR: '+esc(r.name.ar)+' · EN: '+esc(r.name.en)+'</div>'+
+            '<div class="muted" style="font-size:11px">'+T("Code")+' · '+esc(r.code||"—")+' · '+T("Ordre")+': '+r.order+' · '+(r.cities||[]).length+' '+T("villes")+'</div></div>'+
+            '<span class="badge '+(r.active!==false?"green":"gray")+'">'+((r.active!==false)?T("Actif"):T("Inactif"))+'</span>'+
+            (canU? '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-up" title="'+T("Monter")+'">↑</button>'+
+              '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-dn" title="'+T("Descendre")+'">↓</button>'+
+              '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-addcity" title="+ '+T("Ville")+'">➕</button>'+
+              '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-edit" title="'+T("Modifier")+'">✏️</button>'+
+              '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-dup" title="'+T("Dupliquer")+'">⧉</button>'+
+              '<button class="icon-act" data-regid="'+r.id+'" data-act="reg-tog" title="'+((r.active!==false)?T("Désactiver"):T("Activer"))+'">'+((r.active!==false)?"⏸️":"▶️")+'</button>'+
+              '<button class="icon-act danger" data-regid="'+r.id+'" data-act="reg-del" title="'+T("Supprimer")+'">🗑️</button>' : "")+'</div>'+
+          (r.cities||[]).slice().sort(function(a,b){ return a.order-b.order; }).map(function(c){
+            return '<div class="row-item cat-sub"><div class="grow"><b style="display:flex;gap:8px"><span>🏙️</span> '+esc(c.name.fr)+'</b>'+
+              '<div class="muted">FR: '+esc(c.name.fr)+' · AR: '+esc(c.name.ar)+' · EN: '+esc(c.name.en)+'</div>'+
+              '<div class="muted" style="font-size:11px">'+T("Ordre")+': '+c.order+' · '+(c.neighborhoods||[]).length+' '+T("quartiers")+'</div>'+
+              '<div class="chip-grid" style="margin-top:8px">'+(c.neighborhoods||[]).map(function(n){return '<span class="chip">'+esc((typeof n==="string")?n:n.name.fr)+'</span>';}).join("")+'</div></div>'+
+              '<span class="badge '+(c.active!==false?"green":"gray")+'">'+((c.active!==false)?T("Actif"):T("Inactif"))+'</span>'+
+              (canU? '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-up" title="'+T("Monter")+'">↑</button>'+
+                '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-dn" title="'+T("Descendre")+'">↓</button>'+
+                '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-addhood" title="+ '+T("Quartier")+'">➕</button>'+
+                '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-edit" title="'+T("Modifier")+'">✏️</button>'+
+                '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-dup" title="'+T("Dupliquer")+'">⧉</button>'+
+                '<button class="icon-act" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-tog" title="'+((c.active!==false)?T("Désactiver"):T("Activer"))+'">'+((c.active!==false)?"⏸️":"▶️")+'</button>'+
+                '<button class="icon-act danger" data-regid="'+r.id+'" data-cid="'+c.id+'" data-act="cty-del" title="'+T("Supprimer")+'">🗑️</button>' : "")+'</div>';
+          }).join("") +
+        '</div>';
       }).join("")
     );
-    document.querySelectorAll("[data-addcity]").forEach(function(b){ b.addEventListener("click", function(){
-      var n=prompt(T("Nom de la ville (FR) :")); if(n&&n.trim()){ var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.addcity;}); if(rr){ rr.cities.push({id:"CTY-"+Date.now(), name:{fr:n.trim(),ar:"",en:n.trim()}, neighborhoods:[]}); DATA.persist(); UI.toast(T("Ville ajoutée.")); renderCities(); } }
-    }); });
-    document.querySelectorAll("[data-delcity]").forEach(function(b){ b.addEventListener("click", function(){
-      var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.delcity;}); if(rr){ rr.cities=rr.cities.filter(function(c){return c.id!==b.dataset.cid;}); DATA.persist(); UI.toast(T("Ville supprimée.")); renderCities(); }
-    }); });
+    document.querySelectorAll("[data-act]").forEach(function(b){ b.addEventListener("click", function(){ ctyAction(b.dataset.act, b.dataset.regid||"", b.dataset.cid||""); }); });
+  }
+  function ctyAction(act, regId, cityId){
+    var regs = DATA._store.regions;
+    var r = regs.find(function(x){ return x.id===regId; });
+    function reindexReg(){ regs.sort(function(a,b){ return a.order-b.order; }); regs.forEach(function(x,i){ x.order=i+1; }); }
+    function reindexCity(){ r.cities.sort(function(a,b){ return a.order-b.order; }); r.cities.forEach(function(x,i){ x.order=i+1; }); }
+    function cIndex(){ return regs.indexOf(r); }
+    function done(msg){ DATA.persist(); if(msg) UI.toast(msg); renderCities(); }
+    function audit(action, ent, id, result){ DATA.logAudit({admin:AUTH.getSession().name, action:action, entity:ent, entityId:id, result:result}); }
+    if(act==="cty-reg-add"){
+      var nfr=prompt(T("Nom de la région (FR) :")), nar=prompt(T("Nom (AR) :")), nen=prompt(T("Nom (EN) :")), code=prompt(T("Code :"))||"";
+      if(nfr&&nfr.trim()){ regs.push({id:"REG-"+Date.now(), code:code, name:{fr:nfr.trim(),ar:nar||"",en:nen||nfr.trim()}, order:regs.length+1, active:true, cities:[]}); audit("REGION_CREATED","Region",regs[regs.length-1].id,"Created"); done(T("Région ajoutée.")); }
+      return;
+    }
+    if(!r) return;
+    if(act==="reg-addcity"){
+      var nfr2=prompt(T("Nom de la ville (FR) :")), nar2=prompt(T("Nom (AR) :")), nen2=prompt(T("Nom (EN) :"));
+      if(nfr2&&nfr2.trim()){ r.cities.push({id:"CTY-"+Date.now(), name:{fr:nfr2.trim(),ar:nar2||"",en:nen2||nfr2.trim()}, order:r.cities.length+1, active:true, neighborhoods:[]}); audit("CITY_CREATED","City",r.cities[r.cities.length-1].id,"Created"); done(T("Ville ajoutée.")); }
+      return;
+    }
+    if(act==="reg-edit"){
+      var efr=prompt(T("Nom (FR) :"), r.name.fr), ear=prompt(T("Nom (AR) :"), r.name.ar), een=prompt(T("Nom (EN) :"), r.name.en), ec=prompt(T("Code :"), r.code||"");
+      if(efr!==null){ r.name.fr=efr||r.name.fr; if(ear!==null)r.name.ar=ear; if(een!==null)r.name.en=een; if(ec!==null)r.code=ec; audit("REGION_CHANGED","Region",r.id,"Updated"); done(T("Région modifiée.")); }
+      return;
+    }
+    if(act==="reg-dup"){
+      var copy=cloneObj(r); copy.id="REG-"+Date.now(); copy.order=Math.max.apply(null, regs.map(function(x){return x.order;}))+1; copy.name={fr:r.name.fr+" (copie)", ar:r.name.ar, en:r.name.en};
+      copy.cities=(r.cities||[]).map(function(c){ var c2=cloneObj(c); c2.id="CTY-"+Date.now()+"-"+Math.floor(Math.random()*999); return c2; });
+      regs.push(copy); audit("REGION_DUPLICATED","Region",copy.id,"Duplicated"); done(T("Région dupliquée."));
+      return;
+    }
+    if(act==="reg-tog"){ r.active=r.active!==false?false:true; audit(r.active?"REGION_ACTIVATED":"REGION_DEACTIVATED","Region",r.id,r.active?"Active":"Inactive"); done(T("Statut mis à jour.")); return; }
+    if(act==="reg-up"||act==="reg-dn"){ var dir=act==="reg-up"?-1:1; var j=cIndex()+dir; if(j<0||j>=regs.length){ UI.toast(T("Déjà en limite.")); return; } var t=regs[cIndex()]; regs[cIndex()]=regs[j]; regs[j]=t; reindexReg(); done(); return; }
+    if(act==="reg-del"){
+      if(DATA.isRegionUsed(r.id)){ UI.toast(T("Impossible : région utilisée."), true); return; }
+      UI.confirmAction({title:T("Supprimer cette région ?"), message:T("Région et ses villes seront retirées."), confirmLabel:T("Supprimer"), onConfirm:function(){ regs.splice(regs.indexOf(r),1); reindexReg(); audit("REGION_DELETED","Region",r.id,"Deleted"); done(T("Région supprimée.")); }});
+      return;
+    }
+    var c = r.cities.find(function(x){ return x.id===cityId; });
+    if(!c) return;
+    if(act==="cty-addhood"){
+      var hn=prompt(T("Nom du quartier :"));
+      if(hn&&hn.trim()){ c.neighborhoods.push(hn.trim()); audit("CITY_CHANGED","City",c.id,"Neighborhood added"); done(T("Quartier ajouté.")); }
+      return;
+    }
+    if(act==="cty-edit"){
+      var cfr=prompt(T("Nom (FR) :"), c.name.fr), car=prompt(T("Nom (AR) :"), c.name.ar), cen=prompt(T("Nom (EN) :"), c.name.en);
+      if(cfr!==null){ c.name.fr=cfr||c.name.fr; if(car!==null)c.name.ar=car; if(cen!==null)c.name.en=cen; audit("CITY_CHANGED","City",c.id,"Updated"); done(T("Ville modifiée.")); }
+      return;
+    }
+    if(act==="cty-dup"){
+      var c2=cloneObj(c); c2.id="CTY-"+Date.now(); c2.order=Math.max.apply(null, r.cities.map(function(x){return x.order;}))+1; c2.name={fr:c.name.fr+" (copie)", ar:c.name.ar, en:c.name.en}; r.cities.push(c2); audit("CITY_DUPLICATED","City",c2.id,"Duplicated"); done(T("Ville dupliquée."));
+      return;
+    }
+    if(act==="cty-tog"){ c.active=c.active!==false?false:true; audit(c.active?"CITY_ACTIVATED":"CITY_DEACTIVATED","City",c.id,c.active?"Active":"Inactive"); done(T("Statut mis à jour.")); return; }
+    if(act==="cty-up"||act==="cty-dn"){ var cj=r.cities.indexOf(c)+(act==="cty-up"?-1:1); if(cj<0||cj>=r.cities.length){ UI.toast(T("Déjà en limite.")); return; } var ct=r.cities[r.cities.indexOf(c)]; r.cities[r.cities.indexOf(c)]=r.cities[cj]; r.cities[cj]=ct; reindexCity(); done(); return; }
+    if(act==="cty-del"){
+      if(DATA.isCityUsed(c.id)){ UI.toast(T("Impossible : ville utilisée par un utilisateur ou professionnel."), true); return; }
+      UI.confirmAction({title:T("Supprimer cette ville ?"), confirmLabel:T("Supprimer"), onConfirm:function(){ r.cities.splice(r.cities.indexOf(c),1); reindexCity(); audit("CITY_DELETED","City",c.id,"Deleted"); done(T("Ville supprimée.")); }});
+      return;
+    }
   }
 
   /* ============================================================
@@ -1647,35 +1853,53 @@
      ANALYTICS
      ============================================================ */
   var analyticsFilter = "12m";
+  var analyticsFrom = ""; var analyticsTo = "";
   var MONTHS=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"];
+  function customMonths(){
+    if(!analyticsFrom || !analyticsTo) return 12;
+    var f=new Date(analyticsFrom), t=new Date(analyticsTo);
+    if(isNaN(f.getTime())||isNaN(t.getTime())||f>t) return 12;
+    var m=(t.getFullYear()-f.getFullYear())*12+(t.getMonth()-f.getMonth())+1;
+    return Math.max(1, Math.min(12, m));
+  }
   function renderAnalytics(){
     UI.setTitle(T("Analytiques"));
     var a = DATA.getAnalytics();
     var slice = a.visits.slice();
-    var fLbl = {"today":T("Aujourd'hui"),"7d":T("7 jours"),"30d":T("30 jours"),"90d":T("90 jours"),"12m":T("12 mois"),"custom":T("Période")}[analyticsFilter];
-    function sub(ar){ return ar.slice(-periodN()); }
+    var fLbl = {"today":T("Aujourd'hui"),"7d":T("7 jours"),"30d":T("30 jours"),"90d":T("90 jours"),"12m":T("12 mois"),"custom":T("Période personnalisée")}[analyticsFilter];
+    var customN = customMonths();
+    function sub(ar){ return ar.slice(-Math.abs(periodN())); }
     function periodN(){
-      var m={ today:1, "7d":2, "30d":6, "90d":9, "12m":12, custom:12 };
+      var m={ today:1, "7d":2, "30d":6, "90d":9, "12m":12, custom:customN };
       return m[analyticsFilter]||12;
     }
     function sum(ar){ return ar.reduce(function(x,y){return x+y;},0); }
     function last(ar){ return ar.length?ar[ar.length-1]:0; }
+    function pct(c,a){ return (a>0)?(Math.round(c/a*1000)/10):0; }
     var visits = sub(a.visits), signups = sub(a.signups), mrr = sub(a.mrr), churn = sub(a.churn), conv = sub(a.conversion);
+    var leads = a.leads || {};
+    var leadsTotal = (leads.phone||0)+(leads.whatsapp||0)+(leads.contact||0);
+    var customPicker = (analyticsFilter==="custom")? ('<div class="custom-range" style="display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap">'+
+        '<label class="muted">'+T("Du")+' <input type="date" id="anFrom" value="'+esc(analyticsFrom)+'"></label>'+
+        '<label class="muted">'+T("Au")+' <input type="date" id="anTo" value="'+esc(analyticsTo)+'"></label>'+
+        '<span class="muted" style="font-size:12px">'+T("Période")+' : '+customN+' '+T("mois")+'</span></div>') : "";
     var html =
       '<div class="page-head"><h1>'+T("Analytiques")+'</h1><div class="spacer"><div class="tabs" style="border:none;padding:0;margin:0">'+
         ["today","7d","30d","90d","12m","custom"].map(function(f){ return '<button class="tab '+(f===analyticsFilter?"active":"")+'" data-f="'+f+'">'+{"today":T("Aujourd'hui"),"7d":T("7 jours"),"30d":T("30 jours"),"90d":T("90 jours"),"12m":T("12 mois"),"custom":T("Période")}[f]+'</button>'; }).join("")+
       '</div></div></div>' +
+      customPicker +
       '<div class="kpi-grid grid-4">'+
-        kpiCard(T("Utilisateurs"), "👥", "8 492","▲ 8,2%","up") + kpiCard(T("Recherches"), "🔍", secara(sum(visits)),"▲ 18%","up") +
+        kpiCard(T("Utilisateurs"), "👥", DATA.getUsers() ? ('' + sum(signups)) : "0", "▲ "+(signups.length>1?Math.round((signups[signups.length-1]-signups[0])/signups[0]*100):8.2)+"%","up") +
+        kpiCard(T("Recherches"), "🔍", secara(sum(visits)),"▲ 18%","up") +
         kpiCard(T("Demandes de contact"), "📞", secara(sum(signups)*22),"▲ 6%","up") + kpiCard("MRR ("+fLbl+")", "💰", secara(last(mrr))+" DH", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"▲ 9,7%":"▽ 1,2%", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"up":"down") +
       '</div>' +
       '<div class="grid-2" style="margin-top:20px">'+
         '<div class="card"><div class="card-title">'+T("Visites")+' ('+fLbl+')</div><div class="chart-bars">'+bars(visits)+'</div></div>'+
-        '<div class="card"><div class="card-title">MRR ('+T("récurrent mensuel")+') — DH</div><div class="chart-bars">'+bars(mrr)+'</div></div>'+
+        '<div class="card"><div class="card-title">'+T("Inscriptions")+' ('+fLbl+')</div><div class="chart-bars">'+bars(signups)+'</div></div>'+
       '</div>' +
       '<div class="grid-2" style="margin-top:20px">'+
+        '<div class="card"><div class="card-title">MRR ('+T("récurrent mensuel")+') — DH</div><div class="chart-bars">'+bars(mrr)+'</div></div>'+
         '<div class="card"><div class="card-title">'+T("Taux de conversion")+' (%)</div><div class="chart-bars">'+bars(conv)+'</div></div>'+
-        '<div class="card"><div class="card-title">Churn (%)</div><div class="chart-bars">'+bars(churn)+'</div></div>'+
       '</div>' +
       '<div class="kpi-grid grid-4" style="margin-top:20px">'+
         '<div class="kpi"><div class="k-title">'+T("Vérifiés")+'</div><div class="k-val">'+ (a.verifiedPercent||54)+'%</div></div>'+
@@ -1683,12 +1907,24 @@
         '<div class="kpi"><div class="k-title">'+T("Free → Payant")+'</div><div class="k-val">'+(a.freeToPaid||12.4)+'%</div></div>'+
         '<div class="kpi"><div class="k-title">'+T("Note moyenne")+'</div><div class="k-val">★ '+(a.avgRating||4.6)+'</div></div>'+
       '</div>' +
+      '<div class="grid-3" style="margin-top:20px;align-items:start">'+
+        '<div class="card"><div class="card-title">'+T("Top services")+'</div>' + (a.topServices||[]).map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
+        '<div class="card"><div class="card-title">'+T("Top villes")+'</div>' + (a.topCities||[]).map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
+        '<div class="card"><div class="card-title">'+T("Sources de leads")+'</div>'+
+          '<div class="row-item"><div class="grow">📞 '+T("Téléphone")+'</div><span class="muted">'+secara(leads.phone||0)+' ('+pct(leads.phone||0,leadsTotal)+'%)</span></div>'+
+          '<div class="row-item"><div class="grow">💬 WhatsApp</div><span class="muted">'+secara(leads.whatsapp||0)+' ('+pct(leads.whatsapp||0,leadsTotal)+'%)</span></div>'+
+          '<div class="row-item"><div class="grow">📨 '+T("Formulaire")+'</div><span class="muted">'+secara(leads.contact||0)+' ('+pct(leads.contact||0,leadsTotal)+'%)</span></div>'+
+        '</div>'+
+      '</div>' +
       '<div class="grid-2" style="margin-top:20px;align-items:start">'+
-        '<div class="card"><div class="card-title">'+T("Top services")+'</div>' + a.topServices.map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
+        '<div class="card"><div class="card-title">Churn (%)</div><div class="chart-bars">'+bars(churn)+'</div></div>'+
         '<div class="card"><div class="card-title">'+T("Recherches sans résultat")+'</div>' + bars(sub(a.failedSearches)) + '</div>'+
       '</div>';
     UI.setContent(html);
     document.querySelectorAll(".tab[data-f]").forEach(function(t){ t.addEventListener("click", function(){ analyticsFilter=t.dataset.f; renderAnalytics(); }); });
+    var df=document.getElementById("anFrom"), dt=document.getElementById("anTo");
+    if(df) df.addEventListener("change", function(){ analyticsFrom=df.value; renderAnalytics(); });
+    if(dt) dt.addEventListener("change", function(){ analyticsTo=dt.value; renderAnalytics(); });
   }
   function bars(data, acc){
     var m = Math.max.apply(null, data) || 1;
