@@ -419,7 +419,7 @@
         package: document.getElementById("pmPkg").value,
         status: document.getElementById("pmStatus").value
       };
-      if(verifyMode) data.verified = true;
+      if(verifyMode){ data.verified = true; data.verificationStatus = "approved"; data.professionStatus = "verified"; }
       if(id){
         DATA.updateProfessional(id, data);
         UI.toast(T("Professionnel mis à jour."));
