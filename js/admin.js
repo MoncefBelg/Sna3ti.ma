@@ -200,6 +200,7 @@
           (AUTH.can("professionals","verify")?'<button class="btn btn-primary btn-small" id="bulkVerify">'+T("Vérifier")+'</button>':"") +
           (AUTH.can("professionals","suspend")?'<button class="btn btn-warn btn-small" id="bulkSuspend">'+T("Suspendre")+'</button>':"") +
           (AUTH.can("professionals","activate")?'<button class="btn btn-soft btn-small" id="bulkActivate">'+T("Activer")+'</button>':"") +
+          (AUTH.can("professionals","read")?'<button class="btn btn-ghost btn-small" id="bulkExport">⬇ '+T("Exporter")+'</button>':"") +
           '<button class="btn btn-ghost btn-small" id="bulkClose">'+T("Fermer")+'</button></div>' +
       '</div>';
     UI.setContent(html);
@@ -239,6 +240,7 @@
     var bv = document.getElementById("bulkVerify"); if(bv) bv.addEventListener("click", function(){ bulkAction("verify"); });
     var bs = document.getElementById("bulkSuspend"); if(bs) bs.addEventListener("click", function(){ bulkAction("suspend"); });
     var ba = document.getElementById("bulkActivate"); if(ba) ba.addEventListener("click", function(){ bulkAction("activate"); });
+    var be = document.getElementById("bulkExport"); if(be) be.addEventListener("click", function(){ var ids=selectedProIds(); if(ids.length===0){ UI.toast(T("Aucun professionnel sélectionné.")); return; } exportPros(ids); });
     document.getElementById("bulkClose").addEventListener("click", toggleBulk);
   }
   function bulkAction(action){
@@ -355,12 +357,15 @@
     return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
   }
 
-  function exportPros(){
+  function exportPros(idsOnly){
     var rows = [[T("Nom"),T("Profession"),T("Ville"),T("Catégorie"),T("Note"),T("Avis"),T("Vérification"),T("Package"),T("Statut"),"ID"]];
-    DATA.getProfessionals().forEach(function(p){
+    var list;
+    if(idsOnly && idsOnly.length){ list = DATA.getProfessionals().filter(function(p){ return idsOnly.indexOf(p.id)>-1; }); }
+    else { list = DATA.getProfessionals({ q: proState.q, city: proState.city, category: proState.category, job: proState.job, verification: proState.verification, subscription: proState.package, minRating: proState.rating, created: proState.created, status: proState.status }); }
+    list.forEach(function(p){
       rows.push([p.name, p.job, p.city, p.category, p.rating, p.reviewsCount, p.verificationStatus, p.package, p.status, p.id]);
     });
-    UI.exportCSV("professionnels-sna3ti.csv", rows);
+    UI.exportCSV(idsOnly && idsOnly.length ? "professionnels-selection.csv" : "professionnels-sna3ti.csv", rows);
     UI.toast(T("Export CSV généré."));
   }
 
