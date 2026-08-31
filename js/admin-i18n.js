@@ -68,6 +68,7 @@
 
     // ---- login ----
     "Connexion": "Sign in",
+    "Rôles illustrés": "Illustrated roles",
     "Mot de passe": "Password",
     "Afficher le mot de passe": "Show password",
     "Se souvenir de moi": "Remember me",

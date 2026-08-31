@@ -38,7 +38,7 @@
           '<button class="btn btn-primary btn-block" id="loginBtn" type="submit" style="justify-content:center">'+T("Se connecter")+'</button>' +
         '</form>' +
         '<div class="login-foot">'+T("Prototype — authentification de démonstration uniquement.")+'</div>' +
-        '<div class="demo-box"><div class="demo-row"><span><b>Super Admin</b></span><code>admin@sna3ti.ma</code></div><div class="demo-row"><span><b>Finance</b></span><code>finance@sna3ti.ma</code></div><div class="demo-row"><span><b>Moderator</b></span><code>mod@sna3ti.ma</code></div><div class="demo-row"><span><b>Support</b></span><code>support@sna3ti.ma</code></div><div class="demo-row"><span class="muted">'+T("Mot de passe")+'</span><span class="muted">'+T("(tout)")+'</span></div></div>' +
+        '<div class="demo-box"><div class="demo-row"><span><b>'+T("Connexion")+'</b></span><code>mbelgas@sna3ti.ma</code></div><div class="demo-row"><span class="muted">'+T("Mot de passe")+'</span><span class="muted">Sna3ti@@2030</span></div><div class="demo-row"><span class="muted">'+T("Rôles illustrés")+'</span><span class="muted">Super Admin · Finance · Moderator · Support</span></div></div>' +
       '</div></div>';
 
     document.getElementById("pwToggle").addEventListener("click", function(){
@@ -409,7 +409,7 @@
         DATA.updateProfessional(id, data);
         UI.toast(T("Professionnel mis à jour."));
       } else {
-        var np = Object.assign({ id: DATA._store.professionals.length? ("PRO-"+ (100000 + DATA._store.professionals.length)) : "PRO-10001", professionId:"", categoryId:"", cityId:"", rating:0, reviewsCount:0, languages:[], created:new Date().toISOString().slice(0,10), verificationStatus:"pending", identityStatus:"pending", professionStatus:"pending", verified:false, available:true, verifiedStatus:false }, data, {verified:false});
+        var np = Object.assign({ id: DATA.nextProfessionalId(), professionId:"", categoryId:"", cityId:"", rating:0, reviewsCount:0, languages:[], created:new Date().toISOString().slice(0,10), verificationStatus:"pending", identityStatus:"pending", professionStatus:"pending", verified:false, available:true, verifiedStatus:false }, data, {verified:false});
         DATA._store.professionals.push(np); DATA.persist();
         UI.toast(T("Professionnel créé."));
       }
@@ -653,7 +653,9 @@
     document.querySelectorAll("#uBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.del;
       UI.confirmAction({title:T("Supprimer cet utilisateur ?"), message:T("Action irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.users=DATA._store.users.filter(function(u){return u.id!==id;}); UI.toast(T("Utilisateur supprimé.")); drawUsers();
+        DATA._store.users=DATA._store.users.filter(function(u){return u.id!==id;}); DATA.persist();
+        DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_USER", entity:"User", entityId:id, result:"Deleted"});
+        UI.toast(T("Utilisateur supprimé.")); drawUsers();
       }});
     }); });
     document.querySelectorAll("#uBody [data-activity]").forEach(function(b){ b.addEventListener("click", function(){
@@ -898,20 +900,20 @@
     document.querySelectorAll("[data-delcat]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.delcat;
       UI.confirmAction({title:T("Supprimer cette catégorie ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.categories=DATA._store.categories.filter(function(c){return c.id!==id;}); DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:id, result:"Deleted"}); UI.toast(T("Catégorie supprimée.")); renderCategories();
+        DATA._store.categories=DATA._store.categories.filter(function(c){return c.id!==id;}); DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:id, result:"Deleted"}); UI.toast(T("Catégorie supprimée.")); renderCategories();
       }});
     }); });
     var add=document.getElementById("cAdd"); if(add) add.addEventListener("click", function(){
       var fr=prompt(T("Nom (FR) :")), ar=prompt(T("Nom (AR) :")), en=prompt(T("Nom (EN) :")), ic=prompt(T("Icône (emoji) :"))||"📁";
-      if(fr&&fr.trim()){ DATA._store.categories.push({id:"CAT-"+Date.now(), code:"", icon:ic, order:DATA._store.categories.length+1, active:true, label:{fr:fr.trim(),ar:ar||"",en:en||""}, services:[]}); UI.toast(T("Catégorie ajoutée.")); renderCategories(); }
+      if(fr&&fr.trim()){ DATA._store.categories.push({id:"CAT-"+Date.now(), code:"", icon:ic, order:DATA._store.categories.length+1, active:true, label:{fr:fr.trim(),ar:ar||"",en:en||""}, services:[]}); DATA.persist(); UI.toast(T("Catégorie ajoutée.")); renderCategories(); }
     });
     document.querySelectorAll("[data-togcat]").forEach(function(b){ b.addEventListener("click", function(){
-      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.togcat;}); if(c){ c.active=!c.active; DATA.logAudit({admin:AUTH.getSession().name, action:c.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED", entity:"Category", entityId:c.id, result:c.active?"Active":"Inactive"}); UI.toast(T("Catégorie ")+(c.active?T("activée"):T("désactivée"))+"."); renderCategories(); }
+      var c=DATA._store.categories.find(function(x){return x.id===b.dataset.togcat;}); if(c){ c.active=!c.active; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:c.active?"CATEGORY_ACTIVATED":"CATEGORY_DEACTIVATED", entity:"Category", entityId:c.id, result:c.active?"Active":"Inactive"}); UI.toast(T("Catégorie ")+(c.active?T("activée"):T("désactivée"))+"."); renderCategories(); }
     }); });
     document.querySelectorAll("[data-editcat]").forEach(function(b){ b.addEventListener("click", function(){
       var c=DATA._store.categories.find(function(x){return x.id===b.dataset.editcat;});
       var fr=prompt(T("Nom (FR) :"), c.label.fr), ar=prompt(T("Nom (AR) :"), c.label.ar), en=prompt(T("Nom (EN) :"), c.label.en);
-      if(fr!==null){ c.label.fr=fr||c.label.fr; c.label.ar=ar===null?c.label.ar:ar; c.label.en=en===null?c.label.en:en; DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:c.id, result:"Updated"}); UI.toast(T("Catégorie modifiée.")); renderCategories(); }
+      if(fr!==null){ c.label.fr=fr||c.label.fr; c.label.ar=ar===null?c.label.ar:ar; c.label.en=en===null?c.label.en:en; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"CATEGORY_CHANGED", entity:"Category", entityId:c.id, result:"Updated"}); UI.toast(T("Catégorie modifiée.")); renderCategories(); }
     }); });
   }
 
@@ -931,10 +933,10 @@
       }).join("")
     );
     document.querySelectorAll("[data-addcity]").forEach(function(b){ b.addEventListener("click", function(){
-      var n=prompt(T("Nom de la ville (FR) :")); if(n&&n.trim()){ var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.addcity;}); if(rr){ rr.cities.push({id:"CTY-"+Date.now(), name:{fr:n.trim(),ar:"",en:n.trim()}, neighborhoods:[]}); UI.toast(T("Ville ajoutée.")); renderCities(); } }
+      var n=prompt(T("Nom de la ville (FR) :")); if(n&&n.trim()){ var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.addcity;}); if(rr){ rr.cities.push({id:"CTY-"+Date.now(), name:{fr:n.trim(),ar:"",en:n.trim()}, neighborhoods:[]}); DATA.persist(); UI.toast(T("Ville ajoutée.")); renderCities(); } }
     }); });
     document.querySelectorAll("[data-delcity]").forEach(function(b){ b.addEventListener("click", function(){
-      var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.delcity;}); if(rr){ rr.cities=rr.cities.filter(function(c){return c.id!==b.dataset.cid;}); UI.toast(T("Ville supprimée.")); renderCities(); }
+      var rr=DATA._store.regions.find(function(x){return x.id===b.dataset.delcity;}); if(rr){ rr.cities=rr.cities.filter(function(c){return c.id!==b.dataset.cid;}); DATA.persist(); UI.toast(T("Ville supprimée.")); renderCities(); }
     }); });
   }
 
@@ -1041,7 +1043,9 @@
     document.querySelectorAll("[data-rejectrep]").forEach(function(b){ b.addEventListener("click", function(){ setReport(b.dataset.rejectrep, "rejected"); }); });
     document.querySelectorAll("[data-warn]").forEach(function(b){ b.addEventListener("click", function(){
       UI.confirmAction({title:T("Avertir le professionnel ?"), reasonRequired:true, reasonLabel:T("Motif de l'avertissement"), confirmLabel:T("Avertir"), onConfirm:function(reason){
-        setReport(b.dataset.warn, "under_review"); UI.toast(T("Avertissement enregistré."));
+        var r=DATA._store.reports.find(function(x){return x.id===b.dataset.warn;});
+        if(r){ r.status="under_review"; r.warnReason=reason; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_WARNED", entity:"Professional", entityId:r.professionalId, result:"Warned", note:reason}); }
+        UI.toast(T("Avertissement enregistré.")); drawReports(currentReportFilter());
       }});
     }); });
     document.querySelectorAll("[data-susprof]").forEach(function(b){ b.addEventListener("click", function(){
@@ -1162,7 +1166,15 @@
   }
   function viewPlanSubs(id){
     var pl = DATA.getSubscriptionPlans().find(function(x){ return x.id===id; });
-    UI.openModal('<h3>'+T("Abonnés")+' — '+esc(pl.name)+'</h3>'+(DATA.getSubscriptions().filter(function(s){return s.planName===pl.name;}).length?'':'<div class="empty">'+T("Aucun abonné.")+'</div>'), true);
+    var subs = DATA.getSubscriptions().filter(function(s){ return s.planName===pl.name; });
+    var body = !subs.length ? '<div class="empty">'+T("Aucun abonné.")+'</div>'
+      : '<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Professionnel")+'</th><th>'+T("Prix")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th></tr></thead><tbody>' +
+        subs.map(function(s){
+          var p=DATA.getProfessional(s.professionalId);
+          return '<tr><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
+            '<td>'+s.price+' DH</td><td>'+statusBadge(s.status)+'</td><td>'+payStatusBadge(s.paymentStatus)+'</td></tr>';
+        }).join("") + '</tbody></table></div>';
+    UI.openModal('<h3>'+T("Abonnés")+' — '+esc(pl.name)+'</h3>'+body, true);
   }
 
   /* ============================================================
@@ -1487,7 +1499,11 @@
       '</div><div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button><button class="btn btn-primary" id="auSave">'+T("Enregistrer")+'</button></div>');
     document.getElementById("auSave").addEventListener("click", function(){
       var d={ name:document.getElementById("auName").value, email:document.getElementById("auEmail").value, role:document.getElementById("auRole").value };
-      if(id){ var ex=DATA._store.adminUsers.find(function(x){return x.id===id;}); if(ex)Object.assign(ex,d); } else { DATA._store.adminUsers.push(Object.assign({id:"AU-"+Date.now(), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10)}, d)); }
+      var isNew = false;
+      if(id){ var ex=DATA._store.adminUsers.find(function(x){return x.id===id;}); if(ex)Object.assign(ex,d); }
+      else { DATA._store.adminUsers.push(Object.assign({id:"AU-"+Date.now(), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10)}, d)); isNew = true; }
+      DATA.persist();
+      DATA.logAudit({admin:AUTH.getSession().name, action: isNew?"ADMIN_USER_CREATED":"ADMIN_USER_UPDATED", entity:"AdminUser", entityId:id||("AU-"+Date.now()), result:"Updated"});
       UI.toast(T("Admin enregistré.")); UI.closeModal(); renderAdminUsers();
     });
   }

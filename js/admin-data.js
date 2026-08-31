@@ -393,6 +393,18 @@
   function uid(prefix){ return prefix + "-" + Math.floor(100000 + Math.random()*900000); }
   function todayStr(){ return new Date().toISOString().slice(0,10); }
 
+  // Monotonic professional ID counter: seeded from the highest existing PRO- number
+  // in the live store and only ever incremented, so IDs are never reused after a delete.
+  var nextProNum = 10000;
+  function nextProfessionalId(){
+    store.professionals.forEach(function(p){
+      var n = parseInt(String(p.id||"").replace(/^PRO-/,""), 10);
+      if(!isNaN(n) && n > nextProNum) nextProNum = n;
+    });
+    nextProNum += 1;
+    return "PRO-" + nextProNum;
+  }
+
   // Persist collections to localStorage (best-effort) for demo continuity.
   var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics"];
   function persist(){
@@ -451,6 +463,7 @@
     roles: ROLES,
 
     // ---- Professionals ----
+    nextProfessionalId: nextProfessionalId,
     getProfessionals: function(params){
       var list = clone(where(store.professionals, function(){ return true; }));
       if(params){
@@ -714,7 +727,16 @@
         if(planId){ applyPlanToProfessional(vr.professionalId, planId); }
       }
       return true; },
-    rejectPayment: function(id, reason){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; p.rejectionReason=reason||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
+    rejectPayment: function(id, reason){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; p.rejectionReason=reason||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin";
+      // Keep the linked plan request (Verification centre) in sync: reject it and never grant the badge.
+      var vr = store.verificationRequests.find(function(x){ return x.paymentId === p.id && x.level==="plan"; });
+      if(vr && vr.status!=="approved" && vr.status!=="rejected"){
+        vr.status="rejected"; vr.reason=reason||""; vr.reviewedAt=new Date().toISOString();
+        vr.history.push({ date: todayStr(), text:T("Paiement rejeté — plan non activé")+(reason?(" — "+reason):"") });
+        var pr=getById(store.professionals, vr.professionalId);
+        if(pr){ pr.planEligible = false; }
+      }
+      return true; },
     requestPaymentInfo: function(id, note){ var p=getById(store.payments,id); if(!p)return false; p.status="needs_info"; p.infoRequested=note||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
     addPayment: function(data){
       var np = { id:uid("PAY"), reference:"SNA3TI-"+(48290+Math.floor(Math.random()*900)), status:"pending", currency:"MAD", method:"bank_transfer", date:todayStr(), createdAt:new Date().toISOString(),
@@ -824,7 +846,7 @@
     getActivity: function(){ return clone(store.activity); },
     getAnalytics: function(){ return clone(store.analytics); },
     getNotifications: function(){ return clone(store.notifications); },
-    markNotificationsRead: function(){ store.notifications.forEach(function(n){ n.unread=false; }); },
+    markNotificationsRead: function(){ store.notifications.forEach(function(n){ n.unread=false; }); persist(); },
     // ---- Admin users & audit ----
     getAdminUsers: function(){ return clone(store.adminUsers); },
     getAuditLogs: function(){ return clone(store.auditLogs); },
