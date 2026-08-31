@@ -307,6 +307,13 @@
       price:0, since:"2025-01-30", renewal:"—" }
   ];
 
+  var SUBSCRIPTIONS_HISTORICAL = [
+    { id:"SUB-506", professionalId:"PRO-10297", planId:"PLAN-VERIFIED", planName:"VÉRIFIÉ", status:"cancelled", paymentStatus:"confirmed",
+      price:99, since:"2025-10-01", renewal:"—", cancelledAt:"2026-01-15" },
+    { id:"SUB-507", professionalId:"PRO-10297", planId:"PLAN-GOLD", planName:"GOLD", status:"expired", paymentStatus:"confirmed",
+      price:199, since:"2026-01-01", renewal:"2026-04-01", expiredAt:"2026-04-01" }
+  ];
+
   var PAYMENTS = [
     { id:"PAY-7001", reference:"SNA3TI-48291", professionalId:"PRO-10296", planName:"GOLD", amount:199, method:"bank_transfer",
       bankRef:"REF-8821", date:"2026-08-01", status:"confirmed" },
@@ -390,7 +397,7 @@
   var store = {
     users: USERS, professionals: PROFESSIONALS, categories: CATEGORIES,
     regions: REGIONS, reviews: REVIEWS, reports: REPORTS,
-    subscriptionPlans: SUBSCRIPTION_PLANS, subscriptions: SUBSCRIPTIONS,
+    subscriptionPlans: SUBSCRIPTION_PLANS, subscriptions: SUBSCRIPTIONS.concat(SUBSCRIPTIONS_HISTORICAL),
     payments: PAYMENTS, notifications: NOTIFICATIONS, adminUsers: ADMIN_USERS,
     supportTickets: SUPPORT_TICKETS,
     auditLogs: AUDIT_LOGS, verificationRequests: VERIFICATION_REQUESTS,
@@ -634,7 +641,8 @@
     },
     requestMoreInfo: function(id, note, adminName){
       var v = getById(store.verificationRequests, id); if(!v) return false;
-      v.status="needs_info"; v.history.push({ date: todayStr(), text:T("Informations demandées par "+adminName+(note?" — "+note:"")) });
+      v.status="needs_info"; v.infoRequested = note||"";
+      v.history.push({ date: todayStr(), text:T("Informations demandées par "+adminName+(note?" — "+note:"")) });
       return true;
     },
 

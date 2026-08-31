@@ -352,7 +352,7 @@
     return '<span class="badge '+m[0]+'">'+m[1]+'</span>';
   }
   function statusBadge(s){
-    var m = { active:["green",T("Actif")], pending:["amber",T("En attente")], suspended:["red",T("Suspendu")], rejected:["red",T("Rejeté")], deleted:["gray",T("Supprimé")] };
+    var m = { active:["green",T("Actif")], pending:["amber",T("En attente")], suspended:["red",T("Suspendu")], rejected:["red",T("Rejeté")], deleted:["gray",T("Supprimé")], expired:["amber",T("Expiré")], cancelled:["gray",T("Annulé")] };
     var e = m[s] || ["gray", s];
     return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
   }
@@ -541,7 +541,7 @@
       });
       var drj = document.getElementById("dReject"); if(drj) drj.addEventListener("click", function(){
         var pend = verifs.filter(function(v){ return v.status==="pending" || v.status==="needs_info"; });
-        UI.confirmAction({ title:T("Rejeter la vérification de ce professionnel ?"), reasonRequired:true, reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
+        UI.confirmAction({ title:T("Rejeter la vérification de ce professionnel ?"), reasonRequired:true, options:verReasonOptions(), otherLabel:T("Précision (si « Autre »)"), otherPlaceholder:T("Détaillez le motif..."), reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
           pend.forEach(function(v){ if(v) DATA.rejectVerification(v.id, reason, AUTH.getSession().name); });
           DATA.updateProfessional(p.id, { verificationStatus:"rejected", verified:false, professionStatus:"rejected" });
           DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_REJECTED", entity:"Professional", entityId:p.id, result:"Rejected", note:reason});
@@ -886,6 +886,7 @@
           (AUTH.can("verification","reject") ? '<button class="btn btn-danger btn-small" data-reject="'+v.id+'">✖ '+T("Rejeter")+'</button>' : "") +
           (AUTH.can("verification","approve") && v.status!=="approved" ? '<button class="btn btn-primary btn-small" data-approve="'+(isJoin?"j":"")+v.id+'">'+(isJoin?"🤝 "+T("Confirmer adhésion"):"✓ "+T("Approuver"))+'</button>' : "") +
           (AUTH.can("verification","approve") ? '<button class="btn btn-soft btn-small" data-review="'+v.id+'">🔍 '+T("Réviser")+'</button>' : "") +
+          (AUTH.can("verification","approve") && v.status!=="approved" && v.status!=="rejected" ? '<button class="btn btn-soft btn-small" data-info="'+v.id+'">💡 '+T("Demander des informations")+'</button>' : "") +
           (isPlan && v.status!=="approved" ? '<button class="btn btn-soft btn-small" data-gopay="'+v.id+'" title="'+T("Voir le paiement")+'">💰 '+T("Voir paiement")+'</button>' : "") +
         '</div></div>';
     }).join("");
@@ -940,6 +941,7 @@
     document.querySelectorAll("[data-approve]").forEach(function(b){ b.addEventListener("click", function(){ quickApprove(b.dataset.approve); }); });
     document.querySelectorAll("[data-reject]").forEach(function(b){ b.addEventListener("click", function(){ rejectVer(b.dataset.reject); }); });
     document.querySelectorAll("[data-review]").forEach(function(b){ b.addEventListener("click", function(){ openReview(b.dataset.review); }); });
+    document.querySelectorAll("[data-info]").forEach(function(b){ b.addEventListener("click", function(){ requestInfo(b.dataset.info); }); });
     document.querySelectorAll("[data-gopay]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("payments"); }); });
   }
   function showVerHistory(id){
@@ -966,11 +968,22 @@
     return Math.max(0, Math.floor((Date.now() - d.getTime())/864e5));
   }
   function updatePillsSafe(){ try{ UI.setActiveNav("verification"); }catch(e){} }
+  function verReasonOptions(){
+    return [ T("Document d'identité invalide"), T("Incohérence d'informations"), T("Preuves insuffisantes"), T("Portfolio insuffisant"), T("Activité suspecte"), T("Autre") ];
+  }
   function rejectVer(id){
-    UI.confirmAction({ title:T("Rejeter cette vérification ?"), reasonRequired:true, reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
+      UI.confirmAction({ title:T("Rejeter cette vérification ?"), reasonRequired:true, options:verReasonOptions(), otherLabel:T("Précision (si « Autre »)"), otherPlaceholder:T("Détaillez le motif..."), reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
       DATA.rejectVerification(id, reason, AUTH.getSession().name);
       DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_REJECTED", entity:"VerificationRequest", entityId:id, result:"Rejected", note:reason});
-      UI.toast(T("Vérification rejetée.")); drawVerification(currentFilter());
+      UI.toast(T("Vérification rejetée.")); drawVerification(currentFilter()); updatePillsSafe();
+    }});
+  }
+  function requestInfo(id){
+    var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
+    UI.confirmAction({ title:T("Demander des informations"), message: v ? esc((DATA.getProfessional(v.professionalId)||{}).name||"")+" — "+esc(v.id) : "", reasonLabel:T("Informations demandées"), reasonRequired:true, confirmLabel:T("Envoyer la demande"), onConfirm:function(note){
+      DATA.requestMoreInfo(id, note, AUTH.getSession().name);
+      DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_INFO_REQUESTED", entity:"VerificationRequest", entityId:id, result:"Needs info", note:note});
+      UI.toast(T("Demande d'informations envoyée au professionnel.")); drawVerification(currentFilter()); updatePillsSafe();
     }});
   }
   function openReview(id){
@@ -1385,9 +1398,20 @@
     UI.setTitle(T("Abonnements"));
     var plans = DATA.getSubscriptionPlans();
     var subs = DATA.getSubscriptions();
+    var isFree = function(s){ return String(s.planId||"").toUpperCase()==="PLAN-FREE" || /GRATUIT/i.test(s.planName||"") || (s.price||0)===0; };
+    var statActive = subs.filter(function(s){ return s.status==="active"; }).length;
+    var statExpired = subs.filter(function(s){ return s.status==="expired"; }).length;
+    var statCancelled = subs.filter(function(s){ return s.status==="cancelled"; }).length;
+    var statMRR = subs.filter(function(s){ return s.status==="active" && !isFree(s); }).reduce(function(a,s){ return a+(s.price||0); },0);
     var html = '<div class="page-head"><h1>'+T("Abonnements")+'</h1><div class="spacer muted">'+T("Vérification ≠ abonnement.")+'</div></div>' +
+      '<div class="grid grid-4" style="margin-bottom:20px">'+
+        '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Abonnés actifs")+'</span><span class="k-ico">👥</span></div><div class="k-val">'+statActive+'</div><div class="k-delta"><span class="cmp">'+T("abonnements en cours")+'</span></div></div>'+
+        '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Abonnements expirés")+'</span><span class="k-ico">⏰</span></div><div class="k-val">'+statExpired+'</div><div class="k-delta"><span class="cmp">'+T("non renouvelés")+'</span></div></div>'+
+        '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Abonnements annulés")+'</span><span class="k-ico">🚫</span></div><div class="k-val">'+statCancelled+'</div><div class="k-delta"><span class="cmp">'+T("annulations")+'</span></div></div>'+
+        '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Revenu mensuel récurrent (MRR)")+'</span><span class="k-ico">💰</span></div><div class="k-val">'+statMRR+' <span class="muted small">DH</span></div><div class="k-delta"><span class="cmp">'+T("plans payants actifs")+'</span></div></div>'+
+      '</div>' +
       '<div class="grid-3">'+ plans.map(function(pl){
-        var count = subs.filter(function(s){ return s.planName===pl.name; }).length;
+        var count = subs.filter(function(s){ return s.planName===pl.name && s.status==="active"; }).length;
         return '<div class="plan-card '+(pl.hot?"hot":"")+'"><div class="p-name" style="color:'+(pl.badge==="orange"?"var(--orange)":pl.badge==="teal"?"var(--teal)":"var(--muted)")+'">'+esc(pl.name)+'</div>'+
           '<div class="p-price">'+pl.price+' <span class="muted small">DH / '+esc(pl.period)+'</span></div>'+
           '<div class="muted" style="margin:4px 0 10px">'+esc(pl.description)+'</div>'+
@@ -1398,14 +1422,16 @@
       '<div class="card"><div class="card-head"><div class="card-title">'+T("Comparatif des offres")+'</div><span class="muted small">* '+T("Le badge Professionnel Vérifié dépend d'une vérification distincte (indépendante de l'abonnement).")+'</span></div>'+
         '<div class="table-wrap"><table class="matrix"><thead><tr><th>'+T("Avantage")+'</th>'+ plans.map(function(pl){ return '<th>'+esc(pl.name)+'</th>'; }).join("") +'</tr></thead><tbody>'+
         '<tr><td><b>'+T("Prix")+'</b></td>'+ plans.map(function(pl){ return '<td><b>'+pl.price+' DH</b></td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Profil de base")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Profil de base")>-1)+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Réception de leads")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Réception de leads")>-1)+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Téléphone / WhatsApp")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.indexOf("Téléphone / WhatsApp")>-1)+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Badge Professionnel Vérifié")+' *</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.name!=="GRATUIT")+' <span class="muted small">*</span></td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Portfolio professionnel")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Portfolio/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Statistiques avancées")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Statistiques avanc/.test(a);}))+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Support prioritaire / VIP")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /Support|VIP/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
-        '<tr><td>'+T("Placement premium")+'</td>'+ plans.map(function(pl){ return '<td>'+tick(pl.advantages.some(function(a){return /placement premium/i.test(a);}))+'</td>'; }).join("") +'</tr>'+
+        benefitRow(T("Profil de base"),             [1,1,1]) +
+        benefitRow(T("Visibilité dans les recherches"), [1,1,1]) +
+        benefitRow(T("Avis"),                       [1,1,1]) +
+        benefitRow(T("Badge Professionnel Vérifié"),["no","req","req"]) +
+        benefitRow(T("Statistiques avancées"),      [0,1,1]) +
+        benefitRow(T("Visibilité prioritaire"),     [0,1,1]) +
+        benefitRow(T("Placement premium"),          [0,0,1]) +
+        benefitRow(T("Profil mis en avant"),        [0,0,1]) +
+        benefitRow(T("Assistant IA de profil"),     [0,0,1]) +
+        benefitRow(T("Support VIP"),                [0,0,1]) +
         '</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">'+T("Abonnés")+'</div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Prix")+'</th><th>'+T("Début")+'</th><th>'+T("Renouvellement")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
       subs.map(function(s){
@@ -1440,6 +1466,14 @@
     }); });
   }
   function tick(on){ return on ? '<span class="tick yes">✓</span>' : '<span class="tick no">—</span>'; }
+  function benefitRow(label, cols){
+    // cols = [free, verified, gold]: 1 = included, 0 = not, "req" = depends on separate approval
+    return '<tr><td>'+esc(label)+'</td>'+ cols.map(function(c){
+      if(c===1) return '<td class="cent">'+tick(true)+'</td>';
+      if(c==="req") return '<td class="cent"><span class="badge amber">'+T("Approbation requise")+'</span></td>';
+      return '<td class="cent">'+tick(false)+'</td>';
+    }).join("") +'</tr>';
+  }
   function payStatusBadge(s){ var m={confirmed:["green",T("Confirmé")],pending:["amber",T("En attente")],rejected:["red",T("Rejeté")],refunded:["gray",T("Remboursé")]}; var e=m[s]||["gray",s]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
   function editPlan(id){
     var pl = DATA.getSubscriptionPlans().find(function(x){ return x.id===id; });

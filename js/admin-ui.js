@@ -359,11 +359,22 @@
   // confirm with reason for destructive/sensitive actions
   function confirmAction(opts){
     // opts: { title, message, confirmLabel, reasonLabel(bool), reasonRequired(bool),
+    //         options:[preset reason list], otherLabel, otherPlaceholder,
     //         onConfirm(reason) }
     var html = '<h3>'+esc(opts.title||T("Confirmer"))+'</h3>';
     if(opts.message) html += '<p class="subtle" style="font-size:13.5px;color:var(--muted)">'+opts.message+'</p>';
-    if(opts.reasonLabel || opts.reasonRequired){
-      html += '<div class="frm"><div class="frm"><label>'+esc(opts.reasonLabel||T("Raison"))+' *</label><textarea id="confirmReason" placeholder="'+T("Expliquez la raison...")+'" required="'+!!opts.reasonRequired+'"></textarea></div></div>';
+    var withReason = (opts.reasonLabel || opts.reasonRequired || opts.options);
+    if(withReason){
+      if(opts.options){
+        var optsHtml = opts.options.map(function(o){ return '<option value="'+esc(o)+'" '+(o===opts.defaultOption?"selected":"")+'>'+esc(o)+'</option>'; }).join("");
+        html += '<div class="frm"><label>'+(opts.reasonLabel||T("Raison"))+' *</label>'+
+          '<select id="confirmReason">'+optsHtml+'</select></div>';
+        if(opts.otherLabel){
+          html += '<div class="frm" style="margin-top:10px"><label>'+esc(opts.otherLabel)+'</label><textarea id="confirmDetail" placeholder="'+esc(opts.otherPlaceholder||"")+'" rows="2"></textarea></div>';
+        }
+      } else {
+        html += '<div class="frm"><label>'+(opts.reasonLabel||T("Raison"))+' *</label><textarea id="confirmReason" placeholder="'+T("Expliquez la raison...")+'" required="'+!!opts.reasonRequired+'"></textarea></div>';
+      }
     }
     html += '<div class="modal-actions">' +
       '<button class="btn btn-ghost" onclick="window.Sna3tiUI.cancelAction()">'+T("Annuler")+'</button>' +
@@ -372,7 +383,15 @@
     openModal(html);
     var cb = opts.onConfirm;
     document.getElementById("confirmOk").addEventListener("click", function(){
-      var reason = (document.getElementById("confirmReason") ? document.getElementById("confirmReason").value.trim() : "");
+      var reasonField = document.getElementById("confirmReason");
+      var reason = reasonField ? String(reasonField.value).trim() : "";
+      if(opts.options && reasonField && reasonField.tagName==="SELECT"){
+        var detail = (document.getElementById("confirmDetail") ? document.getElementById("confirmDetail").value.trim() : "");
+        if(detail) reason = reason + " — " + detail;
+      }
+      if(opts.options && !reason){
+        toast(T("Veuillez fournir une raison."), true); return;
+      }
       if(opts.reasonRequired && !reason){
         toast(T("Veuillez fournir une raison."), true); return;
       }

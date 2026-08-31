@@ -672,3 +672,8 @@ td.actions-cell { white-space:nowrap; text-align:right; }
 :root[data-theme="dark"] .vf-field select,
 :root[data-theme="dark"] .vf-field input { background:var(--sand); color:var(--ink); border-color:var(--line-strong); }
 :root[data-theme="dark"] .plan-radio { background:var(--sand); border-color:var(--line-strong); }
+
+/* benefits comparison matrix */
+table.matrix th, table.matrix td { padding:10px 14px; }
+table.matrix td.cent { text-align:center; }
+table.matrix input[type=radio]:disabled + .tick { opacity:.5; }
