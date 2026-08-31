@@ -9,6 +9,9 @@
 (function (global) {
   "use strict";
 
+  var I18N = global.Sna3tiI18n || { t:function(s){ return s; } };
+  function T(s){ return I18N.t(s); }
+
   /* ---------- Roles & permissions (RBAC) ---------- */
   // NOTE: For prototype only. Production authorization MUST be
   // enforced server-side. Never trust client-side permissions alone.
@@ -34,27 +37,27 @@
 
   var ROLES = {
     "super_admin": {
-      label: "Super Admin",
+      label: T("Super Admin"),
       color: "purple",
       permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
     },
     "admin": {
-      label: "Admin",
+      label: T("Admin"),
       color: "teal",
       permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read"], auditLogs:["read"] }
     },
     "moderator": {
-      label: "Moderator",
+      label: T("Moderator"),
       color: "blue",
       permissions: { dashboard:["read"], users:["read"], professionals:["read","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"] }
     },
     "support": {
-      label: "Support",
+      label: T("Support"),
       color: "orange",
       permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], notifications:["read","send"], auditLogs:["read"] }
     },
     "finance": {
-      label: "Finance",
+      label: T("Finance"),
       color: "amber",
       permissions: { dashboard:["read"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], auditLogs:["read","export"] }
     }
@@ -67,7 +70,7 @@
     phone: "212600000000",
     defaultLanguage: "fr",
     verification: {
-      requiredDocuments: ["Photo de profil", "Photo de travail (échantillons)"],
+      requiredDocuments: [T("Photo de profil"), T("Photo de travail (échantillons)")],
       requiredChecks: [
         "profile_photo_clear",
         "profile_photo_no_sunglasses",
@@ -75,10 +78,10 @@
         "echantillons_reviewed"
       ],
       checkLabels: {
-        profile_photo_clear: "Photo de profil nette (pas floue)",
-        profile_photo_no_sunglasses: "Photo sans lunettes de soleil",
-        profile_photo_main_frame: "Personne dans le cadre principal",
-        echantillons_reviewed: "Échantillons de travail conformes"
+        profile_photo_clear: T("Photo de profil nette (pas floue)"),
+        profile_photo_no_sunglasses: T("Photo sans lunettes de soleil"),
+        profile_photo_main_frame: T("Personne dans le cadre principal"),
+        echantillons_reviewed: T("Échantillons de travail conformes")
       }
     }
   };
@@ -233,33 +236,33 @@
   var VERIFICATION_REQUESTS = [
     { id:"VR-201", professionalId:"PRO-10295", level:"identity", status:"pending", submitted:"2026-08-22", submittedAt:"2026-08-22T09:14:00", priority:"high", reviewerId:"AU-3",
       documents:["CIN","Justificatif de domicile"], history:[
-        { date:"2026-08-22", text:"Documents soumis" },
-        { date:"2026-08-22", text:"Téléphone vérifié" }
+        { date:"2026-08-22", text:T("Documents soumis") },
+        { date:"2026-08-22", text:T("Téléphone vérifié") }
       ] },
     { id:"VR-202", professionalId:"PRO-10299", level:"professionnel", status:"pending", submitted:"2026-08-23", submittedAt:"2026-08-23T14:40:00", priority:"medium", reviewerId:"AU-2",
       documents:["CIN","Attestation","Portfolio"], history:[
-        { date:"2026-08-23", text:"Documents soumis" }
+        { date:"2026-08-23", text:T("Documents soumis") }
       ] },
     { id:"VR-203", professionalId:"PRO-10296", level:"identity", status:"approved", submitted:"2024-10-01", submittedAt:"2024-10-01T10:00:00", reviewedAt:"2024-10-03T16:20:00", reviewerId:"AU-1", priority:"medium",
       documents:["CIN"], history:[
-        { date:"2024-10-01", text:"Documents soumis" },
-        { date:"2024-10-03", text:"Identité examinée" },
-        { date:"2024-10-03", text:"Approuvée par Admin User" }
+        { date:"2024-10-01", text:T("Documents soumis") },
+        { date:"2024-10-03", text:T("Identité examinée") },
+        { date:"2024-10-03", text:T("Approuvée par Admin User") }
       ] },
     { id:"VR-204", professionalId:"PRO-10295", level:"plan", planId:"PLAN-VERIFIED", requestedPlan:"VÉRIFIÉ", price:99, status:"pending", submitted:"2026-08-28", submittedAt:"2026-08-28T09:00:00", priority:"high", paymentId:"PAY-7004",
       documents:["Virement bancaire"], history:[
-        { date:"2026-08-28", text:"Demande d'abonnement VÉRIFIÉ soumise" },
-        { date:"2026-08-28", text:"Virement bancaire reçu, en attente de confirmation" }
+        { date:"2026-08-28", text:T("Demande d'abonnement VÉRIFIÉ soumise") },
+        { date:"2026-08-28", text:T("Virement bancaire reçu, en attente de confirmation") }
       ] },
     { id:"VR-205", professionalId:"PRO-10299", level:"plan", planId:"PLAN-GOLD", requestedPlan:"GOLD", price:199, status:"pending", submitted:"2026-08-29", submittedAt:"2026-08-29T11:30:00", priority:"high", paymentId:"PAY-7005",
       documents:["Virement bancaire"], history:[
-        { date:"2026-08-29", text:"Demande d'abonnement GOLD soumise" },
-        { date:"2026-08-29", text:"Virement bancaire reçu, en attente de confirmation" }
+        { date:"2026-08-29", text:T("Demande d'abonnement GOLD soumise") },
+        { date:"2026-08-29", text:T("Virement bancaire reçu, en attente de confirmation") }
       ] },
     { id:"VR-206", professionalId:"PRO-10299", level:"join", status:"pending", submitted:"2026-08-30", submittedAt:"2026-08-30T08:00:00", priority:"medium",
       documents:["CIN","Justificatif de domicile"], history:[
-        { date:"2026-08-30", text:"Demande d'adhésion Gratuite soumise" },
-        { date:"2026-08-30", text:"Documents fournis, en attente de confirmation" }
+        { date:"2026-08-30", text:T("Demande d'adhésion Gratuite soumise") },
+        { date:"2026-08-30", text:T("Documents fournis, en attente de confirmation") }
       ] }
   ];
 
@@ -279,15 +282,15 @@
   ];
 
   var SUBSCRIPTION_PLANS = [
-    { id:"PLAN-FREE", name:"GRATUIT", price:0, period:"mois", badge:"gray", active:true, hot:false,
-      description:"Pour démarrer", limits:{ profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:"1 photo de profil + 3 échantillons (pas de vidéo)" },
-      advantages:["Profil de base","Visibilité dans les recherches","Réception de leads","Téléphone / WhatsApp","Avis","Disponibilité","Statistiques de base","1 photo de profil + 3 échantillons (pas de vidéo)"] },
-    { id:"PLAN-VERIFIED", name:"VÉRIFIÉ", price:99, period:"mois", badge:"teal", active:true, hot:false,
-      description:"Confiance & visibilité", limits:{ profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:"1 photo de profil + 10 échantillons (photos ou max 3 vidéos)" },
-      advantages:["Tout ce qui est inclus dans Gratuit","Badge Professionnel Vérifié SI approuvé séparément","Meilleur classement","Visibilité accrue","Portfolio professionnel","Statistiques avancées","Mise en avant du profil","Meilleure exposition aux leads","Support prioritaire","1 photo de profil + 10 échantillons (incl. jusqu'à 3 vidéos)"] },
-    { id:"PLAN-GOLD", name:"GOLD", price:199, period:"mois", badge:"orange", active:true, hot:true,
-      description:"Impact maximal", limits:{ profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:"1 photo de profil + 20 échantillons (photos ou max 3 vidéos)" },
-      advantages:["Tout ce qui est inclus dans Vérifié","Badge GOLD","Placement premium","Profil mis en avant","Boost de visibilité","Analytiques avancées","Leads prioritaires","Assistant IA de profil","Portfolio premium","Support VIP","Éligibilité au statut Top Pro","1 photo de profil + 20 échantillons (incl. jusqu'à 3 vidéos)"] }
+    { id:"PLAN-FREE", name:T("GRATUIT"), price:0, period:T("mois"), badge:"gray", active:true, hot:false,
+      description:T("Pour démarrer"), limits:{ profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:T("1 photo de profil + 3 échantillons (pas de vidéo)") },
+      advantages:[T("Profil de base"),T("Visibilité dans les recherches"),T("Réception de leads"),T("Téléphone / WhatsApp"),T("Avis"),T("Disponibilité"),T("Statistiques de base"),T("1 photo de profil + 3 échantillons (pas de vidéo)")] },
+    { id:"PLAN-VERIFIED", name:T("VÉRIFIÉ"), price:99, period:T("mois"), badge:"teal", active:true, hot:false,
+      description:T("Confiance & visibilité"), limits:{ profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:T("1 photo de profil + 10 échantillons (photos ou max 3 vidéos)") },
+      advantages:[T("Tout ce qui est inclus dans Gratuit"),T("Badge Professionnel Vérifié SI approuvé séparément"),T("Meilleur classement"),T("Visibilité accrue"),T("Portfolio professionnel"),T("Statistiques avancées"),T("Mise en avant du profil"),T("Meilleure exposition aux leads"),T("Support prioritaire"),T("1 photo de profil + 10 échantillons (incl. jusqu'à 3 vidéos)")] },
+    { id:"PLAN-GOLD", name:T("GOLD"), price:199, period:T("mois"), badge:"orange", active:true, hot:true,
+      description:T("Impact maximal"), limits:{ profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:T("1 photo de profil + 20 échantillons (photos ou max 3 vidéos)") },
+      advantages:[T("Tout ce qui est inclus dans Vérifié"),T("Badge GOLD"),T("Placement premium"),T("Profil mis en avant"),T("Boost de visibilité"),T("Analytiques avancées"),T("Leads prioritaires"),T("Assistant IA de profil"),T("Portfolio premium"),T("Support VIP"),T("Éligibilité au statut Top Pro"),T("1 photo de profil + 20 échantillons (incl. jusqu'à 3 vidéos)")] }
   ];
 
   var SUBSCRIPTIONS = [
@@ -317,11 +320,11 @@
   ];
 
   var NOTIFICATIONS = [
-    { id:"NT-1", type:"verification", text:"3 demandes de vérification en attente", when:"il y a 5 min", unread:true, route:"verification" },
-    { id:"NT-2", type:"payment", text:"2 paiements en attente de confirmation", when:"il y a 18 min", unread:true, route:"payments" },
-    { id:"NT-3", type:"report", text:"Nouveau signalement: PRO-10297", when:"il y a 24 min", unread:true, route:"reports" },
-    { id:"NT-4", type:"report", text:"Avis signalé: RV-305", when:"il y a 30 min", unread:false, route:"reports" },
-    { id:"NT-5", type:"subscription", text:"Abonnement GOLD renouvelé", when:"il y a 1 h", unread:false, route:"subscriptions" }
+    { id:"NT-1", type:"verification", text:T("3 demandes de vérification en attente"), when:T("il y a 5 min"), unread:true, route:"verification" },
+    { id:"NT-2", type:"payment", text:T("2 paiements en attente de confirmation"), when:T("il y a 18 min"), unread:true, route:"payments" },
+    { id:"NT-3", type:"report", text:T("Nouveau signalement: PRO-10297"), when:T("il y a 24 min"), unread:true, route:"reports" },
+    { id:"NT-4", type:"report", text:T("Avis signalé: RV-305"), when:T("il y a 30 min"), unread:false, route:"reports" },
+    { id:"NT-5", type:"subscription", text:T("Abonnement GOLD renouvelé"), when:T("il y a 1 h"), unread:false, route:"subscriptions" }
   ];
 
   var ADMIN_USERS = [
@@ -341,18 +344,18 @@
 
   // Activity feed for dashboard
   var ACTIVITY = [
-    { id:"AC-1", icon:"pro", text:"Yassine El Amrani s'est inscrit comme professionnel", when:"il y a 5 min", type:"teal" },
-    { id:"AC-2", icon:"verif", text:"Vérification approuvée pour Karim Alaoui", when:"il y a 12 min", type:"green" },
-    { id:"AC-3", icon:"payment", text:"Paiement confirmé SNA3TI-48291", when:"il y a 18 min", type:"orange" },
-    { id:"AC-4", icon:"report", text:"Avis signalé pour Omar Tazi", when:"il y a 24 min", type:"red" },
-    { id:"AC-5", icon:"sub", text:"Abonnement VÉRIFIÉ renouvelé", when:"il y a 31 min", type:"teal" }
+    { id:"AC-1", icon:"pro", text:T("Yassine El Amrani s'est inscrit comme professionnel"), when:T("il y a 5 min"), type:"teal" },
+    { id:"AC-2", icon:"verif", text:T("Vérification approuvée pour Karim Alaoui"), when:T("il y a 12 min"), type:"green" },
+    { id:"AC-3", icon:"payment", text:T("Paiement confirmé SNA3TI-48291"), when:T("il y a 18 min"), type:"orange" },
+    { id:"AC-4", icon:"report", text:T("Avis signalé pour Omar Tazi"), when:T("il y a 24 min"), type:"red" },
+    { id:"AC-5", icon:"sub", text:T("Abonnement VÉRIFIÉ renouvelé"), when:T("il y a 31 min"), type:"teal" }
   ];
 
   var USER_ACTIVITY = [
-    { userId:"USR-1", icon:"view", text:"A consulté son profil 12 fois", when:"aujourd'hui", type:"teal" },
-    { userId:"USR-2", icon:"search", text:"5 recherches effectuées cette semaine", when:"il y a 2 h", type:"teal" },
-    { userId:"USR-3", icon:"contact", text:"2 demandes de contact envoyées", when:"hier", type:"orange" },
-    { userId:"USR-4", icon:"report", text:"A signalé un professionnel", when:"il y a 3 jours", type:"red" }
+    { userId:"USR-1", icon:"view", text:T("A consulté son profil 12 fois"), when:T("aujourd'hui"), type:"teal" },
+    { userId:"USR-2", icon:"search", text:T("5 recherches effectuées cette semaine"), when:T("il y a 2 h"), type:"teal" },
+    { userId:"USR-3", icon:"contact", text:T("2 demandes de contact envoyées"), when:T("hier"), type:"orange" },
+    { userId:"USR-4", icon:"report", text:T("A signalé un professionnel"), when:T("il y a 3 jours"), type:"red" }
   ];
 
   var ANALYTICS = {
@@ -575,7 +578,7 @@
     approveVerification: function(id, adminName){
       var v = getById(store.verificationRequests, id); if(!v || v.status==="approved") return false;
       v.status="approved";
-      v.history.push({ date: todayStr(), text:"Approuvée par "+adminName });
+      v.history.push({ date: todayStr(), text:T("Approuvée par "+adminName) });
       if(v.level==="plan"){
         // Plan (VÉRIFIÉ/GOLD) request: approval is a review step only.
         // The badge is granted when the matching payment is confirmed (never here).
@@ -590,7 +593,7 @@
     rejectVerification: function(id, reason, adminName){
       var v = getById(store.verificationRequests, id); if(!v) return false;
       v.status="rejected"; v.reason=reason||"";
-      v.history.push({ date: todayStr(), text:"Rejetée par "+adminName+(reason?" — "+reason:"") });
+      v.history.push({ date: todayStr(), text:T("Rejetée par "+adminName+(reason?" — "+reason:"")) });
       var p = getById(store.professionals, v.professionalId);
       if(p && v.level==="plan"){ p.planEligible = false; return true; }
       if(p && v.level==="join"){ p.professionStatus="rejected"; p.status="rejected"; return true; }
@@ -599,7 +602,7 @@
     },
     requestMoreInfo: function(id, note, adminName){
       var v = getById(store.verificationRequests, id); if(!v) return false;
-      v.status="needs_info"; v.history.push({ date: todayStr(), text:"Informations demandées par "+adminName+(note?" — "+note:"") });
+      v.status="needs_info"; v.history.push({ date: todayStr(), text:T("Informations demandées par "+adminName+(note?" — "+note:"")) });
       return true;
     },
 
@@ -608,7 +611,7 @@
     approveJoin: function(id, adminName){
       var v = getById(store.verificationRequests, id); if(!v || v.level!=="join") return false;
       v.status="approved"; v.reviewedAt=new Date().toISOString();
-      v.history.push({ date: todayStr(), text:"Adhésion confirmée par "+adminName });
+      v.history.push({ date: todayStr(), text:T("Adhésion confirmée par "+adminName) });
       var p = getById(store.professionals, v.professionalId);
       if(p && p.status!=="active"){ p.status="active"; p.professionStatus="pending"; }
       // Activate the (free) subscription so the profile is live on the platform.
@@ -620,7 +623,7 @@
     rejectJoin: function(id, reason, adminName){
       var v = getById(store.verificationRequests, id); if(!v || v.level!=="join") return false;
       v.status="rejected"; v.reason=reason||"";
-      v.history.push({ date: todayStr(), text:"Adhésion rejetée par "+adminName+(reason?" — "+reason:"") });
+      v.history.push({ date: todayStr(), text:T("Adhésion rejetée par "+adminName+(reason?" — "+reason:"")) });
       return true;
     },
     // Media upload quotas by package.
@@ -628,9 +631,9 @@
     //   Gratuit = 3 photos (no video); VÉRIFIÉ = 10 total (incl. max 3 video); GOLD = 20 total (incl. max 3 video).
     packageLimits: function(pkg){
       var key = String(pkg||"free").toLowerCase();
-      if(key==="gold") return { profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:"1 photo de profil + 20 échantillons (photos ou max 3 vidéos)" };
-      if(key==="verified") return { profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:"1 photo de profil + 10 échantillons (photos ou max 3 vidéos)" };
-      return { profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:"1 photo de profil + 3 échantillons (pas de vidéo)" };
+      if(key==="gold") return { profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:T("1 photo de profil + 20 échantillons (photos ou max 3 vidéos)") };
+      if(key==="verified") return { profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:T("1 photo de profil + 10 échantillons (photos ou max 3 vidéos)") };
+      return { profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:T("1 photo de profil + 3 échantillons (pas de vidéo)") };
     },
     getMediaUsage: function(proId){
       var p = getById(store.professionals, proId);
@@ -648,25 +651,25 @@
       var pkg = (p && String(p.package||"free").toLowerCase()) || "free";
       var lim = Sna3tiData.packageLimits(pkg);
       var use = Sna3tiData.getMediaUsage(proId);
-      var upg = "Pour débloquer plus de médias, faites évoluer votre pack : GOLD = 1 photo de profil + 20 échantillons, VÉRIFIÉ = 1 photo de profil + 10 échantillons.";
+      var upg = T("Pour débloquer plus de médias, faites évoluer votre pack : GOLD = 1 photo de profil + 20 échantillons, VÉRIFIÉ = 1 photo de profil + 10 échantillons.");
       var kind = (opts&&opts.kind) || "echantillon";
       var type = (opts&&opts.type) || "photo";
       if(kind==="profile"){
-        if(use.profileCount >= lim.profile){ return { ok:false, reason:"Une seule photo de profil est autorisée pour tous les packs.", upgrade:false, msg:"" }; }
+        if(use.profileCount >= lim.profile){ return { ok:false, reason:T("Une seule photo de profil est autorisée pour tous les packs."), upgrade:false, msg:"" }; }
         return { ok:true };
       }
       // échantillon
       if(type==="video"){
-        if(lim.echantillonVideos<=0){ return { ok:false, reason:"Le pack Gratuit n'autorise pas les vidéos d'échantillons.", upgrade:true, msg:upg }; }
-        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:"Quota d'échantillons atteint ("+lim.echantillonTotal+" max).", upgrade:true, msg:upg }; }
-        if(use.echantillonVideos >= lim.echantillonVideos){ return { ok:false, reason:"Maximum de "+lim.echantillonVideos+" vidéo(s) pour ce pack.", upgrade:true, msg:upg }; }
+        if(lim.echantillonVideos<=0){ return { ok:false, reason:T("Le pack Gratuit n'autorise pas les vidéos d'échantillons."), upgrade:true, msg:upg }; }
+        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:T("Quota d'échantillons atteint ("+lim.echantillonTotal+" max)."), upgrade:true, msg:upg }; }
+        if(use.echantillonVideos >= lim.echantillonVideos){ return { ok:false, reason:T("Maximum de "+lim.echantillonVideos+" vidéo(s) pour ce pack."), upgrade:true, msg:upg }; }
       } else {
-        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:"Quota d'échantillons atteint ("+lim.echantillonTotal+" max).", upgrade:true, msg:upg }; }
+        if(use.echantillonTotal >= lim.echantillonTotal){ return { ok:false, reason:T("Quota d'échantillons atteint ("+lim.echantillonTotal+" max)."), upgrade:true, msg:upg }; }
       }
       return { ok:true };
     },
     addMedia: function(proId, item){
-      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:"Professionnel introuvable." };
+      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:T("Professionnel introuvable.") };
       var kind = (item&&item.kind) || "echantillon";
       var type = (item&&item.type==="video") ? "video" : "photo";
       var gate = Sna3tiData.canUploadMedia(proId, { kind:kind, type:type });
@@ -707,7 +710,7 @@
       // Close the linked plan request (Verification centre) so both areas stay in sync.
       var vr = store.verificationRequests.find(function(x){ return x.paymentId === p.id && x.level==="plan"; });
       if(vr && vr.status!=="approved" && vr.status!=="rejected"){
-        vr.status="approved"; vr.reviewedAt=p.reviewedAt; vr.history.push({ date: todayStr(), text:"Paiement confirmé — plan "+ (vr.requestedPlan||"") +" activé" });
+        vr.status="approved"; vr.reviewedAt=p.reviewedAt; vr.history.push({ date: todayStr(), text:T("Paiement confirmé — plan "+ (vr.requestedPlan||"") +" activé") });
         if(planId){ applyPlanToProfessional(vr.professionalId, planId); }
       }
       return true; },
@@ -740,35 +743,35 @@
       var q = [];
       store.verificationRequests.forEach(function(v){
         if(v.status==="pending"||v.status==="needs_info"){
-          q.push({ type:"verification", label:"Vérification", id:v.id, ref:(getById(store.professionals,v.professionalId)||{}).name||v.professionalId,
-            priority:v.priority==="high"?"Critique":v.priority==="medium"?"Haute":"Moyenne", pclass:v.priority||"medium",
+          q.push({ type:"verification", label:T("Vérification"), id:v.id, ref:(getById(store.professionals,v.professionalId)||{}).name||v.professionalId,
+            priority:v.priority==="high"?T("Critique"):v.priority==="medium"?T("Haute"):T("Moyenne"), pclass:v.priority||"medium",
             created:v.submitted, assigned:reviewerName(v.reviewerId), status:v.status, route:"verification" });
         }
       });
       store.payments.forEach(function(p){
         if(p.status==="pending"){
-          q.push({ type:"payment", label:"Paiement", id:p.id, ref:p.reference+" · "+(getById(store.professionals,p.professionalId)||{}).name||"",
-            priority:"Critique", pclass:"critical", created:p.date, assigned:reviewerName(p.reviewedBy)||"Finance", status:p.status, route:"payments" });
+          q.push({ type:"payment", label:T("Paiement"), id:p.id, ref:p.reference+" · "+(getById(store.professionals,p.professionalId)||{}).name||"",
+            priority:T("Critique"), pclass:"critical", created:p.date, assigned:reviewerName(p.reviewedBy)||T("Finance"), status:p.status, route:"payments" });
         }
       });
       store.reports.forEach(function(r){
         if(r.status==="new"||r.status==="under_review"){
           var pr = r.priority||(r.status==="new"?"high":"medium");
-          q.push({ type:"report", label:"Signalement", id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||r.professionalId,
-            priority:pr==="critical"?"Critique":pr==="high"?"Haute":pr==="low"?"Basse":"Moyenne", pclass:pr||"medium",
+          q.push({ type:"report", label:T("Signalement"), id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||r.professionalId,
+            priority:pr==="critical"?T("Critique"):pr==="high"?T("Haute"):pr==="low"?T("Basse"):T("Moyenne"), pclass:pr||"medium",
             created:r.date, assigned:reviewerName(r.assignedTo)||"—", status:r.status, route:"reports" });
         }
       });
       store.reviews.forEach(function(r){
         if(r.status==="flagged"){
-          q.push({ type:"review", label:"Avis signalé", id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||"",
-            priority:"Moyenne", pclass:"medium", created:r.date, assigned:reviewerName(r.assignedTo)||"—", status:r.status, route:"reviews" });
+          q.push({ type:"review", label:T("Avis signalé"), id:r.id, ref:(getById(store.professionals,r.professionalId)||{}).name||"",
+            priority:T("Moyenne"), pclass:"medium", created:r.date, assigned:reviewerName(r.assignedTo)||"—", status:r.status, route:"reviews" });
         }
       });
       store.subscriptions.forEach(function(s){
         if(s.status==="pending"||s.paymentStatus==="pending"){
-          q.push({ type:"subscription", label:"Abonnement", id:s.id, ref:(getById(store.professionals,s.professionalId)||{}).name||"",
-            priority:"Moyenne", pclass:"medium", created:s.since, assigned:reviewerName(s.assignedTo)||"—", status:s.status, route:"subscriptions" });
+          q.push({ type:"subscription", label:T("Abonnement"), id:s.id, ref:(getById(store.professionals,s.professionalId)||{}).name||"",
+            priority:T("Moyenne"), pclass:"medium", created:s.since, assigned:reviewerName(s.assignedTo)||"—", status:s.status, route:"subscriptions" });
         }
       });
       return q;
@@ -785,9 +788,9 @@
       var a = [];
       (store.userActivity||[]).forEach(function(x){ if(x.userId===userId) a.push(clone(x)); });
       if(a.length===0){
-        a.push({ icon:"search", text:"5 recherches effectuées cette semaine", when:"il y a 2 h", type:"teal" });
-        a.push({ icon:"view", text:"A consulté 3 professionnels (Maçon, Plombier)", when:"il y a 1 h", type:"blue" });
-        a.push({ icon:"contact", text:"2 demandes de contact envoyées", when:"hier", type:"orange" });
+        a.push({ icon:"search", text:T("5 recherches effectuées cette semaine"), when:T("il y a 2 h"), type:"teal" });
+        a.push({ icon:"view", text:T("A consulté 3 professionnels (Maçon, Plombier)"), when:T("il y a 1 h"), type:"blue" });
+        a.push({ icon:"contact", text:T("2 demandes de contact envoyées"), when:T("hier"), type:"orange" });
       }
       return a;
     },
@@ -812,11 +815,11 @@
       };
     },
     getAlerts: function(){ return [
-      { type:"warn", icon:"⚠️", title: this.getKPIs().pendingVerification + " demandes de vérification en attente", sub:"Cliquez pour traiter", route:"verification" },
-      { type:"warn", icon:"💰", title: store.payments.filter(function(p){return p.status==="pending";}).length + " paiements en attente de confirmation", sub:"Dont virements bancaires à vérifier", route:"payments" },
-      { type:"bad", icon:"🚩", title: store.reports.filter(function(r){return r.status==="new" || r.status==="under_review";}).length + " professionnels signalés", sub:"Consulter le centre de modération", route:"reports" },
-      { type:"bad", icon:"⭐", title: store.reviews.filter(function(r){return r.status==="flagged";}).length + " avis suspects", sub:"Vérifier les avis signalés", route:"reviews" },
-      { type:"good", icon:"✓", title: "Nouveaux professionnels aujourd'hui", sub:"2 inscriptions aujourd'hui", route:"professionals" }
+      { type:"warn", icon:"⚠️", title: T(this.getKPIs().pendingVerification + " demandes de vérification en attente"), sub:T("Cliquez pour traiter"), route:"verification" },
+      { type:"warn", icon:"💰", title: T(store.payments.filter(function(p){return p.status==="pending";}).length + " paiements en attente de confirmation"), sub:T("Dont virements bancaires à vérifier"), route:"payments" },
+      { type:"bad", icon:"🚩", title: T(store.reports.filter(function(r){return r.status==="new" || r.status==="under_review";}).length + " professionnels signalés"), sub:T("Consulter le centre de modération"), route:"reports" },
+      { type:"bad", icon:"⭐", title: T(store.reviews.filter(function(r){return r.status==="flagged";}).length + " avis suspects"), sub:T("Vérifier les avis signalés"), route:"reviews" },
+      { type:"good", icon:"✓", title: T("Nouveaux professionnels aujourd'hui"), sub:T("2 inscriptions aujourd'hui"), route:"professionals" }
     ]; },
     getActivity: function(){ return clone(store.activity); },
     getAnalytics: function(){ return clone(store.analytics); },

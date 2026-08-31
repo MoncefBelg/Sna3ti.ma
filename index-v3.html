@@ -906,6 +906,7 @@
   display: flex;
   gap: 15px;
   align-items: flex-start;
+  padding-right: 96px;
 }
 
 .pro-avatar {
@@ -941,6 +942,93 @@
   color: var(--teal);
   font-size: 10px;
   font-weight: 800;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-left: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+}
+.plan-badge.gold {
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  color: #5b3a00;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, .35);
+}
+.plan-badge.verified2 {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Corner plan badge — attractive, pinned top-right of the card. */
+.corner-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.gold-corner {
+  background: linear-gradient(135deg, #fcd34d, #f59e0b 55%, #d97706);
+  color: #4a2e00;
+  border: 1px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, .5);
+}
+.verified-corner {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .4);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, .45);
+}
+.free-corner {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid rgba(7, 29, 26, .08);
+}
+
+/* Verification chip shown in the profile detail header —
+   matches the corner badge look/icon for consistency. */
+.verif-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.verif-chip.gold {
+  background: linear-gradient(135deg, #fcd34d, #f59e0b 55%, #d97706);
+  color: #4a2e00;
+  border: 1px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, .45);
+}
+.verif-chip.verified {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .4);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, .45);
+}
+.verif-chip.free {
+  background: #e8f8f4;
+  color: var(--teal);
+  border: 1px solid rgba(13, 107, 97, .15);
 }
 
 .pro-rating {
@@ -4019,7 +4107,7 @@
       <!-- STEP 2 : FORM -->
       <div id="regStep2" class="mt-10 hidden">
         <div id="regPackBanner" class="hidden mb-5 flex items-center justify-center gap-2 rounded-2xl border-2 border-sna3ti-teal bg-sna3ti-teal/15 px-4 py-3 text-center text-sm font-black text-white">
-          <span id="regPackBannerIcon">🛡️</span><span>Inscription pour la formule <span id="regPackBannerName">Vérifié</span></span>
+          <span id="regPackBannerIcon">🛡️</span><span><span data-i18n="register.packBanner">Inscription pour la formule</span> <span id="regPackBannerName">Vérifié</span></span>
         </div>
         <div class="mb-6 text-center text-xs font-black uppercase tracking-[.2em] text-white/50" data-i18n="register.step2">
           Étape 2 · Vos informations
@@ -4081,7 +4169,7 @@
             <div id="regEchantNotice" class="hidden mt-2 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-3 py-2 text-xs font-semibold text-white">⚠️ Limite atteinte pour votre formule. Passez à <b>Vérifié</b> ou <b>GOLD</b> pour publier plus de photos d'échantillons.</div>
             <div id="regEchantGallery" class="mt-2 flex flex-wrap gap-2"></div>
           </div>
-          <div class="sm:col-span-2">
+          <div id="regVideoSection" class="sm:col-span-2">
             <div class="flex items-center justify-between gap-2">
               <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.videoTravail">Vidéo d'échantillon (max 1 min)</label>
               <span id="regVideoCounter" class="rounded-full bg-sna3ti-teal/20 px-2.5 py-0.5 text-[11px] font-bold text-sna3ti-mint">Vidéos : 0 / 0</span>
@@ -4400,6 +4488,12 @@
           photoTravail: "Photo de travail (échantillon)",
           chooseFile: "Choisir un fichier",
           noFile: "Aucun fichier sélectionné",
+          videoTravail: "Vidéo d'échantillon (max 1 min)",
+          chooseVid: "Choisir des vidéos",
+          noVid: "Aucune vidéo sélectionnée",
+          packBanner: "Inscription pour la formule",
+          echantCount: "Échantillons :",
+          videoCount: "Vidéos :",
           phNom: "Ex : El Amrani",
           phPrenom: "Ex : Karim",
           phMetier: "Ex : Plombier",
@@ -4565,6 +4659,12 @@
           photoTravail: "صورة شغل (نموذج)",
           chooseFile: "اختر ملف",
           noFile: "لم يتم اختيار ملف",
+          videoTravail: "فيديو نموذج العمل (الحد الأقصى دقيقة واحدة)",
+          chooseVid: "اختر الفيديوهات",
+          noVid: "لم يتم اختيار فيديو",
+          packBanner: "التسجيل في باقة",
+          echantCount: "نماذج العمل:",
+          videoCount: "الفيديوهات:",
           phNom: "مثال: العلمراني",
           phPrenom: "مثال: كريم",
           phMetier: "مثال: سباك",
@@ -4729,6 +4829,12 @@
           photoTravail: "Work photo (sample)",
           chooseFile: "Choose file",
           noFile: "No file selected",
+          videoTravail: "Work sample video (max 1 min)",
+          chooseVid: "Choose videos",
+          noVid: "No video selected",
+          packBanner: "Registration for the",
+          echantCount: "Samples:",
+          videoCount: "Videos:",
           phNom: "e.g. El Amrani",
           phPrenom: "e.g. Karim",
           phMetier: "e.g. Plumber",
@@ -5466,6 +5572,7 @@ const sna3tiProfessionals = [
     verified: true,
     available: true,
     distance: "2.4 km",
+    package: "gold",
     image: "https://i.pravatar.cc/300?img=12",
     phone: "212600000001"
   },
@@ -5483,6 +5590,7 @@ const sna3tiProfessionals = [
     verified: true,
     available: true,
     distance: "3.1 km",
+    package: "gold",
     image: "https://i.pravatar.cc/300?img=11",
     phone: "212600000002"
   },
@@ -5497,9 +5605,10 @@ const sna3tiProfessionals = [
     rating: 4.7,
     reviews: 68,
     price: 180,
-    verified: false,
+    verified: true,
     available: true,
     distance: "5.2 km",
+    package: "free",
     image: "https://i.pravatar.cc/300?img=14",
     phone: "212600000003"
   },
@@ -5517,6 +5626,7 @@ const sna3tiProfessionals = [
     verified: true,
     available: false,
     distance: "6.4 km",
+    package: "verified",
     image: "https://i.pravatar.cc/300?img=15",
     phone: "212600000004"
   },
@@ -5534,6 +5644,7 @@ const sna3tiProfessionals = [
     verified: true,
     available: true,
     distance: "7.1 km",
+    package: "verified",
     image: "https://i.pravatar.cc/300?img=13",
     phone: "212600000005"
   },
@@ -5551,6 +5662,7 @@ const sna3tiProfessionals = [
     verified: true,
     available: true,
     distance: "4.8 km",
+    package: "free",
     image: "https://i.pravatar.cc/300?img=17",
     phone: "212600000006"
   }
@@ -5984,6 +6096,14 @@ function renderProfessionalCard(pro) {
 
     <article class="pro-card">
 
+      ${
+        (pro.package || "").toLowerCase() === "gold"
+          ? `<span class="corner-badge gold-corner">👑 GOLD</span>`
+          : (pro.package || "").toLowerCase() === "verified"
+            ? `<span class="corner-badge verified-corner">🛡️ Vérifié</span>`
+            : `<span class="corner-badge free-corner">Gratuit</span>`
+      }
+
       <div class="pro-top">
 
         <img
@@ -6001,16 +6121,6 @@ function renderProfessionalCard(pro) {
           <div class="pro-job">
             ${pro.job}
           </div>
-
-          ${
-            pro.verified
-              ? `
-                <span class="verified-badge">
-                  ✓ Vérifié
-                </span>
-              `
-              : ""
-          }
 
         </div>
 
@@ -6088,7 +6198,7 @@ function renderProfessionalCard(pro) {
                   font-weight:800;
                 "
               >
-                🛡️ Profil vérifié
+                ✅ Profil vérifié
               </div>
             `
             : ""
@@ -6273,6 +6383,10 @@ function renderSearchResults() {
             outline:none;
           "
         >
+
+          <option value="recommended" selected>
+            Recommandés (GOLD en avant)
+          </option>
 
           <option value="rating">
             Mieux notés
@@ -6475,6 +6589,24 @@ function renderSearchResults() {
    FILTERS
 ========================================================= */
 
+/* Ranking weight so paying professionals appear first:
+   GOLD > Vérifié > Gratuit. Higher = shown sooner. */
+function planRank(pro) {
+  const p = (pro.package || "").toLowerCase();
+  if (p === "gold") return 3;
+  if (p === "verified") return 2;
+  return 1;
+}
+
+// GOLD-first primary ordering, with a weight tiebreaker.
+function recommendedComparator(a, b) {
+  const d = planRank(b) - planRank(a);
+  if (d !== 0) return d;
+  return Object.prototype.hasOwnProperty.call(b, "rating") && Object.prototype.hasOwnProperty.call(a, "rating")
+    ? b.rating - a.rating
+    : 0;
+}
+
 function setupResultFilters(originalResults) {
 
   const verified =
@@ -6541,11 +6673,19 @@ function setupResultFilters(originalResults) {
       );
 
 
+    if (sort.value === "recommended") {
+      results.sort(recommendedComparator);
+    }
+
     if (sort.value === "rating") {
 
+      // Keep GOLD/Vérifié at the front, rate within each tier.
       results.sort(
-        (a,b) =>
-          b.rating - a.rating
+        (a,b) => {
+          const d = planRank(b) - planRank(a);
+          if (d !== 0) return d;
+          return b.rating - a.rating;
+        }
       );
 
     }
@@ -6750,10 +6890,18 @@ function openProfessional(id) {
                   pro.verified
                     ? `
                       <div
-                        class="verified-badge"
+                        class="${(pro.package || "").toLowerCase() === "gold"
+                          ? "verif-chip gold"
+                          : (pro.package || "").toLowerCase() === "verified"
+                            ? "verif-chip verified"
+                            : "verif-chip free"}"
                         style="margin-top:12px"
                       >
-                        ✓ Professionnel vérifié
+                        ${(pro.package || "").toLowerCase() === "gold"
+                          ? "👑 GOLD Vérifié"
+                          : (pro.package || "").toLowerCase() === "verified"
+                            ? "🛡️ Vérifié"
+                            : "✅ Profil vérifié"}
                       </div>
                     `
                     : ""
@@ -7009,6 +7157,14 @@ function regSelectPack(pack) {
   if (typeof sna3tiRenderEchantGallery === "function") sna3tiRenderEchantGallery();
   if (typeof sna3tiRenderVideoGallery === "function") sna3tiRenderVideoGallery();
 
+  // Only show the video uploader when the current pack allows videos.
+  const vsec = document.getElementById("regVideoSection");
+  if (vsec) {
+    const vlimit = (window.Sna3tiVideoLimits && window.Sna3tiVideoLimits[pack]) || 0;
+    if (vlimit > 0) vsec.classList.remove("hidden");
+    else vsec.classList.add("hidden");
+  }
+
   if (typeof sna3tiSetPackBanner === "function") {
     if (pack === "gratuit") sna3tiHidePackBanner();
     else sna3tiSetPackBanner(pack);
@@ -7263,6 +7419,16 @@ window.Sna3tiEchantPhotos = [];
 window.Sna3tiEchantSeen = {};
 window.Sna3tiEchantLimits = { gratuit: 3, verifie: 8, gold: 17 };
 
+function sna3tiRegT(key, fallback) {
+  try {
+    const t = window.translations;
+    const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
+    if (t && t[lang] && t[lang].register && t[lang].register[key]) return t[lang].register[key];
+    if (t && t.fr && t.fr.register && t.fr.register[key]) return t.fr.register[key];
+  } catch (err) {}
+  return fallback;
+}
+
 function sna3tiCurrentEchantLimit() {
   const sel = document.querySelector(".reg-pack.reg-pack-selected");
   const pack = sel ? sel.getAttribute("data-pack") : "gratuit";
@@ -7290,13 +7456,13 @@ function sna3tiRenderEchantGallery() {
       gal.appendChild(wrap);
     });
   }
-  if (counter) counter.textContent = "Échantillons : " + window.Sna3tiEchantPhotos.length + " / " + sna3tiCurrentEchantLimit();
+  if (counter) counter.textContent = sna3tiRegT("echantCount", "Échantillons :") + " " + window.Sna3tiEchantPhotos.length + " / " + sna3tiCurrentEchantLimit();
   if (notice) {
     if (window.Sna3tiEchantPhotos.length < sna3tiCurrentEchantLimit()) notice.classList.add("hidden");
   }
   const nameEl = document.querySelector('#regPhotoTravail').closest(".reg-file");
   const labelEl = nameEl ? nameEl.querySelector(".reg-file-name") : null;
-  if (labelEl) labelEl.textContent = window.Sna3tiEchantPhotos.length + " fichier(s)";
+  if (labelEl) labelEl.textContent = window.Sna3tiEchantPhotos.length + " " + sna3tiRegT("fileUnit", "fichier(s)");
 }
 
 window.Sna3tiVideos = [];
@@ -7333,13 +7499,13 @@ function sna3tiRenderVideoGallery() {
       gal.appendChild(wrap);
     });
   }
-  if (counter) counter.textContent = "Vidéos : " + window.Sna3tiVideos.length + " / " + sna3tiCurrentVideoLimit();
+  if (counter) counter.textContent = sna3tiRegT("videoCount", "Vidéos :") + " " + window.Sna3tiVideos.length + " / " + sna3tiCurrentVideoLimit();
   if (limNotice) {
     if (window.Sna3tiVideos.length < sna3tiCurrentVideoLimit()) limNotice.classList.add("hidden");
   }
   const nameEl = document.getElementById("regVideoTravail") ? document.getElementById("regVideoTravail").closest(".reg-file") : null;
   const labelEl = nameEl ? nameEl.querySelector(".reg-file-name") : null;
-  if (labelEl) labelEl.textContent = window.Sna3tiVideos.length + " vidéo(s)";
+  if (labelEl) labelEl.textContent = window.Sna3tiVideos.length + " " + sna3tiRegT("videoUnit", "vidéo(s)");
 }
 
 function sna3tiLoadVideoDuration(file, cb) {
@@ -7616,7 +7782,15 @@ function startHeroRotation() {
 
   if (!sna3tiProfessionals || !sna3tiProfessionals.length) return;
 
-  let i = Math.floor(Math.random() * sna3tiProfessionals.length);
+  // Suggest paying professionals (GOLD first, then Vérifié)
+  // before the rest, so visitors always see the best first.
+  const suggestOrder = [...sna3tiProfessionals].sort((a, b) => {
+    const d = planRank(b) - planRank(a);
+    if (d !== 0) return d;
+    return (b.rating || 0) - (a.rating || 0);
+  });
+
+  let i = Math.floor(Math.random() * suggestOrder.length);
 
   const els = {
     photo: document.getElementById("heroCardPhoto"),
@@ -7632,8 +7806,8 @@ function startHeroRotation() {
   };
 
   function render() {
-    const p = sna3tiProfessionals[i];
-    i = (i + 1) % sna3tiProfessionals.length;
+    const p = suggestOrder[i % suggestOrder.length];
+    i = (i + 1) % suggestOrder.length;
 
     if (els.photo) els.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
     if (els.name) els.name.textContent = p.name || "";

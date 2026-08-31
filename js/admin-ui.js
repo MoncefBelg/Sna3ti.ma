@@ -12,6 +12,8 @@
   var AUTH = global.Sna3tiAuth;
   var DATA = global.Sna3tiData;
   var ROUTER = global.Sna3tiRouter;
+  var I18N = global.Sna3tiI18n || { t:function(k,f){ return f!==undefined?f:k; }, getLang:function(){return "fr";}, setLang:function(){}, getTheme:function(){return "light";}, toggleTheme:function(){} };
+  function T(key, fallback){ return I18N.t(key, fallback); }
 
   /* ---------- helpers ---------- */
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(m){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]; }); }
@@ -31,7 +33,7 @@
       '<div class="app">' +
         '<aside class="sidebar" id="sidebar">' +
           '<div class="sidebar-head">' +
-            '<div class="sidebar-brand"><div class="brand-logo">S</div><div><div class="brand-name">Sna3ti</div><div class="brand-sub">Administration</div></div></div>' +
+            '<div class="sidebar-brand"><div class="brand-logo">S</div><div><div class="brand-name">Sna3ti</div><div class="brand-sub">'+T("Administration")+'</div></div></div>' +
           '</div>' +
           '<nav class="sidebar-nav" id="sidebarNav">' + navGroups + '</nav>' +
           '<div class="sidebar-foot" id="sideUser"></div>' +
@@ -39,9 +41,13 @@
         '<div class="app-main">' +
           '<header class="topbar">' +
             '<button class="hamburger" id="hamburger" aria-label="Menu">☰</button>' +
-            '<div class="topbar-title" id="topbarTitle">Tableau de bord</div>' +
+            '<div class="topbar-title" id="topbarTitle">'+T("Tableau de bord")+'</div>' +
             '<div class="topbar-spacer"></div>' +
-            '<div class="search-wrap" id="globalSearchWrap"><span class="s-ico">🔍</span><input id="globalSearch" type="search" placeholder="Rechercher..." aria-label="Recherche globale" />' +
+            '<div class="topbar-tools">' +
+              '<button class="icon-btn" id="themeToggle" title="Dark mode">🌙</button>' +
+              '<button class="lang-btn" id="langToggle" title="Language">EN</button>' +
+            '</div>' +
+            '<div class="search-wrap" id="globalSearchWrap"><span class="s-ico">🔍</span><input id="globalSearch" type="search" placeholder="'+T("Rechercher...")+'" aria-label="'+T("Recherche globale")+'" />' +
               '<div class="search-panel" id="searchPanel"></div></div>' +
             '<div class="dropdown" id="notifDrop">' +
               '<button class="icon-btn" id="notifBtn" aria-label="Notifications">🔔<span class="dot" id="notifDot"></span></button>' +
@@ -105,36 +111,54 @@
     // modal close
     document.getElementById("modalScrim").addEventListener("click", function(e){ if(e.target === this) closeModal(); });
 
+    // theme + language toggles
+    var themeBtn = document.getElementById("themeToggle");
+    if(themeBtn){
+      var syncThemeIcon = function(){ themeBtn.textContent = (I18N.getTheme() === "dark") ? "☀️" : "🌙"; };
+      themeBtn.addEventListener("click", function(){ I18N.toggleTheme(); syncThemeIcon(); });
+      syncThemeIcon();
+    }
+    var langBtn = document.getElementById("langToggle");
+    if(langBtn){
+      langBtn.textContent = (I18N.getLang() === "en") ? "FR" : "EN";
+      langBtn.addEventListener("click", function(){
+        var to = (I18N.getLang() === "en") ? "fr" : "en";
+        I18N.setLang(to);
+        langBtn.textContent = (to === "en") ? "FR" : "EN";
+        global.Sna3tiUI.reload();
+      });
+    }
+
     renderSidebarUser();
   }
 
   function buildNavGroups(){
     var groups = [
-      { label:"", items:[ { route:"dashboard", ico:"📊", label:"Tableau de bord" } ] },
-      { label:"Marketplace", items:[
-          { route:"professionals", ico:"🧑‍🔧", label:"Professionnels" },
-          { route:"users", ico:"👥", label:"Utilisateurs" },
-          { route:"categories", ico:"🗂️", label:"Catégories" },
-          { route:"cities", ico:"📍", label:"Villes" }
+      { label:"", items:[ { route:"dashboard", ico:"📊", label:T("Tableau de bord") } ] },
+      { label:T("Marketplace"), items:[
+          { route:"professionals", ico:"🧑‍🔧", label:T("Professionnels") },
+          { route:"users", ico:"👥", label:T("Utilisateurs") },
+          { route:"categories", ico:"🗂️", label:T("Catégories") },
+          { route:"cities", ico:"📍", label:T("Villes") }
         ]},
-      { label:"Confiance et sécurité", items:[
-          { route:"verification", ico:"✅", label:"Vérification", pill:"verification" },
-          { route:"reviews", ico:"⭐", label:"Avis" },
-          { route:"reports", ico:"🚩", label:"Signalements", pill:"reports" }
+      { label:T("Confiance et sécurité"), items:[
+          { route:"verification", ico:"✅", label:T("Vérification"), pill:"verification" },
+          { route:"reviews", ico:"⭐", label:T("Avis") },
+          { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" }
         ]},
-      { label:"Business", items:[
-          { route:"subscriptions", ico:"📦", label:"Abonnements" },
-          { route:"payments", ico:"💰", label:"Paiements", pill:"payments" }
+      { label:T("Business"), items:[
+          { route:"subscriptions", ico:"📦", label:T("Abonnements") },
+          { route:"payments", ico:"💰", label:T("Paiements"), pill:"payments" }
         ]},
-      { label:"Insights", items:[
-          { route:"analytics", ico:"📈", label:"Analytiques" },
-          { route:"ai", ico:"🤖", label:"AI Center" }
+      { label:T("Insights"), items:[
+          { route:"analytics", ico:"📈", label:T("Analytiques") },
+          { route:"ai", ico:"🤖", label:T("AI Center") }
         ]},
-      { label:"Système", items:[
-          { route:"notifications", ico:"🔔", label:"Notifications" },
-          { route:"settings", ico:"⚙️", label:"Réglages" },
-          { route:"admin-users", ico:"🛡️", label:"Admin Users" },
-          { route:"audit-logs", ico:"📜", label:"Audit Logs" }
+      { label:T("Système"), items:[
+          { route:"notifications", ico:"🔔", label:T("Notifications") },
+          { route:"settings", ico:"⚙️", label:T("Réglages") },
+          { route:"admin-users", ico:"🛡️", label:T("Admin Users") },
+          { route:"audit-logs", ico:"📜", label:T("Audit Logs") }
         ]}
     ];
     var html = "";
@@ -197,7 +221,7 @@
       '<div class="top-user-meta"><span class="top-user-name">'+esc(s.name)+'</span><span class="top-user-role">'+esc(AUTH.getRoleLabel())+'</span></div>';
     document.getElementById("userMenu").innerHTML =
       '<div class="menu-label">'+esc(s.email)+'</div>' +
-      '<button class="menu-item" data-action="logout"><span>👋</span> Se déconnecter</button>';
+      '<button class="menu-item" data-action="logout"><span>👋</span> '+T("Se déconnecter")+'</button>';
   }
 
   function updatePills(){
@@ -215,12 +239,12 @@
     var panel = document.getElementById("notifPanel");
     var list = DATA.getNotifications();
     var NOTIF_ICO = { verification:"✅", payment:"💰", report:"🚩", subscription:"📦", user:"👥", system:"⚙️" };
-    panel.innerHTML = '<div class="np-head"><span>Notifications</span><span class="muted small">'+list.filter(function(n){return n.unread;}).length+' non lues</span></div>' +
+    panel.innerHTML = '<div class="np-head"><span>'+T("Notifications")+'</span><span class="muted small">'+list.filter(function(n){return n.unread;}).length+' '+T("non lues")+'</span></div>' +
       (list.length ? list.map(function(n){
         var ico = NOTIF_ICO[n.type] || "🔔";
         return '<div class="notif-item '+(n.unread?"unread":"")+'" data-id="'+n.id+'" data-route="'+(n.route||"")+'">' +
                '<div class="n-ico">'+ico+'</div><div><div class="n-txt">'+esc(n.text)+'</div><div class="n-when">'+esc(n.when)+'</div></div></div>';
-      }).join("") : '<div class="sp-empty">Aucune notification</div>');
+      }).join("") : '<div class="sp-empty">'+T("Aucune notification")+'</div>');
     DATA.markNotificationsRead();
     updatePills();
   }
@@ -234,33 +258,33 @@
     DATA.getProfessionals().forEach(function(p){
       var hay = (p.name+" "+p.job+" "+p.city+" "+p.category).toLowerCase();
       if(hay.indexOf(q)>-1){
-        results.push({ group:"Professionnel", id:p.id, main : p.name, sub: p.job+" · "+p.city+" · "+p.id, route:"professionals/"+p.id, ico:"🧑‍🔧" });
+        results.push({ group:T("Professionnels"), id:p.id, main : p.name, sub: p.job+" · "+p.city+" · "+p.id, route:"professionals/"+p.id, ico:"🧑‍🔧" });
       }
     });
     // users
     DATA.getUsers().forEach(function(u){
       if((u.name+" "+u.email+" "+(u.phone||"")).toLowerCase().indexOf(q)>-1){
-        results.push({ group:"Utilisateur", id:u.id, main:u.name, sub:u.email+" · "+(u.phone||""), route:"users", ico:"👥" });
+        results.push({ group:T("Utilisateurs"), id:u.id, main:u.name, sub:u.email+" · "+(u.phone||""), route:"users", ico:"👥" });
       }
     });
     // cities
     DATA.getRegions().forEach(function(r){ r.cities.forEach(function(c){
       var cn = c.name.fr;
-      if(cn.toLowerCase().indexOf(q)>-1){ results.push({ group:"Ville", id:c.id, main:cn, sub:"City ID "+c.id, route:"cities", ico:"📍" }); }
+      if(cn.toLowerCase().indexOf(q)>-1){ results.push({ group:T("Villes"), id:c.id, main:cn, sub:"City ID "+c.id, route:"cities", ico:"📍" }); }
     }); });
     // payments
     DATA.getPayments().forEach(function(pa){
       if((pa.reference+" "+pa.planName+" "+pa.amount).toLowerCase().indexOf(q)>-1){
-        results.push({ group:"Paiement", id:pa.id, main:pa.reference+" · "+pa.planName, sub:pa.amount+" DH · "+pa.status, route:"payments", ico:"💰" });
+        results.push({ group:T("Paiements"), id:pa.id, main:pa.reference+" · "+pa.planName, sub:pa.amount+" DH · "+pa.status, route:"payments", ico:"💰" });
       }
     });
     // verifications
     DATA.getVerificationRequests().forEach(function(v){
-      if((v.id).toLowerCase().indexOf(q)>-1){ results.push({ group:"Vérification", id:v.id, main:v.id, sub:"statut "+v.status, route:"verification", ico:"✅" }); }
+      if((v.id).toLowerCase().indexOf(q)>-1){ results.push({ group:T("Vérification"), id:v.id, main:v.id, sub:T("Statut")+" "+v.status, route:"verification", ico:"✅" }); }
     });
 
     if(results.length === 0){
-      panel.innerHTML = '<div class="sp-empty">Aucun résultat pour « '+esc(q)+' »</div>';
+      panel.innerHTML = '<div class="sp-empty">'+ (I18N.getLang()==="en" ? "No results for \u00AB "+esc(q)+" \u00BB" : "Aucun résultat pour \u00AB "+esc(q)+" \u00BB") +'</div>';
     } else {
       var byGroup = {};
       results.forEach(function(r){ (byGroup[r.group]=byGroup[r.group]||[]).push(r); });
@@ -300,7 +324,7 @@
   }
 
   function renderError(text){
-    setContent('<div class="msg-box"><div class="b">🚧 Oups, une erreur est survenue</div><p class="muted">'+esc(text||"Veuillez réessayer.")+'</p><button class="btn btn-ghost" onclick="window.Sna3tiUI.reload()">Réessayer</button></div>');
+    setContent('<div class="msg-box"><div class="b">🚧 '+T("Oups, une erreur est survenue")+'</div><p class="muted">'+esc(text||T("Veuillez réessayer."))+'</p><button class="btn btn-ghost" onclick="window.Sna3tiUI.reload()">'+T("Réessayer")+'</button></div>');
   }
 
   function reload(){ location.reload(); }
@@ -332,21 +356,21 @@
   function confirmAction(opts){
     // opts: { title, message, confirmLabel, reasonLabel(bool), reasonRequired(bool),
     //         onConfirm(reason) }
-    var html = '<h3>'+esc(opts.title||"Confirmer")+'</h3>';
+    var html = '<h3>'+esc(opts.title||T("Confirmer"))+'</h3>';
     if(opts.message) html += '<p class="subtle" style="font-size:13.5px;color:var(--muted)">'+opts.message+'</p>';
     if(opts.reasonLabel || opts.reasonRequired){
-      html += '<div class="frm"><div class="frm"><label>'+esc(opts.reasonLabel||"Raison")+' *</label><textarea id="confirmReason" placeholder="Expliquez la raison..." required="'+!!opts.reasonRequired+'"></textarea></div></div>';
+      html += '<div class="frm"><div class="frm"><label>'+esc(opts.reasonLabel||T("Raison"))+' *</label><textarea id="confirmReason" placeholder="'+T("Expliquez la raison...")+'" required="'+!!opts.reasonRequired+'"></textarea></div></div>';
     }
     html += '<div class="modal-actions">' +
-      '<button class="btn btn-ghost" onclick="window.Sna3tiUI.cancelAction()">Annuler</button>' +
-      '<button class="btn btn-danger-solid" id="confirmOk">'+esc(opts.confirmLabel||"Confirmer")+'</button>' +
+      '<button class="btn btn-ghost" onclick="window.Sna3tiUI.cancelAction()">'+T("Annuler")+'</button>' +
+      '<button class="btn btn-danger-solid" id="confirmOk">'+esc(opts.confirmLabel||T("Confirmer"))+'</button>' +
       '</div>';
     openModal(html);
     var cb = opts.onConfirm;
     document.getElementById("confirmOk").addEventListener("click", function(){
       var reason = (document.getElementById("confirmReason") ? document.getElementById("confirmReason").value.trim() : "");
       if(opts.reasonRequired && !reason){
-        toast("Veuillez fournir une raison.", true); return;
+        toast(T("Veuillez fournir une raison."), true); return;
       }
       closeModal();
       if(cb) cb(reason || "");

@@ -9,6 +9,9 @@
 (function (global) {
   "use strict";
 
+  var I18N = global.Sna3tiI18n || { t:function(s){ return s; } };
+  function T(s){ return I18N.t(s); }
+
   var DATA = global.Sna3tiData;
   var ROLES = DATA.roles;
   var PERM_CATALOG = DATA.permissionsCatalog;
@@ -64,12 +67,12 @@
     return new Promise(function(resolve, reject){
       // Simulate network latency
       setTimeout(function(){
-        if(!email || !password){ reject({ code:"invalid", message:"Veuillez saisir votre email et mot de passe." }); return; }
+        if(!email || !password){ reject({ code:"invalid", message:T("Veuillez saisir votre email et mot de passe.") }); return; }
         email = email.toLowerCase().trim();
         var ok = (email === DEMO_PASSWORD.email && password === DEMO_PASSWORD.password);
         var account = DEMO_ACCOUNTS.find(function(a){ return a.email === email; });
         if(!ok || !account){
-          reject({ code:"invalid", message:"Identifiants invalides." });
+          reject({ code:"invalid", message:T("Identifiants invalides.") });
           return;
         }
         session = {
