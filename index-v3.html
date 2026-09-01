@@ -1758,6 +1758,12 @@
   background: #fff;
 }
 
+/* Pro stats bar chart — bars animate up from 0. */
+.g-bar {
+  height: 0%;
+  transition: height 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
   </style>
 </head>
 
@@ -3798,6 +3804,7 @@
           ></div>
 
           <div
+            id="proStats"
             class="relative rounded-[2rem] bg-white border border-sna3ti-teal/10
                    p-8 shadow-premium"
           >
@@ -3808,17 +3815,43 @@
                 <div class="text-sm text-gray-500" data-i18n="pro.active">1200+ professionnels actifs</div>
               </div>
             </div>
-            <div class="mt-6 space-y-3">
-              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:85%"></div>
-              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:65%"></div>
-              <div class="h-3 rounded-full bg-sna3ti-teal/10" style="width:90%"></div>
+
+            <div class="mt-6 grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-xl bg-sna3ti-teal/5 p-2.5">
+                <div id="proChipCities" class="text-lg font-black text-sna3ti-ink">0</div>
+                <div class="text-[10px] font-semibold text-gray-500" data-i18n="pro.chipCities">Villes couvertes</div>
+              </div>
+              <div class="rounded-xl bg-sna3ti-teal/5 p-2.5">
+                <div id="proChipVerified" class="text-lg font-black text-sna3ti-ink">0</div>
+                <div class="text-[10px] font-semibold text-gray-500" data-i18n="pro.chipVerified">Profils vérifiés</div>
+              </div>
+              <div class="rounded-xl bg-sna3ti-teal/5 p-2.5">
+                <div id="proChipRating" class="text-lg font-black text-sna3ti-ink">0</div>
+                <div class="text-[10px] font-semibold text-gray-500" data-i18n="pro.chipRating">Note moyenne</div>
+              </div>
             </div>
+
+            <div class="mt-6">
+              <div class="flex items-center justify-between text-xs font-bold text-gray-500">
+                <span data-i18n="pro.chartTitle">Demandes du mois</span>
+                <span>📈</span>
+              </div>
+              <div class="mt-3 flex items-end gap-2" style="height:56px">
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal/30" data-bar="42" title="42"></div>
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal/40" data-bar="58" title="58"></div>
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal/50" data-bar="47" title="47"></div>
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal/70" data-bar="74" title="74"></div>
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal/80" data-bar="88" title="88"></div>
+                <div class="g-bar flex-1 rounded-t-md bg-sna3ti-teal" data-bar="100" title="100"></div>
+              </div>
+            </div>
+
             <div
               class="mt-6 pt-6 border-t border-sna3ti-teal/10
                      flex items-center justify-between"
             >
               <span class="text-sm font-bold text-sna3ti-teal" data-i18n="pro.month">Demandes ce mois</span>
-              <span class="text-2xl font-black text-sna3ti-ink">+340</span>
+              <span class="text-2xl font-black text-sna3ti-ink"><span data-count="340" data-prefix="+">0</span></span>
             </div>
           </div>
 
@@ -4435,7 +4468,11 @@
           cta: "Inscrire mon activité",
           join: "Rejoignez",
           active: "1200+ professionnels actifs",
-          month: "Demandes ce mois"
+          month: "Demandes ce mois",
+          chipCities: "Villes couvertes",
+          chipVerified: "Profils vérifiés",
+          chipRating: "Note moyenne",
+          chartTitle: "Demandes du mois"
         },
 
         unit: {
@@ -4634,7 +4671,11 @@
           cta: "سجّل نشاطي",
           join: "انضم",
           active: "+1200 حرفي نشط",
-          month: "طلبات هذا الشهر"
+          month: "طلبات هذا الشهر",
+          chipCities: "مدن مغطاة",
+          chipVerified: "بروفايلات موثّقة",
+          chipRating: "متوسط التقييم",
+          chartTitle: "طلبات الشهر"
         },
 
         unit: {
@@ -4832,7 +4873,11 @@
           cta: "List my business",
           join: "Join us",
           active: "1200+ active professionals",
-          month: "Requests this month"
+          month: "Requests this month",
+          chipCities: "Cities covered",
+          chipVerified: "Verified profiles",
+          chipRating: "Average rating",
+          chartTitle: "Requests this month"
         },
 
         unit: {
@@ -8096,8 +8141,81 @@ function restoreHome() {
   populateRegCity();
   populateRegMetier();
   populateServiceSelect();
-  initAllGalleries();
+initAllGalleries();
   startHeroRotation();
+  initProStats();
+
+}
+
+/* =========================================================
+   PRO STATS — live numbers drawn from the real dataset
+   (cities / verified badges / average rating) plus an
+   animated "requests this month" bar chart and counters.
+   Re-initialized every time the home page is restored.
+========================================================= */
+function initProStats() {
+
+  const root = document.getElementById("proStats");
+  if (!root) return;
+
+  /* Real dataset aggregates. */
+  const pros = Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
+  const cities = new Set(pros.map(function (p) { return p.city; }).filter(Boolean));
+  const verified = pros.filter(function (p) { return p.verified; }).length;
+
+  let rating = null;
+  if (pros.length) {
+    const sum = pros.reduce(function (acc, p) {
+      const r = Number(p.rating);
+      return acc + (isFinite(r) ? r : 0);
+    }, 0);
+    rating = sum / pros.length;
+  }
+
+  const cityCount = cities.size;
+  const verifiedCount = verified;
+  const ratingFixed = rating !== null ? rating.toFixed(1) : "—";
+
+  /* Count-up text nodes. */
+  const chipCities = document.getElementById("proChipCities");
+  const chipVerified = document.getElementById("proChipVerified");
+  const chipRating = document.getElementById("proChipRating");
+  if (chipCities) chipCities.textContent = cityCount;
+  if (chipVerified) chipVerified.textContent = verifiedCount;
+  if (chipRating) chipRating.textContent = ratingFixed;
+
+  /* Animated bars: grow from 0 to the value in data-bar (%). */
+  const bars = root.querySelectorAll(".g-bar[data-bar]");
+  bars.forEach(function (bar) {
+    const target = parseInt(String(bar.getAttribute("data-bar")), 10);
+    const h = Math.max(0, Math.min(100, isFinite(target) ? target : 0));
+    bar.style.height = "0%";
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        bar.style.height = h + "%";
+        bar.style.transition = "height 700ms cubic-bezier(.22,1,.36,1)";
+      });
+    });
+  });
+
+  /* Count-up counter for the big "requests this month" figure. */
+  const counter = root.querySelector("[data-count]");
+  if (counter) {
+    const end = parseInt(String(counter.getAttribute("data-count")), 10);
+    const prefix = counter.getAttribute("data-prefix") || "";
+    let current = 0;
+    const duration = 800;
+    const start = performance.now();
+    counter.textContent = prefix + "0";
+    function tick(now) {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      current = Math.round(end * eased);
+      counter.textContent = prefix + current;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
 
 }
 
@@ -8190,6 +8308,7 @@ function startHeroRotation() {
 }
 
 startHeroRotation();
+initProStats();
 
 function initGallery(root) {
 
