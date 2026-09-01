@@ -4501,7 +4501,35 @@
           phPhone: "XX XX XX XXX",
           phoneHint: "Sans le 0 au début · +212 suivi de 9 chiffres",
           back: "← Retour",
-          submit: "Envoyer ma demande →"
+          submit: "Envoyer ma demande →",
+          gateway: {
+            title: "Virement bancaire sécurisé",
+            subtitle: "Activez votre abonnement en réglant votre formule par virement CIH.",
+            monthly: "Abonnement mensuel",
+            details: "Vos informations",
+            nom: "Nom",
+            prenom: "Prénom",
+            metier: "Métier",
+            ville: "Ville",
+            phone: "WhatsApp",
+            prix: "Prix",
+            stepsTitle: "Comment finaliser ?",
+            step1: "Effectuez le virement vers le compte CIH ci-contre.",
+            step2: "Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.",
+            step3: "Votre badge est activé par notre équipe sous 24h.",
+            transferTitle: "Compte de virement",
+            amount: "Montant à payer",
+            amountNote: "À virer sur le compte CIH ci-dessous pour activer votre formule.",
+            beneficiary: "Titulaire",
+            bank: "Banque",
+            account: "Compte N°",
+            copyRib: "Copier le RIB",
+            copied: "Copié !",
+            reference: "Mettez votre nom et prénom en référence du virement pour faciliter l'identification.",
+            whatsappNote: "Une fois le virement effectué vers le compte ci-dessus, envoyez-nous le reçu ou une capture d'écran sur WhatsApp.",
+            whatsappSub: "Réponse rapide · Activation sous 24h",
+            whatsappCta: "Envoyer le reçu"
+          }
         }
 
       },
@@ -4672,7 +4700,35 @@
           phPhone: "XX XX XX XXX",
           phoneHint: "بدون 0 في البداية · +212 يليها 9 أرقام",
           back: "رجوع",
-          submit: "أرسل طلبي"
+          submit: "أرسل طلبي",
+          gateway: {
+            title: "تحويل بنكي آمن",
+            subtitle: "فعّل اشتراكك بأداء الصيغة ديالك عبر تحويل بنكي لبنك CIH.",
+            monthly: "اشتراك شهري",
+            details: "المعلومات ديالك",
+            nom: "اللقب",
+            prenom: "الاسم",
+            metier: "الصنعة",
+            ville: "المدينة",
+            phone: "الواتساب",
+            prix: "الأثمنة",
+            stepsTitle: "كيفاش تكمل؟",
+            step1: "أدّي التحويل للحساب ديال CIH اللي قدامك.",
+            step2: "صيفط لنا الوصل ولا السكرين على الواتساب مع RIB ديالك.",
+            step3: "البادج ديالك غادي يتفعّل من طرف الفرقة ديالنا خلال 24 ساعة.",
+            transferTitle: "حساب التحويل",
+            amount: "المبلغ الواجب أداؤه",
+            amountNote: "أدّيه للحساب ديال CIH اللي تحت باش تفعّل الصيغة ديالك.",
+            beneficiary: "صاحب الحساب",
+            bank: "البنك",
+            account: "رقم الحساب",
+            copyRib: "نسخ الـ RIB",
+            copied: "تم النسخ!",
+            reference: "حط السم والسم العائلي ديالك كمرجع للتحويل باش نعرفوك بسهولة.",
+            whatsappNote: "من بعد ما تدّي التحويل للحساب اللي فوق، صيفط لنا الوصل ولا السكرين على الواتساب.",
+            whatsappSub: "جاوب سريع · التفعيل في خلال 24 ساعة",
+            whatsappCta: "صيفط الوصل"
+          }
         }
 
       },
@@ -4842,7 +4898,35 @@
           phPhone: "XX XX XX XXX",
           phoneHint: "No leading 0 · +212 followed by 9 digits",
           back: "← Back",
-          submit: "Send my request →"
+          submit: "Send my request →",
+          gateway: {
+            title: "Secure bank transfer",
+            subtitle: "Activate your subscription by paying for your plan via a CIH bank transfer.",
+            monthly: "Monthly subscription",
+            details: "Your details",
+            nom: "Last name",
+            prenom: "First name",
+            metier: "Trade",
+            ville: "City",
+            phone: "WhatsApp",
+            prix: "Price",
+            stepsTitle: "How to finish?",
+            step1: "Make the transfer to the CIH account on your right.",
+            step2: "Send us your receipt or screenshot on WhatsApp with your RIB.",
+            step3: "Your badge is activated by our team within 24 hours.",
+            transferTitle: "Transfer account",
+            amount: "Amount to pay",
+            amountNote: "To be transferred to the CIH account below to activate your plan.",
+            beneficiary: "Account holder",
+            bank: "Bank",
+            account: "Account N°",
+            copyRib: "Copy the RIB",
+            copied: "Copied!",
+            reference: "Add your full name as the transfer reference for easy identification.",
+            whatsappNote: "Once the transfer is done to the account above, send us the receipt or a screenshot on WhatsApp.",
+            whatsappSub: "Quick reply · Activation within 24 hours",
+            whatsappCta: "Send the receipt"
+          }
         }
 
       }
@@ -7128,10 +7212,27 @@ function contactWhatsApp(phone) {
      2126XXXXXXXX, no + sign, no spaces) to receive leads. */
 const SNA3TI_ADMIN_WHATSAPP = "212600000000";
 
+/* ---- Virement bancaire (coordonnées du compte CIH) ----
+   ⚠️ À personnaliser : remplacez account / rib / beneficiary par les vraies
+   coordonnées du compte commercial CIH de Sna3ti.ma avant la mise en ligne. */
+const SNA3TI_BANK = {
+  bank: "CIH Bank",
+  beneficiary: "Sna3ti.ma (Nom commercial)",
+  account: "000 000 0000 0000 0000 0000 00",
+  rib: "00 000 000 000 000 0000 0000 00"
+};
+
 const REG_PACK_LABELS = {
   gratuit: "Gratuit (0 DH)",
   verifie: "Vérifié (99 DH/mois)",
   gold: "GOLD (199 DH/mois)"
+};
+
+/* Visual metadata used by the payment gateway (numeric price, no unit). */
+const REG_PACK_META = {
+  gratuit: { icon: "🗂️", label: "Gratuit", price: "0" },
+  verifie: { icon: "🛡️", label: "Vérifié", price: "99" },
+  gold: { icon: "👑", label: "GOLD", price: "199" }
 };
 
 function regVal(id) {
@@ -7342,6 +7443,21 @@ function regSubmit() {
     "Photo de travail : " + photoTName + "\n" +
     "Envoyé depuis le site Sna3ti.ma";
 
+  /* Paid plans (Vérifié / GOLD) go to the payment gateway first:
+     the pro sees the CIH account, then returns the receipt on WhatsApp. */
+  if (pack === "verifie" || pack === "gold") {
+    openGateway({
+      pack: pack,
+      nom: nom,
+      prenom: prenom,
+      metier: serviceName(metier, localStorage.getItem("sna3ti-language") || "fr") || metier || "-",
+      ville: cityLabel || ville || "-",
+      phone: whatsappNumber,
+      prix: prix ? prix + " DH" : "Non précisé"
+    });
+    return;
+  }
+
   window.open(
     "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg),
     "_blank"
@@ -7353,9 +7469,130 @@ function regSubmit() {
   );
 }
 
+/* ---------- Payment gateway (virement CIH) ---------- */
+
+function gwDisplayWhatsapp() {
+  const digits = String(SNA3TI_ADMIN_WHATSAPP || "").replace(/\D/g, "");
+  if (digits.length !== 12 || digits.slice(0, 3) !== "212") return "+212";
+  const n = digits.slice(3);
+  const grouped = n.match(/.{1,3}/g) || [n];
+  return "+212 " + grouped.join(" ");
+}
+
+function openGateway(d) {
+  const popup = document.getElementById("gatewayPopup");
+  if (!popup) return;
+
+  const meta = REG_PACK_META[d.pack] || REG_PACK_META.verifie;
+
+  const icon = popup.querySelector("#gwPackIcon");
+  const name = popup.querySelector("#gwPackName");
+  const price = popup.querySelector("#gwPackPrice");
+  if (icon) icon.textContent = meta.icon;
+  if (name) name.textContent = meta.label;
+  if (price) price.textContent = meta.price + " DH";
+
+  /* Summary rows in the current language. */
+  const lang = localStorage.getItem("sna3ti-language") || "fr";
+  const g =
+    (translations[lang] && translations[lang].register && translations[lang].register.gateway) ||
+    (translations.fr && translations.fr.register && translations.fr.register.gateway) ||
+    {};
+  const labels = [
+    [g.nom || "Nom", d.nom],
+    [g.prenom || "Prénom", d.prenom],
+    [g.metier || "Métier", d.metier],
+    [g.ville || "Ville", d.ville],
+    [g.phone || "WhatsApp", d.phone],
+    [g.prix || "Prix", d.prix]
+  ];
+  const rows = popup.querySelector("#gwRows");
+  if (rows) {
+    rows.innerHTML = labels.map(function (r) {
+      return '<div class="flex items-start justify-between gap-3">' +
+        '<span class="text-[13px] font-semibold text-sna3ti-ink/45">' + r[0] + "</span>" +
+        '<span class="text-right text-[13px] font-black text-sna3ti-ink">' + r[1] + "</span>" +
+        "</div>";
+    }).join("");
+  }
+
+  const acc = popup.querySelector("#gwAccount");
+  const rib = popup.querySelector("#gwRib");
+  const bene = popup.querySelector("#gwBeneficiary");
+  const amount = popup.querySelector("#gwAmount");
+  if (acc) acc.textContent = SNA3TI_BANK.account;
+  if (rib) rib.textContent = SNA3TI_BANK.rib;
+  if (bene) bene.textContent = SNA3TI_BANK.beneficiary;
+  if (amount) amount.textContent = meta.price + " DH";
+
+  /* Receive-receipt WhatsApp button -> admin inbox. */
+  const wa = popup.querySelector("#gwWhatsapp");
+  if (wa) {
+    const msg =
+      "🧾 REÇU DE VIREMENT — Sna3ti.ma\n" +
+      "Formule : " + meta.label + " (" + meta.price + " DH/mois)\n" +
+      "Montant à payer : " + meta.price + " DH\n" +
+      "Nom : " + d.nom + "\n" +
+      "Prénom : " + d.prenom + "\n" +
+      "Métier : " + d.metier + "\n" +
+      "Ville : " + d.ville + "\n" +
+      "WhatsApp : " + d.phone + "\n\n" +
+      "J'ai effectué le virement (" + meta.price + " DH) vers le compte CIH (Sna3ti.ma) ; ci-joint le reçu.";
+    wa.href = "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg);
+    const cta = wa.querySelector("[data-i18n='register.gateway.whatsappCta']");
+    if (cta) cta.textContent = g.whatsappCta + " · " + gwDisplayWhatsapp();
+  }
+
+  popup.classList.remove("hidden");
+  popup.classList.add("flex");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeGateway() {
+  const popup = document.getElementById("gatewayPopup");
+  if (!popup) return;
+  popup.classList.add("hidden");
+  popup.classList.remove("flex");
+  document.body.classList.remove("overflow-hidden");
+}
+
+function gwCopyRib() {
+  const rib = document.getElementById("gwRib");
+  if (!rib || !rib.textContent) return;
+  const full = SNA3TI_BANK.beneficiary + "\n" +
+    "Banque : " + SNA3TI_BANK.bank + "\n" +
+    "Compte : " + SNA3TI_BANK.account + "\n" +
+    "RIB : " + SNA3TI_BANK.rib;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(full).then(function () {
+      const btn = document.getElementById("gwCopyRib");
+      if (btn) {
+        const prev = btn.innerHTML;
+        const gLang = localStorage.getItem("sna3ti-language") || "fr";
+        const gCopied =
+          (translations[gLang] && translations[gLang].register && translations[gLang].register.gateway.copied) ||
+          "Copié !";
+        btn.innerHTML = "✅ " + gCopied;
+        setTimeout(function () { btn.innerHTML = prev; }, 1800);
+      }
+    });
+  }
+}
+
 /* Delegated events so they keep working even after the home
    page is restored (innerHTML swaps don't rebind inline). */
 document.addEventListener("click", function (e) {
+  const gw = e.target.closest("#gatewayBackdrop, #gatewayClose");
+  if (gw) {
+    closeGateway();
+    return;
+  }
+
+  if (e.target.closest("#gwCopyRib")) {
+    gwCopyRib();
+    return;
+  }
+
   const packCard = e.target.closest(".reg-pack");
   if (packCard) {
     regSelectPack(packCard.getAttribute("data-pack"));
@@ -8314,6 +8551,110 @@ populateServiceSelect();
         </span>
       </button>
 
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT GATEWAY (virement CIH) -->
+<div id="gatewayPopup" class="hidden fixed inset-0 z-[90] items-center justify-center p-4">
+  <div id="gatewayBackdrop" class="absolute inset-0 bg-sna3ti-ink/70 backdrop-blur-sm"></div>
+  <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-sna3ti-cream shadow-premium">
+
+    <div class="flex items-center justify-between gap-3 border-b border-sna3ti-ink/10 bg-white px-6 py-4">
+      <div class="flex items-center gap-3">
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sna3ti-mint text-2xl">🔒</span>
+        <div>
+          <h3 class="text-lg font-black text-sna3ti-ink" data-i18n="register.gateway.title">Virement bancaire sécurisé</h3>
+          <p class="text-xs font-medium text-sna3ti-ink/50" data-i18n="register.gateway.subtitle">Activez votre abonnement en réglant votre formule par virement CIH.</p>
+        </div>
+      </div>
+      <button type="button" id="gatewayClose" class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sna3ti-ink/50 transition hover:bg-sna3ti-cream hover:text-sna3ti-ink" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="grid gap-5 p-6 md:grid-cols-2">
+
+      <div class="space-y-4">
+        <div class="flex items-center gap-4 rounded-2xl border-2 border-sna3ti-teal bg-sna3ti-teal/5 p-4">
+          <span id="gwPackIcon" class="text-4xl">🛡️</span>
+          <span class="flex-1">
+            <span id="gwPackName" class="block text-lg font-black text-sna3ti-ink">Vérifié</span>
+            <span class="block text-xs font-bold text-sna3ti-teal" data-i18n="register.gateway.monthly">Abonnement mensuel</span>
+          </span>
+          <span class="text-right">
+            <span id="gwPackPrice" class="block text-2xl font-black text-sna3ti-ink">99 DH</span>
+            <span class="block text-[11px] font-bold text-sna3ti-ink/40" data-i18n="unit.perMonth">/mois</span>
+          </span>
+        </div>
+
+        <div class="rounded-2xl border border-sna3ti-ink/10 bg-white p-4">
+          <div class="mb-3 text-[11px] font-black uppercase tracking-wider text-sna3ti-ink/40" data-i18n="register.gateway.details">Vos informations</div>
+          <div id="gwRows" class="space-y-2.5"></div>
+        </div>
+
+        <div class="rounded-2xl bg-sna3ti-mint/60 p-4">
+          <div class="mb-2 text-sm font-black text-sna3ti-ink" data-i18n="register.gateway.stepsTitle">Comment finaliser ?</div>
+          <ol class="space-y-1.5 text-[13px] font-medium leading-snug text-sna3ti-ink/70">
+            <li><span class="mr-1 font-black text-sna3ti-teal">1.</span><span data-i18n="register.gateway.step1">Effectuez le virement vers le compte CIH ci-contre.</span></li>
+            <li><span class="mr-1 font-black text-sna3ti-teal">2.</span><span data-i18n="register.gateway.step2">Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.</span></li>
+            <li><span class="mr-1 font-black text-sna3ti-teal">3.</span><span data-i18n="register.gateway.step3">Votre badge est activé par notre équipe sous 24h.</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="flex flex-col rounded-2xl border-2 border-dashed border-sna3ti-teal/30 bg-white p-5">
+        <div class="text-center">
+<div class="mx-auto inline-grid h-32 w-72 place-items-center rounded-2xl bg-sna3ti-cream shadow-soft ring-1 ring-sna3ti-ink/10">
+      <img src="assets/img/CIH_logo.jpg" alt="CIH Bank" class="max-h-24 w-auto object-contain" />
+    </div>
+          <div class="mt-3 text-base font-black text-sna3ti-ink">CIH Bank</div>
+          <div class="text-xs font-medium text-sna3ti-ink/50" data-i18n="register.gateway.transferTitle">Compte de virement</div>
+        </div>
+
+        <div class="mt-4 rounded-xl bg-sna3ti-teal px-4 py-3 text-center shadow-soft">
+          <div class="text-[11px] font-black uppercase tracking-wider text-white/80" data-i18n="register.gateway.amount">Montant à payer</div>
+          <div id="gwAmount" class="text-2xl font-black leading-tight text-white">99 DH</div>
+          <div class="text-[11px] font-medium text-white/70" data-i18n="register.gateway.amountNote">À virer sur le compte CIH ci-dessous pour activer votre formule.</div>
+        </div>
+
+        <div class="mt-4 space-y-2.5 rounded-xl bg-sna3ti-cream p-4 text-[13px]">
+          <div class="flex items-start justify-between gap-3">
+            <span class="font-semibold text-sna3ti-ink/45" data-i18n="register.gateway.beneficiary">Titulaire</span>
+            <span id="gwBeneficiary" class="text-right font-black text-sna3ti-ink">Sna3ti.ma (Nom commercial)</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="font-semibold text-sna3ti-ink/45" data-i18n="register.gateway.bank">Banque</span>
+            <span class="text-right font-black text-sna3ti-ink">CIH Bank</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="font-semibold text-sna3ti-ink/45" data-i18n="register.gateway.account">Compte N°</span>
+            <span id="gwAccount" class="text-right font-mono font-black tracking-wide text-sna3ti-ink">-</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="font-semibold text-sna3ti-ink/45">RIB</span>
+            <span id="gwRib" class="text-right font-mono font-black tracking-wide text-sna3ti-ink">-</span>
+          </div>
+        </div>
+
+        <button type="button" id="gwCopyRib" class="mt-4 w-full rounded-full bg-sna3ti-teal px-5 py-3 text-sm font-black text-white transition hover:bg-sna3ti-teal2">
+          📋 <span data-i18n="register.gateway.copyRib">Copier le RIB</span>
+        </button>
+        <div class="mt-3 text-center text-[11px] font-medium leading-snug text-sna3ti-ink/40" data-i18n="register.gateway.reference">
+          Mettez votre nom et prénom en référence du virement pour faciliter l'identification.
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-sna3ti-ink/10 bg-white px-6 py-4 sm:flex-row sm:items-center">
+      <p class="flex-1 text-sm font-semibold leading-snug text-sna3ti-ink/70">
+        <span data-i18n="register.gateway.whatsappNote">Une fois le virement effectué vers le compte ci-dessus, envoyez-nous le reçu ou une capture d'écran sur WhatsApp.</span>
+        <span class="mt-0.5 block text-xs font-medium text-sna3ti-ink/40" data-i18n="register.gateway.whatsappSub">Réponse rapide · Activation sous 24h</span>
+      </p>
+      <a id="gwWhatsapp" href="#" target="_blank" rel="noopener" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-black text-white shadow-md transition hover:brightness-105">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        <span data-i18n="register.gateway.whatsappCta">Envoyer le reçu</span>
+      </a>
     </div>
   </div>
 </div>
