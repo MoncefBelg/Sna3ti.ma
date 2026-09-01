@@ -23,7 +23,8 @@ const CATEGORIES = [
   { id: "CAT-3", code: "menuisier",    label: "Menuisier",     icon: "🪚" },
   { id: "CAT-4", code: "peintre",      label: "Peintre",       icon: "🎨" },
   { id: "CAT-5", code: "macon",        label: "Maçon",         icon: "🧱" },
-  { id: "CAT-6", code: "jardinier",    label: "Jardinier",     icon: "🌿" }
+  { id: "CAT-6", code: "jardinier",    label: "Jardinier",     icon: "🌿" },
+  { id: "CAT-7", code: "autres",       label: { fr: "Autres services", ar: "خدمات أخرى", en: "Other services" }, icon: "🛠️" }
 ];
 
 const REGIONS = [

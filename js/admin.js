@@ -286,10 +286,12 @@
     var slice = list.slice(pg.from, pg.to);
     document.getElementById("proCount").textContent = list.length + T(" professionnel(s) — page ")+pg.page+"/"+pg.total;
     document.getElementById("proBody").innerHTML = slice.length ? slice.map(function(p){
+      var isOther = p.category === "autres" || /autres services/i.test((p.job||"")+"");
+      var descLine = p.description ? ('<div class="pro-job" style="color:var(--muted);font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(p.description)+'">'+esc(p.description)+'</div>') : "";
       return '<tr id="row-'+p.id+'">' +
         '<td><input type="checkbox" class="row-check" data-id="'+p.id+'" '+((proState.selected[p.id])?"checked":"")+'></td>' +
-        '<td><div class="pro"><div class="p-avatar">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.id)+'</div></div></div></td>' +
-        '<td>'+esc(p.job)+'</td><td>'+esc(p.city)+'</td>' +
+        '<td><div class="pro"><div class="p-avatar">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.id)+'</div>'+descLine+'</div></div></td>' +
+        '<td>'+esc(p.job)+(isOther?' <span class="badge teal" title="'+esc(p.description||"")+'">'+T("Autres services")+'</span>':"")+'</td><td>'+esc(p.city)+'</td>' +
         '<td><span class="star">★</span> '+p.rating+'</td><td>'+p.reviewsCount+'</td>' +
         '<td>'+verBadge(p)+'</td><td>'+pkgBadge(p)+'</td>' +
         '<td>'+esc(proCreatedText(p))+'</td>' +
@@ -397,6 +399,8 @@
           '<div class="frm"><label>'+T("Téléphone")+'</label><input id="pmPhone" value="'+esc(p.phone)+'"></div>' +
         '</div>' +
         '<div class="frm"><label>Email</label><input id="pmEmail" type="email" value="'+esc(p.email)+'"></div>' +
+        '<div class="frm"><label>'+T("Prestation / description")+'</label><textarea id="pmDesc" rows="2" placeholder="'+esc(T("Décrivez le service, ex : Autres services — aménagement de salles de bain..."))+'">'+esc(p.description||"")+'</textarea></div>' +
+        '<div class="frm"><label>'+T("Services (séparés par des virgules)")+'</label><input id="pmServices" value="'+esc((p.services||[]).join(", "))+'"></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
           '<div class="frm"><label>'+T("Package")+'</label><select id="pmPkg"><option value="free">'+T("GRATUIT")+'</option><option value="verified" '+sel(p.package,"verified")+'>'+T("VÉRIFIÉ")+'</option><option value="gold" '+sel(p.package,"gold")+'>'+T("GOLD")+'</option></select></div>' +
           '<div class="frm"><label>'+T("Statut")+'</label><select id="pmStatus">'+["active","pending","suspended","rejected"].map(function(s){return '<option '+sel(p.status,s)+'>'+s+'</option>';}).join("")+'</select></div>' +
@@ -416,7 +420,9 @@
         phone: document.getElementById("pmPhone").value.trim(),
         email: document.getElementById("pmEmail").value.trim(),
         package: document.getElementById("pmPkg").value,
-        status: document.getElementById("pmStatus").value
+        status: document.getElementById("pmStatus").value,
+        description: document.getElementById("pmDesc").value.trim(),
+        services: document.getElementById("pmServices").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean)
       };
       if(verifyMode){ data.verified = true; data.verificationStatus = "approved"; data.professionStatus = "verified"; }
       if(id){

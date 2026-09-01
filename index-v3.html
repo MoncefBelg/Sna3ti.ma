@@ -4171,11 +4171,21 @@
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.prenom">Prénom</label>
             <input id="regPrenom" type="text" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPrenom" placeholder="Ex : Karim" />
           </div>
-          <div>
+          <div class="sm:col-span-2">
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.metier">Votre métier</label>
             <select id="regMetier" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none cursor-pointer [&>option]:text-sna3ti-ink">
               <option value="" class="text-sna3ti-ink"></option>
             </select>
+          </div>
+          <div id="regOtherServiceWrap" class="sm:col-span-2 hidden">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.otherService">Autres services · décrivez votre prestation</label>
+            <textarea id="regOtherService" rows="2" maxlength="200" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40 resize-none" data-i18n-placeholder="register.phOtherService" placeholder="Ex : Aménagement de salles de bain, zellige marocain, installation de pergolas..."></textarea>
+            <div class="mt-1 text-right text-[11px] text-white/40"><span id="regOtherServiceCount">0</span>/200</div>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.desc">Courte description de votre activité</label>
+            <textarea id="regDesc" rows="2" maxlength="200" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40 resize-none" data-i18n-placeholder="register.phDesc" placeholder="Ex : Travail soigné, dépannages urgents, déplacement dans tout Casablanca..."></textarea>
+            <div class="mt-1 text-right text-[11px] text-white/40"><span id="regDescCount">0</span>/200</div>
           </div>
           <div>
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.ville">Ville</label>
@@ -4534,6 +4544,11 @@
           nom: "Nom",
           prenom: "Prénom",
           metier: "Votre métier",
+          otherServiceOption: "Autres services",
+          otherService: "Autres services · décrivez votre prestation",
+          phOtherService: "Ex : Aménagement de salles de bain, zellige marocain, installation de pergolas...",
+          desc: "Courte description de votre activité",
+          phDesc: "Ex : Travail soigné, dépannages urgents, déplacement dans tout Casablanca...",
           ville: "Ville",
           region: "Région",
           phone: "Numéro WhatsApp",
@@ -4565,7 +4580,8 @@
             metier: "Métier",
             ville: "Ville",
             phone: "WhatsApp",
-            prix: "Prix",
+            prix: "Prix indicatif (DH/m²) · optionnel",
+          phPrix: "Ex : 120",
             stepsTitle: "Comment finaliser ?",
             step1: "Effectuez le virement vers le compte CIH ci-contre.",
             step2: "Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.",
@@ -4737,6 +4753,11 @@
           nom: "اللقب",
           prenom: "الاسم",
           metier: "الصنعة ديالك",
+          otherServiceOption: "خدمات أخرى",
+          otherService: "خدمات أخرى · وصف الخدمة ديالك",
+          phOtherService: "مثال: تهيئة حمامات، زليج مغربي، تركيب برغولات...",
+          desc: "وصف قصير لخدمتك",
+          phDesc: "مثال: عمل متقن، تدخل سريع، تنقل في جميع أنحاء الدار البيضاء...",
           ville: "المدينة",
           region: "الجهة",
           phone: "رقم الواتساب",
@@ -4768,7 +4789,8 @@
             metier: "الصنعة",
             ville: "المدينة",
             phone: "الواتساب",
-            prix: "الأثمنة",
+            prix: "الثمن الإرشادي (درهم/م²) · اختياري",
+            phPrix: "مثال: 120",
             stepsTitle: "كيفاش تكمل؟",
             step1: "أدّي التحويل للحساب ديال CIH اللي قدامك.",
             step2: "صيفط لنا الوصل ولا السكرين على الواتساب مع RIB ديالك.",
@@ -4939,6 +4961,11 @@
           nom: "Last name",
           prenom: "First name",
           metier: "Your trade",
+          otherServiceOption: "Other services",
+          otherService: "Other services · describe your service",
+          phOtherService: "Ex: Bathroom remodeling, Moroccan zellige, pergola installation...",
+          desc: "Short description of your activity",
+          phDesc: "Ex: Neat work, urgent repairs, travel across Casablanca...",
           ville: "City",
           region: "Region",
           phone: "WhatsApp number",
@@ -4970,7 +4997,8 @@
             metier: "Trade",
             ville: "City",
             phone: "WhatsApp",
-            prix: "Price",
+            prix: "Indicative price (DH/m²) · optional",
+            phPrix: "Ex: 120",
             stepsTitle: "How to finish?",
             step1: "Make the transfer to the CIH account on your right.",
             step2: "Send us your receipt or screenshot on WhatsApp with your RIB.",
@@ -5488,7 +5516,42 @@ function populateRegMetier() {
     sel.appendChild(o);
   }
 
+  /* "Autres services" fallback — lets a pro register even if their
+     trade is not in the built-in list, then describe it in the
+     dedicated field below the select. */
+  const other = document.createElement("option");
+  other.value = "autre";
+  other.textContent = t.otherServiceOption || "Autres services";
+  sel.appendChild(other);
+
   if (prev) sel.value = prev;
+  toggleRegOtherService();
+}
+
+/* Show/hide the "describe your service" field when the métier
+   dropdown is set to "Autres services". */
+function toggleRegOtherService() {
+  const sel = document.getElementById("regMetier");
+  const wrap = document.getElementById("regOtherServiceWrap");
+  if (!sel || !wrap) return;
+  const active = sel.value === "autre";
+  wrap.classList.toggle("hidden", !active);
+  const input = document.getElementById("regOtherService");
+  if (input && active) input.focus && input.focus();
+}
+
+/* Update the live counter for the service-description field. */
+function countRegOtherService() {
+  const input = document.getElementById("regOtherService");
+  const out = document.getElementById("regOtherServiceCount");
+  if (input && out) out.textContent = String(input.value.length);
+}
+
+/* Update the live counter for the short activity-description field. */
+function countRegDesc() {
+  const input = document.getElementById("regDesc");
+  const out = document.getElementById("regDescCount");
+  if (input && out) out.textContent = String(input.value.length);
 }
 
 
@@ -7498,6 +7561,18 @@ function sna3tiResetRegForm() {
     if (el) el.selectedIndex = 0;
   });
 
+  const otherWrap = document.getElementById("regOtherServiceWrap");
+  if (otherWrap) otherWrap.classList.add("hidden");
+  const other = document.getElementById("regOtherService");
+  if (other) other.value = "";
+  const otherCount = document.getElementById("regOtherServiceCount");
+  if (otherCount) otherCount.textContent = "0";
+
+  const descInput = document.getElementById("regDesc");
+  if (descInput) descInput.value = "";
+  const descCount = document.getElementById("regDescCount");
+  if (descCount) descCount.textContent = "0";
+
   const prof = document.getElementById("regPhotoProfil");
   if (prof) prof.value = "";
   const profLabel = document.querySelector('#regPhotoProfil') && document.querySelector('#regPhotoProfil').closest(".reg-file");
@@ -7532,6 +7607,9 @@ function regSubmit() {
   const ville = regVal("regVille");
   const phone = regVal("regPhone");
   const prix = regVal("regPrix");
+  const isOther = metier === "autre";
+  const otherService = regVal("regOtherService");
+  const desc = regVal("regDesc");
 
   /* City select (slug) -> localized label for the message. */
   const citySlug = ville;
@@ -7543,6 +7621,20 @@ function regSubmit() {
     alert("Merci de remplir Nom, Prénom, Métier, Ville et Numéro WhatsApp.");
     return;
   }
+
+  if (isOther && !otherService) {
+    alert("Tu as choisi « Autres services » : décris brièvement ta prestation (le champ dédié est sous le menu Métier).");
+    const wrap = document.getElementById("regOtherServiceWrap");
+    if (wrap) wrap.classList.remove("hidden");
+    const other = document.getElementById("regOtherService");
+    if (other) other.focus();
+    return;
+  }
+
+  // Readable métier label for the message.
+  const metierLabel = isOther
+    ? "Autres services — " + otherService
+    : (serviceName(metier, localStorage.getItem("sna3ti-language") || "fr") || metier || "-");
 
   // WhatsApp number must be a Moroccan +212 number followed by 9 digits
   const digits = phone.replace(/\D/g, "");
@@ -7586,7 +7678,8 @@ function regSubmit() {
     "Formule : " + packLabel + "\n" +
     "Nom : " + nom + "\n" +
     "Prénom : " + prenom + "\n" +
-    "Métier : " + (serviceName(metier, localStorage.getItem("sna3ti-language") || "fr") || metier || "-") + "\n" +
+    "Métier : " + metierLabel + "\n" +
+    (desc ? "Description : " + desc + "\n" : "") +
     "Ville : " + (cityLabel || ville || "-") + "\n" +
     "Prix (DH/m²) : " + (prix ? prix + " DH" : "Non précisé") + "\n" +
     "WhatsApp : " + whatsappNumber + "\n" +
@@ -7601,7 +7694,7 @@ function regSubmit() {
       pack: pack,
       nom: nom,
       prenom: prenom,
-      metier: serviceName(metier, localStorage.getItem("sna3ti-language") || "fr") || metier || "-",
+      metier: metierLabel,
       ville: cityLabel || ville || "-",
       phone: whatsappNumber,
       prix: prix ? prix + " DH" : "Non précisé"
@@ -8906,6 +8999,22 @@ populateLocationDropdowns();
 populateRegCity();
 populateRegMetier();
 populateServiceSelect();
+
+/* Toggle + counter wiring for the "Autres services" description field. */
+(function () {
+  const sel = document.getElementById("regMetier");
+  if (sel) {
+    sel.addEventListener("change", toggleRegOtherService);
+    /* Repopulating the select rebuilds options; keep the toggle after
+       every language change / re-population pass. */
+    const _orig = populateRegMetier;
+    if (_orig) { populateRegMetier = function () { _orig(); toggleRegOtherService(); }; }
+  }
+  const input = document.getElementById("regOtherService");
+  if (input) input.addEventListener("input", countRegOtherService);
+  const descInput = document.getElementById("regDesc");
+  if (descInput) descInput.addEventListener("input", countRegDesc);
+})();
 
   </script>
 

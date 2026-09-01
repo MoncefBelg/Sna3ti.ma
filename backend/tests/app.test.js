@@ -50,7 +50,8 @@ function buildSeed() {
       { id: "PLAN-GOLD", code: "gold",     name: "Gold",    price: 999, active: true }
     ],
     category: [
-      { id: "CAT-1", code: "plombier", label: "Plombier", icon: "🔧", active: true }
+      { id: "CAT-1", code: "plombier", label: "Plombier", icon: "🔧", active: true },
+      { id: "CAT-7", code: "autres", label: { fr: "Autres services", ar: "خدمات أخرى", en: "Other services" }, icon: "🛠️", active: true }
     ],
     region: [
       { id: "REG-1", name: "Casablanca-Settat", order: 1 }
@@ -265,6 +266,7 @@ describe("Public catalog", () => {
     const res = await request("GET", "/public/categories");
     assert.equal(res.status, 200);
     assert.ok(res.body.data.length >= 1);
+    assert.ok(res.body.data.some(c => c.code === "autres"), "expected an 'autres' (Autres services) category");
   });
 
   it("GET /public/plans returns plans", async () => {
