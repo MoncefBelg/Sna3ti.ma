@@ -1,0 +1,36 @@
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const isTest = process.env.NODE_ENV === "test";
+
+function required(name, allowEmptyInTest = false) {
+  const value = process.env[name];
+  if (!value || (!isTest && !allowEmptyInTest && value.trim() === "")) {
+    if (isTest && allowEmptyInTest) return value || "";
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+const env = {
+  nodeEnv: process.env.NODE_ENV || "development",
+  isProduction: process.env.NODE_ENV === "production",
+  isTest,
+  port: parseInt(process.env.PORT, 10) || 3000,
+  databaseUrl: isTest ? (process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/sna3ti") : required("DATABASE_URL"),
+  jwtSecret: isTest ? (process.env.JWT_SECRET || "test-secret-not-for-prod") : required("JWT_SECRET"),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
+  corsOrigins: (process.env.CORS_ORIGIN || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS, 10) || 12
+};
+
+// Guards against a sample secret slipping into production.
+if (env.isProduction && env.jwtSecret.length < 32) {
+  throw new Error("JWT_SECRET must be at least 32 characters in production.");
+}
+
+module.exports = env;

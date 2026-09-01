@@ -1,0 +1,374 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums — closed value sets mirrored from the Sna3tiData mock facade.
+// ---------------------------------------------------------------------------
+
+enum AdminRole {
+  super_admin
+  admin
+  finance
+  moderator
+  support
+}
+
+enum UserStatus {
+  active
+  inactive
+  suspended
+}
+
+enum ProfessionalStatus {
+  pending
+  active
+  suspended
+  rejected
+}
+
+enum VerificationLevel {
+  join
+  identity
+  professionnel
+  plan
+}
+
+enum VerificationStatus {
+  pending
+  approved
+  rejected
+  needs_info
+}
+
+enum PaymentMethod {
+  bank_transfer
+  card
+  cash
+  paypal
+}
+
+enum PaymentStatus {
+  pending
+  confirmed
+  rejected
+  needs_info
+}
+
+enum SubscriptionStatus {
+  pending
+  active
+  expired
+  cancelled
+}
+
+enum ReviewStatus {
+  published
+  hidden
+  flagged
+}
+
+enum ReportStatus {
+  new
+  under_review
+  resolved
+  ignored
+}
+
+enum SupportStatus {
+  open
+  pending
+  resolved
+  closed
+}
+
+// ---------------------------------------------------------------------------
+// RBAC
+// ---------------------------------------------------------------------------
+
+model Role {
+  id          String   @id
+  label       String
+  color       String   @default("gray")
+  permissions Json
+}
+
+model AdminUser {
+  id         String    @id
+  name       String
+  email      String    @unique
+  password   String
+  role       String
+  status     String    @default("active")
+  lastLogin  DateTime?
+  refreshAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([role])
+}
+
+model AuditLog {
+  id         String   @id
+  timestamp  DateTime @default(now())
+  adminId    String?
+  adminName  String?
+  action     String
+  entity     String
+  entityId   String?
+  result     String   @default("Success")
+  note       String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([entity, entityId])
+}
+
+// ---------------------------------------------------------------------------
+// Catalog (categories / regions / cities / plans)
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String   @id
+  code        String   @unique
+  icon        String?
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  label       Json
+  services    Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Region {
+  id        String   @id
+  name      Json
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model City {
+  id        String  @id
+  name      Json
+  regionId  String
+  createdAt DateTime @default(now())
+
+  @@index([regionId])
+}
+
+model Plan {
+  id          String          @id // PLAN-FREE | PLAN-VERIFIED | PLAN-GOLD
+  code        String          @unique // free | verified | gold
+  name        String
+  price       Int
+  currency    String          @default("MAD")
+  active      Boolean         @default(true)
+  limits      Json            @default("{}")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Marketplace
+// ---------------------------------------------------------------------------
+
+model User {
+  id          String         @id
+  name         String
+  email        String?        @unique
+  phone        String
+  cityId       String?
+  status       UserStatus     @default(active)
+  professionId String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([cityId])
+}
+
+model Professional {
+  id                  String   @id
+  userId              String?
+  categoryId          String?
+  professionId        String?
+  name                String
+  job                 String
+  city                String?
+  cityId              String?
+  area                String?
+  neighborhood        String?
+  phone               String?
+  email               String?
+  whatsapp            String?
+  description         String?
+  experience          String?
+  status              ProfessionalStatus   @default(pending)
+  available           Boolean              @default(true)
+  distance            Float?
+  media               Json                 @default("[]")
+  services            Json                 @default("[]")
+  serviceAreas        Json                 @default("[]")
+  languages           Json                 @default("[]")
+  identityStatus      String               @default("pending")
+  professionStatus    String               @default("pending")
+  verificationStatus  String               @default("pending")
+  verified            Boolean              @default(false)
+  planEligible        Boolean              @default(false)
+  subscriptionPlanId  String?
+  subscriptionStatus  String               @default("none")
+  package             String               @default("free")
+  rating              Float?
+  reviewsCount        Int                  @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([verificationStatus])
+}
+
+model Subscription {
+  id            String             @id
+  professionalId String            @unique
+  planId        String?
+  planName      String             @default("GRATUIT")
+  status        SubscriptionStatus @default(pending)
+  paymentStatus String             @default("pending") // pending | confirmed
+  price         Int                @default(0)
+  currency      String             @default("MAD")
+  since         DateTime?
+  renewal       DateTime?
+  activeAt      DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model Payment {
+  id             String        @id
+  reference      String        @unique
+  professionalId String
+  planName       String
+  amount         Int
+  method         PaymentMethod @default(bank_transfer)
+  status         PaymentStatus @default(pending)
+  bankRef        String?
+  receipt        String?
+  date           DateTime      @default(now())
+  rejectionReason String?
+  infoRequested  String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  verificationRequestId String? // linked plan request (level = plan)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([professionalId])
+  @@index([status])
+}
+
+model VerificationRequest {
+  id             String             @id
+  professionalId String
+  level          VerificationLevel
+  planId         String?
+  requestedPlan  String?
+  price          Int?
+  status         VerificationStatus @default(pending)
+  priority       String             @default("medium")
+  reason         String?
+  infoRequested  String?
+  submitted      DateTime?          @default(now())
+  reviewedAt     DateTime?
+  reviewerId     String?
+  reviewerName   String?
+  paymentId      String?            // set when the plan request is paid via bank transfer
+  history        Json               @default("[]")
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([professionalId])
+  @@index([paymentId])
+  @@index([status])
+}
+
+model Review {
+  id             String        @id
+  professionalId String
+  customer       String
+  rating         Int
+  comment        String?
+  status         ReviewStatus  @default(published)
+  flaggedReason  String?
+  flaggedReporter String?
+  flaggedDate    DateTime?
+  date           DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([professionalId])
+  @@index([status])
+}
+
+model Report {
+  id             String            @id
+  professionalId String
+  reporter       String?
+  reason         String
+  type           String?
+  priority       String            @default("medium")
+  description    String?
+  status         ReportStatus      @default(new)
+  warnReason     String?
+  assignedTo     String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([professionalId])
+  @@index([status])
+}
+
+model SupportTicket {
+  id             String        @id
+  professionalId String?
+  user           String?
+  subject        String
+  message        String
+  status         SupportStatus @default(open)
+  priority       String        @default("medium")
+  assignedTo     String?
+  history        Json          @default("[]")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Notification {
+  id             String   @id
+  type           String   @default("system")
+  title          String?
+  text           String
+  when           String?
+  unread         Boolean  @default(true)
+  route          String?
+  professionalId String?
+  createdAt      DateTime @default(now())
+
+  @@index([unread])
+}
+
+model LegalDocument {
+  id         String   @id // terms | privacy | about
+  published  Boolean  @default(true)
+  label      Json
+  content    Json
+  updatedAt  DateTime @updatedAt
+  updatedBy  String?
+}

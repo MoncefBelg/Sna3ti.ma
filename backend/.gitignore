@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Local env — NEVER commit real credentials
+.env
+
+# Build / misc
+dist/
+coverage/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations/dev.db.sqlite
