@@ -329,8 +329,7 @@
     document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.del;
       UI.confirmAction({ title:T("Supprimer définitivement ?"), message:T("Cette action est irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.professionals = DATA._store.professionals.filter(function(p){ return p.id!==id; });
-        DATA.persist();
+        DATA.deleteProfessional(id);
         DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
         UI.toast(T("Professionnel supprimé.")); drawPros();
       }});
@@ -425,7 +424,7 @@
         UI.toast(T("Professionnel mis à jour."));
       } else {
         var np = Object.assign({ id: DATA.nextProfessionalId(), professionId:"", categoryId:"", cityId:"", rating:0, reviewsCount:0, languages:[], created:new Date().toISOString().slice(0,10), verificationStatus:"pending", identityStatus:"pending", professionStatus:"pending", verified:false, available:true, verifiedStatus:false }, data, {verified:false});
-        DATA._store.professionals.push(np); DATA.persist();
+        DATA.addProfessional(np);
         UI.toast(T("Professionnel créé."));
       }
       UI.closeModal(); renderProfessionals();
@@ -440,7 +439,7 @@
     setTimeout(function(){
       var p = DATA.getProfessional(id);
       if(!p){ UI.renderEmpty(T("Professionnel introuvable."), "🔍"); return; }
-      var uid = DATA._store.users.find(function(u){ return u.id===p.userId; });
+      var uid = DATA.getUsers().find(function(u){ return u.id===p.userId; });
       var reviews = DATA.getReviews().filter(function(r){ return r.professionalId===p.id; });
       var sub = DATA.getSubscriptions().find(function(s){ return s.professionalId===p.id; });
       var payments = DATA.getPayments().filter(function(pa){ return pa.professionalId===p.id; });
@@ -815,7 +814,7 @@
     document.querySelectorAll("#uBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.del;
       UI.confirmAction({title:T("Supprimer cet utilisateur ?"), message:T("Action irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.users=DATA._store.users.filter(function(u){return u.id!==id;}); DATA.persist();
+        DATA.deleteUser(id);
         DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_USER", entity:"User", entityId:id, result:"Deleted"});
         UI.toast(T("Utilisateur supprimé.")); drawUsers();
       }});
@@ -826,7 +825,7 @@
     if(!u) return;
     var d=DATA.getUserDetail(id);
     var acts=DATA.getUserActivity(id);
-    var hired=DATA._store.professionals.filter(function(p){return p.userId===id;});
+    var hired=DATA.getProfessionals().filter(function(p){return p.userId===id;});
     UI.openModal(
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">'+
         '<div class="p-avatar" style="width:46px;height:46px;font-size:18px">'+initials(u.name)+'</div>'+
@@ -1212,7 +1211,7 @@
   }
   var catUsedToast = function(){ UI.toast(T("Impossible : élément utilisé par un professionnel."), true); };
   function catAction(act, catId, subId, svcId){
-    var cats = DATA._store.categories;
+    var cats = DATA.getCategoriesLive();
     var c = cats.find(function(x){ return x.id===catId; });
     function catIndex(){ return cats.indexOf(c); }
     function reindexCat(){ cats.sort(function(a,b){ return a.order-b.order; }); cats.forEach(function(x,i){ x.order=i+1; }); }
@@ -1348,7 +1347,7 @@
     document.querySelectorAll("[data-act]").forEach(function(b){ b.addEventListener("click", function(){ ctyAction(b.dataset.act, b.dataset.regid||"", b.dataset.cid||""); }); });
   }
   function ctyAction(act, regId, cityId){
-    var regs = DATA._store.regions;
+    var regs = DATA.getRegionsLive();
     var r = regs.find(function(x){ return x.id===regId; });
     function reindexReg(){ regs.sort(function(a,b){ return a.order-b.order; }); regs.forEach(function(x,i){ x.order=i+1; }); }
     function reindexCity(){ r.cities.sort(function(a,b){ return a.order-b.order; }); r.cities.forEach(function(x,i){ x.order=i+1; }); }
@@ -1461,15 +1460,15 @@
     document.querySelectorAll("[data-delrev]").forEach(function(b){ b.addEventListener("click", function(){
       var id=b.dataset.delrev;
       UI.confirmAction({title:T("Supprimer cet avis ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA._store.reviews=DATA._store.reviews.filter(function(r){return r.id!==id;}); DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_DELETED", entity:"Review", entityId:id, result:"Deleted"}); UI.toast(T("Avis supprimé.")); drawReviews(currentReviewFilter());
+        DATA.deleteReview(id); DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_DELETED", entity:"Review", entityId:id, result:"Deleted"}); UI.toast(T("Avis supprimé.")); drawReviews(currentReviewFilter());
       }});
     }); });
   }
   function currentReviewFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
-  function setRev(id, status){ var r=DATA._store.reviews.find(function(x){return x.id===id;}); if(r){ r.status=status; DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_"+status.toUpperCase(), entity:"Review", entityId:id, result:status}); UI.toast(T("Avis ")+status+"."); drawReviews(currentReviewFilter()); } }
+  function setRev(id, status){ if(DATA.setReviewStatus(id, status)){ DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_"+status.toUpperCase(), entity:"Review", entityId:id, result:status}); UI.toast(T("Avis ")+status+"."); drawReviews(currentReviewFilter()); } }
   function flagRev(id){
     UI.confirmAction({ title:T("Signaler cet avis ?"), reasonRequired:true, reasonLabel:T("Raison du signalement"), confirmLabel:T("Signaler"), onConfirm:function(reason){
-      var r=DATA._store.reviews.find(function(x){return x.id===id;}); if(r){ r.status="flagged"; r.flaggedReason=reason; r.flaggedReporter=AUTH.getSession().name; r.flaggedDate=todayShort(); }
+      DATA.flagReview(id, { reason:reason, reporter:AUTH.getSession().name, date:todayShort() });
       DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_FLAGGED", entity:"Review", entityId:id, result:"Flagged", note:reason});
       UI.toast(T("Avis signalé.")); drawReviews(currentReviewFilter());
     }});
@@ -1556,14 +1555,18 @@
     document.querySelectorAll("[data-rejectrep]").forEach(function(b){ b.addEventListener("click", function(){ setReport(b.dataset.rejectrep, "rejected"); }); });
     document.querySelectorAll("[data-warn]").forEach(function(b){ b.addEventListener("click", function(){
       UI.confirmAction({title:T("Avertir le professionnel ?"), reasonRequired:true, reasonLabel:T("Motif de l'avertissement"), confirmLabel:T("Avertir"), onConfirm:function(reason){
-        var r=DATA._store.reports.find(function(x){return x.id===b.dataset.warn;});
-        if(r){ r.status="under_review"; r.warnReason=reason; DATA.persist(); DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_WARNED", entity:"Professional", entityId:r.professionalId, result:"Warned", note:reason}); }
+        var rp = DATA.getReports().find(function(x){return x.id===b.dataset.warn;});
+        DATA.warnReport(b.dataset.warn, reason);
+        if(rp){ DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_WARNED", entity:"Professional", entityId:rp.professionalId, result:"Warned", note:reason}); }
         UI.toast(T("Avertissement enregistré.")); drawReports(currentReportFilter());
       }});
     }); });
     document.querySelectorAll("[data-susprof]").forEach(function(b){ b.addEventListener("click", function(){
       UI.confirmAction({title:T("Suspendre le professionnel ?"), reasonRequired:true, reasonLabel:T("Raison"), confirmLabel:T("Suspendre"), onConfirm:function(reason){
-        var r=DATA._store.reports.find(function(x){return x.id===b.dataset.susprof;}); if(r){ DATA.updateProfessional(r.professionalId,{status:"suspended"}); r.status="resolved"; DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:r.professionalId, result:"Suspended", note:reason}); } UI.toast(T("Professionnel suspendu.")); drawReports(currentReportFilter());
+        var rp = DATA.getReports().find(function(x){return x.id===b.dataset.susprof;});
+        DATA.suspendProfessionalByReport(b.dataset.susprof);
+        if(rp){ DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:rp.professionalId, result:"Suspended", note:reason}); }
+        UI.toast(T("Professionnel suspendu.")); drawReports(currentReportFilter());
       }});
     }); });
     document.querySelectorAll("[data-assignrep]").forEach(function(b){ b.addEventListener("click", function(){
@@ -1572,7 +1575,7 @@
   }
   function assignReport(id){
     var admins = DATA.getAdminUsers();
-    var r = DATA._store.reports.find(function(x){return x.id===id;});
+    var r = DATA.getReports().find(function(x){return x.id===id;});
     UI.openModal(
       '<h3>'+T("Assigner le signalement ")+esc(id)+'</h3>'+
       '<p class="muted" style="font-size:13px">'+T("Choisir un modérateur pour traiter ce signalement.")+'</p>'+
@@ -1596,7 +1599,7 @@
     });
   }
   function currentReportFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
-  function setReport(id, status){ var r=DATA._store.reports.find(function(x){return x.id===id;}); if(r){ r.status=status; DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_"+status.toUpperCase(), entity:"Report", entityId:id, result:status}); UI.toast(T("Signalement ")+status+"."); drawReports(currentReportFilter()); } }
+  function setReport(id, status){ if(DATA.setReportStatus(id, status)){ DATA.logAudit({admin:AUTH.getSession().name, action:"REPORT_"+status.toUpperCase(), entity:"Report", entityId:id, result:status}); UI.toast(T("Signalement ")+status+"."); drawReports(currentReportFilter()); } }
 
   /* ============================================================
      SUPPORT TICKETS
@@ -1660,9 +1663,8 @@
       }
     }); });
     document.querySelectorAll("[data-replt]").forEach(function(b){ b.addEventListener("click", function(){
-      var t=DATA._store.supportTickets.find(function(x){return x.id===b.dataset.replt;});
       UI.confirmAction({title:T("Répondre au ticket"), reasonLabel:T("Réponse"), confirmLabel:T("Envoyer"), onConfirm:function(reason){
-        if(t){ t.history.push({ date: new Date().toISOString().slice(0,10), text:T("Réponse de ")+AUTH.getSession().name+": "+reason }); t.status="pending"; DATA.persist(); }
+        DATA.addSupportReply(b.dataset.replt, { date: new Date().toISOString().slice(0,10), text:T("Réponse de ")+AUTH.getSession().name+": "+reason });
         DATA.logAudit({admin:AUTH.getSession().name, action:"SUPPORT_REPLIED", entity:"SupportTicket", entityId:b.dataset.replt, result:"Replied"});
         UI.toast(T("Réponse envoyée.")); drawSupport(currentSupportFilter());
       }});
@@ -2300,7 +2302,9 @@
           rule(T("GOLD ne signifie pas automatiquement vérifié."))+
           rule(T("Confirmation du paiement requise avant activation."))+
         '</div></div>' +
-      '</div>';
+      '</div>' +
+      '<div class="card" style="margin-top:16px"><div class="card-title">'+T("Prototype — stockage et authentification")+'</div>'+
+        '<p class="muted" style="font-size:13px;line-height:1.6">'+T("Les données de démonstration sont stockées localement dans votre navigateur (localStorage) et les rôles / l'authentification sont simulés. Ce prototype n'implémente aucune sécurité de production : aucun serveur, aucune base de données réelle, aucun chiffrement réel. La couche de données est conçue pour être raccordée ultérieurement à une API backend et à une base de données PostgreSQL.")+'</p></div>';
     UI.setContent(html);
     function refreshDirty(){
       settingsDirty = isDirty();
@@ -2376,10 +2380,10 @@
     document.getElementById("auSave").addEventListener("click", function(){
       var d={ name:document.getElementById("auName").value, email:document.getElementById("auEmail").value, role:document.getElementById("auRole").value };
       var isNew = false;
-      if(id){ var ex=DATA._store.adminUsers.find(function(x){return x.id===id;}); if(ex)Object.assign(ex,d); }
-      else { DATA._store.adminUsers.push(Object.assign({id:"AU-"+Date.now(), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10)}, d)); isNew = true; }
-      DATA.persist();
-      DATA.logAudit({admin:AUTH.getSession().name, action: isNew?"ADMIN_USER_CREATED":"ADMIN_USER_UPDATED", entity:"AdminUser", entityId:id||("AU-"+Date.now()), result:"Updated"});
+      var savedId = id;
+      if(id){ DATA.updateAdminUser(id, d); }
+      else { var na = DATA.addAdminUser(d); isNew = true; savedId = na.id; }
+      DATA.logAudit({admin:AUTH.getSession().name, action: isNew?"ADMIN_USER_CREATED":"ADMIN_USER_UPDATED", entity:"AdminUser", entityId:savedId, result:"Updated"});
       UI.toast(T("Admin enregistré.")); UI.closeModal(); renderAdminUsers();
     });
   }

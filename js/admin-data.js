@@ -1030,6 +1030,87 @@
       persist();
       return true;
     },
+    // ---- Data-layer accessors (spec 36) ----
+    // UI controllers go through these facades instead of mutating _store directly,
+    // so the persistence boundary (localStorage -> future API -> PostgreSQL) is
+    // centralized here and never reached into by presentation code.
+    addProfessional: function(pro){
+      store.professionals.push(pro);
+      persist();
+      return pro;
+    },
+    deleteUser: function(id){
+      var u = getById(store.users, id); if(!u) return false;
+      store.users = store.users.filter(function(x){ return x.id!==id; });
+      persist();
+      return true;
+    },
+    // Live (mutable) references for structured editors (categories / cities).
+    // They are read/written exclusively through this facade and persisted only
+    // via Sna3tiData.persist(), never by direct localStorage from the UI.
+    getCategoriesLive: function(){ return store.categories; },
+    getRegionsLive: function(){ return store.regions; },
+    deleteReview: function(id){
+      var r = getById(store.reviews, id); if(!r) return false;
+      store.reviews = store.reviews.filter(function(x){ return x.id!==id; });
+      persist();
+      return true;
+    },
+    setReviewStatus: function(id, status){
+      var r = getById(store.reviews, id); if(!r) return false;
+      r.status = status;
+      persist();
+      return true;
+    },
+    flagReview: function(id, data){
+      var r = getById(store.reviews, id); if(!r) return false;
+      r.status = "flagged";
+      r.flaggedReason = (data && data.reason) || "";
+      r.flaggedReporter = (data && data.reporter) || "";
+      r.flaggedDate = (data && data.date) || todayStr();
+      persist();
+      return true;
+    },
+    warnReport: function(id, reason){
+      var r = getById(store.reports, id); if(!r) return false;
+      r.status = "under_review"; r.warnReason = reason || "";
+      persist();
+      return true;
+    },
+    suspendProfessionalByReport: function(id){
+      var r = getById(store.reports, id); if(!r) return false;
+      var p = getById(store.professionals, r.professionalId);
+      if(p){ p.status = "suspended"; }
+      r.status = "resolved";
+      persist();
+      return true;
+    },
+    setReportStatus: function(id, status){
+      var r = getById(store.reports, id); if(!r) return false;
+      r.status = status;
+      persist();
+      return true;
+    },
+    addSupportReply: function(id, data){
+      var t = getById(store.supportTickets, id); if(!t) return false;
+      t.history = t.history || [];
+      t.history.push({ date: (data && data.date) || todayStr(), text: (data && data.text) || "" });
+      t.status = "pending";
+      persist();
+      return true;
+    },
+    updateAdminUser: function(id, data){
+      var a = getById(store.adminUsers, id); if(!a) return false;
+      Object.keys(data||{}).forEach(function(k){ if(data[k]!==undefined) a[k]=data[k]; });
+      persist();
+      return true;
+    },
+    addAdminUser: function(data){
+      var a = Object.assign({ id: uid("AU"), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10) }, data);
+      store.adminUsers.push(a);
+      persist();
+      return a;
+    },
     // ---- helpers ----
     cityName: function(id){ var c = store.regions.reduce(function(a,r){ return a.concat(r.cities); },[]).find(function(x){return x.id===id;}); return c ? c.name.fr : id; },
     userName: function(id){ var u=getById(store.users,id); return u?u.name:""; },

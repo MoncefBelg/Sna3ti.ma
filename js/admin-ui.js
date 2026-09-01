@@ -23,6 +23,17 @@
     var t; return function(){ var a=arguments, ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx,a); }, wait); };
   }
 
+  // Accessibility: derive a screen-reader label from `title` for icon-only
+  // controls and make keyboard-focusable clickables (role="button") usable.
+  function applyAriaFromTitle(root){
+    var r = root || document;
+    r.querySelectorAll("button[title], a[title], [role='button'][title]").forEach(function(el){
+      if(!el.hasAttribute("aria-label") && !el.getAttribute("aria-labelledby")){
+        el.setAttribute("aria-label", el.getAttribute("title"));
+      }
+    });
+  }
+
   /* ---------- main shell ---------- */
   var appRoot, contentEl, topbarEl;
 
@@ -36,16 +47,17 @@
             '<div class="sidebar-brand"><div class="brand-logo">S</div><div><div class="brand-name">Sna3ti</div><div class="brand-sub">'+T("Administration")+'</div></div></div>' +
           '</div>' +
           '<nav class="sidebar-nav" id="sidebarNav">' + navGroups + '</nav>' +
-          '<div class="sidebar-foot" id="sideUser"></div>' +
+          '<div class="sidebar-foot"><div id="sideUser"></div><div class="proto-note">'+T("Prototype — authentification de démonstration uniquement.")+'</div></div>' +
         '</aside>' +
         '<div class="app-main">' +
           '<header class="topbar">' +
             '<button class="hamburger" id="hamburger" aria-label="Menu">☰</button>' +
             '<div class="topbar-title" id="topbarTitle">'+T("Tableau de bord")+'</div>' +
+            '<span class="badge purple prototype-badge">'+T("Prototype")+'</span>' +
             '<div class="topbar-spacer"></div>' +
             '<div class="topbar-tools">' +
-              '<button class="icon-btn" id="themeToggle" title="Dark mode">🌙</button>' +
-              '<button class="lang-btn" id="langToggle" title="Language">EN</button>' +
+              '<button class="icon-btn" id="themeToggle" title="Dark mode" aria-label="'+T("Mode sombre")+'">🌙</button>' +
+              '<button class="lang-btn" id="langToggle" title="Language" aria-label="'+T("Changer la langue")+'">EN</button>' +
             '</div>' +
             '<div class="search-wrap" id="globalSearchWrap"><span class="s-ico">🔍</span><input id="globalSearch" type="search" placeholder="'+T("Rechercher...")+'" aria-label="'+T("Recherche globale")+'" />' +
               '<div class="search-panel" id="searchPanel"></div></div>' +
@@ -54,15 +66,15 @@
               '<div class="notif-panel" id="notifPanel"></div>' +
             '</div>' +
             '<div class="dropdown" id="userDrop">' +
-              '<div class="top-user" id="topUser"></div>' +
+              '<div class="top-user" id="topUser" role="button" tabindex="0" aria-haspopup="menu" aria-label="'+T("Menu utilisateur")+'"></div>' +
               '<div class="menu" id="userMenu"></div>' +
             '</div>' +
           '</header>' +
           '<main class="content" id="content"></main>' +
         '</div>' +
       '</div>' +
-      '<div class="modal-scrim" id="modalScrim"><div class="modal" id="modal"><div id="modalBody"></div></div></div>' +
-      '<div class="toast" id="toast"></div>';
+      '<div class="modal-scrim" id="modalScrim" aria-hidden="true"><div class="modal" id="modal" role="dialog" aria-modal="true" tabindex="-1"><div id="modalBody"></div></div></div>' +
+      '<div class="toast" id="toast" role="status" aria-live="polite"></div>';
 
     contentEl = document.getElementById("content");
     topbarEl = document.getElementById("topbarTitle");
@@ -92,6 +104,12 @@
       var insideMenu = e.target.closest("#userMenu");
       if(!insideMenu){ e.stopPropagation(); m.classList.toggle("open"); }
     });
+    document.getElementById("topUser").addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+        e.preventDefault();
+        document.getElementById("userMenu").classList.toggle("open");
+      }
+    });
     document.getElementById("userMenu").addEventListener("click", function(e){
       var it = e.target.closest(".menu-item");
       if(!it) return;
@@ -110,6 +128,7 @@
 
     // modal close
     document.getElementById("modalScrim").addEventListener("click", function(e){ if(e.target === this) closeModal(); });
+    document.getElementById("modalScrim").addEventListener("keydown", trapModalFocus);
 
     // theme + language toggles
     var themeBtn = document.getElementById("themeToggle");
@@ -312,7 +331,7 @@
 
   function setTitle(title){ if(topbarEl) topbarEl.textContent = title; }
 
-  function setContent(html){ contentEl.innerHTML = html || ""; }
+  function setContent(html){ contentEl.innerHTML = html || ""; applyAriaFromTitle(contentEl); }
 
   function getContent(){ return contentEl; }
 
@@ -345,16 +364,63 @@
   }
 
   /* ---------- modal ---------- */
+  var lastFocusedEl = null;
+  function escLabelFromModal(){
+    // Set aria-label / aria-labelledby from the first heading so SRs announce the dialog.
+    var modal = document.getElementById("modal");
+    var h = modal.querySelector("h1,h2,h3");
+    if(h){
+      if(!h.id) h.id = "modalTitle_" + Math.floor(Math.random()*1e6);
+      modal.setAttribute("aria-labelledby", h.id);
+      modal.removeAttribute("aria-label");
+    } else {
+      modal.setAttribute("aria-label", "Dialog");
+      modal.removeAttribute("aria-labelledby");
+    }
+  }
   function openModal(html, wide){
+    lastFocusedEl = document.activeElement;
     var scrim = document.getElementById("modalScrim");
     var modal = document.getElementById("modal");
     modal.classList.toggle("modal-wide", !!wide);
     document.getElementById("modalBody").innerHTML = html;
+    applyAriaFromTitle(modal);
     scrim.classList.add("show");
+    scrim.setAttribute("aria-hidden", "false");
+    escLabelFromModal();
     var f = modal.querySelector("input, select, textarea");
-    if(f) setTimeout(function(){ f.focus(); }, 60);
+    if(f){ setTimeout(function(){ f.focus(); }, 60); }
+    else { modal.focus(); }
   }
-  function closeModal(){ document.getElementById("modalScrim").classList.remove("show"); }
+  function closeModal(){
+    var scrim = document.getElementById("modalScrim");
+    scrim.classList.remove("show");
+    scrim.setAttribute("aria-hidden", "true");
+    if(lastFocusedEl && typeof lastFocusedEl.focus === "function"){ lastFocusedEl.focus(); }
+    lastFocusedEl = null;
+  }
+  function trapModalFocus(e){
+    if(e.key !== "Tab") return;
+    var scrim = document.getElementById("modalScrim");
+    if(!scrim.classList.contains("show")) return;
+    var focusables = scrim.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    if(focusables.length === 0) return;
+    var first = focusables[0], last = focusables[focusables.length - 1];
+    if(e.shiftKey){
+      if(document.activeElement === first || !scrim.contains(document.activeElement)){ e.preventDefault(); last.focus(); }
+    } else {
+      if(document.activeElement === last || !scrim.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+    }
+  }
+  function closeOnEscape(e){
+    if(e.key !== "Escape" && e.key !== "Esc" && e.keyCode !== 27) return;
+    if(document.getElementById("modalScrim").classList.contains("show")){ closeModal(); }
+    [["searchPanel","globalSearchWrap"],["notifPanel","notifDrop"],["userMenu","userDrop"]].forEach(function(p){
+      var panel = document.getElementById(p[0]);
+      if(panel && panel.classList.contains("open")){ panel.classList.remove("open"); }
+    });
+  }
+  document.addEventListener("keydown", closeOnEscape);
 
   // confirm with reason for destructive/sensitive actions
   function confirmAction(opts){
