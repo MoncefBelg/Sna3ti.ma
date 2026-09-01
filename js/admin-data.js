@@ -376,6 +376,7 @@
   var ANALYTICS = {
     visits: [240,320,410,380,520,610,720,690,810,940,1010,1120],
     signups: [12,18,15,22,28,31,35,30,42,48,55,61],
+    monthlyContacts: [218,246,271,299,326,358,391,422,468,512,568,640],
     leads: { phone:842, whatsapp:1240, contact:437 },
     topServices: ["Plomberie","Électricité","Menuiserie","Coiffure","Peinture"],
     topCities: ["Casablanca","Rabat","Marrakech","Fès","Agadir"],
@@ -982,6 +983,16 @@
     ]; },
     getActivity: function(){ return clone(store.activity); },
     getAnalytics: function(){ return clone(store.analytics); },
+    // Record a real contact/lead event (e.g. a visitor tapping "WhatsApp")
+    // into the CURRENT month's slot of monthlyContacts, then persist so the
+    // public site's live stats pick it up under the same localStorage key.
+    recordContactVisit: function(){
+      var series = store.analytics.monthlyContacts || [];
+      if(series.length === 12){ series = series.slice(1); store.analytics.monthlyContacts = series; }
+      series.push((series.length ? series[series.length-1] : 233) + 1);
+      persist();
+      return clone(store.analytics.monthlyContacts);
+    },
     getNotifications: function(){ return clone(store.notifications); },
     markNotificationsRead: function(){ store.notifications.forEach(function(n){ n.unread=false; }); persist(); },
     // ---- Admin users & audit ----

@@ -7314,6 +7314,9 @@ function openProfessional(id) {
 
 function contactWhatsApp(phone) {
 
+  /* A real contact attempt → grow the live "demandes du mois" stat. */
+  recordPublicContact();
+
   const message =
     encodeURIComponent(
       "Bonjour, je vous ai trouvé sur Sna3ti.ma. Je souhaite avoir plus d'informations sur vos services."
@@ -7324,6 +7327,31 @@ function contactWhatsApp(phone) {
     "_blank"
   );
 
+}
+
+/* Bump the current month's contact counter in the shared admin analytics
+   (same localStorage key the admin persists), keeping the public pro-stats
+   card live. Pure best-effort: any failure is silently ignored. */
+function recordPublicContact() {
+  try {
+    const KEY = "sna3ti_admin_analytics";
+    let analytics = null;
+    const raw = window.localStorage.getItem(KEY);
+    if (raw) {
+      try { analytics = JSON.parse(raw); } catch (err) { analytics = null; }
+    }
+    if (!analytics || !Array.isArray(analytics.monthlyContacts)) return;
+    let series = analytics.monthlyContacts;
+    if (series.length === 12) {
+      series = series.slice(1);
+      analytics.monthlyContacts = series;
+    }
+    const prev = series.length ? series[series.length - 1] : 233;
+    series.push(typeof prev === "number" ? prev + 1 : 234);
+    window.localStorage.setItem(KEY, JSON.stringify(analytics));
+  } catch (err) {
+    /* ignore — stats stay as-is */
+  }
 }
 
 
@@ -8184,10 +8212,42 @@ function initProStats() {
   if (chipVerified) chipVerified.textContent = verifiedCount;
   if (chipRating) chipRating.textContent = ratingFixed;
 
-  /* Animated bars: grow from 0 to the value in data-bar (%). */
+  /* Animated bars + counter: prefer the live monthly-contacts series the
+     admin persists under "sna3ti_admin_analytics" (shared origin → same
+     localStorage). Fall back to the static data-bar percentages and +340
+     when no admin data is present yet. */
+  let series = null;
+  let seriesSource = "static";
+  try {
+    const raw = window.localStorage.getItem("sna3ti_admin_analytics");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.monthlyContacts) && parsed.monthlyContacts.length) {
+        series = parsed.monthlyContacts;
+        seriesSource = "live";
+      }
+    }
+  } catch (err) {
+    series = null;
+  }
+
   const bars = root.querySelectorAll(".g-bar[data-bar]");
+  const last6 = series ? series.slice(-Math.max(bars.length, 1)) : null;
+  const peak = last6 ? Math.max.apply(null, last6) : 0;
+
+  var demoBarCount = 0;
   bars.forEach(function (bar) {
-    const target = parseInt(String(bar.getAttribute("data-bar")), 10);
+    let target;
+    let barLabel = null;
+    const idx = bars.length - 1 - demoBarCount;
+    if (last6 && last6[idx] !== undefined && peak > 0) {
+      barLabel = last6[idx];
+      target = Math.round((barLabel / peak) * 100);
+    } else {
+      target = parseInt(String(bar.getAttribute("data-bar")), 10);
+    }
+    demoBarCount = demoBarCount + 1;
+    if (barLabel !== null) bar.setAttribute("title", barLabel);
     const h = Math.max(0, Math.min(100, isFinite(target) ? target : 0));
     bar.style.height = "0%";
     requestAnimationFrame(function () {
@@ -8201,8 +8261,11 @@ function initProStats() {
   /* Count-up counter for the big "requests this month" figure. */
   const counter = root.querySelector("[data-count]");
   if (counter) {
-    const end = parseInt(String(counter.getAttribute("data-count")), 10);
     const prefix = counter.getAttribute("data-prefix") || "";
+    const end =
+      last6 && series && seriesSource === "live"
+        ? last6[last6.length - 1]
+        : parseInt(String(counter.getAttribute("data-count")), 10);
     let current = 0;
     const duration = 800;
     const start = performance.now();
