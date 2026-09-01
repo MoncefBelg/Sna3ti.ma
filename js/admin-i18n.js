@@ -381,6 +381,14 @@
     "Free → Payant": "Free → Paid",
     "Recherches sans résultat": "Searches without results",
 
+    // ---- AI Center (req 26, prototype-only) ----
+    "Prototype": "Prototype",
+    "Aperçu IA (insights mock)": "AI overview (mock insights)",
+    "Exemples de demandes clients ayant transité par l'interprétation IA — données simulées en attendant l'API.": "Examples of customer requests processed by the AI interpreter — simulated data until the API is connected.",
+    "Provider": "Provider",
+    "endpoint API": "API endpoint",
+    "Erreur d'interprétation.": "Interpretation error.",
+
     // ---- misc ----
     "Ville": "City",
     "Paiement": "Payment",

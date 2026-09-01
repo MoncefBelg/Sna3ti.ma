@@ -1945,6 +1945,17 @@
         '<div class="toolbar"><div class="field grow"><label>'+T("Requête utilisateur")+'</label><input type="text" id="aiQuery" placeholder="'+T("Ex : plombier à Casablanca disponible aujourd'hui")+'"></div>'+
         '<div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="aiRun">'+T("Interpréter & match")+'</button></div></div>' +
         '<div id="aiResult"></div></div>' +
+      '<div class="card"><div class="card-title">'+T("Aperçu IA (insights mock)")+'<span class="badge purple" style="margin-left:8px">Mock</span></div>' +
+        '<p class="muted" style="margin:4px 0 12px">'+T("Exemples de demandes clients ayant transité par l'interprétation IA — données simulées en attendant l'API.")+'</p>' +
+        AICenter.mockInsights.slice(0,3).map(function(ins){ return '<div class="ai-insight" style="border:1px dashed var(--line-strong);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--sand)">'+
+          '<div class="req" style="font-weight:600;margin-bottom:8px">« '+esc(ins.query)+' »</div>'+
+          '<div class="verif-steps">'+
+            '<span class="step done"><b>'+T("Service")+'</b> : '+esc(ins.service)+'</span>'+
+            '<span class="step done"><b>'+T("Localisation")+'</b> : '+esc(ins.location)+'</span>'+
+            '<span class="step done"><b>'+T("Disponibilité")+'</b> : '+esc(ins.availability)+'</span>'+
+          '</div></div>'; }).join("") +
+        '<div class="muted" style="font-size:11px;margin-top:4px">'+T("Provider")+': <code>'+(AICenter.config.provider)+'</code> · '+T("endpoint API")+': <code>"'+(AICenter.config.endpoint||"—")+'"</code></div>' +
+      '</div>' +
       '<div class="card"><div class="card-title">'+T("Capacités")+'</div><div class="kpi-grid grid-3" style="margin-top:12px">'+
         '<div class="kpi"><div class="k-title">'+T("Recherche IA")+'</div><div class="k-val" style="font-size:20px">'+T("Requête → match pros")+'</div></div>'+
         '<div class="kpi"><div class="k-title">'+T("Mise en relation")+'</div><div class="k-val" style="font-size:20px">'+T("Score + profil")+'</div></div>'+
@@ -1952,55 +1963,10 @@
       '</div></div>';
     UI.setContent(html);
 
-    var CITIES = { casablanca:["CITY-CASA","Casablanca","الدار البيضاء","casa","casanegra"], rabat:["CITY-RABA","Rabat","الرباط"], marrakech:["CITY-MARR","Marrakech","مراكش"], fes:["CITY-FES","Fès","فاس","fes"], agadir:["CITY-AGAD","Agadir","أكادير","اكادير"], tanger:["CITY-TANG","Tanger","طنجة"], kenitra:["CITY-KENI","Kénitra","القنيطرة"], mohammedia:["CITY-MOHAM","Mohammedia","المحمدية"], "el jadida":["CITY-ELJ","El Jadida","الجديدة"] };
+    // Parsing delegates to the AICenter service facade (mock provider by default,
+    // swappable for a real backend later). Kept async-ready via Promise.chains.
+    function parseQuery(q){ return AICenter.parse(q.toLowerCase()); }
 
-    // Expanded FR + Darija/Arabic keyword map -> resolved category (matches seed data)
-    function resolveService(q){
-      var services = {
-        "Plomberie": ["plombier","plomberie","plomb","jbab","سباك","سبّاك","كوطو"],
-        "Électricité": ["electricien","électricien","electricite","électricité","elec","kahraba","كهربائي","كهرباء","نور","triki"],
-        "Menuiserie": ["menuisier","menuiserie","menuiser","najjar","نجار","خشب","bois"],
-        "Maçonnerie": ["macon","maçon","maconnerie","maçonnerie","malla","معلم","بناء","bani"],
-        "Peinture": ["peintre","peinture","peint","sabagh","صباغ","دهان"],
-        "Coiffure": ["coiffeur","coiffeuse","coiffure","coiff","hajjam","حلاق","حلاقة","مجعد"],
-        "Mécanique": ["mecanicien","mécanicien","mecanique","mécanique","mecano","ميكانيكي","ميكانيك"]
-      };
-      var ql = q.toLowerCase();
-      for(var cat in services){
-        var keys = services[cat];
-        for(var i=0;i<keys.length;i++){ if(ql.indexOf(keys[i].toLowerCase())>-1){ return cat; } }
-      }
-      return null;
-    }
-    // city detection
-    function resolveCity(q){
-      var norm = q.toLowerCase();
-      for(var c in CITIES){
-        var def = CITIES[c];
-        for(var i=1;i<def.length;i++){ if(norm.indexOf(def[i].toLowerCase())>-1){ return { name:def[1], cityId:def[0] }; } }
-      }
-      return { name:"Position utilisateur", cityId:"" };
-    }
-    function resolveAvail(q){
-      var norm = q.toLowerCase();
-      if(norm.indexOf("aujourd")>-1 || norm.indexOf("اليوم")>-1 || norm.indexOf("liyouma")>-1 || norm.indexOf("دابا")>-1) return "Aujourd'hui";
-      if(norm.indexOf("demain")>-1 || norm.indexOf("غدا")>-1 || norm.indexOf("gedda")>-1) return "Demain";
-      if(norm.indexOf("goudam")>-1 || norm.indexOf("هذا")>-1 || norm.indexOf("maintenant")>-1) return "Aujourd'hui";
-      return "À définir";
-    }
-
-    function parseQuery(q){
-      var svc = resolveService(q.toLowerCase());
-      var city = resolveCity(q.toLowerCase());
-      var avail = resolveAvail(q);
-      return {
-        svc: svc || (q.toLowerCase().indexOf("جبس")>-1||q.toLowerCase().indexOf("djib")>-1?"Plâtrerie":"—"),
-        city: city.name,
-        cityId: city.cityId,
-        avail: avail,
-        raw: q
-      };
-    }
 
     function renderResult(res){
       var matches = DATA.searchByIntent({ svc: res.svc==="—"? "": res.svc, city: res.city, cityId: res.cityId, avail: res.avail });
@@ -2044,10 +2010,140 @@
     document.getElementById("aiRun").addEventListener("click", function(){
       var q=document.getElementById("aiQuery").value.trim();
       if(!q){ UI.toast(T("Saisissez une requête."), true); return; }
-      UI.toast(T("Interprétation en cours…")); setTimeout(function(){ renderResult(parseQuery(q)); }, 350);
+      UI.toast(T("Interprétation en cours…"));
+      AICenter.interpret(q).then(function(res){ renderResult(res); }).catch(function(){ UI.toast(T("Erreur d'interprétation."), true); });
     });
     document.getElementById("aiQuery").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("aiRun").click(); });
   }
+
+  /* ============================================================
+     AI CENTER service facade (prototype-only)
+     ------------------------------------------------------------
+     The AI Center is intentionally PROTOTYPE-ONLY. It ships with a
+     "mock" provider that interprets queries locally so the admin can
+     preview the feature end-to-end.
+
+     Architecture is API-ready: switch `config.provider` to "api" and
+     set `config.endpoint` to a real backend URL. `interpret()` always
+     returns a Promise, so the UI does not change when the mock is
+     swapped for a live call (see the "// API" branch).
+
+     NO real API keys are stored anywhere. Credentials for any future
+     provider belong in backend-only config / env, never in front-end.
+     ============================================================ */
+  var AICenter = {
+    config: {
+      provider: "mock",   // "mock" | "api"
+      endpoint: "",       // future backend URL (must be set to use "api")
+      timeout: 600        // simulated provider latency (ms)
+    },
+    // Interpretation keyword maps (FR + Darija/Arabic) -> resolved category.
+    servicesMap: {
+      "Plomberie":   ["plombier","plomberie","plomb","jbab","كوطو","سباك","سبّاك"],
+      "Électricité": ["electricien","électricien","electricite","électricité","elec","kahraba","كهربائي","كهرباء","نور","triki"],
+      "Menuiserie":  ["menuisier","menuiserie","menuiser","najjar","نجار","خشب","bois"],
+      "Maçonnerie":  ["macon","maçon","maconnerie","maçonnerie","malla","معلم","بناء","bani"],
+      "Peinture":    ["peintre","peinture","peint","sabagh","صباغ","دهان"],
+      "Coiffure":    ["coiffeur","coiffeuse","coiffure","coiff","hajjam","حلاق","حلاقة","مجعد"],
+      "Mécanique":   ["mecanicien","mécanicien","mecanique","mécanique","mecano","ميكانيكي","ميكانيك"],
+      "Plâtrerie":   ["platrier","plâtrier","platre","plâtre","plaster","djibs","djib","جيبس","جبس"]
+    },
+    citiesMap: {
+      casablanca:["CITY-CASA","Casablanca","الدار البيضاء","casa","casanegra","كازا"],
+      rabat:["CITY-RABA","Rabat","الرباط"],
+      marrakech:["CITY-MARR","Marrakech","مراكش"],
+      fes:["CITY-FES","Fès","فاس","fes"],
+      agadir:["CITY-AGAD","Agadir","أكادير","اكادير"],
+      tanger:["CITY-TANG","Tanger","طنجة"],
+      kenitra:["CITY-KENI","Kénitra","القنيطرة"],
+      mohammedia:["CITY-MOHAM","Mohammedia","المحمدية"],
+      "el jadida":["CITY-ELJ","El Jadida","الجديدة"]
+    },
+    // Mock market insights shown in the AI Center (simulated, pre-API).
+    mockInsights: [
+      { query:"معلم ديال الجبس قريب ليا", service:"Plâtrerie (Plaster)", location:"Casablanca", availability:"Aujourd'hui" },
+      { query:"Électricien disponible demain à Rabat", service:"Électricité", location:"Rabat", availability:"Demain" },
+      { query:"سباك فلفاس دابا", service:"Plomberie", location:"Fès", availability:"Aujourd'hui" }
+    ],
+    resolveService: function(q){
+      // Score-based with weak-term handling: "معلم" / "malla" are generic Darija
+      // words ("master / builder") used across many trades. A specific craft or
+      // material keyword (ex: "جبس" = plaster) must win over a generic term, so
+      // "معلم ديال الجبس" resolves to Plâtrerie, not Maçonnerie.
+      var ql = (q||"").toLowerCase();
+      var genericTerms = { "معلم":1, "malla":1, "maçon":1, "macon":1, "بناء":1, "bani":1 };
+      var best = null, bestScore = 0, bestLen = 0;
+      var genericFallback = null, genericLen = 0;
+      for(var cat in this.servicesMap){
+        var keys = this.servicesMap[cat];
+        var score = 0, maxLen = 0, sawGeneric = false;
+        for(var i=0;i<keys.length;i++){
+          var kk = keys[i].toLowerCase();
+          if(ql.indexOf(kk)>-1){
+            if(genericTerms[kk]){ sawGeneric = true; continue; }
+            score++; if(kk.length>maxLen) maxLen=kk.length;
+          }
+        }
+        if(sawGeneric && !genericFallback && !score){ genericFallback=cat; genericLen=maxLen; }
+        if(score>bestScore || (score===bestScore && maxLen>bestLen)){
+          best=cat; bestScore=score; bestLen=maxLen;
+        }
+      }
+      return best || genericFallback || null;
+    },
+    resolveCity: function(q){
+      var norm = (q||"").toLowerCase();
+      for(var c in this.citiesMap){
+        var def = this.citiesMap[c];
+        for(var i=1;i<def.length;i++){ if(norm.indexOf(def[i].toLowerCase())>-1){ return { name:def[1], cityId:def[0] }; } }
+      }
+      return { name:"Position utilisateur", cityId:"" };
+    },
+    resolveAvail: function(q){
+      var norm = (q||"").toLowerCase();
+      if(norm.indexOf("aujourd")>-1 || norm.indexOf("اليوم")>-1 || norm.indexOf("liyouma")>-1 || norm.indexOf("دابا")>-1 || norm.indexOf("maintenant")>-1) return "Aujourd'hui";
+      if(norm.indexOf("demain")>-1 || norm.indexOf("غدا")>-1 || norm.indexOf("gedda")>-1) return "Demain";
+      return "À définir";
+    },
+    // Synchronous local interpretation -> normalized intent object.
+    // Keep logic here so an "api" provider can later return the same shape.
+    parse: function(q){
+      q = (q==null?"":String(q));
+      var svc = this.resolveService(q);
+      var city = this.resolveCity(q);
+      var avail = this.resolveAvail(q);
+      return {
+        svc: svc || "—",
+        city: city.name,
+        cityId: city.cityId,
+        avail: avail,
+        raw: q
+      };
+    },
+    // Async interpretation. Mock by default; swap to api easily.
+    interpret: function(q){
+      var self = this;
+      return new Promise(function(resolve, reject){
+        if(self.config.provider === "api" && self.config.endpoint){
+          // ---- API ----
+          // fetch(self.config.endpoint, { method:"POST", headers:{ "Content-Type":"application/json" },
+          //   body: JSON.stringify({ query:q }) })
+          //   .then(r=>r.json()).then(res=>resolve(normalizeApi(res))).catch(reject);
+          reject(new Error("AI API endpoint not configured / no keys in front-end."));
+          return;
+        }
+        // ---- MOCK ----
+        setTimeout(function(){
+          try { resolve(self.parse(q)); }
+          catch(e){ reject(e); }
+        }, self.config.timeout);
+      });
+    }
+  };
+  // Expose the facade for testing + future server wiring (same convention as
+  // global.Sna3tiData / Sna3tiRouter / Sna3tiUI).
+  global.AICenter = AICenter;
+
 
   /* ============================================================
      NOTIFICATIONS, SETTINGS, ADMIN USERS, AUDIT
