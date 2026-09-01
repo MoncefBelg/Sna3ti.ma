@@ -1826,6 +1826,35 @@
       var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
   }
+  function renderPaymentDetail(id){
+    var pa = DATA.getPayments().find(function(x){ return x.id===id; });
+    if(!pa){ renderNotFound(); return; }
+    UI.setTitle(T("Paiement")+" — "+pa.reference);
+    var p = DATA.getProfessional(pa.professionalId);
+    var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
+    UI.setContent(
+      '<div class="page-head"><h1>'+T("Paiement")+' — '+esc(pa.reference)+'</h1><div class="spacer"><button class="btn btn-ghost" id="pdBack" style="margin-right:8px">← '+T("Tous les paiements")+'</button>'+
+      (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="btn btn-primary" id="pdConf">✓ '+T("Confirmer")+'</button>' : "")+
+      (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="btn btn-danger" id="pdRej" style="margin-left:8px">'+T("Rejeter")+'</button>' : "")+'</div></div>' +
+      '<div class="card"><div class="detail-grid">'+
+        drow(T("Référence"), esc(pa.reference))+
+        drow(T("Statut"), payStatusBadge(pa.status))+
+        drow(T("Plan"), esc(pa.planName))+
+        drow(T("Montant"), '<b>'+pa.amount+' DH</b>')+
+        drow(T("Méthode"), payMethodBadge(pa.method))+
+        drow(T("Référence bancaire"), esc(pa.bankRef||"—"))+
+        drow(T("Date"), pa.date)+
+        drow(T("Professionnel"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
+        (pa.rejectionReason ? drow(T("Raison du rejet"), esc(pa.rejectionReason)) : "")+
+        (pa.infoRequested ? drow(T("Informations demandées"), esc(pa.infoRequested)) : "")+
+      '</div></div>' +
+      (linkReq ? '<div class="card"><div class="card-title">'+T("Demande d'abonnement liée")+'</div><p class="muted" style="margin:8px 0">'+linkReq.id+' — '+esc(linkReq.requestedPlan||"")+'</p><button class="btn btn-soft" id="pdOpenVr">'+T("Voir en vérification")+'</button></div>' : "")
+    );
+    var back = document.getElementById("pdBack"); if(back) back.addEventListener("click", function(){ ROUTER.navigate("payments"); });
+    var conf = document.getElementById("pdConf"); if(conf) conf.addEventListener("click", function(){ confirmPayment(id); ROUTER.navigate("payments"); });
+    var rej = document.getElementById("pdRej"); if(rej) rej.addEventListener("click", function(){ rejectPayment(id); ROUTER.navigate("payments"); });
+    var ovr = document.getElementById("pdOpenVr"); if(ovr) ovr.addEventListener("click", function(){ ROUTER.navigate("verification"); });
+  }
   function confirmPayment(id){
     UI.confirmAction({ title:T("Confirmer ce paiement ?"), message:T("Après contrôle du virement, la souscription VÉRIFIÉ ou GOLD sera activée sur le profil. Le badge « Professionnel Vérifié » reste soumis à une vérification distincte, indépendante du paiement."), confirmLabel:T("Confirmer"), onConfirm:function(){
       DATA.confirmPayment(id);
@@ -2149,41 +2178,86 @@
      NOTIFICATIONS, SETTINGS, ADMIN USERS, AUDIT
      ============================================================ */
   var notifFilter = "all";
+  // Dirty flag guarding unsaved Settings changes (see renderSettings).
+  var settingsDirty = false;
+  // Currently rendered view id, used by the navigation guard to detect
+  // leaving the Settings page with unsaved changes.
+  var currentView = "";
   function renderNotifications(initialFilter){
     UI.setTitle(T("Notifications"));
-    var valid = { all:1, payment:1, verification:1, sub:1, report:1, review:1, system:1 };
+    var valid = { all:1, payment:1, verification:1, sub:1, report:1, review:1, system:1, support:1, unread:1, read:1 };
     if(initialFilter && valid[initialFilter]) notifFilter = initialFilter;
     var list = DATA.getNotifications();
-    var cats = { all:T("Toutes"), payment:T("Paiement"), verification:T("Vérification"), sub:T("Abonnement"), report:T("Signalement"), review:T("Avis"), system:T("Système") };
-    var filtered = notifFilter==="all" ? list : list.filter(function(n){ var t=n.type||n.cat||n.ico; return t===notifFilter || (notifFilter==="sub"&&t==="subscription"); });
+    var byCat = function(c){ return list.filter(function(n){ var t=n.type||n.cat||n.ico; return t===c || (c==="sub"&&t==="subscription"); }); };
+    var cats = { all:T("Toutes"), payment:T("Paiement"), verification:T("Vérification"), sub:T("Abonnement"), report:T("Signalement"), review:T("Avis"), system:T("Système"), support:T("Support") };
+    var catOrder = ["payment","verification","sub","report","review","system","support"];
+    var readState = notifFilter==="unread" ? "unread" : (notifFilter==="read" ? "read" : null);
+    // If a read/unread tab is active, filter the master list by status first.
+    var base = readState ? list.filter(function(n){ return readState==="unread" ? n.unread : !n.unread; }) : list;
+    var filtered;
+    if(notifFilter==="all" || readState) filtered = base;
+    else filtered = base.filter(function(n){ var t=n.type||n.cat||n.ico; return t===notifFilter || (notifFilter==="sub"&&t==="subscription"); });
     var unread = list.filter(function(n){return n.unread;}).length;
+    var read = list.length - unread;
     UI.setContent('<div class="page-head"><h1>'+T("Notifications")+'</h1><div class="spacer">'+
       (AUTH.can("notifications","read") && unread ? '<button class="btn btn-soft" id="markAll">'+T("Tout marquer lu")+'</button>' : "")+'</div></div>' +
-      '<div class="tabs"><button class="tab '+(notifFilter==="all"?"active":"")+'" data-nf="all">'+T("Toutes")+' <span class="cnt">'+list.length+'</span></button>'+
-        ['payment','verification','sub','report','review','system'].map(function(c){ var n=list.filter(function(x){ var t=x.type||x.cat||x.ico; return t===c || (c==="sub"&&t==="subscription"); }).length; return '<button class="tab '+(notifFilter===c?"active":"")+'" data-nf="'+c+'">'+esc(cats[c])+' <span class="cnt">'+n+'</span></button>'; }).join("")+
+      '<div class="tabs">'+
+        '<button class="tab '+(notifFilter==="all"?"active":"")+'" data-nf="all">'+T("Toutes")+' <span class="cnt">'+list.length+'</span></button>'+
+        catOrder.map(function(c){ var n=byCat(c).length; return '<button class="tab '+(notifFilter===c?"active":"")+'" data-nf="'+c+'">'+esc(cats[c])+' <span class="cnt">'+n+'</span></button>'; }).join("")+
+        '<button class="tab '+(notifFilter==="unread"?"active":"")+'" data-nf="unread">'+T("Non lues")+' <span class="cnt">'+unread+'</span></button>'+
+        '<button class="tab '+(notifFilter==="read"?"active":"")+'" data-nf="read">'+T("Lues")+' <span class="cnt">'+read+'</span></button>'+
       '</div><div class="card">'+
-      (filtered.length ? filtered.map(function(n){
-        return '<div class="row-item" data-nav="'+(n.route||"")+'"><span class="n-ico '+(n.type||"teal")+'">'+notifIcon(n.type||n.cat||n.ico)+'</span><div class="grow">'+(n.unread?'<span class="badge teal">'+T("Nouveau")+'</span> ':'')+esc(n.text)+'<br><span class="muted">'+esc(n.when)+'</span></div>'+(n.unread?'<span class="dot unread"></span>':'')+'</div>';
+      (filtered.length ? filtered.map(function(n, i){
+        return '<div class="row-item" data-nav="'+(n.route||"")+'"><span class="n-ico '+(n.type||"teal")+'">'+notifIcon(n.type||n.cat||n.ico)+'</span><div class="grow">'+(n.unread?'<span class="badge teal">'+T("Nouveau")+'</span> ':'')+esc(n.text)+'<br><span class="muted">'+esc(n.when)+'</span></div>'+(n.unread?(AUTH.can("notifications","read")?'<button class="icon-act" data-readone="'+esc(n.id)+'" title="'+T("Marquer comme lue")+'">✓</button>':'')+'<span class="dot unread"></span>':'')+'</div>';
       }).join("") : '<div class="empty">'+T("Aucune notification.")+'</div>') +
       '</div>');
     document.querySelectorAll(".tab[data-nf]").forEach(function(t){ t.addEventListener("click", function(){ notifFilter=t.dataset.nf; renderNotifications(); }); });
-    document.querySelectorAll("[data-nav]").forEach(function(row){ row.addEventListener("click", function(){ var r=row.dataset.nav; if(r) ROUTER.navigate(r); }); });
+    document.querySelectorAll("[data-nav]").forEach(function(row){ row.addEventListener("click", function(ev){ if(ev.target.closest("[data-readone]")) return; var r=row.dataset.nav; if(r) ROUTER.navigate(r); }); });
+    document.querySelectorAll("[data-readone]").forEach(function(btn){ btn.addEventListener("click", function(){ DATA.markNotificationRead(btn.dataset.readone); UI.toast(T("Notification lue.")); renderNotifications(); }); });
     var ma = document.getElementById("markAll"); if(ma) ma.addEventListener("click", function(){ DATA.markNotificationsRead(); UI.toast(T("Toutes les notifications lues.")); renderNotifications(); });
   }
-  function notifIcon(k){ var m={ payment:"💰", verification:"✅", sub:"📦", subscription:"📦", report:"🚩", review:"⭐", search:"🔍", view:"👁️", contact:"🤝", system:"🔔" }; return m[k]||"🔔"; }
+  function notifIcon(k){ var m={ payment:"💰", verification:"✅", sub:"📦", subscription:"📦", report:"🚩", review:"⭐", support:"🎧", search:"🔍", view:"👁️", contact:"🤝", system:"🔔" }; return m[k]||"🔔"; }
 
   function renderSettings(){
     UI.setTitle(T("Réglages"));
     var cfg = DATA.getConfig();
+    // Snapshot the persisted values so Cancel can restore them and changes
+    // can be detected (unsaved-changes guard).
+    var baseline = JSON.parse(JSON.stringify(cfg));
+    function currentForm(){
+      return {
+        platformName: (document.getElementById("sgName") || {}).value || "",
+        contactEmail: (document.getElementById("sgEmail") || {}).value || "",
+        phone: (document.getElementById("sgPhone") || {}).value || "",
+        defaultLanguage: (document.getElementById("sgLang") || {}).value || "fr"
+      };
+    }
+    function isDirty(){
+      var f = currentForm();
+      return f.platformName !== baseline.platformName || f.contactEmail !== baseline.contactEmail || f.phone !== baseline.phone || f.defaultLanguage !== baseline.defaultLanguage;
+    }
+    function fill(f){
+      document.getElementById("sgName").value = f.platformName;
+      document.getElementById("sgEmail").value = f.contactEmail;
+      document.getElementById("sgPhone").value = f.phone;
+      document.getElementById("sgLang").value = f.defaultLanguage;
+    }
+    // Persist the guard across re-renders / navigation on this page only.
+    settingsDirty = isDirty();
     var html =
-      '<div class="page-head"><h1>'+T("Réglages")+'</h1></div>' +
+      '<div class="page-head"><h1>'+T("Réglages")+'</h1><div class="spacer">'+
+        (AUTH.can("settings","update") ? '<span class="badge gray" id="sgDirtyHint" style="display:'+(settingsDirty?'inline-block':'none')+'">'+T("Modifications non enregistrées")+'</span>' : '')+'</div></div>' +
       '<div class="grid-2" style="align-items:start">' +
         '<div class="card"><div class="card-title">'+T("Général")+'</div><div class="frm" style="margin-top:14px">'+
           '<div class="frm"><label>'+T("Nom de la plateforme")+'</label><input id="sgName" value="'+esc(cfg.platformName)+'"></div>'+
           '<div class="frm"><label>'+T("Email de contact")+'</label><input id="sgEmail" value="'+esc(cfg.contactEmail)+'"></div>'+
           '<div class="frm"><label>'+T("Téléphone")+'</label><input id="sgPhone" value="'+esc(cfg.phone)+'"></div>'+
           '<div class="frm"><label>'+T("Langue par défaut")+'</label><select id="sgLang"><option value="fr" '+(cfg.defaultLanguage==="fr"?"selected":"")+'>'+T("Français")+'</option><option value="en" '+(cfg.defaultLanguage==="en"?"selected":"")+'>English</option><option value="ar" '+(cfg.defaultLanguage==="ar"?"selected":"")+'>العربية</option></select></div>'+
-          '<button class="btn btn-primary" id="sgSave">'+T("Enregistrer")+'</button>'+
+          '<div class="frm" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+
+            '<button class="btn btn-primary" id="sgSave" '+(AUTH.can("settings","update")?"":"disabled")+'>'+T("Enregistrer")+'</button>'+
+            '<button class="btn btn-ghost" id="sgCancel">'+T("Annuler")+'</button>'+
+            '<button class="btn btn-soft" id="sgReset">'+T("Réinitialiser")+'</button>'+
+          '</div>'+
         '</div></div>' +
         '<div class="card"><div class="card-title">'+T("Vérification")+'</div>'+
           '<div class="detail-grid" style="margin-top:12px">'+drow(T("Documents requis"), (cfg.verification.requiredDocuments||[]).join(", "))+'</div>'+
@@ -2200,10 +2274,43 @@
         '</div></div>' +
       '</div>';
     UI.setContent(html);
-    document.getElementById("sgSave").addEventListener("click", function(){
-      DATA.updateConfig({ platformName: document.getElementById("sgName").value, contactEmail: document.getElementById("sgEmail").value, phone: document.getElementById("sgPhone").value, defaultLanguage: document.getElementById("sgLang").value });
+    function refreshDirty(){
+      settingsDirty = isDirty();
+      var hint = document.getElementById("sgDirtyHint");
+      if(hint) hint.style.display = settingsDirty ? "inline-block" : "none";
+    }
+    ["sgName","sgEmail","sgPhone","sgLang"].forEach(function(id){
+      (document.getElementById(id)||{}).addEventListener && document.getElementById(id).addEventListener("input", refreshDirty);
+    });
+    var hint2 = document.getElementById("sgDirtyHint"); if(hint2) hint2.style.display = settingsDirty ? "inline-block" : "none";
+    var save = document.getElementById("sgSave"); if(save) save.addEventListener("click", function(){
+      var f = currentForm();
+      DATA.updateConfig(f);
+      baseline = JSON.parse(JSON.stringify(f));
+      settingsDirty = false;
+      fill(f);
+      refreshDirty();
       DATA.logAudit({admin:AUTH.getSession().name, action:"SETTINGS_CHANGED", entity:"Settings", entityId:"config", result:"Updated"});
       UI.toast(T("Réglages enregistrés."));
+    });
+    var cancelEl = document.getElementById("sgCancel"); if(cancelEl) cancelEl.addEventListener("click", function(){
+      var f = { platformName: baseline.platformName, contactEmail: baseline.contactEmail, phone: baseline.phone, defaultLanguage: baseline.defaultLanguage };
+      fill(f);
+      settingsDirty = false;
+      refreshDirty();
+      UI.toast(T("Modifications annulées."));
+    });
+    var resetEl = document.getElementById("sgReset"); if(resetEl) resetEl.addEventListener("click", function(){
+      UI.confirmAction({ title:T("Réinitialiser les réglages ?"), message:T("Restaurera les valeurs par défaut. Les modifications non enregistrées seront perdues."), confirmLabel:T("Réinitialiser"), onConfirm:function(){
+        DATA.resetConfig();
+        var d = DATA.getConfig();
+        baseline = JSON.parse(JSON.stringify(d));
+        fill(d);
+        settingsDirty = false;
+        refreshDirty();
+        DATA.logAudit({admin:AUTH.getSession().name, action:"SETTINGS_RESET", entity:"Settings", entityId:"config", result:"Reset"});
+        UI.toast(T("Réglages réinitialisés."));
+      }});
     });
   }
   function rule(t){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+esc(t)+'</div></div>'; }
@@ -2290,7 +2397,8 @@
      ============================================================ */
   function dispatch(route){
     if(route.route.view === "login"){ renderLogin(); return; }
-    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : route.route.view);
+    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : route.route.view));
+    currentView = route.route.view;
     switch(route.route.view){
       case "dashboard": renderDashboard(); break;
       case "professionals": renderProfessionals(route.query||{}); break;
@@ -2304,6 +2412,7 @@
       case "support": renderSupport((route.query||{}).status || "all"); break;
       case "subscriptions": renderSubscriptions(); break;
       case "payments": renderPayments((route.query||{}).status || "all"); break;
+      case "paymentDetail": renderPaymentDetail(route.params.id); break;
       case "analytics": renderAnalytics(); break;
       case "ai": renderAI(); break;
       case "notifications": renderNotifications((route.query||{}).filter || ""); break;
@@ -2320,6 +2429,19 @@
   function boot(){
     // Build app shell once (used for authed views)
     UI.buildAppShell();
+    // Unsaved-changes guard for the Settings page: confirm before leaving
+    // the page, and warn before closing/reloading the browser.
+    ROUTER.setBeforeLeave(function(view, toPath){
+      if(!settingsDirty || currentView !== "settings") return false;
+      var stay = !window.confirm(T("Des modifications ne sont pas enregistrées. Quitter quand même ?"));
+      settingsDirty = false; // don't re-prompt if they choose to leave
+      return stay;
+    });
+    window.addEventListener("beforeunload", function(ev){
+      if(!settingsDirty) return;
+      ev.preventDefault();
+      ev.returnValue = "";
+    });
     ROUTER.start({
       login: function(){ renderLogin(); },
       route: function(m){ dispatch(m); },

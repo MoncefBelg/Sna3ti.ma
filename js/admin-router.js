@@ -25,6 +25,7 @@
     { path:"support", view:"support", perm:["support","read"] },
     { path:"subscriptions", view:"subscriptions", perm:["subscriptions","read"] },
     { path:"payments", view:"payments", perm:["payments","read"] },
+    { path:"payments/:id", view:"paymentDetail", perm:["payments","read"] },
     { path:"analytics", view:"analytics", perm:["analytics","read"] },
     { path:"ai", view:"ai", perm:["ai","read"] },
     { path:"notifications", view:"notifications", perm:["notifications","read"] },
@@ -81,6 +82,13 @@
   }
 
   var onNotFound = null;
+  var onBeforeLeave = null;
+  var previousHash = location.hash;
+
+  // Navigation guard: a caller can register a function that returns true to
+  // cancel navigation (e.g. warn about unsaved Settings changes). `toPath` is
+  // the cleaned route path about to be shown.
+  function setBeforeLeave(fn){ onBeforeLeave = fn; }
 
   function navigate(path){
     location.hash = "#/admin/" + path.replace(/^\/?/, "");
@@ -95,6 +103,18 @@
       if(!m){ if(onNotFound) onNotFound(); return; }
 
       var route = m.route;
+
+      // Unsaved-changes guard: if leaving a protected form, ask first.
+      if(onBeforeLeave){
+        var toPath = currentPath();
+        var cancel = onBeforeLeave(route.view, toPath);
+        if(cancel){
+          // Restore the previous hash and abort this render.
+          location.hash = previousHash;
+          return;
+        }
+      }
+      previousHash = location.hash;
 
       // Route requires auth?
       if(!route.public && !authed){
@@ -127,7 +147,8 @@
     start: start,
     navigate: navigate,
     currentPath: currentPath,
-    matchRoute: matchRoute
+    matchRoute: matchRoute,
+    setBeforeLeave: setBeforeLeave
   };
 
 })(window);

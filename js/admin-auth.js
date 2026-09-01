@@ -25,12 +25,12 @@
 
   // Internal profiles (roles) that sessions may resolve to.
   var DEMO_ACCOUNTS = [
-    { email: "mbelgas@sna3ti.ma", name: "Admin User", role: "super_admin" },
-    { email: "admin@sna3ti.ma", name: "Admin User", role: "super_admin" },
-    { email: "admin@example.com", name: "Admin User", role: "super_admin" },
-    { email: "finance@sna3ti.ma", name: "Finance Manager", role: "finance" },
-    { email: "mod@sna3ti.ma", name: "Moderator Team", role: "moderator" },
-    { email: "support@sna3ti.ma", name: "Support Agent", role: "support" }
+    { id: "AU-1", email: "mbelgas@sna3ti.ma", name: "Admin User", role: "super_admin" },
+    { id: "AU-1", email: "admin@sna3ti.ma", name: "Admin User", role: "super_admin" },
+    { id: "AU-1", email: "admin@example.com", name: "Admin User", role: "super_admin" },
+    { id: "AU-2", email: "finance@sna3ti.ma", name: "Finance Manager", role: "finance" },
+    { id: "AU-3", email: "mod@sna3ti.ma", name: "Moderator Team", role: "moderator" },
+    { id: "AU-4", email: "support@sna3ti.ma", name: "Support Agent", role: "support" }
   ];
 
   var session = null;
@@ -76,6 +76,7 @@
           return;
         }
         session = {
+          id: account.id || "",
           email: account.email,
           name: account.name,
           role: account.role,
@@ -88,7 +89,7 @@
     });
   }
 
-  function clonePublic(s){ return { email:s.email, name:s.name, role:s.role }; }
+  function clonePublic(s){ return { id:s.id, adminId:s.id, email:s.email, name:s.name, role:s.role }; }
 
   function logout(){
     DATA.logAudit({ admin: session ? session.name : "unknown", action:"LOGOUT", entity:"Admin", entityId: session ? session.email : "", result:"Success" });

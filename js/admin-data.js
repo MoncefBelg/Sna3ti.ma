@@ -83,9 +83,13 @@
         profile_photo_no_sunglasses: T("Photo sans lunettes de soleil"),
         profile_photo_main_frame: T("Personne dans le cadre principal"),
         echantillons_reviewed: T("Échantillons de travail conformes")
-      }
+}
     }
   };
+
+  // Pristine baseline of the default settings, so the Settings view's
+  // "Reset" can restore them even after the user has saved custom values.
+  var CONFIG_DEFAULTS = JSON.parse(JSON.stringify(CONFIG));
 
   /* ---------- Seed data ---------- */
 
@@ -329,10 +333,12 @@
 
   var NOTIFICATIONS = [
     { id:"NT-1", type:"verification", text:T("3 demandes de vérification en attente"), when:T("il y a 5 min"), unread:true, route:"verification" },
-    { id:"NT-2", type:"payment", text:T("2 paiements en attente de confirmation"), when:T("il y a 18 min"), unread:true, route:"payments" },
+    { id:"NT-2", type:"payment", text:T("Paiement confirmé SNA3TI-48291"), when:T("il y a 18 min"), unread:true, route:"payments/PAY-7001" },
     { id:"NT-3", type:"report", text:T("Nouveau signalement: PRO-10297"), when:T("il y a 24 min"), unread:true, route:"reports" },
-    { id:"NT-4", type:"report", text:T("Avis signalé: RV-305"), when:T("il y a 30 min"), unread:false, route:"reports" },
-    { id:"NT-5", type:"subscription", text:T("Abonnement GOLD renouvelé"), when:T("il y a 1 h"), unread:false, route:"subscriptions" }
+    { id:"NT-4", type:"report", text:T("Avis signalé: RV-305"), when:T("il y a 30 min"), unread:false, route:"reviews" },
+    { id:"NT-5", type:"subscription", text:T("Abonnement GOLD renouvelé"), when:T("il y a 1 h"), unread:false, route:"subscriptions" },
+    { id:"NT-6", type:"support", text:T("Nouveau ticket de support #SP-6002"), when:T("il y a 2 h"), unread:false, route:"support" },
+    { id:"NT-7", type:"system", text:T("Sauvegarde automatique terminée"), when:T("hier"), unread:false, route:"" }
   ];
 
   var ADMIN_USERS = [
@@ -464,7 +470,7 @@
   }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
-  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics","supportTickets"];
+  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics","supportTickets","auditLogs"];
   function persist(){
     try { MUTABLE_KEYS.forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
   }
@@ -995,16 +1001,33 @@
     },
     getNotifications: function(){ return clone(store.notifications); },
     markNotificationsRead: function(){ store.notifications.forEach(function(n){ n.unread=false; }); persist(); },
+    markNotificationRead: function(id){ var n=getById(store.notifications,id); if(n){ n.unread=false; persist(); } return !!n; },
     // ---- Admin users & audit ----
     getAdminUsers: function(){ return clone(store.adminUsers); },
     getAuditLogs: function(){ return clone(store.auditLogs); },
-    logAudit: function(entry){ store.auditLogs.unshift(Object.assign({ id:uid("AL"), timestamp:new Date().toLocaleString("fr-MA"), result:"Success" }, entry)); },
+    logAudit: function(entry){
+      var session = (typeof Sna3tiAuth !== "undefined" && Sna3tiAuth.getSession) ? Sna3tiAuth.getSession() : null;
+      var sid = session ? (session.adminId || session.id || "") : "";
+      store.auditLogs.unshift(Object.assign(
+        { id: uid("AL"), timestamp: new Date().toLocaleString("fr-MA"), result: "Success" },
+        sid ? { adminId: sid } : {},
+        entry
+      ));
+      persist();
+    },
     getConfig: function(){ return clone(store.config); },
     updateConfig: function(data){
       var merged = Object.assign({}, CONFIG, data);
       if(data.verification){ merged.verification = Object.assign({}, CONFIG.verification, data.verification); }
       CONFIG = merged;
       store.config = merged;
+      persist();
+      return true;
+    },
+    resetConfig: function(){
+      CONFIG = JSON.parse(JSON.stringify(CONFIG_DEFAULTS));
+      store.config = CONFIG;
+      persist();
       return true;
     },
     // ---- helpers ----
