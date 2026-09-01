@@ -1900,9 +1900,9 @@
           </a>
           <div class="nav-dropdown">
             <span class="nav-dropdown-title">Nos formules</span>
-            <a href="#pricing">💼 Gratuit — 0 DH</a>
-            <a href="#pricing">🛡️ Vérifié — 99 DH/mois</a>
-            <a href="#pricing">👑 <span style="color:#D97706;font-weight:800">GOLD</span> — 199 DH/mois</a>
+            <a href="#register" data-reg-preselect="gratuit">💼 Gratuit — 0 DH</a>
+            <a href="#register" data-reg-preselect="verifie">🛡️ Vérifié — 99 DH/mois</a>
+            <a href="#register" data-reg-preselect="gold">👑 <span style="color:#D97706;font-weight:800">GOLD</span> — 199 DH/mois</a>
           </div>
         </div>
 
@@ -7727,6 +7727,32 @@ document.addEventListener("click", function (e) {
   if (regCta) {
     e.preventDefault();
     openPackPopup();
+  }
+
+  /* Home-section anchors (#services / #professionals / #how /
+     #pricing / #home) must keep working even when a search or
+     profile page replaced <main>: restore the home first, then
+     scroll to the requested section. */
+  const sectionLink = e.target.closest('a[href^="#"]');
+  if (sectionLink) {
+    const id = sectionLink.getAttribute("href").slice(1);
+    if (
+      id === "services" ||
+      id === "professionals" ||
+      id === "how" ||
+      id === "pricing" ||
+      id === "home"
+    ) {
+      e.preventDefault();
+      if (!document.getElementById(id)) {
+        restoreHome();
+      }
+      const target = document.getElementById(id);
+      if (target) {
+        window.location.hash = "#" + id;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
   }
 });
 
