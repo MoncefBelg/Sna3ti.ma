@@ -143,7 +143,7 @@
       '</tbody></table></div></div>';
   }
   function wqIco(t){ return { verification:"✅", payment:"💰", report:"🚩", review:"⭐", subscription:"📦", support:"🧰" }[t] || "📋"; }
-  function wqIcoColor(t){ var m={ verification:"background:var(--mint)", payment:"background:#fdf1e0", report:"background:#fdeaea", review:"background:#f1ebff", support:"background:#fff4e0" }; return m[t]||""; }
+  function wqIcoColor(t){ var m={ verification:"background:var(--mint)", payment:"background:var(--amber-bg)", report:"background:var(--red-bg)", review:"background:var(--purple-bg)", support:"background:var(--amber-bg)" }; return m[t]||""; }
   function prioClass(p){ var m={ critical:"red", high:"amber", medium:"blue", low:"gray" }; return m[p]||"gray"; }
 
   function secara(n){ return typeof n === "number" ? n.toLocaleString("fr-MA") : n; }
@@ -357,7 +357,7 @@
     return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
   }
   function rateBadge(p){
-    return '<span class="badge" style="background:#f1ebff"><b style="color:#6440c4">★ '+p.rating+'</b> ('+p.reviewsCount+' '+T("avis")+')</span>';
+    return '<span class="badge" style="background:var(--purple-bg)"><b style="color:var(--purple)">★ '+p.rating+'</b> ('+p.reviewsCount+' '+T("avis")+')</span>';
   }
 
   function exportPros(idsOnly){
@@ -649,7 +649,7 @@
 
   function reviewSummary(p, reviews){
     var flagged = reviews.filter(function(r){ return r.status==="flagged"; }).length;
-    return '<span class="badge" style="background:#f1ebff">★ '+p.rating+' / 5</span>' +
+    return '<span class="badge" style="background:var(--purple-bg)">★ '+p.rating+' / 5</span>' +
       '<span class="badge blue">'+T("Total")+': '+p.reviewsCount+'</span>' +
       '<span class="badge red">🚩 '+T("Signalés")+': '+flagged+'</span>';
   }
@@ -756,7 +756,10 @@
     document.getElementById("uStatus").addEventListener("change", function(){ _userPage=1; drawUsers(); });
     document.getElementById("uSort").addEventListener("change", function(){ _userSort=document.getElementById("uSort").value; _userPage=1; drawUsers(); });
     document.getElementById("uExport").addEventListener("click", function(){
-      var rows=[[T("Nom"),"Email",T("Téléphone"),T("Ville"),T("Inscrit"),T("Statut")]]; DATA.getUsers().forEach(function(u){ rows.push([u.name,u.email,u.phone||"",cityFr(u.cityId),u.registered,u.status]); });
+      var q=(document.getElementById("uQ").value||"").toLowerCase();
+      var st=document.getElementById("uStatus").value;
+      var list=DATA.getUsers({q:q, status:st||undefined});
+      var rows=[[T("Nom"),"Email",T("Téléphone"),T("Ville"),T("Inscrit"),T("Statut")]]; list.forEach(function(u){ rows.push([u.name,u.email,u.phone||"",cityFr(u.cityId),u.registered,u.status]); });
       UI.exportCSV("utilisateurs-sna3ti.csv", rows); UI.toast(T("Export généré."));
     });
     drawUsers();
@@ -1416,6 +1419,7 @@
     var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
     var order = ["all","published","pending","flagged","hidden"];
     var html =
+      '<div class="page-head"><h1>'+T("Avis")+'</h1><div class="spacer">'+(AUTH.can("reviews","read")?'<button class="btn btn-ghost" id="revExport">⬇ '+T("Exporter")+'</button>':"")+'</div></div>'+
       '<div class="tabs">'+order.map(function(s,i){
         var list = DATA.getReviews(); var n = list.length; if(s!=="all") n = list.filter(function(r){return r.status===s;}).length;
         return '<button class="tab '+(s===filter?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
@@ -1431,6 +1435,11 @@
     var list = DATA.getReviews({ status: filter==="all"?"":filter });
     var el = document.getElementById("revBody");
     if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucun avis.")+'</div>'; return; }
+    var rexp = document.getElementById("revExport"); if(rexp && !rexp._bound){ rexp._bound=true; rexp.addEventListener("click", function(){
+      var rows=[[T("Client"),T("Professionnel"),T("Note"),T("Commentaire"),T("Date"),T("Statut"),"ID"]];
+      DATA.getReviews({ status: currentReviewFilter()==="all"?"":currentReviewFilter() }).forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.customer,p?p.name:"?",r.rating,r.comment,r.date,r.status,r.id]); });
+      UI.exportCSV("avis-sna3ti.csv", rows); UI.toast(T("Export généré."));
+    }); }
     el.innerHTML =
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>' +
       list.map(function(r){
@@ -1477,6 +1486,7 @@
     var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
     var order = ["all","new","under_review","resolved","rejected"];
     var html =
+      '<div class="page-head"><h1>'+T("Centre de modération")+'</h1><div class="spacer">'+(AUTH.can("reports","read")?'<button class="btn btn-ghost" id="repExport">⬇ '+T("Exporter")+'</button>':"")+'</div></div>'+
       '<div class="tabs">'+order.map(function(s,i){
         var list=DATA.getReports(); var n=list.length; if(s!=="all") n=list.filter(function(r){return r.status===s;}).length;
         return '<button class="tab '+(s===filter?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
@@ -1501,6 +1511,11 @@
     });
     var list = DATA.getReports({ status: filter==="all"?"":filter });
     var el = document.getElementById("repBody");
+    var rexpt = document.getElementById("repExport"); if(rexpt && !rexpt._bound){ rexpt._bound=true; rexpt.addEventListener("click", function(){
+      var rows=[[T("ID"),T("Professionnel"),T("Type"),T("Priorité"),T("Statut"),T("Signalé par"),T("Date"),T("Description")]];
+      DATA.getReports({ status: currentReportFilter()==="all"?"":currentReportFilter() }).forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.id,p?p.name:"?",reportTypeLabel(r.type),r.priority,r.status,r.reporter,r.date,r.description]); });
+      UI.exportCSV("signalements-sna3ti.csv", rows); UI.toast(T("Export généré."));
+    }); }
     if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucun signalement.")+'</div>'; return; }
     el.innerHTML = list.map(function(r){
       var p = DATA.getProfessional(r.professionalId);
@@ -1622,7 +1637,7 @@
     el.innerHTML = list.map(function(t){
       var p = DATA.getProfessional(t.professionalId);
       return '<div class="card" style="margin-bottom:10px"><div class="row-item" style="align-items:flex-start">'+
-        '<div class="p-avatar" style="background:#fff4e0">🧰</div>'+
+        '<div class="p-avatar">🧰</div>'+
         '<div class="grow"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
           '<b>'+esc(t.subject)+'</b>'+
           '<span class="badge '+supportPrioClass(t.priority)+'">'+esc(supportPrioLabel(t.priority))+'</span>'+
@@ -1689,7 +1704,10 @@
     var statExpired = subs.filter(function(s){ return s.status==="expired"; }).length;
     var statCancelled = subs.filter(function(s){ return s.status==="cancelled"; }).length;
     var statMRR = subs.filter(function(s){ return s.status==="active" && !isFree(s); }).reduce(function(a,s){ return a+(s.price||0); },0);
-    var html = '<div class="page-head"><h1>'+T("Abonnements")+'</h1><div class="spacer muted">'+T("Vérification ≠ abonnement.")+'</div></div>' +
+    var spacer = AUTH.can("subscriptions","read")
+      ? '<button class="btn btn-ghost" id="subExport">⬇ '+T("Exporter")+'</button>'
+      : '<span class="muted">'+T("Vérification ≠ abonnement.")+'</span>';
+    var html = '<div class="page-head"><h1>'+T("Abonnements")+'</h1><div class="spacer">'+spacer+'</div></div>' +
       '<div class="grid grid-4" style="margin-bottom:20px">'+
         '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Abonnés actifs")+'</span><span class="k-ico">👥</span></div><div class="k-val">'+statActive+'</div><div class="k-delta"><span class="cmp">'+T("abonnements en cours")+'</span></div></div>'+
         '<div class="kpi"><div class="k-top"><span class="k-title">'+T("Abonnements expirés")+'</span><span class="k-ico">⏰</span></div><div class="k-val">'+statExpired+'</div><div class="k-delta"><span class="cmp">'+T("non renouvelés")+'</span></div></div>'+
@@ -1750,6 +1768,11 @@
         UI.toast(name+T(" est passé à GRATUIT.")); renderSubscriptions();
       } });
     }); });
+    var sexp = document.getElementById("subExport"); if(sexp) sexp.addEventListener("click", function(){
+      var rows=[[T("Professionnel"),T("Plan"),T("Prix"),T("Début"),T("Renouvellement"),T("Statut"),T("Paiement"),"ID"]];
+      DATA.getSubscriptions().forEach(function(s){ var p=DATA.getProfessional(s.professionalId); rows.push([p?p.name:"?",s.planName,s.price,s.since,s.renewal,s.status,s.paymentStatus,s.id]); });
+      UI.exportCSV("abonnements-sna3ti.csv", rows); UI.toast(T("Export généré."));
+    });
   }
   function tick(on){ return on ? '<span class="tick yes">✓</span>' : '<span class="tick no">—</span>'; }
   function benefitRow(label, cols){
@@ -1797,7 +1820,7 @@
     UI.setTitle(T("Paiements"));
     var pays = DATA.getPayments();
     UI.setContent(
-      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer muted">'+T("Virements bancaires manuels confirmés après contrôle.")+'</div></div>' +
+      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
       pays.map(function(pa){
         var p = DATA.getProfessional(pa.professionalId);
@@ -1825,6 +1848,11 @@
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
       var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
+    var pex = document.getElementById("payExport"); if(pex) pex.addEventListener("click", function(){
+      var rows=[[T("Référence"),T("Professionnel"),T("Plan"),T("Montant"),T("Méthode"),T("Réf. bancaire"),T("Date"),T("Statut"),"ID"]];
+      DATA.getPayments().forEach(function(pa){ var p=DATA.getProfessional(pa.professionalId); rows.push([pa.reference,p?p.name:"?",pa.planName,pa.amount,pa.method,pa.bankRef||"",pa.date,pa.status,pa.id]); });
+      UI.exportCSV("paiements-sna3ti.csv", rows); UI.toast(T("Export généré."));
+    });
   }
   function renderPaymentDetail(id){
     var pa = DATA.getPayments().find(function(x){ return x.id===id; });
@@ -2363,10 +2391,13 @@
       '<div class="card"><div class="toolbar"><div class="field"><label>'+T("Recherche")+'</label><input type="search" id="auQ" placeholder="'+T("Action, admin, entité, ID...")+'"></div>'+
         '<div class="field"><label>'+T("Résultat")+'</label><select id="auRes"><option value="">'+T("Tous")+'</option><option>Success</option><option>Approved</option><option>Rejected</option><option>Flagged</option><option>Updated</option></select></div></div>'+
       '<div class="table-wrap"><table><thead><tr><th>'+T("Horodatage")+'</th><th>Admin</th><th>'+T("Action")+'</th><th>'+T("Entité")+'</th><th>ID</th><th>'+T("Résultat")+'</th><th>'+T("Note")+'</th></tr></thead><tbody id="auBody"></tbody></table></div></div>');
-    function drawAudit(){
+    function auditFiltered(){
       var q=(document.getElementById("auQ").value||"").toLowerCase();
       var rs=document.getElementById("auRes").value;
-      var rows=logs.filter(function(l){ return (!q || (l.action+" "+l.admin+" "+l.entity+" "+l.entityId+" "+(l.note||"")).toLowerCase().indexOf(q)>-1) && (!rs || String(l.result)===rs); });
+      return logs.filter(function(l){ return (!q || (l.action+" "+l.admin+" "+l.entity+" "+l.entityId+" "+(l.note||"")).toLowerCase().indexOf(q)>-1) && (!rs || String(l.result)===rs); });
+    }
+    function drawAudit(){
+      var rows=auditFiltered();
       document.getElementById("auBody").innerHTML = rows.length ? rows.map(function(l){ return '<tr><td>'+esc(l.timestamp)+'</td><td>'+esc(l.admin)+'</td><td><code>'+esc(l.action)+'</code></td><td>'+esc(l.entity)+'</td><td>'+esc(l.entityId)+(l.prev?'<div class="muted">'+esc(l.prev)+' → '+esc(l.next)+'</div>':"")+'</td>'+
         '<td><span class="badge '+(String(l.result).toLowerCase()==="success"||String(l.result).toLowerCase()==="approved"||String(l.result).toLowerCase()==="confirmed"?"green":"amber")+'">'+esc(l.result)+'</span></td><td class="muted">'+esc(l.note||"—")+'</td></tr>'; }).join("")
         : '<tr><td colspan="7"><div class="empty">'+T("Aucun résultat.")+'</div></td></tr>';
@@ -2375,7 +2406,7 @@
     document.getElementById("auRes").addEventListener("change", drawAudit);
     drawAudit();
     var ex = document.getElementById("auExport"); if(ex) ex.addEventListener("click", function(){
-      var rows=[[T("Timestamp"),"Admin","Action",T("Entité"),"ID",T("Résultat"),T("Note")]]; logs.forEach(function(l){ rows.push([l.timestamp,l.admin,l.action,l.entity,l.entityId,l.result,l.note||""]); });
+      var rows=[[T("Timestamp"),"Admin","Action",T("Entité"),"ID",T("Résultat"),T("Note")]]; auditFiltered().forEach(function(l){ rows.push([l.timestamp,l.admin,l.action,l.entity,l.entityId,l.result,l.note||""]); });
       UI.exportCSV("audit-logs-sna3ti.csv", rows); UI.toast(T("Export généré."));
     });
   }

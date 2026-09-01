@@ -26,11 +26,16 @@
   --green-bg:#e7f6ec;
   --blue:#2563eb;
   --purple:#7c3aed;
+  --purple-bg:#f1ebff;
 
   --shadow:0 20px 60px rgba(7,29,26,.10);
   --shadow-sm:0 6px 20px rgba(7,29,26,.06);
   --radius:18px;
   --radius-sm:12px;
+
+  --card:#fff;
+  --field:#fff;
+  --accent:var(--teal);
 
   --font-head:"Space Grotesk",Inter,system-ui,sans-serif;
   --font-body:Inter,system-ui,sans-serif;
@@ -220,7 +225,7 @@ a { color:var(--teal); text-decoration:none; }
 .n-ico.report,.n-ico.red { background:var(--red-bg); }
 .n-ico.verification { background:var(--green-bg); }
 .n-ico.subscription { background:var(--mint); }
-.n-ico.review { background:#f1ebff; }
+  .n-ico.review { background:var(--purple-bg); }
 .row-item[data-nav] { cursor:pointer; }
 .row-item[data-nav]:hover { background:var(--sand); }
 .dot.unread { width:9px; height:9px; border-radius:50%; background:var(--orange); display:inline-block; }
@@ -557,9 +562,14 @@ td.actions-cell { white-space:nowrap; text-align:right; }
   --green-bg:#16301f;
   --blue:#7aa8ff;
   --purple:#b79aff;
+  --purple-bg:rgba(183,154,255,.15);
 
   --shadow:0 20px 60px rgba(0,0,0,.55);
   --shadow-sm:0 6px 20px rgba(0,0,0,.40);
+
+  --card:var(--sand);
+  --field:var(--cream);
+  --accent:var(--teal);
 }
 
 :root[data-theme="dark"] body {
@@ -601,6 +611,7 @@ td.actions-cell { white-space:nowrap; text-align:right; }
 :root[data-theme="dark"] .rw-col,
 :root[data-theme="dark"] .plan-card {
   box-shadow:none;
+  background:var(--sand);
 }
 
 /* form fields */
@@ -644,6 +655,16 @@ td.actions-cell { white-space:nowrap; text-align:right; }
 :root[data-theme="dark"] .menu-item,
 :root[data-theme="dark"] .sp-main,
 :root[data-theme="dark"] .n-txt { color:var(--ink); }
+
+/* hardcoded badge tints -> theme-aware */
+:root[data-theme="dark"] .badge.gray { background:rgba(230,242,239,.08); color:var(--muted); }
+:root[data-theme="dark"] .badge.orange { background:rgba(240,148,92,.15); color:var(--orange); }
+:root[data-theme="dark"] .badge.blue { background:rgba(122,168,255,.15); color:var(--blue); }
+:root[data-theme="dark"] .badge.purple { background:rgba(183,154,255,.15); color:var(--purple); }
+
+/* doc dropzone + unread notification row */
+:root[data-theme="dark"] .doc { background:#112e28; border-color:rgba(79,209,195,.25); color:var(--teal); }
+:root[data-theme="dark"] .notif-item.unread { background:#12312b; }
 
 /* ---- verification center: filters + sort ---- */
 .vfilter-bar {
