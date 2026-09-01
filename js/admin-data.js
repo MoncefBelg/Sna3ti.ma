@@ -32,6 +32,7 @@
     ai: ["read"],
     notifications: ["read", "send"],
     settings: ["read", "update"],
+    legal: ["read", "update"],
     adminUsers: ["read", "update"],
     auditLogs: ["read", "export"]
   };
@@ -40,12 +41,12 @@
     "super_admin": {
       label: T("Super Admin"),
       color: "purple",
-      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
     },
     "admin": {
       label: T("Admin"),
       color: "teal",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], adminUsers:["read"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"] }
     },
     "moderator": {
       label: T("Moderator"),
@@ -443,6 +444,93 @@
     });
   }
 
+  // Legal documents (Terms of Service / Privacy Policy / About Us).
+  // Content lives as structured, per-language documents so it can be served by
+  // a backend later; for now it is published through shared localStorage and
+  // read by the public site as progressive enhancement over a static fallback.
+  var LEGAL_DEFAULTS = [
+    { id:"terms", published:true, label:{ fr:"Conditions d'utilisation", en:"Terms of Service", ar:"شروط الاستخدام" },
+      content:{
+        fr:{ title:"Conditions d'utilisation",
+          intro:"Les présentes Conditions d'utilisation encadrent l'accès et l'usage de la plateforme Sna3ti.ma, mise en relation entre particuliers et professionnels locaux.",
+          sections:[
+            { heading:"1. Objet de la plateforme", body:"Sna3ti.ma est une plateforme de mise en relation permettant aux demandeurs de trouver et de contacter des professionnels (maçons, plombiers, électriciens, etc.) selon leur ville, leur métier et leurs disponibilités." },
+            { heading:"2. Comptes et responsabilité", body:"Le professionnel est seul responsable des informations publiées sur son profil (coordonnées, tarifs, échantillons de travaux). L'utilisateur s'engage à fournir des informations exactes lors de sa demande de mise en relation." },
+            { heading:"3. Vérification et confiance", body:"La plateforme propose une démarche de vérification d'identité et de qualification. Elle ne garantit toutefois ni la qualité des prestations fournies ni la bonne exécution des travaux commandés en dehors de la plateforme." },
+            { heading:"4. Tarifs et paiement", body:"Le paiement d'un abonnement (GRATUIT, VÉRIFIÉ, GOLD) confère des avantages de visibilité et de vérification. Il n'implique ni une relation d'emploi ni une garantie de résultats." },
+            { heading:"5. Protection des données", body:"Les données personnelles sont traitées conformément à la Politique de confidentialité. La plateforme s'engage à ne pas revendre les coordonnées des utilisateurs à des tiers." }
+          ] },
+        en:{ title:"Terms of Service",
+          intro:"These Terms of Service govern access to and use of the Sna3ti.ma platform, which connects consumers with local professionals.",
+          sections:[
+            { heading:"1. Purpose of the platform", body:"Sna3ti.ma is a matching platform that lets consumers find and contact professionals (masons, plumbers, electricians, etc.) by city, trade and availability." },
+            { heading:"2. Accounts and responsibility", body:"Professionals are solely responsible for the information published on their profile (contact details, rates, work samples). Users agree to provide accurate information when requesting a match." },
+            { heading:"3. Verification and trust", body:"The platform offers an identity and qualification verification process. It does not guarantee the quality of services delivered nor the proper execution of work ordered outside the platform." },
+            { heading:"4. Pricing and payment", body:"Paying for a plan (FREE, VERIFIED, GOLD) grants visibility and verification benefits. It implies no employment relationship and no guarantee of results." },
+            { heading:"5. Data protection", body:"Personal data is processed in accordance with the Privacy Policy. The platform does not sell users' contact details to third parties." }
+          ] },
+        ar:{ title:"شروط الاستخدام",
+          intro:"تنظم هذه الشروط الوصول إلى منصة سنعتيم واستخدامها، وهي منصة للربط بين الزبناء والمهنيين المحليين.",
+          sections:[
+            { heading:"1. هدف المنصة", body:"سنعتيم.ma هي منصة للربط تتيح للزبناء إيجاد مهنيين (بنّائين، سبّاكين، كهربائيين...) والتواصل معهم حسب المدينة والمهنة والتوفر." },
+            { heading:"2. الحسابات والمسؤولية", body:"المهني مسؤول وحده عن المعلومات المنشورة في ملفه (بيانات الاتصال والأثمنة ونماذج الأعمال)." },
+            { heading:"3. التحقق والثقة", body:"توفر المنصة مسطرة للتحقق من الهوية والمؤهلات دون أن تضمن جودة الخدمات المقدمة." },
+            { heading:"4. الأثمنة والدفع", body:"الاشتراك (مجاني، موثّق، ذهبي) يمنح مزايا للظهور والتحقق دون أن يعني علاقة عمل أو ضمان نتائج." }
+          ] }
+      } },
+    { id:"privacy", published:true, label:{ fr:"Politique de confidentialité", en:"Privacy Policy", ar:"سياسة الخصوصية" },
+      content:{
+        fr:{ title:"Politique de confidentialité",
+          intro:"Sna3ti.ma accorde une importance particulière à la protection des données personnelles de ses utilisateurs et professionnels.",
+          sections:[
+            { heading:"1. Données collectées", body:"Nous collectons les informations fournies lors de la création d'un profil ou d'une demande : nom, téléphone, email, ville et détails des demandes de mise en relation." },
+            { heading:"2. Utilisation des données", body:"Les données servent à assurer la mise en relation, à afficher les profils, à prévenir les abus et à améliorer le service. Les contacts ne sont jamais partagés avec des tiers à des fins commerciales." },
+            { heading:"3. Conservation et sécurité", body:"Les données sont conservées le temps nécessaire aux finalités décrites. La plateforme met en œuvre des mesures techniques pour limiter les accès non autorisés." },
+            { heading:"4. Vos droits", body:"Conformément à la réglementation applicable, vous pouvez demander l'accès, la rectification ou la suppression de vos données en contactant support@sna3ti.ma." }
+          ] },
+        en:{ title:"Privacy Policy",
+          intro:"Sna3ti.ma takes the protection of its users' and professionals' personal data very seriously.",
+          sections:[
+            { heading:"1. Data collected", body:"We collect the information provided when creating a profile or a request: name, phone, email, city and the details of matching requests." },
+            { heading:"2. Use of data", body:"Data is used to enable matching, display profiles, prevent abuse and improve the service. Contacts are never shared with third parties for commercial purposes." },
+            { heading:"3. Retention and security", body:"Data is kept as long as necessary for the purposes described. The platform applies technical measures to limit unauthorised access." },
+            { heading:"4. Your rights", body:"Under applicable regulations, you may request access to, rectification of, or deletion of your data by contacting support@sna3ti.ma." }
+          ] },
+        ar:{ title:"سياسة الخصوصية",
+          intro:"تولي سنعتيم.ma أهمية خاصة لحماية المعطيات الشخصية لمستخدميها ومهنييها.",
+          sections:[
+            { heading:"1. المعطيات المجمعة", body:"نجمع المعلومات المصرح بها عند إنشاء ملف أو طلب : الاسم والهاتف والبريد الإلكتروني والمدينة وتفاصيل طلبات الربط." },
+            { heading:"2. استعمال المعطيات", body:"تستعمل المعطيات لضمان الربط وعرض الملفات ومنع الانتهاكات وتحسين الخدمة، دون مشاركتها مع أطراف ثالثة لأغراض تجارية." },
+            { heading:"3. الاحتفاظ والأمن", body:"تحتفظ المنصة بالمعطيات للمدة اللازمة وتتخذ تدابير تقنية للحد من الوصول غير المصرح به." },
+            { heading:"4. حقوقك", body:"بمقتضى القوانين الجاري بها العمل، يمكنك طلب الاطلاع على معطياتك أو تصحيحها أو حذفها عبر مراسلة support@sna3ti.ma." }
+          ] }
+      } },
+    { id:"about", published:true, label:{ fr:"À propos", en:"About Us", ar:"من نحن" },
+      content:{
+        fr:{ title:"À propos de Sna3ti.ma",
+          intro:"Sna3ti.ma connecte les particuliers aux artisans et professionnels de confiance au Maroc.",
+          sections:[
+            { heading:"Notre mission", body:"Faciliter la recherche d'un professionnel fiable près de chez vous : maçons, plombiers, électriciens, peintres et bien d'autres métiers, partout au Maroc." },
+            { heading:"Confiance d'abord", body:"Chaque professionnel est invité à faire vérifier son identité et ses diplômes. Les avis des clients, publiés et modérés, aident chacun à choisir en toute confiance." },
+            { heading:"Contact", body:"Une question ? Écrivez-nous à support@sna3ti.ma ou téléphonez au 06 00 00 00 00." }
+          ] },
+        en:{ title:"About Sna3ti.ma",
+          intro:"Sna3ti.ma connects consumers with trusted craftsmen and professionals in Morocco.",
+          sections:[
+            { heading:"Our mission", body:"Make it easy to find a reliable professional near you: masons, plumbers, electricians, painters and many other trades across Morocco." },
+            { heading:"Trust first", body:"Every professional is invited to have their identity and qualifications verified. Published and moderated client reviews help everyone choose with confidence." },
+            { heading:"Contact", body:"A question? Write to us at support@sna3ti.ma or call 06 00 00 00 00." }
+          ] },
+        ar:{ title:"عن سنعتيم",
+          intro:"سنعتيم.ma تربط الزبناء بالحرفيين والمهنيين الموثوقين في المغرب.",
+          sections:[
+            { heading:"مهمتنا", body:"تسهيل إيجاد مهني موثوق قريب منك : بنّاؤون وسبّاكون وكهربائيون ورسامون وغيرهم من المهن في جميع أنحاء المغرب." },
+            { heading:"الثقة أولاً", body:"يُدعى كل مهني إلى التحقق من هويته ومؤهلاته، كما تساعد تقييمات الزبناء المعروضة والمراقَبة الجميع على الاختيار بثقة." },
+            { heading:"اتصل بنا", body:"لديك سؤال؟ راسلنا على support@sna3ti.ma أو اتصل على الرقم 06 00 00 00 00." }
+          ] }
+      } }
+  ];
+
   var store = {
     users: USERS, professionals: PROFESSIONALS, categories: normalizeCategories(CATEGORIES),
     regions: REGIONS, reviews: REVIEWS, reports: REPORTS,
@@ -451,7 +539,7 @@
     supportTickets: SUPPORT_TICKETS,
     auditLogs: AUDIT_LOGS, verificationRequests: VERIFICATION_REQUESTS,
     activity: ACTIVITY, analytics: ANALYTICS, config: CONFIG,
-    userActivity: USER_ACTIVITY
+    legal: LEGAL_DEFAULTS, userActivity: USER_ACTIVITY
   };
 
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -470,7 +558,7 @@
   }
 
   // Persist collections to localStorage (best-effort) for demo continuity.
-  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics","supportTickets","auditLogs"];
+  var MUTABLE_KEYS = ["professionals","users","subscriptions","payments","verificationRequests","reviews","reports","categories","regions","notifications","adminUsers","config","userActivity","analytics","supportTickets","auditLogs","legal"];
   function persist(){
     try { MUTABLE_KEYS.forEach(function(k){ localStorage.setItem("sna3ti_admin_"+k, JSON.stringify(store[k])); }); } catch(e){}
   }
@@ -1027,6 +1115,15 @@
     resetConfig: function(){
       CONFIG = JSON.parse(JSON.stringify(CONFIG_DEFAULTS));
       store.config = CONFIG;
+      persist();
+      return true;
+    },
+    // ---- Legal content (Terms / Privacy / About) ----
+    getLegalDocuments: function(){ return clone(store.legal); },
+    getLegalDocument: function(id){ return clone(getById(store.legal, id)); },
+    updateLegalDocument: function(id, data){
+      var d = getById(store.legal, id); if(!d) return false;
+      Object.keys(data||{}).forEach(function(k){ if(data[k]!==undefined) d[k]=data[k]; });
       persist();
       return true;
     },

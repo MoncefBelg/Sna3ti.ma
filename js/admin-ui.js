@@ -177,6 +177,7 @@
       { label:T("Système"), items:[
           { route:"notifications", ico:"🔔", label:T("Notifications") },
           { route:"settings", ico:"⚙️", label:T("Réglages") },
+          { route:"legal", ico:"⚖️", label:T("Contenu légal") },
           { route:"admin-users", ico:"🛡️", label:T("Admin Users") },
           { route:"audit-logs", ico:"📜", label:T("Audit Logs") }
         ]}
@@ -206,7 +207,7 @@
     reviews:["reviews","read"], reports:["reports","read"], support:["support","read"],
     subscriptions:["subscriptions","read"],
     payments:["payments","read"], analytics:["analytics","read"], ai:["ai","read"],
-    notifications:["notifications","read"], settings:["settings","read"],
+    notifications:["notifications","read"], settings:["settings","read"], legal:["legal","read"],
     "admin-users":["adminUsers","read"], "audit-logs":["auditLogs","read"]
   };
 

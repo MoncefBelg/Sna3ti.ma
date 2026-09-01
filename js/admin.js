@@ -1824,7 +1824,7 @@
     UI.setContent(
       '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
-      pays.map(function(pa){
+      (pays.length ? pays.map(function(pa){
         var p = DATA.getProfessional(pa.professionalId);
         var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
         return '<tr><td><b>'+esc(pa.reference)+'</b>'+(linkReq?'<br><span class="badge purple">'+T("Demande abonnement")+'</span>':"")+'</td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
@@ -1837,7 +1837,7 @@
             '<button class="icon-act" data-whats="'+pa.id+'" title="'+T("Discuter sur WhatsApp")+'">💬</button>' +
             (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Voir en vérification")+'">✅</button>' : "") +
           '</td></tr>';
-      }).join("") + '</tbody></table></div></div>' +
+      }).join("") : '<tr><td colspan="9"><div class="empty" style="padding:30px">'+T("Aucun paiement.")+'</div></td></tr>') + '</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">'+T("Workflow virement bancaire")+'</div>' +
       '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Professionnel choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
       '<p class="muted" style="margin-top:12px">'+T("Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.")+'</p></div>' +
@@ -2347,6 +2347,121 @@
   }
   function rule(t){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+esc(t)+'</div></div>'; }
 
+  /* ============================================================
+     LEGAL CONTENT (Terms / Privacy / About) — spec 39
+     Admin-managed multilingual documents. Stored as structured
+     data through the DATA facade; a backend API can serve these
+     documents later without rebuilding this screen.
+     ============================================================ */
+  function renderLegal(){
+    UI.setTitle(T("Contenu légal"));
+    var docs = DATA.getLegalDocuments();
+    var canU = AUTH.can("legal","update");
+    UI.setContent(
+      '<div class="page-head"><h1>'+T("Contenu légal")+'</h1><div class="spacer"></div></div>' +
+      '<div class="muted" style="margin-bottom:14px;font-size:13px">'+T("Documents juridiques publiés sur le site public.")+'</div>' +
+      '<div class="card"><div class="legal-docs">' +
+      (docs.length ? docs.map(function(d){
+        var langs = Object.keys(d.content||{}).filter(function(l){ return d.content[l]; }).map(function(l){ return l.toUpperCase(); }).join(" · ");
+        var secCount = 0;
+        if(d.content && d.content.fr) secCount = (d.content.fr.sections||[]).length;
+        var updated = (d.updatedAt ? esc(d.updatedAt) + " · " + T("Mis à jour par") + " " + esc(d.updatedBy||"—") : "—");
+        return '<div class="legal-row">' +
+          '<div class="grow"><b style="font-size:14.5px">'+esc((d.label&&d.label.fr)||d.id)+'</b>'+
+            '<div class="muted" style="font-size:12px;margin-top:2px">'+langs+' · '+secCount+' '+T("Sections")+'</div>'+
+            '<div class="muted" style="font-size:11.5px;margin-top:2px">'+updated+'</div></div>'+
+          '<span class="badge '+(d.published?"green":"gray")+'">'+(d.published?T("Publié"):T("Non publié"))+'</span>'+
+          (canU ? '<button class="btn btn-ghost btn-small" data-editlegal="'+esc(d.id)+'" style="margin-left:10px">✎ '+T("Modifier")+'</button>' : "")+
+        '</div>';
+      }).join("") : '<div class="empty"><div class="e-ico">⚖️</div>'+T("Aucun document légal")+'</div>') +
+      '</div></div>' +
+      '<div class="muted" style="margin-top:12px;font-size:12px;line-height:1.6">'+T("Chaque document est édité par langue (FR/EN/AR). Le contenu est structuré et sera servi par l'API backend à terme.")+'</div>'
+    );
+    document.querySelectorAll("[data-editlegal]").forEach(function(b){ b.addEventListener("click", function(){ editLegal(b.dataset.editlegal); }); });
+  }
+
+  function editLegal(id){
+    var doc = DATA.getLegalDocument(id);
+    if(!doc){ UI.toast(T("Document introuvable."), true); return; }
+    var langs = ["fr","en","ar"];
+    var content = doc.content||{};
+    langs.forEach(function(l){ content[l] = content[l] || { title:"", intro:"", sections:[] }; });
+    if(!content.fr.title) content.fr.title = (doc.label&&doc.label.fr)||doc.id;
+    var currentLang = "fr";
+    var dirty = false;
+
+    function fieldVal(lang,k){ var c=content[lang]; return c ? (c[k]||"") : ""; }
+    function sectionsHtml(lang){
+      var secs = (content[lang] && content[lang].sections) || [];
+      return '<div id="legalSections">' + (secs.length ? secs.map(function(s,i){
+        return '<div class="legal-sec" data-sec="'+i+'">'+
+          '<input class="ls-head" data-sec-k="heading" placeholder="'+T("Titre de section")+'" value="'+esc(s.heading||"")+'">'+
+          '<textarea class="ls-body" data-sec-k="body" placeholder="'+T("Texte de section")+'" rows="2">'+esc(s.body||"")+'</textarea>'+
+          '<button type="button" class="icon-act danger" data-sec-del="'+i+'" title="'+T("Supprimer")+'">🗑️</button></div>';
+      }).join("") : '<div class="muted small" style="padding:6px 0">'+T("Aucune section")+'</div>') + '</div>';
+    }
+    function langTabsHtml(active){
+      return '<div class="tabs" id="legalLangTabs">' + langs.map(function(l){
+        return '<button class="tab '+(l===active?"active":"")+'" data-legal-lang="'+l+'">'+(l==="fr"?"Français":l==="en"?"English":"العربية")+'</button>';
+      }).join("") + '</div>';
+    }
+    function syncFromDom(){
+      var secs = [];
+      document.querySelectorAll("#legalSections [data-sec]").forEach(function(row){
+        var h = ""; var b = "";
+        row.querySelectorAll("[data-sec-k]").forEach(function(inp){ if(inp.dataset.secK === "heading") h = inp.value; else b = inp.value; });
+        secs.push({ heading:h, body:b });
+      });
+      content[currentLang].title = (document.getElementById("legTitle")||{value:content[currentLang].title}).value;
+      content[currentLang].intro = (document.getElementById("legIntro")||{value:content[currentLang].intro}).value;
+      content[currentLang].sections = secs;
+      dirty = true;
+    }
+    function modalBodyHtml(){
+      return '<h3>'+esc((doc.label&&doc.label.fr)||doc.id)+'</h3>' +
+        langTabsHtml(currentLang) +
+        '<div class="frm" style="margin-top:12px"><label>'+T("Titre")+'</label><input id="legTitle" value="'+esc(fieldVal(currentLang,"title"))+'"></div>' +
+        '<div class="frm" style="margin-top:10px"><label>'+T("Introduction")+'</label><textarea id="legIntro" rows="2">'+esc(fieldVal(currentLang,"intro"))+'</textarea></div>' +
+        '<div class="frm" style="margin-top:10px"><label>'+T("Sections")+'</label>'+ sectionsHtml(currentLang) +'</div>' +
+        '<label class="field-check" style="margin-top:12px"><input type="checkbox" id="legPublished" '+(doc.published?"checked":"")+'> '+T("Publié")+'</label>' +
+        '<div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button>'+
+          '<button class="btn btn-ghost" id="legAddSec">+ '+T("Ajouter une section")+'</button>'+
+          '<button class="btn btn-primary" id="legSave">'+T("Enregistrer")+'</button></div>';
+    }
+    UI.openModal(modalBodyHtml(), true);
+    function bindEditor(){
+      document.querySelectorAll("[data-legal-lang]").forEach(function(t){ t.addEventListener("click", function(){
+        syncFromDom();
+        currentLang = t.dataset.legalLang;
+        document.getElementById("modalBody").innerHTML = modalBodyHtml();
+        bindEditor();
+      }); });
+      document.querySelectorAll("[data-sec-del]").forEach(function(x){ x.addEventListener("click", function(){
+        syncFromDom();
+        content[currentLang].sections.splice(Number(x.dataset.secDel),1);
+        document.getElementById("modalBody").innerHTML = modalBodyHtml();
+        bindEditor();
+      }); });
+      var add = document.getElementById("legAddSec");
+      if(add) add.addEventListener("click", function(){
+        syncFromDom();
+        content[currentLang].sections.push({ heading:"", body:"" });
+        document.getElementById("modalBody").innerHTML = modalBodyHtml();
+        bindEditor();
+      });
+      var save = document.getElementById("legSave");
+      if(save) save.addEventListener("click", function(){
+        syncFromDom();
+        var published = (document.getElementById("legPublished")||{checked:doc.published}).checked;
+        DATA.updateLegalDocument(id, { content:content, published:published, updatedAt:new Date().toLocaleString("fr-MA"), updatedBy:AUTH.getSession().name });
+        DATA.logAudit({admin:AUTH.getSession().name, action:"LEGAL_UPDATED", entity:"LegalDocument", entityId:id, result:"Updated"});
+        UI.toast(T("Document enregistré."));
+        UI.closeModal(); renderLegal();
+      });
+    }
+    bindEditor();
+  }
+
   function renderAdminUsers(){
     UI.setTitle(T("Admin Users"));
     var users = DATA.getAdminUsers();
@@ -2434,6 +2549,7 @@
     if(route.route.view === "login"){ renderLogin(); return; }
     UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : route.route.view));
     currentView = route.route.view;
+    try {
     switch(route.route.view){
       case "dashboard": renderDashboard(); break;
       case "professionals": renderProfessionals(route.query||{}); break;
@@ -2452,9 +2568,14 @@
       case "ai": renderAI(); break;
       case "notifications": renderNotifications((route.query||{}).filter || ""); break;
       case "settings": renderSettings(); break;
+      case "legal": renderLegal(); break;
       case "adminUsers": renderAdminUsers(); break;
       case "auditLogs": renderAuditLogs(); break;
       default: renderNotFound();
+    }
+    } catch(e){
+      console.error("view render error", e);
+      UI.renderError(T("Erreur de chargement") + " — " + (e && e.message ? e.message : String(e)));
     }
   }
 

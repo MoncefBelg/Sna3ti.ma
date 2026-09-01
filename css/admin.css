@@ -786,3 +786,24 @@ table.matrix input[type=radio]:disabled + .tick { opacity:.5; }
 @media (max-width:600px){
   .prototype-badge { display:none; }
 }
+
+/* legal content (spec 39) — consistent with the existing identity */
+.legal-docs { display:flex; flex-direction:column; gap:12px; }
+.legal-row {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:var(--field); border:1px solid var(--line);
+  border-radius:14px; padding:16px;
+}
+.legal-row .grow { flex:1; min-width:200px; }
+.legal-sec {
+  display:grid; gap:8px; grid-template-columns:1fr;
+  padding:10px; margin-bottom:10px;
+  border:1px dashed var(--line-strong); border-radius:12px; background:var(--field);
+}
+.legal-sec .ls-head { padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--card); font-size:13px; font-weight:600; }
+.legal-sec .ls-body { padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--card); font-size:13px; resize:vertical; }
+.legal-sec .icon-act { justify-self:end; }
+:root[data-theme="dark"] .legal-row { background:var(--sand); border-color:var(--line-strong); }
+:root[data-theme="dark"] .legal-sec { background:var(--cream); border-color:rgba(230,242,239,.18); }
+:root[data-theme="dark"] .legal-sec .ls-head,
+:root[data-theme="dark"] .legal-sec .ls-body { background:var(--sand); color:var(--ink); border-color:var(--line-strong); }

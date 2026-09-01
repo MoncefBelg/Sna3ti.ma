@@ -30,6 +30,7 @@
     { path:"ai", view:"ai", perm:["ai","read"] },
     { path:"notifications", view:"notifications", perm:["notifications","read"] },
     { path:"settings", view:"settings", perm:["settings","read"] },
+    { path:"legal", view:"legal", perm:["legal","read"] },
     { path:"admin-users", view:"adminUsers", perm:["adminUsers","read"] },
     { path:"audit-logs", view:"auditLogs", perm:["auditLogs","read"] }
   ];
