@@ -8699,7 +8699,8 @@ initAllGalleries();
     { label: "💰 Tarifs", ask: "montre moi les tarifs" },
     { label: "🧰 Services", ask: "quels sont les services disponibles" },
     { label: "ℹ️ Comment ça marche", ask: "comment ça marche" },
-    { label: "👑 GOLD", ask: "parle moi de l offre gold" }
+    { label: "👑 GOLD", ask: "parle moi de l offre gold" },
+    { label: "🆘 Signaler un problème", ask: "__report__" }
   ];
   var cities = [
     { slug: "casablanca", label: "Casablanca" },
@@ -8728,7 +8729,7 @@ initAllGalleries();
       b.type = "button";
       b.className = "rounded-full bg-sna3ti-mint px-3 py-1 text-xs font-bold text-sna3ti-teal hover:bg-sna3ti-teal/20 transition";
       b.textContent = c.label;
-      b.addEventListener("click", function () { ask(c.ask); });
+      b.addEventListener("click", function () { if (c.ask === "__report__") { startReport(); } else { ask(c.ask); } });
       el.quick.appendChild(b);
     });
 
@@ -8775,6 +8776,118 @@ initAllGalleries();
     cRoot.classList.toggle("items-end", !rtl);
     cRoot.classList.toggle("items-start", rtl);
     cRoot.setAttribute("dir", rtl ? "rtl" : "ltr");
+  }
+
+  /* ---------- Support / report flow ----------
+     Lets a visitor (professional or user) raise an issue from the assistant.
+     The ticket is appended to the same localStorage collection the admin reads
+     (sna3ti_admin_supportTickets) so it appears in the admin "Demandes de support".
+     If the reporter identifies a professional already in our data, the ticket is
+     linked to that professionalId; otherwise it is left unlinked. */
+  var TICKET_KEY = "sna3ti_admin_supportTickets";
+  var PRO_KEY = "sna3ti_admin_professionals";
+
+  function readStore(key) {
+    try { var raw = localStorage.getItem(key); if (raw) return JSON.parse(raw); } catch (e) {}
+    return null;
+  }
+
+  function pnorm(s) {
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
+  }
+
+  // Return a professional entry matching a name or phone, preferring admin data.
+  function detectPro(name, phone) {
+    var list = readStore(PRO_KEY) || (typeof sna3tiProfessionals !== "undefined" ? sna3tiProfessionals : []);
+    var nn = pnorm(name), np = pnorm(phone);
+    var byName = null, byPhone = null;
+    list.forEach(function (p) {
+      if (!byName && nn && pnorm(p.name) === nn) byName = p;
+      if (!byPhone && np && pnorm(p.phone) === np) byPhone = p;
+    });
+    return byPhone || byName;
+  }
+
+  // Build an id unique on the page + timestamp, in the admin ticket shape (SP-xxxx).
+  function ticketId() {
+    return "SP-" + (Date.now() % 1000000);
+  }
+
+  function todayStamp() {
+    var d = new Date();
+    function p2(x) { return (x < 10 ? "0" : "") + x; }
+    return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()) + " " + p2(d.getHours()) + ":" + p2(d.getMinutes());
+  }
+
+  function submitTicket(f) {
+    var subject = (f.subject || "").trim() || "Demande de support";
+    var message = (f.message || "").trim();
+    var name = (f.name || "").trim();
+    var phone = (f.phone || "").trim();
+
+    var pro = detectPro(name, phone);
+    var tickets = readStore(TICKET_KEY) || [];
+    var ticket = {
+      id: ticketId(),
+      professionalId: pro ? String(pro.id).replace(/^PRO-?/i, "PRO-") : "",
+      user: name || "Visiteur anonyme",
+      subject: subject,
+      message: message,
+      category: "other",
+      priority: "medium",
+      status: "open",
+      created: todayStamp(),
+      assignedTo: "",
+      history: [{ date: todayStamp(), text: "Créé depuis l'assistant Sna3ti" }]
+    };
+    tickets.push(ticket);
+    try { localStorage.setItem(TICKET_KEY, JSON.stringify(tickets)); } catch (e) {}
+
+    var reply;
+    if (pro) {
+      reply = "Merci <b>" + esc(name) + "</b> ! ✅ Nous avons reconnu votre profil professionnel (<b>" + esc(pro.name || pro.job || "") + "</b> — " + esc(pro.job || "Professionnel") + ") dans notre base. Votre demande a été <b>transmise au support</b> et y est bien liée.\n\nNuméro de ticket : <b>" + ticket.id + "</b>";
+    } else {
+      reply = name
+        ? "Merci <b>" + esc(name) + "</b> ! ✅ Votre demande a été <b>transmise au support</b>.\n\nNuméro de ticket : <b>" + ticket.id + "</b>"
+        : "Votre demande a été <b>transmise au support</b>. ✅\n\nNuméro de ticket : <b>" + ticket.id + "</b><br><span class=\"text-[11px] opacity-70\">Pour un suivi précis, vous pouvez indiquer votre nom ou votre numéro de téléphone, ou créer un compte professionnel.</span>";
+    }
+    addMsg(reply, "bot");
+  }
+
+  function startReport() {
+    addMsg("Bien sûr, je peux transmettre votre demande au support. 🛠️ Remplissez le petit formulaire ci-dessous — si vous êtes un professionnel déjà présent sur Sna3ti, votre demande sera automatiquement liée à votre profil.", "bot");
+    var box = document.createElement("div");
+    box.id = "sna3ti-report-box";
+    box.className = "self-start w-full max-w-[92%] rounded-2xl rounded-bl-md border border-sna3ti-teal/15 bg-white p-3 text-sna3ti-ink";
+    box.innerHTML =
+      '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Sujet</label>' +
+      '<input id="sr-subject" type="text" placeholder="Ex : mon paiement, mon badge, un avis…" class="w-full mb-2 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
+      '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Votre message</label>' +
+      '<textarea id="sr-message" rows="3" placeholder="Décrivez votre problème…" class="w-full mb-2 resize-none rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal"></textarea>' +
+      '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Votre nom <span class="font-normal opacity-60">(optionnel)</span></label>' +
+      '<input id="sr-name" type="text" placeholder="Si vous êtes professionnel" class="w-full mb-2 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
+      '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Téléphone <span class="font-normal opacity-60">(optionnel)</span></label>' +
+      '<input id="sr-phone" type="text" placeholder="Ex : 2126…" class="w-full mb-3 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
+      '<button id="sr-send" type="button" class="w-full rounded-xl bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white transition hover:bg-sna3ti-teal2">Envoyer la demande</button>';
+    el.msgs.appendChild(box);
+    el.msgs.scrollTop = el.msgs.scrollHeight;
+
+    var send = box.querySelector("#sr-send");
+    send.addEventListener("click", function () {
+      var msg = (box.querySelector("#sr-message").value || "").trim();
+      if (!box.querySelector("#sr-subject").value.trim() && !msg) {
+        addMsg("Merci d'indiquer au moins un sujet ou un message. 🙂", "bot");
+        return;
+      }
+      submitTicket({
+        subject: box.querySelector("#sr-subject").value,
+        message: msg,
+        name: box.querySelector("#sr-name").value,
+        phone: box.querySelector("#sr-phone").value
+      });
+      box.remove();
+    });
+    el.input.blur();
   }
 
   el.btn.addEventListener("click", openChat);
