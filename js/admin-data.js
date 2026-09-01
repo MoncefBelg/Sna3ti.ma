@@ -756,10 +756,14 @@
       v.status="approved";
       v.history.push({ date: todayStr(), text:T("Approuvée par "+adminName) });
       if(v.level==="plan"){
-        // Plan (VÉRIFIÉ/GOLD) request: approval is a review step only.
-        // The badge is granted when the matching payment is confirmed (never here).
+        // Plan (VÉRIFIÉ/GOLD) request: approval ACTIVATES the requested
+        // subscription. The "Professionnel Vérifié" badge is a separate
+        // identity/professionnal check and is NEVER granted by subscription
+        // approval or payment confirmation (see level !== "plan" below).
         var p = getById(store.professionals, v.professionalId);
         if(p){ p.planEligible = true; }
+        if(v.planId && getById(store.subscriptionPlans, v.planId)){ applyPlanToProfessional(v.professionalId, v.planId); }
+        v.history.push({ date: todayStr(), text:T("Plan activé")+" — "+(v.requestedPlan||v.planId||"") });
         return true;
       }
       var p = getById(store.professionals, v.professionalId);

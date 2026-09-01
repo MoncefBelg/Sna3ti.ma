@@ -87,6 +87,7 @@
     "Veuillez réessayer.": "Please try again.",
     "Erreur de chargement": "Loading error",
     "Aucun paiement.": "No payments.",
+    "Plan activé": "Plan activated",
 
     // ---- login ----
     "Connexion": "Sign in",
