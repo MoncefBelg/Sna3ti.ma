@@ -4332,6 +4332,30 @@
           </div>
         </div>
 
+        <!-- check the chosen plan clearly -->
+        <div class="mt-3 flex items-center gap-2 rounded-xl bg-black/20 px-3 py-2 text-sm">
+          <span id="regSuccessPackIcon">🛡️</span>
+          <span class="font-black" data-i18n="regSuccess.plan">Formule choisie</span>
+          <span class="ml-auto font-black text-teal-300" id="regSuccessPlanLabel">Vérifié · 99 DH/mois</span>
+        </div>
+
+        <!-- user summary (nom, prenom, phone) -->
+        <div class="mt-3 space-y-2 rounded-xl bg-black/20 p-3 text-[13px]">
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-white/50" data-i18n="regSuccess.nom">Nom</span>
+            <span class="text-right font-bold" id="regSuccessNom">-</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-white/50" data-i18n="regSuccess.prenom">Prénom</span>
+            <span class="text-right font-bold" id="regSuccessPrenom">-</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-white/50" data-i18n="regSuccess.phone">WhatsApp</span>
+            <span class="text-right font-bold" id="regSuccessPhone">-</span>
+          </div>
+        </div>
+
+        <!-- bank details -->
         <div class="mt-3 space-y-2 rounded-xl bg-black/20 p-3 text-[13px]">
           <div class="flex items-start justify-between gap-3">
             <span class="text-white/50" data-i18n="register.gateway.beneficiary">Titulaire</span>
@@ -4349,6 +4373,16 @@
             <span class="text-white/50">RIB</span>
             <span class="text-right font-mono font-bold break-all" id="regSuccessRib">-</span>
           </div>
+        </div>
+
+        <!-- payment instructions -->
+        <div class="mt-3 rounded-xl bg-black/20 p-3">
+          <div class="mb-2 text-sm font-black text-white" data-i18n="register.gateway.stepsTitle">Comment finaliser ?</div>
+          <ol class="space-y-1.5 text-[13px] font-medium leading-snug text-white/70">
+            <li><span class="mr-1 font-black text-teal-300">1.</span><span data-i18n="register.gateway.step1">Effectuez le virement vers le compte CIH ci-contre.</span></li>
+            <li><span class="mr-1 font-black text-teal-300">2.</span><span data-i18n="register.gateway.step2">Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.</span></li>
+            <li><span class="mr-1 font-black text-teal-300">3.</span><span data-i18n="register.gateway.step3">Votre badge est activé par notre équipe sous 24h.</span></li>
+          </ol>
         </div>
 
         <div class="mt-3 text-center text-[11px] leading-snug text-white/45" data-i18n="register.gateway.reference">
@@ -4722,6 +4756,10 @@
           whatsapp: "Nous contacter sur WhatsApp",
           payLabel: "Virement bancaire · CIH",
           amount: "Montant",
+          plan: "Formule choisie",
+          nom: "Nom",
+          prenom: "Prénom",
+          phone: "WhatsApp",
           receipt: "Envoyer le reçu du virement",
           back: "← Retour au site"
         }
@@ -4942,6 +4980,10 @@
           whatsapp: "تواصل معنا عبر واتساب",
           payLabel: "تحويل بنكي · بنك CIH",
           amount: "المبلغ",
+          plan: "الصيغة المختارة",
+          nom: "اللقب",
+          prenom: "الاسم",
+          phone: "الواتساب",
           receipt: "أرسل وصل التحويل",
           back: "← العودة للموقع"
         }
@@ -5161,6 +5203,10 @@
           whatsapp: "Contact us on WhatsApp",
           payLabel: "Bank transfer · CIH",
           amount: "Amount",
+          plan: "Chosen plan",
+          nom: "Last name",
+          prenom: "First name",
+          phone: "WhatsApp",
           receipt: "Send the transfer receipt",
           back: "← Back to site"
         }
@@ -7854,9 +7900,19 @@ function regSubmit() {
     const pbene = document.getElementById("regSuccessBene");
     const pacc = document.getElementById("regSuccessAccount");
     const prib = document.getElementById("regSuccessRib");
+    const picon = document.getElementById("regSuccessPackIcon");
+    const pplan = document.getElementById("regSuccessPlanLabel");
+    const pnom = document.getElementById("regSuccessNom");
+    const pprenom = document.getElementById("regSuccessPrenom");
+    const pphone = document.getElementById("regSuccessPhone");
 
     if (pname) pname.textContent = meta.label;
     if (pprice) pprice.textContent = meta.price + " DH";
+    if (picon) picon.textContent = meta.icon;
+    if (pplan) pplan.textContent = meta.label + " · " + meta.price + " DH/mois";
+    if (pnom) pnom.textContent = nom;
+    if (pprenom) pprenom.textContent = prenom;
+    if (pphone) pphone.textContent = whatsappNumber;
     if (pbene) pbene.textContent = SNA3TI_BANK.beneficiary;
     if (pacc) pacc.textContent = SNA3TI_BANK.account;
     if (prib) prib.textContent = SNA3TI_BANK.rib;
