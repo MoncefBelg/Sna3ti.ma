@@ -7902,7 +7902,12 @@ function regSubmit() {
   const waFree = document.getElementById("regSuccessWaFree");
   const waPay = document.getElementById("regSuccessWa");
 
-  if (successEl) successEl.classList.remove("hidden");
+if (successEl) successEl.classList.remove("hidden");
+
+  /* Push a history entry so the browser back button (←) returns
+     the user to the home page instead of the registration form.
+     Works on Chrome, Safari, Edge and Firefox. */
+  try { history.pushState(null, "", "#/"); } catch (e) {}
 
   const isPaid = pack === "verifie" || pack === "gold";
 
@@ -8633,6 +8638,15 @@ window.addEventListener(
   "hashchange",
   handleSna3tiRoute
 );
+
+/* Browser back/forward button: if the success screen is visible,
+   close it and go home — works on Chrome, Safari, Edge, Firefox. */
+window.addEventListener("popstate", function () {
+  var el = document.getElementById("regSuccess");
+  if (el && !el.classList.contains("hidden")) {
+    closeRegSuccess();
+  }
+});
 
 
 /* =========================================================
