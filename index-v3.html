@@ -4261,16 +4261,65 @@
   <!-- =======================================================
        REGISTRATION SUCCESS SCREEN
   ======================================================== -->
-  <div id="regSuccess" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-center bg-sna3ti-dark px-6 py-16 text-center text-white">
-    <div class="max-w-md w-full mx-auto flex flex-col items-center gap-6">
-      <div class="text-6xl">✅</div>
-      <h2 class="text-2xl font-black leading-tight" data-i18n="regSuccess.title">Inscription réussie !</h2>
-      <p class="text-sm text-white/65 leading-6" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
-      <a id="regSuccessWa" href="https://wa.me/212000000000" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-3 rounded-full bg-green-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-green-700 transition">
+  <style>
+    #regSuccess {
+      background: linear-gradient(160deg, #071d1a 0%, #0d6b61 50%, #071d1a 100%);
+    }
+    #regSuccess .success-logo {
+      width: 90px; height: 90px;
+      display: grid; place-items: center;
+      border-radius: 26px;
+      background: linear-gradient(145deg, #0d6b61, #0a1f1c);
+      color: white;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800; font-size: 44px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35), inset 0 2px rgba(255,255,255,.18);
+      animation: successPulse 2s ease-in-out infinite alternate;
+    }
+    @keyframes successPulse {
+      0%   { transform: scale(1);   box-shadow: 0 20px 50px rgba(0,0,0,.35), inset 0 2px rgba(255,255,255,.18); }
+      100% { transform: scale(1.04); box-shadow: 0 25px 60px rgba(0,0,0,.45), inset 0 2px rgba(255,255,255,.22); }
+    }
+    #regSuccess .success-brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800; font-size: 22px; color: white;
+      letter-spacing: .5px;
+    }
+    #regSuccess .success-brand span { color: #5eead4; }
+    #regSuccess .success-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid rgba(94,234,212,.12);
+      animation: ringPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%,100% { opacity: .3; transform: scale(1); }
+      50%     { opacity: .7; transform: scale(1.15); }
+    }
+  </style>
+  <div id="regSuccess" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 py-16 text-center text-white overflow-hidden">
+    <div class="relative max-w-md w-full mx-auto flex flex-col items-center gap-7">
+      <!-- animated rings -->
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] rounded-full border border-teal-400/10" style="animation:ringPulse 2s ease-in-out infinite"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-teal-400/5"  style="animation:ringPulse 3s ease-in-out infinite .5s"></div>
+
+      <!-- logo -->
+      <div class="success-logo relative z-10">S</div>
+      <div class="success-brand relative z-10">Sna3ti<span>.ma</span></div>
+
+      <!-- checkmark -->
+      <div class="relative z-10 mt-1 flex h-14 w-14 items-center justify-center rounded-full bg-teal-500/20 ring-4 ring-teal-400/25">
+        <svg class="h-7 w-7 text-teal-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+
+      <h2 class="relative z-10 text-2xl font-black leading-tight" data-i18n="regSuccess.title">Inscription réussie !</h2>
+      <p class="relative z-10 text-sm text-white/60 leading-6 max-w-xs" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
+
+      <a id="regSuccessWa" href="https://wa.me/212000000000" target="_blank" rel="noopener" class="relative z-10 mt-1 inline-flex items-center gap-3 rounded-full bg-[#25d366] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-green-600/30 hover:bg-[#1fb855] transition">
         <span class="text-xl">💬</span>
         <span data-i18n="regSuccess.whatsapp">Nous contacter sur WhatsApp</span>
       </a>
-      <button type="button" id="regSuccessBack" class="mt-4 text-xs font-semibold text-white/40 hover:text-white transition" data-i18n="regSuccess.back">← Retour au site</button>
+
+      <button type="button" id="regSuccessBack" class="relative z-10 mt-2 text-xs font-semibold text-white/35 hover:text-white transition" data-i18n="regSuccess.back">← Retour au site</button>
     </div>
   </div>
 
