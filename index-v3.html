@@ -4296,8 +4296,8 @@
       50%     { opacity: .7; transform: scale(1.15); }
     }
   </style>
-  <div id="regSuccess" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 py-16 text-center text-white overflow-hidden">
-    <div class="relative max-w-md w-full mx-auto flex flex-col items-center gap-7">
+  <div id="regSuccess" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-start overflow-y-auto px-6 py-10 text-center text-white">
+    <div class="relative w-full max-w-3xl mx-auto my-auto flex flex-col items-center gap-7">
       <!-- animated rings -->
       <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] rounded-full border border-teal-400/10" style="animation:ringPulse 2s ease-in-out infinite"></div>
       <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-teal-400/5"  style="animation:ringPulse 3s ease-in-out infinite .5s"></div>
@@ -4315,84 +4315,97 @@
       <p class="relative z-10 text-sm text-white/60 leading-6 max-w-xs" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
 
       <!-- payment details (shown only for paid packs) -->
-      <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-4 text-left text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
-        <div class="flex items-center justify-between">
-          <div class="inline-flex items-center gap-2">
-            <div class="grid h-9 w-20 place-items-center rounded-lg bg-white px-2">
-              <img src="assets/img/CIH_logo.jpg" alt="CIH" class="max-h-6 w-auto object-contain" />
+      <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-5 text-left text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <!-- LEFT: chosen plan + user info + whatsapp button -->
+          <div class="flex flex-col gap-3">
+            <!-- pack chosen -->
+            <div class="rounded-xl bg-black/20 p-3">
+              <div class="text-[10px] uppercase tracking-wider text-white/50" data-i18n="regSuccess.plan">Formule choisie</div>
+              <div class="mt-2 flex items-center gap-2">
+                <span class="text-xl" id="regSuccessPackIcon">🛡️</span>
+                <div>
+                  <div class="text-sm font-black" id="regSuccessPackName">Vérifié</div>
+                  <div class="text-[11px] text-white/55" data-i18n="regSuccess.payLabel">Virement bancaire · CIH</div>
+                </div>
+                <div class="ml-auto text-right">
+                  <div class="text-[10px] uppercase tracking-wider text-white/50" data-i18n="regSuccess.amount">Montant</div>
+                  <div class="text-lg font-black text-teal-300" id="regSuccessPackPrice">499 DH</div>
+                </div>
+              </div>
+              <div class="mt-2 rounded-lg bg-black/30 px-2 py-1 text-[12px] font-black text-teal-300" id="regSuccessPlanLabel">Vérifié · 99 DH/mois</div>
             </div>
-            <div>
-              <div class="text-sm font-black" id="regSuccessPackName">Vérifié</div>
-              <div class="text-[11px] text-white/55" data-i18n="regSuccess.payLabel">Virement bancaire · CIH</div>
+
+            <!-- user info -->
+            <div class="rounded-xl bg-black/20 p-3 text-[13px]">
+              <div class="mb-2 text-[10px] uppercase tracking-wider text-white/50" data-i18n="register.gateway.details">Vos informations</div>
+              <div class="space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="regSuccess.nom">Nom</span>
+                  <span class="text-right font-bold" id="regSuccessNom">-</span>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="regSuccess.prenom">Prénom</span>
+                  <span class="text-right font-bold" id="regSuccessPrenom">-</span>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="regSuccess.phone">WhatsApp</span>
+                  <span class="text-right font-bold" id="regSuccessPhone">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- whatsapp button (full width, stays in frame) -->
+            <a id="regSuccessWa" href="https://wa.me/212000000000" target="_blank" rel="noopener" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25d366] px-5 py-3 text-sm font-black text-white shadow-lg shadow-green-600/25 transition hover:bg-[#1fb855]">
+              <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              <span data-i18n="regSuccess.receipt">Envoyer le reçu du virement</span>
+            </a>
+          </div>
+
+          <!-- RIGHT: bank info + instructions below -->
+          <div class="flex flex-col gap-3">
+            <!-- bank details -->
+            <div class="rounded-xl bg-black/20 p-3 text-[13px]">
+              <div class="mb-2 flex items-center gap-2">
+                <div class="grid h-8 w-16 place-items-center rounded-lg bg-white px-1">
+                  <img src="assets/img/CIH_logo.jpg" alt="CIH" class="max-h-5 w-auto object-contain" />
+                </div>
+                <div class="text-[10px] uppercase tracking-wider text-white/50" data-i18n="register.gateway.transferTitle">Compte de virement</div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="register.gateway.beneficiary">Titulaire</span>
+                  <span class="text-right font-bold" id="regSuccessBene">Sna3ti.ma</span>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="register.gateway.bank">Banque</span>
+                  <span class="text-right font-bold">CIH Bank</span>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50" data-i18n="register.gateway.account">Compte N°</span>
+                  <span class="text-right font-mono font-bold break-all text-[12px]" id="regSuccessAccount">-</span>
+                </div>
+                <div class="flex items-start justify-between gap-3">
+                  <span class="text-white/50">RIB</span>
+                  <span class="text-right font-mono font-bold break-all text-[12px]" id="regSuccessRib">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- payment instructions -->
+            <div class="rounded-xl bg-black/20 p-3">
+              <div class="mb-2 text-sm font-black text-white" data-i18n="register.gateway.stepsTitle">Comment finaliser ?</div>
+              <ol class="space-y-1.5 text-[13px] font-medium leading-snug text-white/70">
+                <li><span class="mr-1 font-black text-teal-300">1.</span><span data-i18n="register.gateway.step1">Effectuez le virement vers le compte CIH ci-contre.</span></li>
+                <li><span class="mr-1 font-black text-teal-300">2.</span><span data-i18n="register.gateway.step2">Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.</span></li>
+                <li><span class="mr-1 font-black text-teal-300">3.</span><span data-i18n="register.gateway.step3">Votre badge est activé par notre équipe sous 24h.</span></li>
+              </ol>
+              <div class="mt-2 text-[11px] leading-snug text-white/45" data-i18n="register.gateway.reference">
+                Mettez votre nom et prénom en référence du virement pour faciliter l'identification.
+              </div>
             </div>
           </div>
-          <div class="text-right">
-            <div class="text-[10px] uppercase tracking-wider text-white/50" data-i18n="regSuccess.amount">Montant</div>
-            <div class="text-xl font-black text-teal-300" id="regSuccessPackPrice">499 DH</div>
-          </div>
         </div>
-
-        <!-- check the chosen plan clearly -->
-        <div class="mt-3 flex items-center gap-2 rounded-xl bg-black/20 px-3 py-2 text-sm">
-          <span id="regSuccessPackIcon">🛡️</span>
-          <span class="font-black" data-i18n="regSuccess.plan">Formule choisie</span>
-          <span class="ml-auto font-black text-teal-300" id="regSuccessPlanLabel">Vérifié · 99 DH/mois</span>
-        </div>
-
-        <!-- user summary (nom, prenom, phone) -->
-        <div class="mt-3 space-y-2 rounded-xl bg-black/20 p-3 text-[13px]">
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="regSuccess.nom">Nom</span>
-            <span class="text-right font-bold" id="regSuccessNom">-</span>
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="regSuccess.prenom">Prénom</span>
-            <span class="text-right font-bold" id="regSuccessPrenom">-</span>
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="regSuccess.phone">WhatsApp</span>
-            <span class="text-right font-bold" id="regSuccessPhone">-</span>
-          </div>
-        </div>
-
-        <!-- bank details -->
-        <div class="mt-3 space-y-2 rounded-xl bg-black/20 p-3 text-[13px]">
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="register.gateway.beneficiary">Titulaire</span>
-            <span class="text-right font-bold" id="regSuccessBene">Sna3ti.ma (Nom commercial)</span>
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="register.gateway.bank">Banque</span>
-            <span class="text-right font-bold">CIH Bank</span>
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50" data-i18n="register.gateway.account">Compte N°</span>
-            <span class="text-right font-mono font-bold" id="regSuccessAccount">-</span>
-          </div>
-          <div class="flex items-start justify-between gap-3">
-            <span class="text-white/50">RIB</span>
-            <span class="text-right font-mono font-bold break-all" id="regSuccessRib">-</span>
-          </div>
-        </div>
-
-        <!-- payment instructions -->
-        <div class="mt-3 rounded-xl bg-black/20 p-3">
-          <div class="mb-2 text-sm font-black text-white" data-i18n="register.gateway.stepsTitle">Comment finaliser ?</div>
-          <ol class="space-y-1.5 text-[13px] font-medium leading-snug text-white/70">
-            <li><span class="mr-1 font-black text-teal-300">1.</span><span data-i18n="register.gateway.step1">Effectuez le virement vers le compte CIH ci-contre.</span></li>
-            <li><span class="mr-1 font-black text-teal-300">2.</span><span data-i18n="register.gateway.step2">Envoyez votre reçu ou capture d'écran sur WhatsApp avec votre RIB.</span></li>
-            <li><span class="mr-1 font-black text-teal-300">3.</span><span data-i18n="register.gateway.step3">Votre badge est activé par notre équipe sous 24h.</span></li>
-          </ol>
-        </div>
-
-        <div class="mt-3 text-center text-[11px] leading-snug text-white/45" data-i18n="register.gateway.reference">
-          Mettez votre nom et prénom en référence du virement pour faciliter l'identification.
-        </div>
-
-        <a id="regSuccessWa" href="https://wa.me/212000000000" target="_blank" rel="noopener" class="mt-3 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#25d366] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-green-600/25 transition hover:bg-[#1fb855]">
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          <span data-i18n="regSuccess.receipt">Envoyer le reçu du virement</span>
-        </a>
       </div>
 
       <!-- simple contact button for free pack -->
@@ -7948,7 +7961,10 @@ function regSubmit() {
 function closeRegSuccess() {
   const el = document.getElementById("regSuccess");
   if (el) el.classList.add("hidden");
+  /* The registration is already done — take the user home (top of page),
+     not back to the inscription form. */
   window.location.hash = "#/";
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ---------- Payment gateway (virement CIH) ---------- */
