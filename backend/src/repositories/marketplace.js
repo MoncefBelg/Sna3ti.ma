@@ -7,6 +7,7 @@ function createUserRepo(db) {
   return {
     ...base,
     findByPhone(phone) { return base.find({ phone }); },
+    findByEmail(email) { return base.find({ email: email && email.toLowerCase() }); },
     async listActive() { return base.list({ status: "active" }); }
   };
 }

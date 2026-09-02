@@ -25,7 +25,8 @@ const ID_PREFIXES = {
   category: "CAT",
   region: "REG",
   city: "CITY",
-  plan: "PLAN"
+  plan: "PLAN",
+  verificationDocument: "VD"
 };
 
 module.exports = {

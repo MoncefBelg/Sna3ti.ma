@@ -6,8 +6,8 @@
 const MODELS = [
   "role", "adminUser", "auditLog", "category", "region", "city",
   "plan", "user", "professional", "subscription", "payment",
-  "verificationRequest", "review", "report", "supportTicket",
-  "notification", "legalDocument"
+  "verificationRequest", "verificationDocument", "review", "report", "supportTicket",
+  "notification", "legalDocument", "idSequence"
 ];
 
 function match(obj, where) {
@@ -76,7 +76,8 @@ class ModelStore {
     const idx = this.rows.findIndex((r) => match(r, where));
     if (idx === -1) throw new Error(`Record not found for update`);
     const existing = this.rows[idx];
-    const merged = { ...existing, ...data, _id: existing._id };
+    const resolved = resolveNested(existing, data);
+    const merged = { ...existing, ...resolved, _id: existing._id };
     this.rows[idx] = merged;
     return { ...merged };
   }
@@ -85,7 +86,7 @@ class ModelStore {
     let count = 0;
     for (let i = 0; i < this.rows.length; i++) {
       if (match(this.rows[i], where)) {
-        this.rows[i] = { ...this.rows[i], ...data };
+        this.rows[i] = { ...this.rows[i], ...resolveNested(this.rows[i], data) };
         count++;
       }
     }
@@ -131,6 +132,23 @@ function project(row, select) {
   return { ...row };
 }
 
+// Resolves Prisma-style nested field operations ({ increment, decrement, ... })
+// against the incoming `data` object and the current `existing` row, mirroring
+// PostgreSQL behaviour.
+function resolveNested(existing, data) {
+  const out = {};
+  for (const [key, value] of Object.entries(data || {})) {
+    if (value && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date)) {
+      if (typeof value.increment === "number") out[key] = (existing?.[key] ?? 0) + value.increment;
+      else if (typeof value.decrement === "number") out[key] = (existing?.[key] ?? 0) - value.decrement;
+      else out[key] = value;
+    } else {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
 function createInMemoryDb(seed = {}) {
   const db = {};
   for (const model of MODELS) {
@@ -138,7 +156,31 @@ function createInMemoryDb(seed = {}) {
     if (Array.isArray(seed[model])) store.seed(seed[model]);
     db[model] = store;
   }
+  bootstrapSequences(db, seed);
   return db;
+}
+
+// Seed IdSequence rows so generated opaque ids are monotonic and never clash
+// with existing seed rows. For every model that carries PREFIX-N ids we bump
+// the counter to at least `max(existing N) + 1` (and never below 10000).
+function bootstrapSequences(db, seed) {
+  const MODELS_TO_PREFIX = {
+    user: "USR", professional: "PRO", payment: "PAY",
+    verificationRequest: "VR", verificationDocument: "VD",
+    review: "RV", report: "RP", subscription: "SUB",
+    adminUser: "AU", notification: "NT", auditLog: "AL",
+    category: "CAT", region: "REG", city: "CITY", plan: "PLAN"
+  };
+  for (const [model, prefix] of Object.entries(MODELS_TO_PREFIX)) {
+    const rows = seed[model] || [];
+    let max = 10000;
+    for (const r of rows) {
+      const m = typeof r.id === "string" ? r.id.match(new RegExp(`^${prefix}-(\\d+)$`)) : null;
+      if (m) max = Math.max(max, parseInt(m[1], 10) + 1);
+    }
+    // Keep any user-provided sequence value if it is already higher.
+    db.idSequence.rows.push({ prefix, value: max });
+  }
 }
 
 module.exports = { createInMemoryDb, ModelStore };

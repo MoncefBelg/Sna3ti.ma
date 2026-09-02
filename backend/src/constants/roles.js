@@ -1,105 +1,100 @@
-// Roles & permission matrix — mirrors js/admin-data.js ROLES exactly so the
-// backend enforces the SAME rules the admin UI already displays.
-// NOTE (security): production authorization is enforced here, server-side.
-// The browser copy in Sna3tiData is presentational only.
+// Server-side RBAC permission matrix.
+//
+// Authorization is enforced HERE, server-side, from the authenticated session
+// only. The client never sends `role`/`permissions`/`userId` that is trusted —
+// the middleware resolves the actor from the JWT (sub + role) and checks a
+// permission string below.
+//
+// Permissions use dotted notation, e.g. "professionals.suspend".
 
-const ROLES = {
-  super_admin: {
-    label: "Super Admin",
-    color: "purple",
-    permissions: {
-      dashboard: ["read"],
-      users: ["read", "update", "suspend", "delete"],
-      professionals: ["read", "update", "verify", "suspend", "activate", "delete"],
-      verification: ["read", "approve", "reject", "info"],
-      reviews: ["read", "moderate", "delete"],
-      reports: ["read", "resolve", "warn", "suspend"],
-      support: ["read", "update", "assign"],
-      categories: ["read", "update"],
-      cities: ["read", "update"],
-      subscriptions: ["read", "update"],
-      payments: ["read", "approve", "reject", "info"],
-      analytics: ["read"],
-      ai: ["read"],
-      notifications: ["read", "send"],
-      settings: ["read", "update"],
-      legal: ["read", "update"],
-      adminUsers: ["read", "update"],
-      auditLogs: ["read", "export"]
-    }
-  },
-  admin: {
-    label: "Admin",
-    color: "teal",
-    permissions: {
-      dashboard: ["read"],
-      users: ["read", "update", "suspend"],
-      professionals: ["read", "update", "verify", "suspend", "activate"],
-      verification: ["read", "approve", "reject", "info"],
-      reviews: ["read", "moderate", "delete"],
-      reports: ["read", "resolve"],
-      support: ["read", "update", "assign"],
-      categories: ["read", "update"],
-      cities: ["read", "update"],
-      subscriptions: ["read", "update"],
-      payments: ["read", "approve", "reject", "info"],
-      analytics: ["read"],
-      ai: ["read"],
-      notifications: ["read", "send"],
-      settings: ["read", "update"],
-      legal: ["read", "update"],
-      adminUsers: ["read"],
-      auditLogs: ["read"]
-    }
-  },
-  moderator: {
-    label: "Moderator",
-    color: "blue",
-    permissions: {
-      dashboard: ["read"],
-      users: ["read"],
-      professionals: ["read", "update", "verify"],
-      verification: ["read", "approve", "reject", "info"],
-      reviews: ["read", "moderate", "delete"],
-      reports: ["read", "resolve", "warn", "suspend"],
-      analytics: ["read"],
-      notifications: ["read", "send"],
-      auditLogs: ["read"]
-    }
-  },
-  support: {
-    label: "Support",
-    color: "orange",
-    permissions: {
-      dashboard: ["read"],
-      users: ["read", "update", "suspend"],
-      professionals: ["read", "update"],
-      reviews: ["read"],
-      reports: ["read", "resolve"],
-      support: ["read", "update", "assign"],
-      notifications: ["read", "send"],
-      auditLogs: ["read"]
-    }
-  },
-  finance: {
-    label: "Finance",
-    color: "amber",
-    permissions: {
-      dashboard: ["read"],
-      subscriptions: ["read", "update"],
-      payments: ["read", "approve", "reject"],
-      analytics: ["read"],
-      auditLogs: ["read", "export"]
-    }
-  }
+const ALL_PERMISSIONS = [
+  "professionals.view",
+  "professionals.edit",
+  "professionals.suspend",
+  "verification.view",
+  "verification.approve",
+  "verification.reject",
+  "payments.view",
+  "payments.confirm",
+  "payments.reject",
+  "subscriptions.view",
+  "subscriptions.manage",
+  "reviews.view",
+  "reviews.moderate",
+  "reports.view",
+  "reports.resolve",
+  "analytics.view",
+  "settings.manage",
+  "admin_users.manage",
+  "audit_logs.view"
+];
+
+// role -> allowed permission set.
+const ROLE_PERMISSIONS = {
+  super_admin: new Set(ALL_PERMISSIONS),
+  admin: new Set([
+    "professionals.view",
+    "professionals.edit",
+    "professionals.suspend",
+    "verification.view",
+    "verification.approve",
+    "verification.reject",
+    "payments.view",
+    "payments.confirm",
+    "payments.reject",
+    "subscriptions.view",
+    "subscriptions.manage",
+    "reviews.view",
+    "reviews.moderate",
+    "reports.view",
+    "reports.resolve",
+    "analytics.view",
+    "settings.manage",
+    "admin_users.manage",
+    "audit_logs.view"
+  ]),
+  moderator: new Set([
+    "professionals.view",
+    "professionals.edit",
+    "verification.view",
+    "verification.approve",
+    "verification.reject",
+    "reviews.view",
+    "reviews.moderate",
+    "reports.view",
+    "reports.resolve",
+    "analytics.view"
+  ]),
+  support: new Set([
+    "professionals.view",
+    "reviews.view",
+    "reports.view",
+    "reports.resolve",
+    "subscriptions.view",
+    "audit_logs.view"
+  ]),
+  finance: new Set([
+    "payments.view",
+    "payments.confirm",
+    "payments.reject",
+    "subscriptions.view",
+    "subscriptions.manage",
+    "analytics.view",
+    "audit_logs.view"
+  ])
 };
 
-// Seed order for the database plus simple validation helper.
-const ROLE_IDS = Object.keys(ROLES);
-
-function can(role, resource, action) {
-  const perms = ROLES[role] && ROLES[role].permissions[resource];
-  return !!(perms && (perms.includes("*") || perms.includes(action)));
+// Returns true if `role` is allowed to perform `permission` (e.g. "payments.confirm").
+function can(role, permission) {
+  const set = ROLE_PERMISSIONS[role];
+  return !!(set && set.has(permission));
 }
 
-module.exports = { ROLES, ROLE_IDS, can };
+function permissionsOf(role) {
+  const set = ROLE_PERMISSIONS[role];
+  return set ? [...set] : [];
+}
+
+const ROLE_IDS = Object.keys(ROLE_PERMISSIONS);
+
+module.exports = { ROLES: ROLE_PERMISSIONS, ROLE_IDS, can, permissionsOf, ALL_PERMISSIONS };

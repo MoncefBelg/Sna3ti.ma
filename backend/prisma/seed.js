@@ -1,7 +1,7 @@
-require("./config/env");
-const { prisma, connectDB } = require("./config/database");
+require("../src/config/env");
+const { prisma, disconnectDb } = require("../src/config/database");
 const bcrypt = require("bcrypt");
-const env = require("./config/env");
+const env = require("../src/config/env");
 
 const ROLES = [
   { id: "ROLE-SA",  code: "super_admin", name: "Super Administrateur" },
@@ -13,8 +13,8 @@ const ROLES = [
 
 const PLANS = [
   { id: "PLAN-FREE",   code: "free",     name: "Free",       price: 0,   features: ["Perfil básico","Recherche standard"] },
-  { id: "PLAN-VER",    code: "verified", name: "Vérifié",    price: 499, features: ["Badge vérifié","Visibilité prioritaire","Statistiques détaillées"] },
-  { id: "PLAN-GOLD",   code: "gold",     name: "Gold",       price: 999, features: ["Badge vérifié + Gold","Support prioritaire","Mise en avant homepage","Analytics avancées"] }
+  { id: "PLAN-VER",    code: "verified", name: "Vérifié",    price: 99,  features: ["Badge vérifié","Visibilité prioritaire","Statistiques détaillées"] },
+  { id: "PLAN-GOLD",   code: "gold",     name: "Gold",       price: 199, features: ["Badge vérifié + Gold","Support prioritaire","Mise en avant homepage","Analytics avancées"] }
 ];
 
 const CATEGORIES = [
@@ -42,7 +42,7 @@ const CITIES = [
 ];
 
 async function seed() {
-  await connectDB();
+  // PrismaClient connects lazily on first query; nothing to pre-connect.
 
   // Roles
   for (const r of ROLES) {
@@ -80,8 +80,70 @@ async function seed() {
     await prisma.adminUser.upsert({ where: { id: a.id }, update: {}, create: a });
   }
 
+  // Platform users (auth foundation) — passwords stored as bcrypt hashes only.
+  const users = [
+    {
+      id: "USR-10001", firstName: "Karim", lastName: "Bennani", phone: "+212600000010",
+      email: "karim@sna3ti.ma", passwordHash: hash, role: "user", status: "active"
+    },
+    {
+      id: "USR-10002", firstName: "Salma", lastName: "Idrissi", phone: "+212600000011",
+      email: "salma@sna3ti.ma", passwordHash: hash, role: "professional", status: "active"
+    }
+  ];
+  for (const u of users) {
+    await prisma.user.upsert({
+      where: { id: u.id },
+      update: {},
+      create: {
+        ...u,
+        name: `${u.firstName} ${u.lastName}`,
+        email: u.email.toLowerCase(),
+        cityId: null, createdAt: new Date()
+      }
+    });
+  }
+
+  // IdSequence counters so generated ids resume past seeded values.
+  for (const [prefix, value] of Object.entries({ USR: 10001, PRO: 10001 })) {
+    await prisma.idSequence.upsert({ where: { prefix }, update: {}, create: { prefix, value } });
+  }
+
+  // Legal content (req 24) — terms / privacy / about across en / fr / ar.
+  const LEGAL = (type) => ({
+    terms: {
+      en: { title: "Terms of Service",      content: "Terms of Service for Sna3ti.ma." },
+      fr: { title: "Conditions d'utilisation", content: "Conditions d'utilisation de Sna3ti.ma." },
+      ar: { title: "شروط الاستخدام",          content: "شروط استخدام موقع سنعتي.ما." }
+    },
+    privacy: {
+      en: { title: "Privacy Policy",        content: "Privacy Policy for Sna3ti.ma." },
+      fr: { title: "Politique de confidentialité", content: "Politique de confidentialité de Sna3ti.ma." },
+      ar: { title: "سياسة الخصوصية",        content: "سياسة الخصوصية لموقع سنعتي.ما." }
+    },
+    about: {
+      en: { title: "About Us",              content: "About Sna3ti.ma." },
+      fr: { title: "À propos de nous",      content: "À propos de Sna3ti.ma." },
+      ar: { title: "من نحن",                content: "من نحن - سنعتي.ما." }
+    }
+  }[type]);
+
+  for (const type of ["terms", "privacy", "about"]) {
+    for (const language of ["en", "fr", "ar"]) {
+      const l = LEGAL(type)[language];
+      await prisma.legalDocument.upsert({
+        where: { id: `${type}-${language}` },
+        update: {},
+        create: {
+          id: `${type}-${language}`, type, language,
+          title: l.title, content: l.content, version: 1, published: true
+        }
+      });
+    }
+  }
+
   console.log("Seed complete.");
-  await prisma.$disconnect();
+  await disconnectDb();
 }
 
 seed().catch((e) => { console.error(e); process.exit(1); });

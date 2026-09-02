@@ -1,6 +1,53 @@
 const { AppError } = require("../utils/AppError");
 const subscriptionSvc = require("./subscriptionService");
 
+function toInt(value, fallback) {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+// ─── List / get / create (req 17) ───────────────────────────────────────────
+async function list(repos, query = {}) {
+  const rows = await repos.verification.listByStatus(query.status || "all");
+  const total = rows.length;
+  const page = toInt(query.page, 1);
+  const limit = Math.min(toInt(query.limit, 20), 100);
+  const pages = Math.max(1, Math.ceil(total / limit));
+  const data = rows.slice((page - 1) * limit, page * limit);
+  return { data, pagination: { page, limit, total, pages } };
+}
+
+async function get(repos, id) {
+  const vr = await repos.verification.get(id);
+  if (!vr) throw new AppError("Demande de vérification introuvable.", 404);
+  return vr;
+}
+
+// Creates a verification request. Verification is INDEPENDENT of any
+// subscription (req 18): this does not touch subscription or payment state.
+async function create(repos, data) {
+  if (!data.professionalId) throw new AppError("professionalId requis.", 400);
+  if (!data.level) throw new AppError("level requis.", 400);
+  if (!["join", "identity", "professionnel", "plan"].includes(data.level)) {
+    throw new AppError("Level invalide.", 400);
+  }
+  const id = await repos.ids.nextId("verification");
+  const vr = await repos.verification.create({
+    id,
+    professionalId: data.professionalId,
+    level: data.level,
+    planId: data.planId || null,
+    requestedPlan: data.requestedPlan || null,
+    status: "pending",
+    priority: data.priority || "medium",
+    submitted: new Date(),
+    history: [{ date: new Date().toISOString(), text: "Demande créée" }],
+    createdAt: new Date()
+  });
+  return vr;
+}
+
+
 // ─── Scenario A: approve verification ────────────────────────────────────────
 // • plan-level request: activates the requested subscription; badge unchanged
 // • identity / professionnel: grants the verified badge; subscription untouched
@@ -127,4 +174,4 @@ async function requestInfo(repos, requestId, note, admin) {
   return repos.verification.get(requestId);
 }
 
-module.exports = { approve, reject, requestInfo };
+module.exports = { approve, reject, requestInfo, list, get, create };

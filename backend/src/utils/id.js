@@ -4,10 +4,20 @@ const ID_PREFIXES = require("../constants/statuses").ID_PREFIXES;
 
 // Opaque, human-usable ids that mirror the frontend format (PRO-10295,
 // PAY-7004, VR-201, ...). They are STRINGS: API consumers must never
-// parse them as integers.
-function makeId(prefix, existing = []) {
+// parse them as integers (no parseInt/Number/+id at any layer).
+
+// Sequence-backed generation (preferred). Requires a `sequencer` exposing
+// `nextValue(prefix)` — normally `repos.ids` — so ids are monotonically
+// increasing, never reused, and survive deletion. Not derived from row count.
+async function makeId(prefix, sequencer) {
   const base = ID_PREFIXES[prefix] || String(prefix).toUpperCase();
+  if (sequencer && typeof sequencer.nextValue === "function") {
+    const value = await sequencer.nextValue(prefix);
+    return `${base}-${value}`;
+  }
+  // Legacy fallback (no db/sequencer): random opaque id, unique within `existing`.
   let id;
+  const existing = Array.isArray(sequencer) ? sequencer : [];
   do {
     const rand = crypto.randomBytes(3).toString("hex").toUpperCase();
     id = `${base}-${rand}`;

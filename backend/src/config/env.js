@@ -25,7 +25,14 @@ const env = {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
-  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS, 10) || 12
+  bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS, 10) || 12,
+  // StorageService config (req 26). Default to local disk; swap the driver per
+  // env (s3 / cloudinary / r2) without touching controllers.
+  storage: {
+    driver: process.env.STORAGE_DRIVER || "local",
+    root: process.env.STORAGE_ROOT || "storage",
+    baseUrl: process.env.STORAGE_BASE_URL || "/files"
+  }
 };
 
 // Guards against a sample secret slipping into production.

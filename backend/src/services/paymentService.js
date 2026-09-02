@@ -57,11 +57,57 @@ async function confirm(repos, paymentId, admin) {
 
   await repos.auditLogs.log({
     adminId: admin.id, adminName: admin.name,
-    action: "CONFIRM_PAYMENT", entity: "Payment",
+    action: "PAYMENT_CONFIRMED", entity: "Payment",
     entityId: paymentId, result: "Confirmed"
   });
 
   return repos.payments.get(paymentId);
+}
+
+// ─── Create payment (req 19) ────────────────────────────────────────────────
+// Initial method is MOROCCAN_BANK_TRANSFER. Amount/currency are taken from the
+// DB plan — never trusted from the frontend (req 15). Status starts PENDING.
+async function create(repos, data, actor) {
+  if (!data.professionalId) throw new AppError("professionalId requis.", 400);
+
+  const plan = data.planId ? await repos.plans.get(data.planId) : null;
+  const planName = plan ? plan.name : (data.planName || "GRATUIT");
+  const amount = plan ? plan.price : data.amount;
+
+  if (amount == null) throw new AppError("Un plan ou un montant valide est requis.", 400);
+
+  const id = await repos.ids.nextId("payment");
+  const payment = await repos.payments.create({
+    id,
+    reference: data.reference || `REF-${id}`,
+    professionalId: data.professionalId,
+    subscriptionId: data.subscriptionId || null,
+    planName,
+    amount,
+    currency: plan ? (plan.currency || "MAD") : (data.currency || "MAD"),
+    method: "bank_transfer", // MOROCCAN_BANK_TRANSFER
+    status: "pending",
+    bankRef: data.bankReference || null,
+    receipt: data.receiptUrl || null,
+    date: new Date(),
+    createdAt: new Date()
+  });
+
+  if (actor) {
+    await repos.auditLogs.log({
+      adminId: actor.id, adminName: actor.name,
+      action: "CREATE_PAYMENT", entity: "Payment",
+      entityId: id, result: "Created"
+    });
+  }
+  return payment;
+}
+
+// Public single-payment lookup (only for the payment owner or admin handling).
+async function get(repos, id) {
+  const pay = await repos.payments.get(id);
+  if (!pay) throw new AppError("Paiement introuvable.", 404);
+  return pay;
 }
 
 // ─── Reject ─────────────────────────────────────────────────────────────────
@@ -87,7 +133,7 @@ async function reject(repos, paymentId, reason, admin) {
 
   await repos.auditLogs.log({
     adminId: admin.id, adminName: admin.name,
-    action: "REJECT_PAYMENT", entity: "Payment",
+    action: "PAYMENT_REJECTED", entity: "Payment",
     entityId: paymentId, result: "Rejected", note: reason
   });
   return repos.payments.get(paymentId);
@@ -109,4 +155,4 @@ async function requestInfo(repos, paymentId, note, admin) {
   return repos.payments.get(paymentId);
 }
 
-module.exports = { confirm, reject, requestInfo };
+module.exports = { confirm, reject, requestInfo, create, get };

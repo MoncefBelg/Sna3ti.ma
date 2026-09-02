@@ -31,6 +31,15 @@ function createVerificationRepo(db) {
   };
 }
 
+function createVerificationDocumentRepo(db) {
+  const base = createGenericRepository("verificationDocument", db);
+  return {
+    ...base,
+    async findByRequest(verificationRequestId) { return base.list({ verificationRequestId }); },
+    async findByProfessional(professionalId) { return base.list({ professionalId }); }
+  };
+}
+
 function createReviewRepo(db) {
   const base = createGenericRepository("review", db);
   return {
@@ -64,6 +73,7 @@ function createTransactionRepo(db) {
   return {
     payments: createPaymentRepo(db),
     verification: createVerificationRepo(db),
+    verificationDocuments: createVerificationDocumentRepo(db),
     reviews: createReviewRepo(db),
     reports: createReportRepo(db),
     support: createSupportRepo(db)

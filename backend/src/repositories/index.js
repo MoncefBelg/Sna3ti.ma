@@ -4,6 +4,7 @@ const { createCatalogRepo } = require("./catalog");
 const { createMarketplaceRepo } = require("./marketplace");
 const { createTransactionRepo } = require("./transactions");
 const { createSystemRepo } = require("./system");
+const { createIdSequenceRepo } = require("./idSequence");
 
 function createRepos(db) {
   return {
@@ -11,6 +12,8 @@ function createRepos(db) {
     ...createMarketplaceRepo(db),
     ...createTransactionRepo(db),
     ...createSystemRepo(db),
+    // Sequence-backed opaque ID generation for newly-created entities.
+    ids: createIdSequenceRepo(db),
     // Convenience aliases used by service layer without nesting.
     roles: createSystemRepo(db).roles,
     adminUsers: createSystemRepo(db).adminUsers,

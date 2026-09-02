@@ -25,6 +25,17 @@ enum UserStatus {
   suspended
 }
 
+// Authentication-level role for regular platform users (see User.role).
+enum UserRole {
+  user
+  professional
+  admin
+  super_admin
+  moderator
+  finance
+  support
+}
+
 enum ProfessionalStatus {
   pending
   active
@@ -113,21 +124,27 @@ model AdminUser {
   @@index([role])
 }
 
+// Sequence-backed opaque-ID generation. Each row tracks the next value for a
+// given entity prefix (USR, PRO, PAY, ...). Values are monotonically
+// increasing and never reused, so ids survive deletion and are never derived
+// from the current row count.
+model IdSequence {
+  prefix String @id // e.g. "USR", "PRO", "PAY"
+  value  Int    @default(10000)
+}
+
 model AuditLog {
-  id         String   @id
-  timestamp  DateTime @default(now())
+  id         String   @id // append-only; no update/delete allowed via API
   adminId    String?
-  adminName  String?
-  action     String
-  entity     String
+  action     String   // e.g. VERIFICATION_APPROVED, PAYMENT_CONFIRMED
+  entityType String
   entityId   String?
-  result     String   @default("Success")
-  note       String?
+  reason     String?
   metadata   Json?
   createdAt  DateTime @default(now())
 
   @@index([adminId])
-  @@index([entity, entityId])
+  @@index([entityType, entityId])
 }
 
 // ---------------------------------------------------------------------------
@@ -180,16 +197,22 @@ model Plan {
 // ---------------------------------------------------------------------------
 
 model User {
-  id          String         @id
-  name         String
-  email        String?        @unique
-  phone        String
+  id           String     @id // opaque USR-xxxxx, never parsed as int
+  firstName    String
+  lastName     String
+  name         String // "${firstName} ${lastName}" convenience
+  email        String?    @unique
+  phone        String     @unique
+  passwordHash String // bcrypt only — passwords never stored in plaintext
+  role         UserRole   @default(user)
   cityId       String?
-  status       UserStatus     @default(active)
+  status       UserStatus @default(active)
   professionId String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
+  @@index([role])
   @@index([cityId])
 }
 
@@ -246,6 +269,9 @@ model Subscription {
   since         DateTime?
   renewal       DateTime?
   activeAt      DateTime?
+  startedAt     DateTime?
+  renewalAt     DateTime?
+  cancelledAt   DateTime?
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
 }
@@ -254,6 +280,7 @@ model Payment {
   id             String        @id
   reference      String        @unique
   professionalId String
+  subscriptionId String?
   planName       String
   amount         Int
   method         PaymentMethod @default(bank_transfer)
@@ -298,9 +325,29 @@ model VerificationRequest {
   @@index([status])
 }
 
+model VerificationDocument {
+  id                   String   @id // opaque VD-xxxxx
+  verificationRequestId String  @unique
+  professionalId       String
+  type                 String // cni | patente | rib | photo | attestation | ...
+  fileName             String
+  fileUrl              String
+  mimeType             String?
+  size                 Int?
+  verified             Boolean  @default(false)
+  notes                String?
+  uploadedAt           DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([professionalId])
+  @@index([type])
+}
+
 model Review {
   id             String        @id
   professionalId String
+  userId         String?
   customer       String
   rating         Int
   comment        String?
@@ -320,6 +367,7 @@ model Report {
   id             String            @id
   professionalId String
   reporter       String?
+  reportedBy     String?
   reason         String
   type           String?
   priority       String            @default("medium")
@@ -327,6 +375,7 @@ model Report {
   status         ReportStatus      @default(new)
   warnReason     String?
   assignedTo     String?
+  resolvedAt     DateTime?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -351,24 +400,30 @@ model SupportTicket {
 }
 
 model Notification {
-  id             String   @id
-  type           String   @default("system")
-  title          String?
-  text           String
-  when           String?
-  unread         Boolean  @default(true)
-  route          String?
-  professionalId String?
-  createdAt      DateTime @default(now())
+  id         String    @id // opaque NT-xxxxx
+  userId     String?   // target user
+  type       String    @default("system")
+  title      String?
+  message    String
+  entityType String?
+  entityId   String?
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
 
-  @@index([unread])
+  @@index([userId])
+  @@index([readAt])
 }
 
 model LegalDocument {
-  id         String   @id // terms | privacy | about
-  published  Boolean  @default(true)
-  label      Json
-  content    Json
-  updatedAt  DateTime @updatedAt
-  updatedBy  String?
+  id        String   @id // e.g. terms-en | privacy-fr | about-ar
+  type      String   // terms | privacy | about
+  language  String   // en | fr | ar
+  title     String
+  content   String
+  version   Int      @default(1)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, language])
 }

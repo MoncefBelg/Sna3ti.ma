@@ -1,51 +1,75 @@
 const { asyncHandler } = require("../utils/asyncHandler");
-const { AppError } = require("../utils/AppError");
+const { ok, created } = require("../utils/respond");
 
 function createAdminController(services) {
   return {
     // ── Admin users ─────────────────────────────────────────────────────
     listAdminUsers: asyncHandler(async (_req, res) => {
       const data = await services.adminUsers.list();
-      res.json({ data });
+      ok(res, { data });
     }),
     createAdminUser: asyncHandler(async (req, res) => {
       const data = await services.adminUsers.create(req.body);
-      res.status(201).json({ data });
+      created(res, { data });
     }),
     updateAdminUser: asyncHandler(async (req, res) => {
       const data = await services.adminUsers.update(req.params.id, req.body);
-      res.json({ data });
+      ok(res, { data });
     }),
 
     // ── Audit logs ──────────────────────────────────────────────────────
     listAuditLogs: asyncHandler(async (_req, res) => {
       const data = await services.auditLogs.list();
-      res.json({ data });
+      ok(res, { data });
     }),
 
     // ── Legal documents ─────────────────────────────────────────────────
     updateLegal: asyncHandler(async (req, res) => {
       const data = await services.legal.update(req.params.id, req.body, req.admin);
-      res.json({ data });
+      ok(res, { data });
     }),
 
-    // ── Notifications ───────────────────────────────────────────────────
-    listNotifications: asyncHandler(async (req, res) => {
-      const data = await services.notifications.list(req.query.filter);
-      res.json({ data });
+    // ── Reviews / Reports ────────────────────────────────────────────────
+    listReviews: asyncHandler(async (_req, res) => {
+      const { data } = await services.reviews.listAll();
+      ok(res, { data });
     }),
-    markAllNotificationsRead: asyncHandler(async (_req, res) => {
-      await services.notifications.markAllRead();
-      res.json({ ok: true });
+    listReports: asyncHandler(async (_req, res) => {
+      const data = await services.reports.list({});
+      ok(res, { data });
     }),
-    markNotificationRead: asyncHandler(async (req, res) => {
-      await services.notifications.markRead(req.params.id);
-      res.json({ ok: true });
+
+    // ── Dashboard / Analytics ────────────────────────────────────────────
+    getDashboard: asyncHandler(async (_req, res) => {
+      const [professionals, users, payments, subscriptions, verifications, reviews, reports, support] = await Promise.all([
+        services.professionals.list({ limit: 1 }),
+        services.users.list(),
+        services.payments.list({}),
+        services.subscriptions.list({ limit: 1 }),
+        services.verification.list({ limit: 1 }),
+        services.reviews.listAll(),
+        services.reports.list({}),
+        services.support.list()
+      ]);
+      ok(res, {
+        data: {
+          counts: {
+            professionals: Array.isArray(professionals.data) ? professionals.data.length : 0,
+            users: Array.isArray(users) ? users.length : 0,
+            payments: Array.isArray(payments) ? payments.length : (payments.data ? payments.data.length : 0),
+            subscriptions: Array.isArray(subscriptions.data) ? subscriptions.data.length : 0,
+            verifications: Array.isArray(verifications.data) ? verifications.data.length : 0,
+            reviews: Array.isArray(reviews.data) ? reviews.data.length : 0,
+            reports: Array.isArray(reports) ? reports.length : 0,
+            support: Array.isArray(support) ? support.length : 0
+          }
+        }
+      });
     }),
 
     // ── Settings (lightweight config proxy) ──────────────────────────────
     getSettings: asyncHandler(async (_req, res) => {
-      res.json({ data: { siteName: "Sna3ti.ma", currency: "MAD", locale: "fr-MA" } });
+      ok(res, { data: { siteName: "Sna3ti.ma", currency: "MAD", locale: "fr-MA" } });
     })
   };
 }

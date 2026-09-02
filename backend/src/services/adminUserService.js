@@ -13,7 +13,7 @@ async function create(repos, data) {
   const existing = await repos.adminUsers.findByEmail(data.email);
   if (existing) throw new AppError("Cet email est déjà utilisé.", 409);
   if (!ROLES[data.role]) throw new AppError("Rôle inconnu: " + data.role, 400);
-  const id = makeId("adminUser");
+  const id = await makeId("adminUser", repos.ids);
   const password = await bcrypt.hash(data.password, env.bcryptRounds);
   return repos.adminUsers.create({ id, name: data.name, email: data.email, role: data.role, status: "active", password, createdAt: new Date() });
 }
