@@ -1,8 +1,7 @@
 {
   "appId": "ma.sna3ti.app",
   "appName": "Sna3ti.ma",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "server": {
     "androidScheme": "https",
     "iosScheme": "capacitor",

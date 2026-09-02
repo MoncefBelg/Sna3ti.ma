@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sna3ti.ma</string>
+    <string name="title_activity_main">Sna3ti.ma</string>
+    <string name="package_name">ma.sna3ti.app</string>
+    <string name="custom_url_scheme">ma.sna3ti.app</string>
+</resources>

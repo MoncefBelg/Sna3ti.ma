@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Capacitor: generated web bundle (always rebuilt via `npm run build`)
+www/
+
+# Env / local secrets
+.env
+.env.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Native build artifacts inside android/ and ios/ (kept out of git,
+# but the Gradle/Xcode project sources themselves ARE committed)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/app/src/main/assets/public/
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/public/
+ios/App/App.xcworkspace/xcuserdata/
+*.xcuserstate
+ios/App/App.xcodeproj/xcuserdata/
+
+# Temp
+*.tmp

@@ -1,0 +1,23 @@
+{
+  "name": "sna3ti-ma",
+  "version": "1.0.0",
+  "description": "Sna3ti.ma — Trouvez un artisan au Maroc. PWA + Capacitor wrapper for Android (Play Store) and iOS (App Store).",
+  "private": true,
+  "scripts": {
+    "cap:sync": "cap sync",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios",
+    "prebuild": "node scripts/sync-www.js",
+    "build": "node scripts/sync-www.js",
+    "cap:add:android": "cap add android",
+    "cap:add:ios": "cap add ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
+    "@capacitor/ios": "^6.2.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.2"
+  }
+}
