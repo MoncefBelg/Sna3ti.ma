@@ -55,6 +55,12 @@
           UI.buildAppShell();
           UI.afterShell();
           location.hash = "#/admin/dashboard";
+          // Re-prime the local cache from the (now-authenticated) backend.
+          // Non-blocking: the UI rendered from the rich local store already,
+          // this reconciles authoritative status in the background.
+          if (global.Sna3tiBridge && typeof global.Sna3tiBridge.syncNow === "function") {
+            global.Sna3tiBridge.syncNow();
+          }
         })
         .catch(function(err){
           btn.disabled = false; btn.textContent = T("Se connecter");
@@ -69,8 +75,35 @@
   function renderDashboard(){
     UI.setTitle(T("Tableau de bord"));
     UI.renderSkeleton(4, true);
-    setTimeout(function(){
-      var k = DATA.getKPIs();
+    var Bridge = global.Sna3tiBridge;
+    // Try the backend first, fall back to local store.
+    var kpiPromise = (Bridge && typeof Bridge.getDashboard === "function")
+      ? Bridge.getDashboard().then(function (res) {
+          if (res && res.success && res.data) {
+            // Map backend counts to the local KPI shape.
+            var c = res.data;
+            return {
+              users: c.users || 0,
+              professionals: c.professionals || 0,
+              verified: c.verifications || 0,
+              pendingVerification: (c.verifications_pending) || 0,
+              active: c.professionals || 0,
+              activeSubscriptions: c.subscriptions || 0,
+              pendingSubscriptions: 0,
+              flaggedReviews: 0,
+              openReports: c.reports || 0,
+              searches: 0,
+              contactRequests: 0,
+              monthlyRevenue: 0,
+              pendingPayments: c.payments || 0,
+              reported: 0
+            };
+          }
+          return DATA.getKPIs();
+        }).catch(function () { return DATA.getKPIs(); })
+      : Promise.resolve(DATA.getKPIs());
+
+    kpiPromise.then(function (k) {
       var alerts = DATA.getAlerts();
       var activity = DATA.getActivity();
       var html =
@@ -99,7 +132,7 @@
       UI.getContent().querySelectorAll(".alert[data-route], .kpi-link[data-route]").forEach(function(el){
         el.addEventListener("click", function(){ if(el.dataset.route) ROUTER.navigate(el.dataset.route); });
       });
-    }, 350);
+    });
   }
 
   // dashKpi(title, ico, value, trend%, comparisonText, isUp, route)
@@ -2610,6 +2643,13 @@
       forbidden: function(){ renderForbidden(); },
       notFound: function(){ renderNotFound(); }
     });
+    // Wire 403 Forbidden detection from the bridge to the forbidden view.
+    if (global.Sna3tiBridge && typeof global.Sna3tiBridge.onForbidden === "function") {
+      global.Sna3tiBridge.onForbidden(function (err) {
+        console.warn("[bridge] 403 Forbidden:", err && err.message);
+        renderForbidden();
+      });
+    }
     UI.afterShell();
     // Update sidebar/nav pills occasionally
     setInterval(function(){ try{ UI.updatePills && global.Sna3tiUI.updatePills(); }catch(e){} }, 15000);

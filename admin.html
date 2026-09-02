@@ -23,10 +23,39 @@
   </div></div>
 </div>
 
+<!-- API base URL configuration (REQ 46).
+     Override via a global before the scripts load, e.g.:
+       API_BASE_URL = 'https://api.sna3ti.ma/api/v1'
+     Never hardcode localhost for production. -->
+<script>
+  window.SNA3TI_API = window.SNA3TI_API || { BASE_URL: window.API_BASE_URL || '/api/v1' };
+</script>
+
 <!-- Scripts: dependency order matters.
-     data -> auth -> router -> ui -> app -->
+     api-client -> *-api -> data -> auth -> router -> ui -> app -->
 <script src="js/admin-i18n.js"></script>
+<script src="js/api-client.js"></script>
+<script src="js/auth-api.js"></script>
+<script src="js/register-api.js"></script>
+<script src="js/professionals-api.js"></script>
+<script src="js/professional-registration.js"></script>
+<script src="js/subscriptions-api.js"></script>
+<script src="js/pricing-service.js"></script>
+<script src="js/payments-api.js"></script>
+<script src="js/payment-flow.js"></script>
+<script src="js/verifications-api.js"></script>
+<script src="js/verification-service.js"></script>
+<script src="js/reviews-api.js"></script>
+<script src="js/reports-api.js"></script>
+<script src="js/notifications-api.js"></script>
+<script src="js/legal-api.js"></script>
+<script src="js/dashboard-api.js"></script>
+<script src="js/settings-api.js"></script>
+<script src="js/admin-users-api.js"></script>
+<script src="js/audit-api.js"></script>
+<script src="js/search-api.js"></script>
 <script src="js/admin-data.js"></script>
+<script src="js/sna3ti-bridge.js"></script>
 <script src="js/admin-auth.js"></script>
 <script src="js/admin-router.js"></script>
 <script src="js/admin-ui.js"></script>
