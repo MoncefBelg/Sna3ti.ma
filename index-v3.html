@@ -7882,6 +7882,19 @@ function openGateway(d) {
   popup.classList.remove("hidden");
   popup.classList.add("flex");
   document.body.classList.add("overflow-hidden");
+
+  /* When the WhatsApp receipt button is clicked, close the gateway
+     and show the same success screen used for the free pack. */
+  if (wa) {
+    wa.addEventListener("click", function handler() {
+      wa.removeEventListener("click", handler);
+      closeGateway();
+      const successEl = document.getElementById("regSuccess");
+      const waSuccess = document.getElementById("regSuccessWa");
+      if (successEl) successEl.classList.remove("hidden");
+      if (waSuccess) waSuccess.href = wa.href;
+    });
+  }
 }
 
 function closeGateway() {
