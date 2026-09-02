@@ -4259,6 +4259,23 @@
 
 
   <!-- =======================================================
+       REGISTRATION SUCCESS SCREEN
+  ======================================================== -->
+  <div id="regSuccess" class="hidden fixed inset-0 z-[100] flex flex-col items-center justify-center bg-sna3ti-dark px-6 py-16 text-center text-white">
+    <div class="max-w-md w-full mx-auto flex flex-col items-center gap-6">
+      <div class="text-6xl">✅</div>
+      <h2 class="text-2xl font-black leading-tight" data-i18n="regSuccess.title">Inscription réussie !</h2>
+      <p class="text-sm text-white/65 leading-6" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
+      <a id="regSuccessWa" href="https://wa.me/212000000000" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-3 rounded-full bg-green-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-green-700 transition">
+        <span class="text-xl">💬</span>
+        <span data-i18n="regSuccess.whatsapp">Nous contacter sur WhatsApp</span>
+      </a>
+      <button type="button" id="regSuccessBack" class="mt-4 text-xs font-semibold text-white/40 hover:text-white transition" data-i18n="regSuccess.back">← Retour au site</button>
+    </div>
+  </div>
+
+
+  <!-- =======================================================
        JAVASCRIPT
   ======================================================== -->
 
@@ -4600,6 +4617,13 @@
             whatsappSub: "Réponse rapide · Activation sous 24h",
             whatsappCta: "Envoyer le reçu"
           }
+        },
+
+        regSuccess: {
+          title: "Inscription réussie !",
+          message: "Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.",
+          whatsapp: "Nous contacter sur WhatsApp",
+          back: "← Retour au site"
         }
 
       },
@@ -4810,6 +4834,13 @@
             whatsappSub: "جاوب سريع · التفعيل في خلال 24 ساعة",
             whatsappCta: "صيفط الوصل"
           }
+        },
+
+        regSuccess: {
+          title: "تم التسجيل بنجاح !",
+          message: "تم إرسال طلبك بنجاح. فريقنا سيتواصل معك قريباً عبر واتساب لإنهاء تسجيلك.",
+          whatsapp: "تواصل معنا عبر واتساب",
+          back: "← العودة للموقع"
         }
 
       },
@@ -5019,6 +5050,13 @@
             whatsappSub: "Quick reply · Activation within 24 hours",
             whatsappCta: "Send the receipt"
           }
+        },
+
+        regSuccess: {
+          title: "Registration successful!",
+          message: "Your request has been sent. Our team will contact you shortly via WhatsApp to complete your registration.",
+          whatsapp: "Contact us on WhatsApp",
+          back: "← Back to site"
         }
 
       }
@@ -7705,15 +7743,17 @@ function regSubmit() {
     return;
   }
 
-  window.open(
-    "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg),
-    "_blank"
-  );
+  /* Show the success screen with WhatsApp contact link. */
+  const successEl = document.getElementById("regSuccess");
+  const waLink = document.getElementById("regSuccessWa");
+  if (successEl) successEl.classList.remove("hidden");
+  if (waLink) waLink.href = "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg);
+}
 
-  alert(
-    "Merci " + prenom + " ! 🎉\n\n" +
-    "Ta demande a été préparée. Envoie le message WhatsApp qui vient de s'ouvrir pour finaliser ton inscription. 👌"
-  );
+function closeRegSuccess() {
+  const el = document.getElementById("regSuccess");
+  if (el) el.classList.add("hidden");
+  window.location.hash = "#/";
 }
 
 /* ---------- Payment gateway (virement CIH) ---------- */
@@ -7863,6 +7903,11 @@ document.addEventListener("click", function (e) {
 
   if (e.target.closest("#regSubmit")) {
     regSubmit();
+    return;
+  }
+
+  if (e.target.closest("#regSuccessBack")) {
+    closeRegSuccess();
     return;
   }
 
