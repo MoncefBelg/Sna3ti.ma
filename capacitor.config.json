@@ -1,0 +1,50 @@
+{
+  "appId": "ma.sna3ti.app",
+  "appName": "Sna3ti.ma",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "capacitor",
+    "cleartext": true,
+    "allowNavigation": [
+      "sna3ti.ma",
+      "*.sna3ti.ma"
+    ]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": false,
+    "backgroundColor": "#061512",
+    "statusBar": {
+      "backgroundColor": "#0D6B61",
+      "style": "light"
+    },
+    "navigationBar": {
+      "backgroundColor": "#0D6B61",
+      "style": "light"
+    }
+  },
+  "ios": {
+    "backgroundColor": "#061512",
+    "contentInset": "always",
+    "statusBar": {
+      "style": "light"
+    }
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0D6B61",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "iosSplashResourceName": "SplashScreen"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#0D6B61"
+    }
+  }
+}

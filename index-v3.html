@@ -13,6 +13,17 @@
   <meta name="author" content="Sna3ti.ma" />
   <meta name="theme-color" content="#0D6B61" />
 
+  <!-- PWA: installable on Android, iOS, Windows -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.svg" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sna3ti.ma" />
+  <meta name="application-name" content="Sna3ti.ma" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#0D6B61" />
+  <meta name="msapplication-TileImage" content="assets/icon-192.svg" />
+
   <!-- Canonical -->
   <link rel="canonical" href="https://sna3ti.ma/" />
   <link rel="sitemap" href="https://sna3ti.ma/sitemap.xml" />
@@ -8811,6 +8822,14 @@ if (mainEl) {
 }
 
 handleSna3tiRoute();
+
+/* ---- PWA: register the service worker (production only).
+      Note: requires HTTPS (or localhost). ---- */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+  });
+}
 
 /* =========================================================
    HERO CARD — ROTATING PROFESSIONAL PROFILE

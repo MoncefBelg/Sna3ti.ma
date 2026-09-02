@@ -1,0 +1,85 @@
+{
+  "name": "Sna3ti.ma — Trouvez un artisan au Maroc",
+  "short_name": "Sna3ti.ma",
+  "description": "Trouvez facilement un artisan ou professionnel de confiance près de chez vous au Maroc : plombier, électricien, mécanicien, maçon, coiffeur et plus.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#061512",
+  "theme_color": "#0D6B61",
+  "lang": "fr",
+  "dir": "auto",
+  "categories": ["business", "lifestyle", "utilities"],
+  "id": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "assets/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Sna3ti.ma — Accueil"
+    },
+    {
+      "src": "assets/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Sna3ti.ma — Tableau de bord"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Rechercher un artisan",
+      "short_name": "Recherche",
+      "url": "/#/search",
+      "description": "Trouvez un plombier, électricien ou autre artisan près de chez vous"
+    },
+    {
+      "name": "Inscrire mon activité",
+      "short_name": "Inscription",
+      "url": "/#register",
+      "description": "Inscrivez votre activité sur Sna3ti.ma"
+    },
+    {
+      "name": "Nos formules",
+      "short_name": "Tarifs",
+      "url": "/#pricing",
+      "description": "Découvrez nos formules gratuite, vérifiée et GOLD"
+    }
+  ],
+  "related_applications": [],
+  "handlers": [
+    {
+      "protocol": "web+sna3ti",
+      "url": "/?q=%s"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /service-worker.js
 
 Sitemap: https://sna3ti.ma/sitemap.xml
