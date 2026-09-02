@@ -3757,7 +3757,7 @@
                    text-base sm:text-lg leading-7"
             data-i18n="pro.subtitle"
           >
-            Inscrivez votre activité sur Sna3ti et recevez
+Inscrivez votre activité sur Sna3ti.ma et recevez
             plus de demandes de clients proches de vous.
             Gérez vos disponibilités, vos prix et contactez
             vos clients en toute confiance.
@@ -4110,12 +4110,12 @@
     <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6">
 
       <div class="text-center">
-        <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white" data-i18n="register.title">
+        <h2 id="regTitle" class="text-3xl sm:text-4xl font-black tracking-tight text-white" data-i18n="register.title">
           Inscrire mon activité
         </h2>
         <p class="mt-3 text-white/70 text-base sm:text-lg" data-i18n="register.subtitle">
           Choisissez votre formule puis complétez vos informations.
-          Un membre de l'équipe Sna3ti vous contactera rapidement.
+Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         </p>
       </div>
 
@@ -4315,7 +4315,7 @@
       <p class="relative z-10 text-sm text-white/60 leading-6 max-w-xs" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
 
       <!-- payment details (shown only for paid packs) -->
-      <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-5 text-left text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
+      <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-5 text-start text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
         <div class="grid gap-4 sm:grid-cols-2">
           <!-- LEFT: chosen plan + user info + whatsapp button -->
           <div class="flex flex-col gap-3">
@@ -4367,10 +4367,9 @@
             <!-- bank details -->
             <div class="rounded-xl bg-black/20 p-3 text-[13px]">
               <div class="mb-2 flex items-center gap-2">
-                <div class="grid h-8 w-16 place-items-center rounded-lg bg-white px-1">
-                  <img src="assets/img/CIH_logo.jpg" alt="CIH" class="max-h-5 w-auto object-contain" />
+                <div class="grid h-14 w-40 place-items-center rounded-lg bg-white px-2">
+                  <img src="assets/img/CIH_logo.jpg" alt="CIH" class="max-h-10 w-auto object-contain" />
                 </div>
-                <div class="text-[10px] uppercase tracking-wider text-white/50" data-i18n="register.gateway.transferTitle">Compte de virement</div>
               </div>
               <div class="space-y-2">
                 <div class="flex items-start justify-between gap-3">
@@ -4631,7 +4630,7 @@
         pro: {
           badge: "Professionnels",
           title: "Vous êtes un professionnel ?",
-          subtitle: "Inscrivez votre activité sur Sna3ti et recevez plus de demandes de clients proches de vous. Gérez vos disponibilités, vos prix et contactez vos clients en toute confiance.",
+          subtitle: "Inscrivez votre activité sur Sna3ti.ma et recevez plus de demandes de clients proches de vous. Gérez vos disponibilités, vos prix et contactez vos clients en toute confiance.",
           item1: "Profil gratuit",
           item2: "Demandes qualifiées",
           item3: "Badge vérifié",
@@ -4696,7 +4695,7 @@
 
         register: {
           title: "Inscrire mon activité",
-          subtitle: "Choisissez votre formule puis complétez vos informations. Un membre de l'équipe Sna3ti vous contactera rapidement.",
+          subtitle: "Choisissez votre formule puis complétez vos informations. Un membre de l'équipe Sna3ti.ma vous contactera rapidement.",
           step1: "Étape 1 · Choisissez votre formule",
           step2: "Étape 2 · Vos informations",
           choose: "Choisir",
@@ -4855,7 +4854,7 @@
         pro: {
           badge: "الحرفيون",
           title: "أنت حرفي؟",
-          subtitle: "سجّل نشاطك على Sna3ti واحصل على مزيد من طلبات العملاء القريبين منك. أدر أوقات توفرك وأثمنتك وتواصل مع عملائك بثقة.",
+          subtitle: "سجّل نشاطك على Sna3ti.ma واحصل على مزيد من طلبات العملاء القريبين منك. أدر أوقات توفرك وأثمنتك وتواصل مع عملائك بثقة.",
           item1: "بروفايل مجاني",
           item2: "طلبات مؤهلة",
           item3: "شارة موثّق",
@@ -4920,7 +4919,7 @@
 
         register: {
           title: "سجّل النشاط ديالك",
-          subtitle: "اختر الصيغة اللي بغيتي ثم كمّل المعلومات ديالك. عضو من فرقة Sna3ti غادي يتواصل معك بسرعة.",
+          subtitle: "اختر الصيغة اللي بغيتي ثم كمّل المعلومات ديالك. عضو من فرقة Sna3ti.ma غادي يتواصل معك بسرعة.",
           step1: "المرحلة 1 · اختر الصيغة",
           step2: "المرحلة 2 · معلوماتك",
           choose: "اختر",
@@ -4980,7 +4979,7 @@
             account: "رقم الحساب",
             copyRib: "نسخ الـ RIB",
             copied: "تم النسخ!",
-            reference: "حط السم والسم العائلي ديالك كمرجع للتحويل باش نعرفوك بسهولة.",
+            reference: "ضع اسمك بالإضافة إلى الاسم العائلي كمرجع للتحويل باش نعرفوك بسهولة.",
             whatsappNote: "من بعد ما تدّي التحويل للحساب اللي فوق، صيفط لنا الوصل ولا السكرين على الواتساب.",
             whatsappSub: "جاوب سريع · التفعيل في خلال 24 ساعة",
             whatsappCta: "صيفط الوصل"
@@ -5078,7 +5077,7 @@
         pro: {
           badge: "Professionals",
           title: "Are you a professional?",
-          subtitle: "List your business on Sna3ti and receive more requests from nearby clients. Manage your availability, your prices and contact your clients with confidence.",
+          subtitle: "List your business on Sna3ti.ma and receive more requests from nearby clients. Manage your availability, your prices and contact your clients with confidence.",
           item1: "Free profile",
           item2: "Qualified leads",
           item3: "Verified badge",
@@ -5143,7 +5142,7 @@
 
         register: {
           title: "List my business",
-          subtitle: "Choose your plan then fill in your details. A member of the Sna3ti team will contact you shortly.",
+          subtitle: "Choose your plan then fill in your details. A member of the Sna3ti.ma team will contact you shortly.",
           step1: "Step 1 · Choose your plan",
           step2: "Step 2 · Your details",
           choose: "Choose",
@@ -7669,7 +7668,9 @@ function regSelectPack(pack) {
 
   const s1 = document.getElementById("regStep1");
   const s2 = document.getElementById("regStep2");
+  const title = document.getElementById("regTitle");
   if (s1) s1.classList.add("hidden");
+  if (title) title.classList.remove("hidden");
   if (s2) {
     s2.classList.remove("hidden");
     s2.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -7919,10 +7920,15 @@ function regSubmit() {
     const pprenom = document.getElementById("regSuccessPrenom");
     const pphone = document.getElementById("regSuccessPhone");
 
+    const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
+    const tr = (window.translations && window.translations[lang]) || {};
+    const unitDh = (tr.unit && tr.unit.dh) || "DH";
+    const unitPer = (tr.unit && tr.unit.perMonth) || "/mois";
+
     if (pname) pname.textContent = meta.label;
-    if (pprice) pprice.textContent = meta.price + " DH";
+    if (pprice) pprice.textContent = meta.price + " " + unitDh;
     if (picon) picon.textContent = meta.icon;
-    if (pplan) pplan.textContent = meta.label + " · " + meta.price + " DH/mois";
+    if (pplan) pplan.textContent = meta.label + " · " + meta.price + " " + unitDh + unitPer;
     if (pnom) pnom.textContent = nom;
     if (pprenom) pprenom.textContent = prenom;
     if (pphone) pphone.textContent = whatsappNumber;
@@ -7958,11 +7964,130 @@ function regSubmit() {
   }
 }
 
+/* ---- Persist registration to the admin's shared localStorage so that
+      the admin panel sees the new professional in Verification / Payments
+      and can approve them (approveJoin moves them to the Professionals
+      section automatically). ---- */
+function sna3tiPersistToAdmin(data) {
+  try {
+    var KEY = "sna3ti_admin_";
+    function readArr(k) { try { var r = localStorage.getItem(KEY + k); return r ? JSON.parse(r) : []; } catch (e) { return []; } }
+    function writeArr(k, arr) { try { localStorage.setItem(KEY + k, JSON.stringify(arr)); } catch (e) {} }
+
+    // --- Professional ---
+    var pros = readArr("professionals");
+    var curPro = 10000;
+    try { var raw = localStorage.getItem("sna3ti_admin_pro_counter"); if (raw && /^\d+$/.test(raw)) curPro = Number(raw); } catch (e) {}
+    curPro += 1;
+    try { localStorage.setItem("sna3ti_admin_pro_counter", String(curPro)); } catch (e) {}
+    var proId = "PRO-" + curPro;
+
+    var planIdMap = { gratuit: "PLAN-FREE", verifie: "PLAN-VERIFIED", gold: "PLAN-GOLD" };
+    var planId = planIdMap[data.pack] || "PLAN-FREE";
+
+    var pro = {
+      id: proId, userId: "", professionId: "", name: data.nom + " " + data.prenom, job: data.metierLabel || data.metier || "",
+      categoryId: "", category: data.metierLabel || "", cityId: "", city: data.cityLabel || data.ville || "",
+      area: "", rating: 0, reviewsCount: 0, price: 0,
+      identityStatus: "pending", verificationStatus: "pending", professionStatus: "pending",
+      subscriptionPlanId: planId, subscriptionStatus: "active", verified: false, package: data.pack || "free",
+      status: "pending", available: true, distance: 0, phone: data.whatsapp, email: "",
+      experience: "", languages: ["arabe", "français"],
+      created: new Date().toISOString().slice(0, 10),
+      description: data.description || "", otherService: data.otherService || "",
+      leads: { profileViews: 0, phoneClicks: 0, whatsappClicks: 0, contactRequests: 0, conversion: 0 },
+      portfolio: []
+    };
+    pros.push(pro);
+    writeArr("professionals", pros);
+
+    // --- Verification request (join) ---
+    var vrs = readArr("verificationRequests");
+    var vrId = "VR-" + Math.floor(700000 + Math.random() * 900000);
+    var vr = {
+      id: vrId, professionalId: proId, level: "join", status: "pending",
+      submitted: new Date().toISOString().slice(0, 10),
+      submittedAt: new Date().toISOString(),
+      priority: "medium",
+      documents: ["Inscription site"],
+      history: [
+        { date: new Date().toISOString().slice(0, 10), text: "Demande d'adhésion soumise via le site" }
+      ]
+    };
+    vrs.push(vr);
+    writeArr("verificationRequests", vrs);
+
+    // --- Notification ---
+    var notifs = readArr("notifications");
+    var notifId = "NT-" + Math.floor(100 + Math.random() * 900);
+    notifs.unshift({
+      id: notifId, type: "verification",
+      text: "Nouvelle inscription : " + data.nom + " " + data.prenom + " (" + (data.metierLabel || data.metier || "-") + ")",
+      when: "à l'instant", unread: true, route: "verification"
+    });
+    writeArr("notifications", notifs);
+
+    // --- Payment (paid packs only) ---
+    if (data.pack === "verifie" || data.pack === "gold") {
+      var pays = readArr("payments");
+      var payId = "PAY-" + Math.floor(700000 + Math.random() * 900000);
+      pays.unshift({
+        id: payId, reference: "SNA3TI-" + Math.floor(48290 + Math.random() * 9000),
+        professionalId: proId, planName: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
+        amount: data.pack === "gold" ? 199 : 99,
+        method: "bank_transfer", currency: "MAD",
+        bankRef: "", receipt: "", date: new Date().toISOString().slice(0, 10),
+        createdAt: new Date().toISOString(), status: "pending"
+      });
+      writeArr("payments", pays);
+
+      // Also add a subscription entry (pending)
+      var subs = readArr("subscriptions");
+      subs.push({
+        id: "SUB-" + Math.floor(700000 + Math.random() * 900000),
+        professionalId: proId, planId: planId,
+        planName: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
+        status: "pending", paymentStatus: "pending",
+        price: data.pack === "gold" ? 199 : 99,
+        since: new Date().toISOString().slice(0, 10), renewal: "—"
+      });
+      writeArr("subscriptions", subs);
+
+      // Plan-level verification request
+      var vr2 = {
+        id: "VR-" + Math.floor(700000 + Math.random() * 900000),
+        professionalId: proId, level: "plan", planId: planId,
+        requestedPlan: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
+        amount: data.pack === "gold" ? 199 : 99,
+        status: "pending", submitted: new Date().toISOString().slice(0, 10),
+        submittedAt: new Date().toISOString(),
+        priority: "high", paymentId: payId,
+        documents: ["Virement bancaire"],
+        history: [
+          { date: new Date().toISOString().slice(0, 10), text: "Demande d'abonnement soumise via le site" },
+          { date: new Date().toISOString().slice(0, 10), text: "En attente du virement bancaire" }
+        ]
+      };
+      vrs.push(vr2);
+      writeArr("verificationRequests", vrs);
+    }
+  } catch (e) { /* best-effort */ }
+}
+
 function closeRegSuccess() {
   const el = document.getElementById("regSuccess");
   if (el) el.classList.add("hidden");
   /* The registration is already done — take the user home (top of page),
-     not back to the inscription form. */
+     not back to the inscription form. The register section is collapsed:
+     fields cleared, back to Step 1 (pack cards only, heading hidden)
+     until the visitor picks a plan again. */
+  if (typeof sna3tiResetRegForm === "function") sna3tiResetRegForm();
+  const s1 = document.getElementById("regStep1");
+  const s2 = document.getElementById("regStep2");
+  if (s1) s1.classList.remove("hidden");
+  if (s2) s2.classList.add("hidden");
+  const title = document.getElementById("regTitle");
+  if (title) title.classList.add("hidden");
   window.location.hash = "#/";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -8053,7 +8178,18 @@ function openGateway(d) {
       closeGateway();
       const successEl = document.getElementById("regSuccess");
       const waSuccess = document.getElementById("regSuccessWa");
-      if (successEl) successEl.classList.remove("hidden");
+if (successEl) successEl.classList.remove("hidden");
+
+  /* Persist the registration to the admin's shared localStorage so the
+     admin sees the new professional in Verification / Payments and can
+     approve them (approveJoin auto-adds them to Professionals). */
+  sna3tiPersistToAdmin({
+    nom: nom, prenom: prenom, whatsapp: whatsappNumber,
+    pack: pack, metier: metier, metierLabel: metierLabel,
+    ville: ville, cityLabel: cityLabel,
+    description: document.getElementById("regDesc") ? document.getElementById("regDesc").value.trim() : "",
+    otherService: document.getElementById("regOtherService") ? document.getElementById("regOtherService").value.trim() : ""
+  });
       if (waSuccess) waSuccess.href = wa.href;
     });
   }
