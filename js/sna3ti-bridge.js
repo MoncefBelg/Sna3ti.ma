@@ -47,6 +47,7 @@
 
   var DATA = global.Sna3tiData || null;
   var Api = global.Sna3tiApi || null;
+  var Fallback = global.Sna3tiFallback || null;
   var ProApi = global.Sna3tiProfessionalsApi || null;
   var SubApi = global.Sna3tiSubscriptionsApi || null;
   var PayApi = global.Sna3tiPaymentsApi || null;
@@ -65,6 +66,24 @@
   var syncQueue = [];
   var reachable = false;
   var forbiddenCallback = null;
+  // Safe-fallback gating (REQ: production NEVER silently falls back to demo
+  // data). lastSyncError records the most recent authoritative-sync failure in
+  // production so the UI can show an offline/API error instead of stale demo.
+  var lastSyncError = null;
+
+  /**
+   * Centralized mock-fallback decision. NEVER scatter env checks elsewhere;
+   * always consult this single helper.
+   *   browser: reads window.SNA3TI_ENV / SNA3TI_ALLOW_MOCK_FALLBACK
+   *   node:    reads process.env (tests)
+   */
+  function canUseMockFallback() {
+    return Fallback ? Fallback.canUseMockFallback() : false;
+  }
+
+  function envGateDetails() {
+    return Fallback ? Fallback.reasoning() : { env: "unknown", canFallback: false, reason: "fallback gate unavailable" };
+  }
 
   function enabled() {
     return !!(DATA && Api && ProApi && SubApi && PayApi && RevApi && RepApi);
@@ -216,48 +235,74 @@
           mergeList("subscriptionPlans", [local], null);
         });
       })
-      .catch(function () {});
+      .catch(function (err) { recordSyncFailure(err, "plans"); });
+  }
+
+  /**
+   * Record an authoritative-sync failure. In production mock fallback is
+   * forbidden, so a failure MUST be surfaced as an offline/error state rather
+   * than silently falling back to demo data. In explicitly-enabled development
+   * the failure is noted but the demo fallback remains permitted.
+   */
+  function recordSyncFailure(err, label) {
+    var code = (err && (err.code || err.status)) || "NETWORK_ERROR";
+    var message = (err && err.message) || "Impossible de joindre le serveur.";
+    // A successful empty response must NOT be treated as a failure (REQ: do
+    // not confuse [] with an error).
+    lastSyncError = { label: label || "sync", code: code, message: message, at: new Date().toISOString() };
+    if (!canUseMockFallback()) {
+      // In production, surface the failure through the pending queue so the
+      // UI can render an offline/API-error state instead of demo data.
+      syncQueue.push({ label: label || "sync", status: "error", message: message });
+    }
+  }
+
+  /** Run a sync job; a rejected job becomes an error state (not silent). */
+  function track(jobLabel, promise) {
+    return Promise.resolve(promise)
+      .catch(function (err) { recordSyncFailure(err, jobLabel); return { success: false }; });
   }
 
   /** Pull authoritative read collections from the API into the local cache. */
   function syncNow() {
     if (!enabled()) return Promise.resolve({ success: false, code: "UNSUPPORTED" });
     reachable = true;
+    lastSyncError = null;
     var jobs = [];
 
-    jobs.push(pullPlans());
+    jobs.push(track("plans", pullPlans()));
 
     if (ProApi.list) {
-      jobs.push(ProApi.list({ limit: 500 }).then(function (res) { mergeList("professionals", unwrapList(res), mapProfessional); }).catch(function () {}));
+      jobs.push(track("professionals", ProApi.list({ limit: 500 }).then(function (res) { mergeList("professionals", unwrapList(res), mapProfessional); })));
     }
     if (SubApi.list) {
-      jobs.push(SubApi.list({ limit: 500 }).then(function (res) { mergeList("subscriptions", unwrapList(res), mapSubscription); }).catch(function () {}));
+      jobs.push(track("subscriptions", SubApi.list({ limit: 500 }).then(function (res) { mergeList("subscriptions", unwrapList(res), mapSubscription); })));
     }
     if (PayApi.list) {
-      jobs.push(PayApi.list().then(function (res) { mergeList("payments", unwrapList(res), mapPayment); }).catch(function () {}));
+      jobs.push(track("payments", PayApi.list().then(function (res) { mergeList("payments", unwrapList(res), mapPayment); })));
     }
     if (VerSvc && VerSvc.list) {
-      jobs.push(VerSvc.list({ limit: 500 }).then(function (res) { mergeList("verificationRequests", unwrapList(res.data || { data: unwrapList(res) }), mapVerification); }).catch(function () {}));
+      jobs.push(track("verifications", VerSvc.list({ limit: 500 }).then(function (res) { mergeList("verificationRequests", unwrapList(res.data || { data: unwrapList(res) }), mapVerification); })));
     }
     if (RevApi.list) {
-      jobs.push(RevApi.list().then(function (res) { mergeList("reviews", unwrapList(res), null); }).catch(function () {}));
+      jobs.push(track("reviews", RevApi.list().then(function (res) { mergeList("reviews", unwrapList(res), null); })));
     }
     if (RepApi.list) {
-      jobs.push(RepApi.list().then(function (res) { mergeList("reports", unwrapList(res), null); }).catch(function () {}));
+      jobs.push(track("reports", RepApi.list().then(function (res) { mergeList("reports", unwrapList(res), null); })));
     }
 
     // ---- Admin users, audit logs, notifications, settings ----
     if (AdminUsersApi && AdminUsersApi.list) {
-      jobs.push(AdminUsersApi.list().then(function (res) { mergeList("adminUsers", unwrapList(res), null); }).catch(function () {}));
+      jobs.push(track("adminUsers", AdminUsersApi.list().then(function (res) { mergeList("adminUsers", unwrapList(res), null); })));
     }
     if (AuditApi && AuditApi.list) {
-      jobs.push(AuditApi.list().then(function (res) { mergeList("auditLogs", unwrapList(res), null); }).catch(function () {}));
+      jobs.push(track("auditLogs", AuditApi.list().then(function (res) { mergeList("auditLogs", unwrapList(res), null); })));
     }
     if (NotifApi && NotifApi.list) {
-      jobs.push(NotifApi.list().then(function (res) { mergeList("notifications", unwrapList(res), null); }).catch(function () {}));
+      jobs.push(track("notifications", NotifApi.list().then(function (res) { mergeList("notifications", unwrapList(res), null); })));
     }
     if (SettingsApi && SettingsApi.get) {
-      jobs.push(SettingsApi.get().then(function (res) {
+      jobs.push(track("settings", SettingsApi.get().then(function (res) {
         var s = store();
         var d = res && res.data ? res.data : res;
         if (s && d && typeof d === "object") {
@@ -265,13 +310,13 @@
           if (d.currency) s.config.currency = d.currency;
           if (d.locale) s.config.defaultLanguage = d.locale;
         }
-      }).catch(function () {}));
+      })));
     }
 
     return Promise.all(jobs).then(function () {
       primed = true;
       if (DATA && DATA.persist) DATA.persist();
-      return { success: true, primed: true };
+      return { success: true, primed: true, lastSyncError: lastSyncError };
     });
   }
 
@@ -415,13 +460,32 @@
     if (!enabled()) return { success: false, code: "UNSUPPORTED" };
     installWrites();
     // Non-blocking prime: do not block first paint / render.
-    if (Api && typeof Api.isReachable === "function" && !Api.isReachable()) {
-      return { success: false, code: "OFFLINE" };
+    if (Api && typeof Api.isReachable === "function" && !reachabilityCheck()) {
+      return { success: false, code: "OFFLINE", reason: envGateDetails() };
     }
     if (!primed) {
       syncNow();
     }
-    return { success: true, primed: primed };
+    return { success: true, primed: primed, gate: envGateDetails() };
+  }
+
+  /** True when the bridge is NOT allowed to fall back to demo data. */
+  function authoritativeOnly() {
+    return !canUseMockFallback();
+  }
+
+  /** Whether current data may (per the gate) be demo fallback data. */
+  function usingMockData() {
+    return canUseMockFallback() === true;
+  }
+
+  /** Raw reachability check (avoids double-invoking the promise). */
+  function reachabilityCheck() {
+    var p = Api && typeof Api.isReachable === "function" ? Api.isReachable() : Promise.resolve(false);
+    // isReachable returns a promise; resolve synchronously is impossible, so
+    // prime is left to syncNow's own failure tracking. Return true to proceed
+    // and let syncNow surface offline errors (production) correctly.
+    return !!p && typeof p.then === "function" ? true : !!p;
   }
 
   global.Sna3tiBridge = {
@@ -431,6 +495,13 @@
     isReachable: function () { return Api ? Api.isReachable() : false; },
     pending: function () { return syncQueue.slice(); },
     get primed() { return primed; },
+    // Safe-fallback gating API (REQ). Central: consult these, not scattered env.
+    get gate() { return envGateDetails(); },
+    canUseMockFallback: canUseMockFallback,
+    authoritativeOnly: authoritativeOnly,
+    usingMockData: usingMockData,
+    lastSyncError: function () { return lastSyncError; },
+    resetSyncError: function () { lastSyncError = null; },
 
     /** Async: fetch dashboard KPI counts from GET /admin/dashboard. */
     getDashboard: function () {

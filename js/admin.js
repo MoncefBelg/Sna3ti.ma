@@ -76,40 +76,66 @@
     UI.setTitle(T("Tableau de bord"));
     UI.renderSkeleton(4, true);
     var Bridge = global.Sna3tiBridge;
-    // Try the backend first, fall back to local store.
-    var kpiPromise = (Bridge && typeof Bridge.getDashboard === "function")
-      ? Bridge.getDashboard().then(function (res) {
-          if (res && res.success && res.data) {
-            // Map backend counts to the local KPI shape.
-            var c = res.data;
-            return {
-              users: c.users || 0,
-              professionals: c.professionals || 0,
-              verified: c.verifications || 0,
-              pendingVerification: (c.verifications_pending) || 0,
-              active: c.professionals || 0,
-              activeSubscriptions: c.subscriptions || 0,
-              pendingSubscriptions: 0,
-              flaggedReviews: 0,
-              openReports: c.reports || 0,
-              searches: 0,
-              contactRequests: 0,
-              monthlyRevenue: 0,
-              pendingPayments: c.payments || 0,
-              reported: 0
-            };
-          }
+    // Try the backend first. Fall back to the local (demo) store ONLY in
+    // explicitly-enabled development. Production must never silently show
+    // demo data — an API failure surfaces an offline/error state instead.
+    var usingDemo = Bridge ? Bridge.usingMockData() && true : false;
+    var kpiPromise;
+    if (Bridge && typeof Bridge.getDashboard === "function") {
+      kpiPromise = Bridge.getDashboard().then(function (res) {
+        if (res && res.success && res.data) {
+          // Map backend counts to the local KPI shape.
+          var c = res.data;
+          return {
+            users: c.users || 0,
+            professionals: c.professionals || 0,
+            verified: c.verifications || 0,
+            pendingVerification: (c.verifications_pending) || 0,
+            active: c.professionals || 0,
+            activeSubscriptions: c.subscriptions || 0,
+            pendingSubscriptions: 0,
+            flaggedReviews: 0,
+            openReports: c.reports || 0,
+            searches: 0,
+            contactRequests: 0,
+            monthlyRevenue: 0,
+            pendingPayments: c.payments || 0,
+            reported: 0
+          };
+        }
+        // A successful, non-error response (empty list / zero counts) is an
+        // EMPTY state, not a failure — never show an error for `[]`.
+        if (res && res.success) {
           return DATA.getKPIs();
-        }).catch(function () { return DATA.getKPIs(); })
-      : Promise.resolve(DATA.getKPIs());
+        }
+        // res.success === false -> real API failure.
+        if (Bridge.authoritativeOnly && Bridge.authoritativeOnly()) {
+          throw new Error("API_ERROR");
+        }
+        return DATA.getKPIs();
+      }).catch(function () {
+        // Production: no silent demo fallback. Show offline/error state.
+        if (Bridge && Bridge.authoritativeOnly && Bridge.authoritativeOnly()) {
+          UI.renderError(T("Impossible de joindre le serveur. Les données peuvent être indisponibles."));
+          return null;
+        }
+        return DATA.getKPIs();
+      });
+    } else {
+      kpiPromise = Promise.resolve(DATA.getKPIs());
+    }
 
     kpiPromise.then(function (k) {
+      if (k === null) return; // error state already rendered above
       var alerts = DATA.getAlerts();
       var activity = DATA.getActivity();
+      var demoBadge = usingDemo ? '<div class="demo-badge" style="background:#fff3cd;color:#8a6d1a;border:1px solid #e6c200;padding:6px 12px;border-radius:6px;margin-bottom:14px;font-size:12px">' + T("DÉVELOPPEMENT — DONNÉES DE DÉMONSTRATION") + '</div>' : "";
       var html =
         '<div class="page-head"><h1>'+T("Tableau de bord")+'</h1><div class="spacer"></div>'+
           '<span class="muted">'+new Date().toLocaleDateString("fr-MA",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+'</span></div>'+
+        (demoBadge) +
         '<div class="kpi-grid grid-4">' +
+          dashKpi(T("Utilisateurs"),"👥", k.users, "8,2%", T("vs mois dernier"), true, "users") +
           dashKpi(T("Utilisateurs"),"👥", k.users, "8,2%", T("vs mois dernier"), true, "users") +
           dashKpi(T("Professionnels"),"🧑‍🔧", k.professionals, "12,4%", T("vs mois dernier"), true, "professionals") +
           dashKpi(T("Vérifiés"),"✅", k.verified, "4,1%", T("vs mois dernier"), true, "professionals?ver=verified") +
