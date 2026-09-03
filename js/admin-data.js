@@ -12,6 +12,9 @@
   var I18N = global.Sna3tiI18n || { t:function(s){ return s; } };
   function T(s){ return I18N.t(s); }
 
+  // REQ 52: admin-scoped professional API (loaded before admin-data.js).
+  var ProfApi = global.Sna3tiProfessionalsApi || null;
+
   /* ---------- Roles & permissions (RBAC) ---------- */
   // NOTE: For prototype only. Production authorization MUST be
   // enforced server-side. Never trust client-side permissions alone.
@@ -610,6 +613,43 @@
     return true;
   }
 
+  // REQ 52: normalize a backend professional record into the UI shape.
+  // Backend is authoritative: never invent ratings / verification / plans.
+  // Opaque IDs (e.g. "PRO-10295") pass through verbatim — never coerce.
+  function mapAdminProfessional(remote) {
+    if (!remote) return null;
+    var out = {
+      id: remote.id,
+      userId: remote.userId || null,
+      name: remote.name || "",
+      professionId: remote.professionId || "",
+      job: remote.job || "",
+      categoryId: remote.categoryId || null,
+      cityId: remote.cityId || null,
+      city: remote.city || "",
+      area: remote.area || "",
+      neighborhood: remote.neighborhood || "",
+      phone: remote.phone || "",
+      email: remote.email || "",
+      description: remote.description || "",
+      experience: remote.experience || "",
+      status: remote.status || "pending",
+      available: remote.available !== false,
+      created: remote.createdAt || remote.created || "",
+      // Fields the backend does not currently aggregate. Represent honestly
+      // (0 / empty) rather than fabricating a realistic-looking value.
+      rating: (typeof remote.rating === "number") ? remote.rating : 0,
+      reviewsCount: (typeof remote.reviewsCount === "number") ? remote.reviewsCount : 0,
+      verificationStatus: remote.verificationStatus || null,
+      package: remote.package || ""
+    };
+    if (remote.verification) out.verificationStatus = remote.verification;
+    if (remote.languages && Array.isArray(remote.languages)) out.languages = remote.languages;
+    if (remote.services && Array.isArray(remote.services)) out.services = remote.services;
+    if (remote.media && Array.isArray(remote.media)) out.portfolio = remote.media;
+    return out;
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -648,6 +688,26 @@
     },
     getProfessional: function(id){ return clone(getById(store.professionals, id)); },
     countProfessionals: function(){ return store.professionals.length; },
+
+    // ---- REQ 52: async admin reads. Source of truth = GET /admin/professionals.
+    // These call the real backend through the central API client. A successful
+    // empty response ([]) resolves as an EMPTY state (not an error); a network /
+    // server / 429 / 500 failure rejects so the UI renders an error/offline
+    // state — never demo data. Opaque IDs pass through unchanged.
+    fetchProfessionals: function(params){
+      if(!ProfApi || !ProfApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API professionnels non chargé." });
+      return ProfApi.adminList(params || {}).then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        return { success:true, data: list.map(mapAdminProfessional), pagination: (res && res.pagination) || null };
+      });
+    },
+    fetchProfessional: function(id){
+      if(!ProfApi || !ProfApi.adminGet) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API professionnels non chargé." });
+      return ProfApi.adminGet(id).then(function(res){
+        var p = (res && res.data) ? res.data : null;
+        return { success:true, data: p ? mapAdminProfessional(p) : null };
+      });
+    },
     updateProfessional: function(id, data){
       var p = getById(store.professionals, id); if(!p) return false;
       Object.keys(data).forEach(function(k){ if(data[k]!==undefined) p[k]=data[k]; });

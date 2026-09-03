@@ -356,7 +356,7 @@
         });
       });
     }
-    if (DATA.updateProfessional && ProApi.update) {
+    if ((DATA.updateProfessional) && (ProApi.adminUpdate || ProApi.update)) {
       intercept("updateProfessional", function (id, data) {
         // Suspend / activate are dedicated admin endpoints.
         if (data && data.status === "suspended" && ProApi.suspend) return ProApi.suspend(id);
@@ -365,7 +365,8 @@
         ["name","job","city","phone","email","description","package"].forEach(function (k) {
           if (data[k] !== undefined) head[k] = data[k];
         });
-        return ProApi.update(id, head);
+        // REQ 52: admin edits go through the admin-scoped endpoint (RBAC).
+        return (ProApi.adminUpdate || ProApi.update)(id, head);
       });
     }
     if (DATA.deleteProfessional && ProApi.remove) {

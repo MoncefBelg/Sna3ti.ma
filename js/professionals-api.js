@@ -21,6 +21,15 @@
     suspend: function (id) { return R("POST", "admin/professionals/:id/suspend", { pathParams: { id: id } }); },
     activate: function (id) { return R("POST", "admin/professionals/:id/activate", { pathParams: { id: id } }); },
 
+    // ---- Admin-scoped reads (REQ 52). Source of truth for the admin panel.
+    // These require an authenticated admin JWT and are permission-gated by the
+    // backend (professionals.view / edit / suspend). Opaque IDs pass through.
+    adminList: function (params) { return R("GET", "admin/professionals", { params: params }); },
+    adminGet: function (id) { return R("GET", "admin/professionals/:id", { pathParams: { id: id } }); },
+    adminUpdate: function (id, payload) { return R("PATCH", "admin/professionals/:id", { pathParams: { id: id }, body: payload }); },
+    adminSuspend: function (id, reason) { return R("POST", "admin/professionals/:id/suspend", { pathParams: { id: id }, body: { reason: reason } }); },
+    adminActivate: function (id) { return R("POST", "admin/professionals/:id/activate", { pathParams: { id: id } }); },
+
     reviews: {
       list: function (professionalId, params) {
         return R("GET", "professionals/:professionalId/reviews", { pathParams: { professionalId: professionalId }, params: params });

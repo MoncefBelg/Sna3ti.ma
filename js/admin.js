@@ -330,75 +330,120 @@
   }
   function unique(arr){ return arr.filter(function(v,i){ return arr.indexOf(v)===i; }); }
 
-  function drawPros(){
-    var list = DATA.getProfessionals({
-      q: proState.q, city: proState.city, category: proState.category,
-      job: proState.job, verification: proState.verification, subscription: proState.package,
-      minRating: proState.rating, created: proState.created, status: proState.status
-    });
-    list.sort(function(a,b){
-      var va=a[proState.sort], vb=b[proState.sort];
-      if(typeof va==="string"){ return proState.dir * va.localeCompare(vb); }
-      return proState.dir * ((va||0) - (vb||0));
-    });
-    var pg = UI.paginate(list.length, proState.page, proState.perPage);
-    var slice = list.slice(pg.from, pg.to);
-    document.getElementById("proCount").textContent = list.length + T(" professionnel(s) — page ")+pg.page+"/"+pg.total;
-    document.getElementById("proBody").innerHTML = slice.length ? slice.map(function(p){
-      var isOther = p.category === "autres" || /autres services/i.test((p.job||"")+"");
-      var descLine = p.description ? ('<div class="pro-job" style="color:var(--muted);font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(p.description)+'">'+esc(p.description)+'</div>') : "";
-      return '<tr id="row-'+p.id+'">' +
-        '<td><input type="checkbox" class="row-check" data-id="'+p.id+'" '+((proState.selected[p.id])?"checked":"")+'></td>' +
-        '<td><div class="pro"><div class="p-avatar">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.id)+'</div>'+descLine+'</div></div></td>' +
-        '<td>'+esc(p.job)+(isOther?' <span class="badge teal" title="'+esc(p.description||"")+'">'+T("Autres services")+'</span>':"")+'</td><td>'+esc(p.city)+'</td>' +
-        '<td><span class="star">★</span> '+p.rating+'</td><td>'+p.reviewsCount+'</td>' +
-        '<td>'+verBadge(p)+'</td><td>'+pkgBadge(p)+'</td>' +
-        '<td>'+esc(proCreatedText(p))+'</td>' +
-        '<td>'+statusBadge(p.status)+'</td>' +
-        '<td class="actions-cell">' +
-          '<button class="icon-act" title="'+T("Voir le profil")+'" data-view="professionals/'+p.id+'">👁️</button>' +
-          (AUTH.can("professionals","update")?'<button class="icon-act" title="'+T("Modifier")+'" data-edit="'+p.id+'">✏️</button>':"") +
-          (AUTH.can("professionals","verify")?'<button class="icon-act" title="'+T("Vérifier")+'" data-verify="'+p.id+'" style="color:var(--teal)">✅</button>':"") +
-          (AUTH.can("professionals","suspend") && (p.status==="active"||p.status==="pending") ?'<button class="icon-act" title="'+T("Suspendre")+'" data-suspend="'+p.id+'" style="color:var(--amber)">⏸️</button>':"") +
-          (AUTH.can("professionals","activate") && p.status==="suspended" ?'<button class="icon-act" title="'+T("Activer")+'" data-activate="'+p.id+'" style="color:var(--green)">▶️</button>':"") +
-          (AUTH.can("professionals","delete") ?'<button class="icon-act danger" title="'+T("Supprimer")+'" data-del="'+p.id+'">🗑️</button>':"") +
-        '</td></tr>';
-    }).join("") : '<tr><td colspan="11"><div class="empty" style="padding:30px">'+T("Aucun professionnel trouvé.")+'</div></td></tr>';
-
-    document.querySelectorAll("#proBody .row-check").forEach(function(ch){
-      ch.addEventListener("change", function(){ proState.selected[ch.dataset.id] = ch.checked; refreshSelected(); });
-    });
-    document.querySelectorAll("#proBody [data-view]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate(b.dataset.view); }); });
-    document.querySelectorAll("#proBody [data-edit]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.edit); }); });
-    document.querySelectorAll("#proBody [data-verify]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.verify, true); }); });
-
-    var act;
-    document.querySelectorAll("#proBody [data-suspend]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=b.dataset.suspend;
-      UI.confirmAction({ title:T("Suspendre ce professionnel ?"), message:T("Le professionnel ne sera plus visible dans les recherches."), reasonRequired:true, reasonLabel:T("Raison de la suspension"), confirmLabel:T("Suspendre"), onConfirm:function(reason){
-        DATA.updateProfessional(id, { status:"suspended" });
-        DATA.logAudit({ admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:id, result:"Suspended", note:reason });
-        UI.toast(T("Professionnel suspendu.")); drawPros();
-      }});
-    }); });
-    document.querySelectorAll("#proBody [data-activate]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=b.dataset.activate;
-      DATA.updateProfessional(id, { status:"active" });
-      DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
-      UI.toast(T("Professionnel activé.")); drawPros();
-    }); });
-    document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=b.dataset.del;
-      UI.confirmAction({ title:T("Supprimer définitivement ?"), message:T("Cette action est irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA.deleteProfessional(id);
-        DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
-        UI.toast(T("Professionnel supprimé.")); drawPros();
-      }});
-    }); });
-    (act = document.getElementById("proCheckAll")) && act.removeEventListener("change", refreshSelected);
-
-    UI.renderPagination("proPager", pg.page, pg.total, function(p){ proState.page = p; drawPros(); });
+  function proRowSkeleton(){
+    return '<tr><td colspan="11" style="padding:0"><div class="skeleton-list">'+Array.from({length:6}).map(function(){ return '<div class="sk-line" style="height:46px"></div>'; }).join("")+'</div></td></tr>';
   }
+
+  // Client-side filter mirroring the logic of the legacy list, operating
+  // on the normalized (mapAdminProfessional) records returned by the API.
+  function applyProFilters(list){
+    var p = proState, q = (p.q||"").toLowerCase();
+    return list.filter(function(x){
+      if(q && (x.name+" "+x.job+" "+x.city+" "+(x.category||"")).toLowerCase().indexOf(q)===-1) return false;
+      if(p.city && x.city!==p.city) return false;
+      if(p.category && x.category!==p.category) return false;
+      if(p.job && (x.job||"").toLowerCase()!==p.job.toLowerCase()) return false;
+      if(p.verification==="verified" && x.verificationStatus!=="approved") return false;
+      if(p.verification==="unverified" && x.verificationStatus==="approved") return false;
+      if(p.package && x.package!==p.package) return false;
+      if(p.rating && (x.rating||0) < parseFloat(p.rating)) return false;
+      if(p.created){ var c=new Date(x.created||"2000-01-01"); if(p.created==="older"){ if(!(c.getTime()<Date.now()-30*864e5)) return false; } else { var days=p.created==="7d"?7:30; if(Date.now()-c.getTime()>days*864e5) return false; } }
+      if(p.status && x.status!==p.status) return false;
+      return true;
+    });
+  }
+
+  function refreshProFilterOptions(list){
+    function uniq(arr){ return arr.filter(function(v,i){ return arr.indexOf(v)===i; }); }
+    var cities = uniq(list.map(function(x){ return x.city; }).filter(Boolean));
+    var jobs = uniq(list.map(function(x){ return x.job; }).filter(Boolean));
+    var el;
+    if((el=document.getElementById("proCity"))) el.innerHTML = '<option value="">'+T("Toutes")+'</option>'+opts(cities, proState.city);
+    if((el=document.getElementById("proJob"))) el.innerHTML = '<option value="">'+T("Toutes")+'</option>'+opts(jobs, proState.job);
+  }
+
+  function drawPros(){
+    var body = document.getElementById("proBody");
+    if(body) body.innerHTML = proRowSkeleton();
+
+    return DATA.fetchProfessionals({ limit: 500 }).then(function(res){
+      var fetched = res.data || [];
+      refreshProFilterOptions(fetched);
+      var list = applyProFilters(fetched);
+      list.sort(function(a,b){
+        var va=a[proState.sort], vb=b[proState.sort];
+        if(typeof va==="string"){ return proState.dir * String(va).localeCompare(String(vb)); }
+        return proState.dir * ((va||0) - (vb||0));
+      });
+      var totalPages = Math.max(1, Math.ceil(list.length / proState.perPage));
+      if(proState.page > totalPages) proState.page = totalPages;
+      var pg = UI.paginate(list.length, proState.page, proState.perPage);
+      var slice = list.slice(pg.from, pg.to);
+      document.getElementById("proCount").textContent = list.length + T(" professionnel(s) — page ")+pg.page+"/"+pg.total;
+      document.getElementById("proBody").innerHTML = slice.length ? slice.map(function(p){
+        var isOther = p.category === "autres" || /autres services/i.test((p.job||"")+"");
+        var descLine = p.description ? ('<div class="pro-job" style="color:var(--muted);font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(p.description)+'">'+esc(p.description)+'</div>') : "";
+        return '<tr id="row-'+p.id+'">' +
+          '<td><input type="checkbox" class="row-check" data-id="'+p.id+'" '+((proState.selected[p.id])?"checked":"")+'></td>' +
+          '<td><div class="pro"><div class="p-avatar">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.id)+'</div>'+descLine+'</div></div></td>' +
+          '<td>'+esc(p.job)+(isOther?' <span class="badge teal" title="'+esc(p.description||"")+'">'+T("Autres services")+'</span>':"")+'</td><td>'+esc(p.city)+'</td>' +
+          '<td><span class="star">★</span> '+p.rating+'</td><td>'+p.reviewsCount+'</td>' +
+          '<td>'+verBadge(p)+'</td><td>'+pkgBadge(p)+'</td>' +
+          '<td>'+esc(proCreatedText(p))+'</td>' +
+          '<td>'+statusBadge(p.status)+'</td>' +
+          '<td class="actions-cell">' +
+            '<button class="icon-act" title="'+T("Voir le profil")+'" data-view="professionals/'+p.id+'">👁️</button>' +
+            (AUTH.can("professionals","update")?'<button class="icon-act" title="'+T("Modifier")+'" data-edit="'+p.id+'">✏️</button>':"") +
+            (AUTH.can("professionals","verify")?'<button class="icon-act" title="'+T("Vérifier")+'" data-verify="'+p.id+'" style="color:var(--teal)">✅</button>':"") +
+            (AUTH.can("professionals","suspend") && (p.status==="active"||p.status==="pending") ?'<button class="icon-act" title="'+T("Suspendre")+'" data-suspend="'+p.id+'" style="color:var(--amber)">⏸️</button>':"") +
+            (AUTH.can("professionals","activate") && p.status==="suspended" ?'<button class="icon-act" title="'+T("Activer")+'" data-activate="'+p.id+'" style="color:var(--green)">▶️</button>':"") +
+            (AUTH.can("professionals","delete") ?'<button class="icon-act danger" title="'+T("Supprimer")+'" data-del="'+p.id+'">🗑️</button>':"") +
+          '</td></tr>';
+      }).join("") : '<tr><td colspan="11"><div class="empty" style="padding:30px">'+T("Aucun professionnel trouvé.")+'</div></td></tr>';
+
+      document.querySelectorAll("#proBody .row-check").forEach(function(ch){
+        ch.addEventListener("change", function(){ proState.selected[ch.dataset.id] = ch.checked; refreshSelected(); });
+      });
+      document.querySelectorAll("#proBody [data-view]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate(b.dataset.view); }); });
+      document.querySelectorAll("#proBody [data-edit]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.edit); }); });
+      document.querySelectorAll("#proBody [data-verify]").forEach(function(b){ b.addEventListener("click", function(){ openProModal(b.dataset.verify, true); }); });
+
+      var act;
+      document.querySelectorAll("#proBody [data-suspend]").forEach(function(b){ b.addEventListener("click", function(){
+        var id=b.dataset.suspend;
+        UI.confirmAction({ title:T("Suspendre ce professionnel ?"), message:T("Le professionnel ne sera plus visible dans les recherches."), reasonRequired:true, reasonLabel:T("Raison de la suspension"), confirmLabel:T("Suspendre"), onConfirm:function(reason){
+          DATA.updateProfessional(id, { status:"suspended" });
+          DATA.logAudit({ admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:id, result:"Suspended", note:reason });
+          UI.toast(T("Professionnel suspendu.")); drawPros();
+        }});
+      }); });
+      document.querySelectorAll("#proBody [data-activate]").forEach(function(b){ b.addEventListener("click", function(){
+        var id=b.dataset.activate;
+        DATA.updateProfessional(id, { status:"active" });
+        DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
+        UI.toast(T("Professionnel activé.")); drawPros();
+      }); });
+      document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
+        var id=b.dataset.del;
+        UI.confirmAction({ title:T("Supprimer définitivement ?"), message:T("Cette action est irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
+          DATA.deleteProfessional(id);
+          DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
+          UI.toast(T("Professionnel supprimé.")); drawPros();
+        }});
+      }); });
+      (act = document.getElementById("proCheckAll")) && act.removeEventListener("change", refreshSelected);
+
+      UI.renderPagination("proPager", pg.page, pg.total, function(p){ proState.page = p; drawPros(); });
+    }).catch(function(err){
+      // API failure / offline / timeout / 429 / 500 -> error state, never demo.
+      var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      document.getElementById("proCount").textContent = "";
+      document.getElementById("proBody").innerHTML = '<tr><td colspan="11"><div class="empty" style="padding:30px"><div>⚠️ '+esc(msg)+'</div><button class="btn btn-ghost btn-small" style="margin-top:10px">'+T("Réessayer")+'</button></div></td></tr>';
+      var retry = document.getElementById("proBody").querySelector("button");
+      if(retry) retry.addEventListener("click", drawPros);
+    });
+  }
+
 
   function verBadge(p){
     if(p.verificationStatus==="approved") return '<span class="badge green">✅ '+T("Vérifié")+'</span>';
@@ -501,8 +546,10 @@
      ============================================================ */
   function renderProfessionalDetail(id){
     UI.renderSkeleton(6, false);
-    setTimeout(function(){
-      var p = DATA.getProfessional(id);
+    // REQ 52: fetch the professional from the admin API (source of truth).
+    // Opaque ID passed verbatim; API ./429/500/network -> error state, never demo.
+    DATA.fetchProfessional(id).then(function(resp){
+      var p = resp && resp.data ? resp.data : null;
       if(!p){ UI.renderEmpty(T("Professionnel introuvable."), "🔍"); return; }
       var uid = DATA.getUsers().find(function(u){ return u.id===p.userId; });
       var reviews = DATA.getReviews().filter(function(r){ return r.professionalId===p.id; });
@@ -620,7 +667,9 @@
         }});
       });
       var dcp = document.getElementById("dChangePlan"); if(dcp) dcp.addEventListener("click", function(){ changePlanModal(p.id, sub); });
-    }, 300);
+    }).catch(function(err){
+      UI.renderError((err && err.message) || T("Impossible de joindre le serveur. Réessayez."));
+    });
   }
 
   function changePlanModal(proId, sub){
