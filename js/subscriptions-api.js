@@ -19,6 +19,10 @@
     update: function (id, payload) { return R("PATCH", "subscriptions/:id", { pathParams: { id: id }, body: payload }); },
     cancel: function (id) { return R("POST", "subscriptions/:id/cancel", { pathParams: { id: id } }); },
 
+    adminList: function (params) { return R("GET", "admin/subscriptions", { params: params }); },
+    adminRenew: function (id) { return R("POST", "admin/subscriptions/:id/renew", { pathParams: { id: id } }); },
+    adminDowngrade: function (id) { return R("POST", "admin/subscriptions/:id/downgrade", { pathParams: { id: id } }); },
+
     plans: { list: function () { return R("GET", "plans", {}); } }
   };
 

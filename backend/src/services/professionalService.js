@@ -2,10 +2,21 @@
 
 const { AppError } = require("../utils/AppError");
 const searchSvc = require("./searchService");
+const subscriptionSvc = require("./subscriptionService");
 
 // Public, paginated, searchable list (envelope from searchService).
 async function list(repos, query) {
+  // Lazy-expire any paid subscriptions whose period has elapsed so the badge
+  // reflects an EFFECTIVE FREE account at read time.
+  await subscriptionSvc.reconcileExpiredAcross(repos);
   return searchSvc.search(repos, query);
+}
+
+async function get(repos, professionalId) {
+  await subscriptionSvc.reconcileExpiredForProfessional(repos, professionalId);
+  const pro = await repos.professionals.get(professionalId);
+  if (!pro) throw new AppError("Professionnel introuvable.", 404);
+  return pro;
 }
 
 async function create(repos, data, actor) {
@@ -76,4 +87,4 @@ async function update(repos, professionalId, data, admin) {
   return repos.professionals.get(professionalId);
 }
 
-module.exports = { suspend, activate, update, list, create, remove };
+module.exports = { suspend, activate, update, list, create, remove, get };

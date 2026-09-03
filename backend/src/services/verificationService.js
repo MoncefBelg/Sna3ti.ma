@@ -44,6 +44,30 @@ async function create(repos, data) {
     history: [{ date: new Date().toISOString(), text: "Demande créée" }],
     createdAt: new Date()
   });
+
+  // When a professional submits a request for a PAID plan (VÉRIFIÉ / GOLD),
+  // raise an admin notification so the request can be reviewed.
+  if (vr.level === "plan") {
+    let name = null;
+    try {
+      const pro = await repos.professionals.get(vr.professionalId);
+      name = pro ? pro.name : null;
+    } catch (e) { /* ignore */ }
+    const notificationId = repos.ids && typeof repos.ids.nextId === "function"
+      ? await repos.ids.nextId("notification")
+      : `NT-${Date.now().toString().slice(-5)}`;
+    await repos.notifications.create({
+      id: notificationId,
+      userId: null,
+      type: "subscription",
+      title: "Nouvelle demande d'abonnement payant",
+      message: `${name || "Un professionnel"} a demandé le plan ${vr.requestedPlan || vr.planId || "payant"}.`,
+      entityType: "VerificationRequest",
+      entityId: vr.id,
+      readAt: null,
+      createdAt: new Date()
+    });
+  }
   return vr;
 }
 

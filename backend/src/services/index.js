@@ -41,7 +41,7 @@ function createServices(repos) {
     },
     professionals: {
       list: (query) => professionalService.list(repos, query),
-      get: (id) => repos.professionals.get(id),
+      get: (id) => professionalService.get(repos, id),
       create: (data, actor) => professionalService.create(repos, data, actor),
       remove: (id, actor) => professionalService.remove(repos, id, actor),
       suspend: (id, admin, reason) => professionalService.suspend(repos, id, admin, reason),
@@ -56,7 +56,9 @@ function createServices(repos) {
       get: (id) => subscriptionService.get(repos, id),
       create: (data, actor) => subscriptionService.create(repos, data, actor),
       update: (id, data, actor) => subscriptionService.update(repos, id, data, actor),
-      cancel: (id, actor) => subscriptionService.cancel(repos, id, actor)
+      cancel: (id, actor) => subscriptionService.cancel(repos, id, actor),
+      renew: (id, admin) => subscriptionService.renew(repos, id, admin),
+      downgrade: (id, admin) => subscriptionService.downgradeToFree(repos, id, admin)
     },
     users: {
       list: () => repos.users.list(),

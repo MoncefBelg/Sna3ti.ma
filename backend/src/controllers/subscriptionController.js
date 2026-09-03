@@ -22,6 +22,14 @@ function createSubscriptionController(services) {
     cancel: asyncHandler(async (req, res) => {
       const sub = await services.subscriptions.cancel(req.params.id, req.admin);
       ok(res, { data: sub });
+    }),
+    renew: asyncHandler(async (req, res) => {
+      const sub = await services.subscriptions.renew(req.params.id, req.admin);
+      ok(res, { data: sub });
+    }),
+    downgrade: asyncHandler(async (req, res) => {
+      const sub = await services.subscriptions.downgrade(req.params.id, req.admin);
+      ok(res, { data: sub });
     })
   };
 }

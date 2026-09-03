@@ -379,6 +379,32 @@
         return SubApi.create({ professionalId: proId, planId: planId, status: "active", paymentStatus: "confirmed" });
       });
     }
+    // REQ 52 biz rules: renew / Back-to-Free push to the admin API. The backend
+    // enforces the one-month lifecycle (extend active from current expiry,
+    // expired from today; downgrade reverts to FREE) — the sync mirror in
+    // Sna3tiData is only optimistic.
+    if (DATA.renewSubscription && SubApi.adminRenew) {
+      intercept("renewSubscription", function (subId) {
+        return SubApi.adminRenew(subId).then(function (res) {
+          var remote = res && res.data ? res.data : res;
+          if (remote && remote.id) reconcile("subscriptions", remote.id, {
+            status: remote.status, expiresAt: remote.expiresAt, renewalAt: remote.renewalAt
+          });
+          return { success: true };
+        });
+      });
+    }
+    if (DATA.downgradeSubscriptionToFree && SubApi.adminDowngrade) {
+      intercept("downgradeSubscriptionToFree", function (subId) {
+        return SubApi.adminDowngrade(subId).then(function (res) {
+          var remote = res && res.data ? res.data : res;
+          if (remote && remote.id) reconcile("subscriptions", remote.id, {
+            status: remote.status, expiresAt: remote.expiresAt, cancelledAt: remote.cancelledAt
+          });
+          return { success: true };
+        });
+      });
+    }
     if (DATA.confirmPayment && PayApi.confirm) {
       intercept("confirmPayment", function (id) {
         return PayApi.confirm(id).then(function (res) {

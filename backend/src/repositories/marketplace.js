@@ -41,6 +41,10 @@ function createSubscriptionRepo(db) {
     },
     async findPendingByProfessional(professionalId) {
       return base.find({ professionalId, status: "pending" });
+    },
+    async findLatestByProfessional(professionalId) {
+      const rows = await base.list({ professionalId }, { orderBy: { createdAt: "desc" } });
+      return rows[0] || null;
     }
   };
 }

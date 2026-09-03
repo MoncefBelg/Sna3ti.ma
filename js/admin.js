@@ -700,13 +700,43 @@
     });
   }
 
+  // REQ 52 biz rules: renew the one-month paid period (backend-enforced).
+  function renewSubscriptionAction(proId, sub){
+    if(!sub) return;
+    UI.confirmAction({ title:T("Renouveler l'abonnement ?"), message:T("L'abonnement payant sera prolongé d'un mois à partir de sa date d'expiration."), confirmLabel:T("Renouveler"), onConfirm:function(){
+      DATA.renewSubscription(sub.id, AUTH.getSession().name);
+      UI.toast(T("Abonnement renouvelé d'un mois."));
+      renderProfessionalDetail(proId);
+    }});
+  }
+
+  // REQ 52 biz rules: Back to Free (downgrade) — backend-enforced.
+  function downgradeSubscriptionAction(proId, sub){
+    if(!sub) return;
+    UI.confirmAction({ title:T("Revenir au plan gratuit ?"), message:T("L'abonnement payant du professionnel sera ramené au plan GRATUIT. L'historique est conservé."), confirmLabel:T("Revenir au gratuit"), onConfirm:function(){
+      DATA.downgradeSubscriptionToFree(sub.id, AUTH.getSession().name);
+      UI.toast(T("Compte ramené au plan gratuit."));
+      renderProfessionalDetail(proId);
+    }});
+  }
+
   function subSection(sub, proId){
     if(!sub) return '<div class="empty" style="padding:20px">'+T("Aucun abonnement.")+'</div>';
+    var planName = String(sub.planName||"").toLowerCase();
+    var isPaid = planName.indexOf("gold")>-1 || planName.indexOf("vérifié")>-1 || planName.indexOf("verifi")>-1 || sub.price>0;
+    var exp = sub.expiresAt ? (String(sub.expiresAt).slice?String(sub.expiresAt).slice(0,10):sub.expiresAt) : (sub.renewal && sub.renewal!=="—" ? sub.renewal : "");
+    var canEdit = AUTH.can("subscriptions","update") && proId;
     return '<div class="detail-grid" style="margin-top:12px">' +
-      drow(T("Plan"), pkgBadge({package: sub.planName.toLowerCase()==="gold"?"gold":sub.planName.toLowerCase()==="vérifié"?"verified":"free"})) +
-      drow(T("Prix"), sub.price+" DH") + drow(T("Début"), sub.since) + drow(T("Renouvellement"), sub.renewal) +
+      drow(T("Plan"), pkgBadge({package: sub.planName.toLowerCase()==="gold"?"gold":(sub.planName.toLowerCase()==="vérifié"||sub.planName.toLowerCase()==="verifié")?"verified":"free"})) +
+      drow(T("Prix"), sub.price+" DH") + drow(T("Début"), sub.since) + drow(T("Renouvellement"), exp || T("—")) +
       drow(T("Statut"), statusBadge(sub.status)) + drow(T("Paiement"), '<span class="badge '+ (sub.paymentStatus==="confirmed"?"green":"amber")+'">'+esc(sub.paymentStatus)+'</span>') +
-      (AUTH.can("subscriptions","update") && proId ? '<div class="drow"><div class="dk"></div><div class="dv"><button class="btn btn-soft btn-small" id="dChangePlan">🔄 '+T("Changer d'abonnement")+'</button></div></div>' : "") +
+      (canEdit ? '<div class="drow"><div class="dk"></div><div class="dv" style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button class="btn btn-soft btn-small" id="dChangePlan">🔄 '+T("Changer d'abonnement")+'</button>'+
+        (isPaid && sub.status!=="expired" && sub.status!=="cancelled"
+          ? '<button class="btn btn-soft btn-small" id="dRenewSub">⏳ '+T("Renouveler l'abonnement")+'</button>'+
+            '<button class="btn btn-ghost btn-small" id="dDowngradeFree">⬇️ '+T("Revenir au plan gratuit")+'</button>'
+          : '') +
+      '</div></div>' : '') +
     '</div>';
   }
   function drow(k, v){ return '<div class="detail-row"><div class="dk">'+esc(k)+'</div><div class="dv">'+v+'</div></div>'; }

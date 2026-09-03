@@ -35,11 +35,15 @@ async function confirm(repos, paymentId, admin) {
     reviewedById: admin.id
   });
 
-  // Activate the paid plan (VÉRIFIÉ / GOLD).
+  // Activate the paid plan (VÉRIFIÉ / GOLD) EXACTLY ONCE. The one-month period
+  // and the commercial badge are managed inside activateForProfessional; it
+  // never auto-approves verification.
   const plan = await findPlan(repos, pay.planName);
-  if (plan) await subscriptionSvc.activateForProfessional(repos, pay.professionalId, plan);
+  if (plan) await subscriptionSvc.activateForProfessional(repos, pay.professionalId, plan, { audit: true, admin });
 
   // Close the linked plan request (verification centre) so both stay in sync.
+  // Note: this only marks the paid-plan request approved — it does NOT call
+  // activateForProfessional a second time (which would extend the month twice).
   const vr = await repos.verification.findPlanRequestByPaymentId(paymentId);
   if (vr && vr.status !== "approved" && vr.status !== "rejected") {
     await repos.verification.update(vr.id, {
@@ -51,7 +55,6 @@ async function confirm(repos, paymentId, admin) {
     });
     if (plan) {
       await repos.professionals.update(vr.professionalId, { planEligible: true });
-      await subscriptionSvc.activateForProfessional(repos, vr.professionalId, plan);
     }
   }
 

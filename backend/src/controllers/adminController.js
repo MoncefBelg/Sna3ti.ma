@@ -67,6 +67,20 @@ function createAdminController(services) {
       });
     }),
 
+    // ── Notifications (admin centre) ─────────────────────────────────────
+    listNotifications: asyncHandler(async (_req, res) => {
+      const data = await services.notifications.list();
+      ok(res, { data });
+    }),
+    markAllNotificationsRead: asyncHandler(async (_req, res) => {
+      const data = await services.notifications.markAllRead();
+      ok(res, { data });
+    }),
+    markNotificationRead: asyncHandler(async (req, res) => {
+      const data = await services.notifications.markRead(req.params.id);
+      ok(res, { data });
+    }),
+
     // ── Settings (lightweight config proxy) ──────────────────────────────
     getSettings: asyncHandler(async (_req, res) => {
       ok(res, { data: { siteName: "Sna3ti.ma", currency: "MAD", locale: "fr-MA" } });

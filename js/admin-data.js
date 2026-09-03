@@ -19,6 +19,10 @@
   // account/IBAN, card, CVV or online-banking credentials with Sna3ti. Only
   // tracking/proof references (reference, bankRef, receipt) are kept.
   var PayApi = global.Sna3tiPaymentsApi || null;
+  // REQ 52: subscriptions API (loaded before admin-data.js). Backend enforces
+  // the one-month paid lifecycle (startedAt/expiresAt), renewal, downgrade to
+  // FREE and expiry reconciliation — never frontend-only.
+  var SubApi = global.Sna3tiSubscriptionsApi || null;
 
   // REQ 52: pure idempotency helper — true when a payment is already in a
   // terminal state and should not be re-processed (used to mirror the backend
@@ -651,7 +655,9 @@
       rating: (typeof remote.rating === "number") ? remote.rating : 0,
       reviewsCount: (typeof remote.reviewsCount === "number") ? remote.reviewsCount : 0,
       verificationStatus: remote.verificationStatus || null,
-      package: remote.package || ""
+      package: remote.package || "",
+      subscriptionStatus: remote.subscriptionStatus || null,
+      subscriptionExpiresAt: remote.subscriptionExpiresAt || null
     };
     if (remote.verification) out.verificationStatus = remote.verification;
     if (remote.languages && Array.isArray(remote.languages)) out.languages = remote.languages;
@@ -683,6 +689,32 @@
       reviewedBy: remote.reviewedById || remote.reviewedBy || "",
       date: remote.createdAt || remote.date || "",
       reviewedAt: remote.reviewedAt || ""
+    };
+  }
+
+  // REQ 52: normalize a backend subscription record into the UI shape.
+  // One-month paid lifecycle: startedAt / expiresAt are surfaced so the admin
+  // sees exactly how long the active plan is valid for. Opaque IDs verbatim.
+  function mapAdminSubscription(remote) {
+    if (!remote) return null;
+    var startedAt = remote.startedAt || remote.since || remote.createdAt || "";
+    var expiresAt = remote.expiresAt || "";
+    var since = String(startedAt).slice ? String(startedAt).slice(0, 10) : startedAt;
+    var exp = String(expiresAt).slice ? String(expiresAt).slice(0, 10) : expiresAt;
+    return {
+      id: remote.id,
+      professionalId: remote.professionalId,
+      planId: remote.planId || null,
+      planName: remote.planName || "",
+      status: remote.status || "pending",
+      paymentStatus: remote.paymentStatus || "pending",
+      price: remote.price || 0,
+      currency: remote.currency || "MAD",
+      since: since || "",
+      renewal: exp || "—",
+      startedAt: startedAt || "",
+      expiresAt: expiresAt || "",
+      activeAt: remote.activeAt || ""
     };
   }
 
@@ -755,6 +787,19 @@
       return PayApi.list().then(function(res){
         var list = (res && res.data) ? res.data : [];
         return { success:true, data: list.map(mapAdminPayment), pagination: (res && res.pagination) || null };
+      });
+    },
+
+    // ---- REQ 52: async admin subscriptions read. Source = GET /admin/subscriptions.
+    // The backend lazily-expires subscriptions whose one-month period elapsed, so
+    // the admin always sees the EFFECTIVE plan/status. A successful empty list is
+    // an EMPTY state; a network / server / 429 / 500 failure rejects so the UI
+    // renders an error/offline state — never demo data. Opaque IDs verbatim.
+    fetchSubscriptions: function(){
+      if(!SubApi || !SubApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API abonnements non chargé." });
+      return SubApi.adminList({}).then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        return { success:true, data: list.map(mapAdminSubscription), pagination: (res && res.pagination) || null };
       });
     },
 
@@ -1066,6 +1111,46 @@
       else {
         store.subscriptions.push({ id:uid("SUB"), professionalId:proId, planId:plan.id, planName:plan.name, status:"active", paymentStatus:"confirmed", price:plan.price, since:todayStr(), renewal:"—" });
       }
+      return true;
+    },
+    // ---- REQ 52 biz rules: renew / Back-to-Free. The BACKEND is authoritative
+    // and enforces the one-month lifecycle (see sna3ti-bridge interceptors). The
+    // sync mirror below is only an optimistic local read-model that never lies:
+    // renew extends the paid period by one month; downgrade reverts to FREE.
+    addMonths: function(date, n){
+      var d = new Date(date);
+      var day = d.getDate();
+      d.setDate(1);
+      d.setMonth(d.getMonth() + n);
+      var dim = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      d.setDate(Math.min(day, dim));
+      return d;
+    },
+    renewSubscription: function(subId, adminName){
+      var s = getById(store.subscriptions, subId); if(!s) return false;
+      if(s.status === "cancelled") return false;
+      var base = (s.expiresAt && s.status === "active" && new Date(s.expiresAt) > new Date())
+        ? new Date(s.expiresAt) : new Date();
+      var exp = this.addMonths(base, 1);
+      s.status = "active"; s.paymentStatus = "confirmed";
+      s.expiresAt = exp.toISOString(); s.renewal = exp.toISOString().slice(0,10);
+      s.renewalAt = new Date().toISOString(); s.activeAt = new Date().toISOString();
+      var p = getById(store.professionals, s.professionalId);
+      if(p){ p.subscriptionExpiresAt = s.expiresAt; p.subscriptionStatus = "active"; if(s.planName){ p.package = String(s.planName).toLowerCase().indexOf("gold")>-1 ? "gold" : String(s.planName).toLowerCase().indexOf("vérifié")>-1 || String(s.planName).toLowerCase().indexOf("verifi")>-1 ? "verified" : p.package; } }
+      this.logAudit({ admin: adminName || "admin", action:"SUBSCRIPTION_RENEWED", entity:"Subscription", entityId:subId, result:"Renewed", note:exp.toISOString() });
+      this.persist();
+      return true;
+    },
+    downgradeSubscriptionToFree: function(subId, adminName){
+      var s = getById(store.subscriptions, subId); if(!s) return false;
+      var now = new Date();
+      s.status = "expired";
+      s.cancelledAt = now.toISOString();
+      if(!s.expiresAt || new Date(s.expiresAt) <= now) s.expiresAt = now.toISOString();
+      var p = getById(store.professionals, s.professionalId);
+      if(p){ p.package = "free"; p.subscriptionStatus = "none"; p.subscriptionPlanId = null; p.subscriptionExpiresAt = null; }
+      this.logAudit({ admin: adminName || "admin", action:"SUBSCRIPTION_DOWNGRADED_TO_FREE", entity:"Subscription", entityId:subId, result:"Downgraded to free", note:"Back to free account" });
+      this.persist();
       return true;
     },
     // ---- Work queue (dashboard) ----

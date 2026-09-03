@@ -95,9 +95,16 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewCtrl.cr
 
   // Subscriptions
   admin.get("/subscriptions", requirePermission("subscriptions.view"), subscriptionCtrl.list);
+  admin.post("/subscriptions/:id/renew", requirePermission("subscriptions.manage"), subscriptionCtrl.renew);
+  admin.post("/subscriptions/:id/downgrade", requirePermission("subscriptions.manage"), subscriptionCtrl.downgrade);
 
   // Verifications
   admin.get("/verifications", requirePermission("verification.view"), verificationCtrl.list);
+
+  // Notifications
+  admin.get("/notifications", requirePermission("notifications.read"), adminCtrl.listNotifications);
+  admin.post("/notifications/read-all", requirePermission("notifications.edit"), adminCtrl.markAllNotificationsRead);
+  admin.post("/notifications/:id/read", requirePermission("notifications.edit"), adminCtrl.markNotificationRead);
 
   // Reviews (req 21) — moderation
   admin.get("/reviews", requirePermission("reviews.view"), adminCtrl.listReviews);

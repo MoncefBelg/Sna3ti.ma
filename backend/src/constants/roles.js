@@ -26,7 +26,9 @@ const ALL_PERMISSIONS = [
   "analytics.view",
   "settings.manage",
   "admin_users.manage",
-  "audit_logs.view"
+  "audit_logs.view",
+  "notifications.read",
+  "notifications.edit"
 ];
 
 // role -> allowed permission set.
@@ -51,7 +53,9 @@ const ROLE_PERMISSIONS = {
     "analytics.view",
     "settings.manage",
     "admin_users.manage",
-    "audit_logs.view"
+    "audit_logs.view",
+    "notifications.read",
+    "notifications.edit"
   ]),
   moderator: new Set([
     "professionals.view",
@@ -63,7 +67,8 @@ const ROLE_PERMISSIONS = {
     "reviews.moderate",
     "reports.view",
     "reports.resolve",
-    "analytics.view"
+    "analytics.view",
+    "notifications.read"
   ]),
   support: new Set([
     "professionals.view",
@@ -71,7 +76,8 @@ const ROLE_PERMISSIONS = {
     "reports.view",
     "reports.resolve",
     "subscriptions.view",
-    "audit_logs.view"
+    "audit_logs.view",
+    "notifications.read"
   ]),
   finance: new Set([
     "payments.view",
@@ -80,7 +86,8 @@ const ROLE_PERMISSIONS = {
     "subscriptions.view",
     "subscriptions.manage",
     "analytics.view",
-    "audit_logs.view"
+    "audit_logs.view",
+    "notifications.read"
   ])
 };
 
