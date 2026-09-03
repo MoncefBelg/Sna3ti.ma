@@ -23,6 +23,12 @@
   // the one-month paid lifecycle (startedAt/expiresAt), renewal, downgrade to
   // FREE and expiry reconciliation — never frontend-only.
   var SubApi = global.Sna3tiSubscriptionsApi || null;
+  // REQ 52: verifications API (loaded before admin-data.js). Admin read uses
+  // GET /admin/verifications ("verification.view"); approve/reject/request-info
+  // use the public authenticated paths the backend enforces. Identity/business
+  // verification is INDEPENDENT of any paid subscription — never activate or
+  // cancel a subscription from a verification action.
+  var VerApi = global.Sna3tiVerificationsApi || null;
 
   // REQ 52: pure idempotency helper — true when a payment is already in a
   // terminal state and should not be re-processed (used to mirror the backend
@@ -718,6 +724,46 @@
     };
   }
 
+  // REQ 52: normalize a backend verification request record into the UI shape.
+  // Request levels "plan" (subscription request) are kept clearly separate from
+  // "identity" / "professionnel" (badge) and "join" (free admission). Approve /
+  // reject of identity/business verification NEVER touches a subscription; plan
+  // requests are an independent paid-plan activation lifecycle. The professional
+  // display data (name/job/city) is joined separately via getProfessional().
+  // Opaque IDs (e.g. "VER-10294") pass through verbatim — never coerced.
+  function mapVerification(remote) {
+    if (!remote) return null;
+    var history = [];
+    if (remote.history && Array.isArray(remote.history)) {
+      history = remote.history.map(function (h) {
+        return { date: fmtDate(h.date), text: h.text || "" };
+      });
+    }
+    return {
+      id: remote.id,
+      professionalId: remote.professionalId,
+      level: remote.level || "identity",
+      status: remote.status || "pending",
+      priority: remote.priority || "medium",
+      planId: remote.planId || null,
+      requestedPlan: remote.requestedPlan || "",
+      reason: remote.reason || "",
+      infoRequested: remote.infoRequested || "",
+      reviewerId: remote.reviewerId || null,
+      reviewerName: remote.reviewerName || "",
+      submitted: fmtDate(remote.submitted || remote.createdAt || ""),
+      createdAt: remote.createdAt || "",
+      reviewedAt: remote.reviewedAt || "",
+      history: history
+    };
+  }
+
+  function fmtDate(d) {
+    if (!d) return "";
+    var s = String(d);
+    return s.slice(0, 10);
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -800,6 +846,20 @@
       return SubApi.adminList({}).then(function(res){
         var list = (res && res.data) ? res.data : [];
         return { success:true, data: list.map(mapAdminSubscription), pagination: (res && res.pagination) || null };
+      });
+    },
+
+    // ---- REQ 52: async admin verification read. Source = GET /admin/verifications.
+    // The backend is the single source of truth for request state. A successful
+    // empty response ([]) resolves as an EMPTY state; a network / server / 401 /
+    // 403 / 429 / 500 failure rejects so the UI renders an error/offline state —
+    // never demo data. Opaque IDs pass through verbatim. Verification is kept
+    // strictly independent of paid-subscription activation (business rule).
+    fetchVerifications: function(params){
+      if(!VerApi || !VerApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API vérifications non chargé." });
+      return VerApi.adminList(params || {}).then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        return { success:true, data: list.map(mapVerification), pagination: (res && res.pagination) || null };
       });
     },
 

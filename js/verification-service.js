@@ -59,6 +59,15 @@
     });
   }
 
+  /** Admin-scoped read (permission "verification.view"). Source = GET /admin/verifications. */
+  function adminList(params) {
+    var g = guard();
+    if (!g.ok || !VerApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API vérifications non chargé." });
+    return VerApi.adminList(params || {}).then(function (res) {
+      return { success:true, data: res.data || [], pagination: res.pagination || null };
+    });
+  }
+
   function get(id) {
     var g = guard();
     if (!g.ok) return Promise.reject(g.err);
@@ -109,6 +118,7 @@
   global.Sna3tiVerification = {
     submit: submit,
     list: list,
+    adminList: adminList,
     get: get,
     approve: approve,
     reject: reject,

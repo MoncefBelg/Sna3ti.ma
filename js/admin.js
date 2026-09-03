@@ -1005,13 +1005,70 @@
   /* ============================================================
      VERIFICATION CENTER
      ============================================================ */
+  // REQ 52: admin verification list. Source of truth = GET /admin/verifications
+  // (permission "verification.view"). Renders shell + skeleton immediately, then
+  // fills from the real backend: real rows / empty / error+retry — never demo
+  // data. Verification is displayed independently of subscriptions (business
+  // rule); subscription state is a separate concern shown elsewhere.
+  var _verCache = { list: [], loaded:false, error:null };
+  function verSkeleton(){
+    return ['<div class="req"><div class="req-top"><div class="grow"><div class="pro"><div class="p-avatar skel"></div><div><div class="skel" style="width:160px;height:14px"></div><div class="skel" style="width:120px;height:12px;margin-top:6px"></div></div></div></div></div></div>'].join("");
+  }
   function renderVerification(initialFilter){
     UI.setTitle(T("Centre de vérification"));
     var valid = { all:1, pending:1, needs_info:1, approved:1, rejected:1 };
     var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
-    var all = DATA.getVerificationRequests();
+    var html =
+      '<div class="page-head"><h1>'+T("Vérification")+'</h1><div class="spacer muted">'+T("Vérification et abonnement sont indépendants.")+'</div></div>' +
+      '<div class="tabs">' +
+        tabBtn("all", T("Toutes"), 0) + tabBtn("pending", T("En attente"), 0) +
+        tabBtn("needs_info", T("Infos demandées"), 0) + tabBtn("approved", T("Approuvées"), 0) + tabBtn("rejected", T("Rejetées"), 0) +
+      '</div>' +
+      '<div class="vfilter-bar"><div class="vf-grid">' +
+        '<label class="vf-field">'+T("Ville")+'<select id="vfCity"><option value="">'+T("Toutes")+'</option></select></label>' +
+        '<label class="vf-field">'+T("Métier")+'<select id="vfProf"><option value="">'+T("Tous")+'</option></select></label>' +
+        '<label class="vf-field">'+T("Date de soumission")+'<input type="date" id="vfDate"></label>' +
+        '<label class="vf-field">'+T("Priorité")+'<select id="vfPrio"><option value="">'+T("Toutes")+'</option><option value="high">'+T("Haute")+'</option><option value="medium">'+T("Moyenne")+'</option><option value="low">'+T("Basse")+'</option></select></label>' +
+        '<label class="vf-field">'+T("Relecteur")+'<select id="vfRev"><option value="">'+T("Tous")+'</option></select></label>' +
+      '</div><div class="vf-sort">' +
+        '<span class="muted">'+T("Trier :")+'</span>' +
+        '<button class="btn btn-soft btn-small" data-sort="old">⏫ '+T("Plus ancien d'abord")+'</button>' +
+        '<button class="btn btn-soft btn-small" data-sort="new">⏬ '+T("Plus récent d'abord")+'</button>' +
+        '<button class="btn btn-soft btn-small" data-sort="prio">🔥 '+T("Priorité la plus haute")+'</button>' +
+        '<button class="btn btn-ghost btn-small" id="vfReset">'+T("Réinitialiser")+'</button>' +
+      '</div></div><div id="verList">'+verSkeleton()+'</div>';
+    UI.setContent(html);
+    loadVerifications(filter);
+  }
+  function loadVerifications(filter){
+    DATA.fetchVerifications().then(function(res){
+      _verCache.list = res.data || [];
+      _verCache.loaded = true;
+      _verCache.error = null;
+      updateVerTabs();
+      updateVerFilters();
+      drawVerification(filter);
+    }).catch(function(err){
+      _verCache.loaded = true;
+      _verCache.error = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      var el = document.getElementById("verList");
+      if(!el) return;
+      el.innerHTML = '<div class="empty" style="padding:30px"><div>⚠️ '+esc(_verCache.error)+'</div><button class="btn btn-ghost btn-small" style="margin-top:10px">'+T("Réessayer")+'</button></div>';
+      var retry = el.querySelector("button");
+      if(retry) retry.addEventListener("click", function(){ renderVerification(filter); });
+    });
+  }
+  function updateVerTabs(){
+    var all = _verCache.list;
+    var map = { all: all.length, pending: count(all,"pending"), needs_info: count(all,"needs_info"), approved: count(all,"approved"), rejected: count(all,"rejected") };
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      var c = t.querySelector(".cnt");
+      if(c && map[t.dataset.tab] !== undefined) c.textContent = map[t.dataset.tab];
+    });
+  }
+  function updateVerFilters(){
     var citySet={}, profSet={}, revSet={};
-    all.forEach(function(v){
+    _verCache.list.forEach(function(v){
       var p = DATA.getProfessional(v.professionalId);
       if(p && p.city) citySet[p.city]=1;
       if(p && p.job) profSet[p.job]=1;
@@ -1020,28 +1077,11 @@
     var cityOpts = Object.keys(citySet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
     var profOpts = Object.keys(profSet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
     var revOpts = Object.keys(revSet).sort().map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join("");
-    var html =
-      '<div class="page-head"><h1>'+T("Vérification")+'</h1><div class="spacer muted">'+T("Vérification et abonnement sont indépendants.")+'</div></div>' +
-      '<div class="tabs">' +
-        tabBtn("all", T("Toutes"), all.length) + tabBtn("pending", T("En attente"), count(all,"pending")) +
-        tabBtn("needs_info", T("Infos demandées"), count(all,"needs_info")) + tabBtn("approved", T("Approuvées"), count(all,"approved")) + tabBtn("rejected", T("Rejetées"), count(all,"rejected")) +
-      '</div>' +
-      '<div class="vfilter-bar"><div class="vf-grid">' +
-        '<label class="vf-field">'+T("Ville")+'<select id="vfCity"><option value="">'+T("Toutes")+'</option>'+cityOpts+'</select></label>' +
-        '<label class="vf-field">'+T("Métier")+'<select id="vfProf"><option value="">'+T("Tous")+'</option>'+profOpts+'</select></label>' +
-        '<label class="vf-field">'+T("Date de soumission")+'<input type="date" id="vfDate"></label>' +
-        '<label class="vf-field">'+T("Priorité")+'<select id="vfPrio"><option value="">'+T("Toutes")+'</option><option value="high">'+T("Haute")+'</option><option value="medium">'+T("Moyenne")+'</option><option value="low">'+T("Basse")+'</option></select></label>' +
-        '<label class="vf-field">'+T("Relecteur")+'<select id="vfRev"><option value="">'+T("Tous")+'</option>'+revOpts+'</select></label>' +
-      '</div><div class="vf-sort">' +
-        '<span class="muted">'+T("Trier :")+'</span>' +
-        '<button class="btn btn-soft btn-small" data-sort="old">⏫ '+T("Plus ancien d'abord")+'</button>' +
-        '<button class="btn btn-soft btn-small" data-sort="new">⏬ '+T("Plus récent d'abord")+'</button>' +
-        '<button class="btn btn-soft btn-small" data-sort="prio">🔥 '+T("Priorité la plus haute")+'</button>' +
-        '<button class="btn btn-ghost btn-small" id="vfReset">'+T("Réinitialiser")+'</button>' +
-      '</div></div><div id="verList"></div>';
-    UI.setContent(html);
-    drawVerification(filter);
+    var cE = document.getElementById("vfCity"); if(cE) cE.innerHTML = '<option value="">'+T("Toutes")+'</option>'+cityOpts;
+    var pE = document.getElementById("vfProf"); if(pE) pE.innerHTML = '<option value="">'+T("Tous")+'</option>'+profOpts;
+    var rE = document.getElementById("vfRev"); if(rE) rE.innerHTML = '<option value="">'+T("Tous")+'</option>'+revOpts;
   }
+
   function count(list, s){ return list.filter(function(v){ return v.status===s; }).length; }
   function tabBtn(id, label, n){ return '<button class="tab" data-tab="'+id+'">'+label+' <span class="cnt">'+n+'</span></button>'; }
   function drawVerification(filter){
@@ -1049,7 +1089,9 @@
       t.classList.toggle("active", t.dataset.tab===filter);
       t.onclick=function(){ drawVerification(t.dataset.tab); };
     });
-    var list = sortVer( applyVerFilters( DATA.getVerificationRequests({ status: filter==="all"?"":filter }) ), _verSort );
+    var source = (_verCache.list && _verCache.loaded) ? _verCache.list : (DATA.getVerificationRequests() || []);
+    var filtered = filter==="all" ? source : source.filter(function(v){ return v.status===filter; });
+    var list = sortVer( applyVerFilters(filtered), _verSort );
     var el = document.getElementById("verList");
     if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucune demande.")+'</div>'; return; }
     el.innerHTML = list.map(function(v){
@@ -1059,7 +1101,7 @@
       var steps = isPlan
         ? '<div class="muted" style="margin-top:8px">'+T("Demande plan")+' · '+
             '<span class="badge '+(String(v.requestedPlan).toLowerCase()==="gold"?"orange":"teal")+'">'+(String(v.requestedPlan).toUpperCase()==="GOLD"?"👑 "+T("GOLD"):"🛡️ "+T("Vérifié"))+'</span> '+
-            '<span class="muted">· '+v.price+' DH / '+T("mois")+'</span></div>'
+            '<span class="muted">· '+verPlanPrice(v)+' DH / '+T("mois")+'</span></div>'
         : isJoin
           ? '<div class="muted" style="margin-top:8px">'+T("Adhésion pack")+' <span class="badge gray">'+T("GRATUIT")+'</span> · 0 DH</div>'
           : '<div class="verif-steps">' +
@@ -1145,7 +1187,7 @@
     document.querySelectorAll("[data-gopay]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("payments"); }); });
   }
   function showVerHistory(id){
-    var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
+    var v = verRequest(id);
     var p = DATA.getProfessional(v.professionalId);
     UI.openModal('<h3>'+T("Historique de vérification")+'</h3><p class="muted" style="font-size:13px">'+esc(p.name)+' — '+esc(v.id)+'</p><div class="timeline" style="margin:14px 0">'+
       (v.history||[]).map(function(h){ return '<div class="tl-item"><div class="t-txt">'+esc(h.text)+'</div><div class="t-when">'+esc(h.date)+'</div></div>'; }).join("") +
@@ -1158,8 +1200,31 @@
     UI.confirmAction({ title: verb, confirmLabel: isJoin ? T("Confirmer adhésion") : T("Approuver"), onConfirm:function(){
       if(isJoin){ DATA.approveJoin(id, AUTH.getSession().name); DATA.logAudit({admin:AUTH.getSession().name, action:"JOIN_APPROVED", entity:"VerificationRequest", entityId:id, result:T("Admis (Gratuit)")}); UI.toast(T("Adhésion GRATUIT confirmée — professionnel admis.")); }
       else { DATA.approveVerification(id, AUTH.getSession().name); DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"}); UI.toast(T("Vérification approuvée.")); }
-      drawVerification(currentFilter()); updatePillsSafe();
+      refreshVerifications(); updatePillsSafe();
     }});
+  }
+  // REQ 52: after a backend mutation, re-fetch the admin list (source of truth
+  // = GET /admin/verifications) so the UI shows the authoritative state.
+  function refreshVerifications(){
+    var f = currentFilter();
+    loadVerifications(f);
+  }
+  // Look up a verification request from the fetched admin list, falling back to
+  // the local store only for before-first-load display (never as a data source).
+  function verRequest(id){
+    if(_verCache.list && _verCache.loaded){
+      var hit = null;
+      _verCache.list.forEach(function(x){ if(x.id===id) hit = x; });
+      if(hit) return hit;
+    }
+    return DATA.getVerificationRequests().find(function(x){ return x.id===id; });
+  }
+  // Monthly pricing for plan (VÉRIFIÉ / GOLD) requests. The backend stores the
+  // requested plan, not a client-computed price; surface the known monthly price
+  // for display only (never as a business rule).
+  function verPlanPrice(v){
+    if(String(v && v.requestedPlan||"").toUpperCase()==="GOLD") return 199;
+    return 99;
   }
   function currentFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.tab:"all"; }
   function slaDays(dateStr){
@@ -1175,19 +1240,19 @@
       UI.confirmAction({ title:T("Rejeter cette vérification ?"), reasonRequired:true, options:verReasonOptions(), otherLabel:T("Précision (si « Autre »)"), otherPlaceholder:T("Détaillez le motif..."), reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
       DATA.rejectVerification(id, reason, AUTH.getSession().name);
       DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_REJECTED", entity:"VerificationRequest", entityId:id, result:"Rejected", note:reason});
-      UI.toast(T("Vérification rejetée.")); drawVerification(currentFilter()); updatePillsSafe();
+      UI.toast(T("Vérification rejetée.")); refreshVerifications(); updatePillsSafe();
     }});
   }
   function requestInfo(id){
-    var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
+    var v = verRequest(id);
     UI.confirmAction({ title:T("Demander des informations"), message: v ? esc((DATA.getProfessional(v.professionalId)||{}).name||"")+" — "+esc(v.id) : "", reasonLabel:T("Informations demandées"), reasonRequired:true, confirmLabel:T("Envoyer la demande"), onConfirm:function(note){
       DATA.requestMoreInfo(id, note, AUTH.getSession().name);
       DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFICATION_INFO_REQUESTED", entity:"VerificationRequest", entityId:id, result:"Needs info", note:note});
-      UI.toast(T("Demande d'informations envoyée au professionnel.")); drawVerification(currentFilter()); updatePillsSafe();
+      UI.toast(T("Demande d'informations envoyée au professionnel.")); refreshVerifications(); updatePillsSafe();
     }});
   }
   function openReview(id){
-    var v = DATA.getVerificationRequests().find(function(x){ return x.id===id; });
+    var v = verRequest(id);
     if(!v) return;
     var p = DATA.getProfessional(v.professionalId);
     if(v.level==="join"){
@@ -1207,7 +1272,7 @@
       var app = document.getElementById("rvApprove"); if(app) app.addEventListener("click", function(){
         UI.closeModal(); DATA.approveJoin(id, AUTH.getSession().name);
         DATA.logAudit({admin:AUTH.getSession().name, action:"JOIN_APPROVED", entity:"VerificationRequest", entityId:id, result:T("Admis (Gratuit)")});
-        UI.toast(T("Adhésion GRATUIT confirmée.")); drawVerification(currentFilter()); updatePillsSafe();
+        UI.toast(T("Adhésion GRATUIT confirmée.")); refreshVerifications(); updatePillsSafe();
       });
       var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){ UI.closeModal(); rejectVer(id); });
       return;
@@ -1221,7 +1286,7 @@
           '<div class="rw-col"><h4>'+T("Plan demandé")+'</h4>' +
             '<div style="display:flex;gap:10px;align-items:center;margin:10px 0">' +
               '<span class="badge '+(String(v.requestedPlan).toLowerCase()==="gold"?"orange":"teal")+'" style="font-size:14px;padding:6px 10px">'+(String(v.requestedPlan).toUpperCase()==="GOLD"?"👑 "+T("GOLD"):"🛡️ "+T("Vérifié"))+'</span>' +
-              '<span class="muted">'+v.price+' DH / '+T("mois")+'</span></div>' +
+              '<span class="muted">'+verPlanPrice(v)+' DH / '+T("mois")+'</span></div>' +
             (v.documents||[]).map(function(d){ return '<div class="doc">📄 '+esc(d)+'</div>'; }).join("") +
             '<p class="muted" style="margin-top:12px">'+T("Vuirement bancaire reçu. Le badge ")+(String(v.requestedPlan).toUpperCase()==="GOLD"?T("GOLD"):T("VÉRIFIÉ"))+T(" est activé sur le profil dès la confirmation du paiement dans Paiements.")+'</p>' +
             '<div class="modal-actions" style="justify-content:flex-start;margin-top:16px">' +
@@ -1232,7 +1297,7 @@
       var app = document.getElementById("rvApprove"); if(app) app.addEventListener("click", function(){
         UI.closeModal(); DATA.approveVerification(id, AUTH.getSession().name);
         DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"});
-        UI.toast(T("Éligibilité validée. Le badge s'activera à la confirmation du paiement.")); drawVerification(currentFilter()); updatePillsSafe();
+        UI.toast(T("Éligibilité validée. Le badge s'activera à la confirmation du paiement.")); refreshVerifications(); updatePillsSafe();
       });
       var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){ UI.closeModal(); rejectVer(id); });
       return;
@@ -1277,7 +1342,7 @@
       UI.closeModal();
       DATA.approveVerification(id, AUTH.getSession().name);
       DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"VerificationRequest", entityId:id, result:"Approved"});
-      UI.toast(T("Vérification approuvée.")); drawVerification(currentFilter()); updatePillsSafe();
+      UI.toast(T("Vérification approuvée.")); refreshVerifications(); updatePillsSafe();
     });
     var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){
       UI.closeModal(); rejectVer(id);
