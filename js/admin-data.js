@@ -14,6 +14,16 @@
 
   // REQ 52: admin-scoped professional API (loaded before admin-data.js).
   var ProfApi = global.Sna3tiProfessionalsApi || null;
+  // REQ 52: payments API (loaded before admin-data.js). The Sna3ti payment
+  // model is manual bank transfer only; the professional never shares a bank
+  // account/IBAN, card, CVV or online-banking credentials with Sna3ti. Only
+  // tracking/proof references (reference, bankRef, receipt) are kept.
+  var PayApi = global.Sna3tiPaymentsApi || null;
+
+  // REQ 52: pure idempotency helper — true when a payment is already in a
+  // terminal state and should not be re-processed (used to mirror the backend
+  // 409 guard in the read model; the backend remains authoritative).
+  function isPayTerminal(status){ return status === "confirmed" || status === "rejected"; }
 
   /* ---------- Roles & permissions (RBAC) ---------- */
   // NOTE: For prototype only. Production authorization MUST be
@@ -650,6 +660,32 @@
     return out;
   }
 
+  // REQ 52: normalize a backend payment record into the UI shape.
+  // Manual bank transfer only — no card / IBAN / CVV / online-banking
+  // credentials are ever collected or stored by Sna3ti. Only tracking &
+  // proof references (reference, bankRef, receipt) are surfaced. Opaque IDs
+  // pass through verbatim — never coerced. Missing values are honest.
+  function mapAdminPayment(remote) {
+    if (!remote) return null;
+    return {
+      id: remote.id,
+      reference: remote.reference || "",
+      professionalId: remote.professionalId,
+      planName: remote.planName || "",
+      amount: remote.amount,
+      currency: remote.currency || "MAD",
+      method: remote.method || "bank_transfer",
+      status: remote.status || "pending",
+      bankRef: remote.bankRef || "",
+      receipt: remote.receipt || "",
+      rejectionReason: remote.rejectionReason || "",
+      infoRequested: remote.infoRequested || "",
+      reviewedBy: remote.reviewedById || remote.reviewedBy || "",
+      date: remote.createdAt || remote.date || "",
+      reviewedAt: remote.reviewedAt || ""
+    };
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -708,6 +744,20 @@
         return { success:true, data: p ? mapAdminProfessional(p) : null };
       });
     },
+
+    // ---- REQ 52: async admin payments read. Source of truth = GET /admin/payments.
+    // Manual bank transfer model: only tracking/proof references are returned,
+    // never banking credentials. A successful empty response ([]) resolves as
+    // an EMPTY state; a network / server / 429 / 500 failure rejects so the UI
+    // renders an error/offline state — never demo payments. Opaque IDs verbatim.
+    fetchPayments: function(){
+      if(!PayApi || !PayApi.list) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API paiements non chargé." });
+      return PayApi.list().then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        return { success:true, data: list.map(mapAdminPayment), pagination: (res && res.pagination) || null };
+      });
+    },
+
     updateProfessional: function(id, data){
       var p = getById(store.professionals, id); if(!p) return false;
       Object.keys(data).forEach(function(k){ if(data[k]!==undefined) p[k]=data[k]; });

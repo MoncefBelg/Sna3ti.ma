@@ -1932,78 +1932,121 @@
   /* ============================================================
      PAYMENTS + BANK TRANSFER WORKFLOW
      ============================================================ */
-  function renderPayments(){
-    UI.setTitle(T("Paiements"));
-    var pays = DATA.getPayments();
-    UI.setContent(
-      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
-      (pays.length ? pays.map(function(pa){
-        var p = DATA.getProfessional(pa.professionalId);
-        var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
-        return '<tr><td><b>'+esc(pa.reference)+'</b>'+(linkReq?'<br><span class="badge purple">'+T("Demande abonnement")+'</span>':"")+'</td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
-          '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+payMethodBadge(pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+pa.date+'</td>'+
-          '<td>'+payStatusBadge(pa.status)+'</td>'+
-          '<td class="actions-cell">'+
-            (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="'+T("Confirmer (active la souscription VÉRIFIÉ/GOLD)")+'" style="color:var(--green)">✓</button>' : "") +
-            (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="'+T("Rejeter")+'">✖</button>' : "") +
-            (AUTH.can("payments","update") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="'+T("Demander des informations")+'" style="color:var(--amber)">💡</button>' : "") +
-            '<button class="icon-act" data-whats="'+pa.id+'" title="'+T("Discuter sur WhatsApp")+'">💬</button>' +
-            (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Voir en vérification")+'">✅</button>' : "") +
-          '</td></tr>';
-      }).join("") : '<tr><td colspan="9"><div class="empty" style="padding:30px">'+T("Aucun paiement.")+'</div></td></tr>') + '</tbody></table></div></div>' +
-      '<div class="card"><div class="card-title">'+T("Workflow virement bancaire")+'</div>' +
-      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Professionnel choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
-      '<p class="muted" style="margin-top:12px">'+T("Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.")+'</p></div>' +
-      '<div class="card"><div class="card-title">'+T("Paiement en ligne (carte)")+'</div><p class="muted" style="margin:8px 0">'+T("L'intégration du prestataire de paiement par carte (CMI / paymob / autre) est prévue comme prochaine étape. Actuellement, tous les paiements passent par virement bancaire manuel.")+'</p><span class="badge gray">🔧 '+T("Bientôt disponible")+'</span></div>'
-    );
+  function paymentsSkeleton(){
+    return '<tr><td colspan="9" style="padding:0"><div class="skeleton-list">'+Array.from({length:6}).map(function(){ return '<div class="sk-line" style="height:46px"></div>'; }).join("")+'</div></td></tr>';
+  }
+
+  function paymentRow(pa){
+    var p = DATA.getProfessional(pa.professionalId);
+    var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
+    return '<tr><td><b>'+esc(pa.reference)+'</b>'+(linkReq?'<br><span class="badge purple">'+T("Demande abonnement")+'</span>':"")+'</td><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
+      '<td>'+esc(pa.planName)+'</td><td><b>'+pa.amount+' DH</b></td><td>'+payMethodBadge(pa.method)+'</td><td>'+esc(pa.bankRef||"—")+'</td><td>'+esc(pa.date)+'</td>'+
+      '<td>'+payStatusBadge(pa.status)+'</td>'+
+      '<td class="actions-cell">'+
+        (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="'+T("Confirmer (active la souscription VÉRIFIÉ/GOLD)")+'" style="color:var(--green)">✓</button>' : "") +
+        (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="'+T("Rejeter")+'">✖</button>' : "") +
+        (AUTH.can("payments","update") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="'+T("Demander des informations")+'" style="color:var(--amber)">💡</button>' : "") +
+        '<button class="icon-act" data-whats="'+pa.id+'" title="'+T("Discuter sur WhatsApp")+'">💬</button>' +
+        (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Voir en vérification")+'">✅</button>' : "") +
+      '</td></tr>';
+  }
+
+  function paymentExportRows(list){
+    var rows=[[T("Référence"),T("Professionnel"),T("Plan"),T("Montant"),T("Méthode"),T("Réf. bancaire"),T("Date"),T("Statut"),"ID"]];
+    list.forEach(function(pa){ var p=DATA.getProfessional(pa.professionalId); rows.push([pa.reference,p?p.name:"?",pa.planName,pa.amount,pa.method,pa.bankRef||"",pa.date,pa.status,pa.id]); });
+    return rows;
+  }
+
+  function bindPayActions(list){
     document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(b.dataset.confp); }); });
     document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(b.dataset.rejp); }); });
     document.querySelectorAll("[data-infop]").forEach(function(b){ b.addEventListener("click", function(){ requestPaymentInfo(b.dataset.infop); }); });
     document.querySelectorAll("[data-openbk]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("verification"); }); });
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
-      var pa=DATA.getPayments().find(function(x){return x.id===b.dataset.whats;}); if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+pa.reference+" ("+pa.amount+" DH)"), "_blank"); }
+      var pa = (list||[]).find(function(x){return x.id===b.dataset.whats;});
+      if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+(pa.reference||pa.id)+" ("+pa.amount+" DH)"), "_blank"); }
     }); });
-    var pex = document.getElementById("payExport"); if(pex) pex.addEventListener("click", function(){
-      var rows=[[T("Référence"),T("Professionnel"),T("Plan"),T("Montant"),T("Méthode"),T("Réf. bancaire"),T("Date"),T("Statut"),"ID"]];
-      DATA.getPayments().forEach(function(pa){ var p=DATA.getProfessional(pa.professionalId); rows.push([pa.reference,p?p.name:"?",pa.planName,pa.amount,pa.method,pa.bankRef||"",pa.date,pa.status,pa.id]); });
-      UI.exportCSV("paiements-sna3ti.csv", rows); UI.toast(T("Export généré."));
+  }
+
+  function renderPayments(){
+    UI.setTitle(T("Paiements"));
+    UI.setContent(
+      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody id="payBody">'+paymentsSkeleton()+'</tbody></table></div></div>' +
+      '<div class="card"><div class="card-title">'+T("Workflow virement bancaire")+'</div>' +
+      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Professionnel choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
+      '<p class="muted" style="margin-top:12px">'+T("Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.")+'</p>' +
+      '<p class="muted" style="margin-top:8px">'+T("Sna3ti ne collecte ni ne stocke jamais les coordonnées bancaires du professionnel (IBAN, numéro de carte, CVV, identifiants de banque en ligne). Le règlement s’effectue par virement manuel via votre banque et le reçu est transmis sur WhatsApp.")+'</p></div>' +
+      '<div class="card"><div class="card-title">'+T("Paiement en ligne (carte)")+'</div><p class="muted" style="margin:8px 0">'+T("L'intégration du prestataire de paiement par carte (CMI / paymob / autre) est prévue comme prochaine étape. Actuellement, tous les paiements passent par virement bancaire manuel ; aucun prélèvement de données de carte n'est effectué.")+'</p><span class="badge gray">🔧 '+T("Bientôt disponible")+'</span></div>'
+    );
+    var pex = document.getElementById("payExport");
+    if(pex) pex.addEventListener("click", function(){
+      DATA.fetchPayments().then(function(res){
+        var list = res.data || [];
+        UI.exportCSV("paiements-sna3ti.csv", paymentExportRows(list)); UI.toast(T("Export généré."));
+      }).catch(function(){ UI.toast(T("Export impossible — serveur injoignable."), "error"); });
+    });
+    // REQ 52: source of truth = GET /admin/payments. Skeleton -> real rows /
+    // empty / error (never demo). Opaque IDs preserved.
+    return DATA.fetchPayments().then(function(res){
+      var pays = res.data || [];
+      var tbody = document.getElementById("payBody");
+      if(!tbody) return;
+      tbody.innerHTML = pays.length ? pays.map(paymentRow).join("") : '<tr><td colspan="9"><div class="empty" style="padding:30px">'+T("Aucun paiement.")+'</div></td></tr>';
+      bindPayActions(pays);
+    }).catch(function(err){
+      var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      var tbody = document.getElementById("payBody");
+      if(!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty" style="padding:30px"><div>⚠️ '+esc(msg)+'</div><button class="btn btn-ghost btn-small" style="margin-top:10px">'+T("Réessayer")+'</button></div></td></tr>';
+      var retry = tbody.querySelector("button");
+      if(retry) retry.addEventListener("click", renderPayments);
     });
   }
   function renderPaymentDetail(id){
-    var pa = DATA.getPayments().find(function(x){ return x.id===id; });
-    if(!pa){ renderNotFound(); return; }
-    UI.setTitle(T("Paiement")+" — "+pa.reference);
-    var p = DATA.getProfessional(pa.professionalId);
-    var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
-    UI.setContent(
-      '<div class="page-head"><h1>'+T("Paiement")+' — '+esc(pa.reference)+'</h1><div class="spacer"><button class="btn btn-ghost" id="pdBack" style="margin-right:8px">← '+T("Tous les paiements")+'</button>'+
-      (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="btn btn-primary" id="pdConf">✓ '+T("Confirmer")+'</button>' : "")+
-      (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="btn btn-danger" id="pdRej" style="margin-left:8px">'+T("Rejeter")+'</button>' : "")+'</div></div>' +
-      '<div class="card"><div class="detail-grid">'+
-        drow(T("Référence"), esc(pa.reference))+
-        drow(T("Statut"), payStatusBadge(pa.status))+
-        drow(T("Plan"), esc(pa.planName))+
-        drow(T("Montant"), '<b>'+pa.amount+' DH</b>')+
-        drow(T("Méthode"), payMethodBadge(pa.method))+
-        drow(T("Référence bancaire"), esc(pa.bankRef||"—"))+
-        drow(T("Date"), pa.date)+
-        drow(T("Professionnel"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
-        (pa.rejectionReason ? drow(T("Raison du rejet"), esc(pa.rejectionReason)) : "")+
-        (pa.infoRequested ? drow(T("Informations demandées"), esc(pa.infoRequested)) : "")+
-      '</div></div>' +
-      (linkReq ? '<div class="card"><div class="card-title">'+T("Demande d'abonnement liée")+'</div><p class="muted" style="margin:8px 0">'+linkReq.id+' — '+esc(linkReq.requestedPlan||"")+'</p><button class="btn btn-soft" id="pdOpenVr">'+T("Voir en vérification")+'</button></div>' : "")
-    );
-    var back = document.getElementById("pdBack"); if(back) back.addEventListener("click", function(){ ROUTER.navigate("payments"); });
-    var conf = document.getElementById("pdConf"); if(conf) conf.addEventListener("click", function(){ confirmPayment(id); ROUTER.navigate("payments"); });
-    var rej = document.getElementById("pdRej"); if(rej) rej.addEventListener("click", function(){ rejectPayment(id); ROUTER.navigate("payments"); });
-    var ovr = document.getElementById("pdOpenVr"); if(ovr) ovr.addEventListener("click", function(){ ROUTER.navigate("verification"); });
+    DATA.fetchPayments().then(function(res){
+      var pays = res.data || [];
+      var pa = pays.find(function(x){ return x.id===id; });
+      if(!pa){ renderNotFound(); return; }
+      UI.setTitle(T("Paiement")+" — "+pa.reference);
+      var p = DATA.getProfessional(pa.professionalId);
+      var linkReq = DATA.getVerificationRequests().find(function(x){ return x.paymentId===pa.id; });
+      UI.setContent(
+        '<div class="page-head"><h1>'+T("Paiement")+' — '+esc(pa.reference)+'</h1><div class="spacer"><button class="btn btn-ghost" id="pdBack" style="margin-right:8px">← '+T("Tous les paiements")+'</button>'+
+        (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="btn btn-primary" id="pdConf">✓ '+T("Confirmer")+'</button>' : "")+
+        (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="btn btn-danger" id="pdRej" style="margin-left:8px">'+T("Rejeter")+'</button>' : "")+'</div></div>' +
+        '<div class="card"><div class="detail-grid">'+
+          drow(T("Référence"), esc(pa.reference))+
+          drow(T("Statut"), payStatusBadge(pa.status))+
+          drow(T("Plan"), esc(pa.planName))+
+          drow(T("Montant"), '<b>'+pa.amount+' DH</b>')+
+          drow(T("Méthode"), payMethodBadge(pa.method))+
+          drow(T("Référence bancaire"), esc(pa.bankRef||"—"))+
+          drow(T("Date"), esc(pa.date))+
+          drow(T("Professionnel"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
+          (pa.rejectionReason ? drow(T("Raison du rejet"), esc(pa.rejectionReason)) : "")+
+          (pa.infoRequested ? drow(T("Informations demandées"), esc(pa.infoRequested)) : "")+
+        '</div></div>' +
+        (linkReq ? '<div class="card"><div class="card-title">'+T("Demande d'abonnement liée")+'</div><p class="muted" style="margin:8px 0">'+esc(linkReq.id)+' — '+esc(linkReq.requestedPlan||"")+'</p><button class="btn btn-soft" id="pdOpenVr">'+T("Voir en vérification")+'</button></div>' : "")
+      );
+      var back = document.getElementById("pdBack"); if(back) back.addEventListener("click", function(){ ROUTER.navigate("payments"); });
+      var conf = document.getElementById("pdConf"); if(conf) conf.addEventListener("click", function(){ confirmPayment(id); ROUTER.navigate("payments"); });
+      var rej = document.getElementById("pdRej"); if(rej) rej.addEventListener("click", function(){ rejectPayment(id); ROUTER.navigate("payments"); });
+      var ovr = document.getElementById("pdOpenVr"); if(ovr) ovr.addEventListener("click", function(){ ROUTER.navigate("verification"); });
+    }).catch(function(err){
+      var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      UI.setTitle(T("Paiement"));
+      UI.setContent('<div class="page-head"><h1>'+T("Paiement")+'</h1></div><div class="card"><div class="empty" style="padding:40px"><div>⚠️ '+esc(msg)+'</div><button class="btn btn-ghost" id="pdRetry" style="margin-top:12px">'+T("Réessayer")+'</button> <button class="btn btn-ghost" id="pdBack2" style="margin-top:12px">← '+T("Tous les paiements")+'</button></div></div>');
+      var retry = document.getElementById("pdRetry"); if(retry) retry.addEventListener("click", function(){ renderPaymentDetail(id); });
+      var back2 = document.getElementById("pdBack2"); if(back2) back2.addEventListener("click", function(){ ROUTER.navigate("payments"); });
+    });
   }
   function confirmPayment(id){
     UI.confirmAction({ title:T("Confirmer ce paiement ?"), message:T("Après contrôle du virement, la souscription VÉRIFIÉ ou GOLD sera activée sur le profil. Le badge « Professionnel Vérifié » reste soumis à une vérification distincte, indépendante du paiement."), confirmLabel:T("Confirmer"), onConfirm:function(){
       DATA.confirmPayment(id);
       DATA.logAudit({admin:AUTH.getSession().name, action:"CONFIRM_PAYMENT", entity:"Payment", entityId:id, result:"Confirmed"});
-      UI.toast(T("Paiement confirmé — souscription activée (vérification du badge = processus distinct).")); renderPayments();
+      UI.toast(T("Paiement confirmé — souscription activée (vérification du badge = processus distinct)."));
+      renderPayments();
     }});
   }
   function rejectPayment(id){
