@@ -2208,13 +2208,19 @@
   font-weight: 900;
   color: var(--teal);
 }
-.snc-logo::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--orange);
+.snc-logo .snc-box {
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: linear-gradient(145deg, #0d6b61, #071d1a);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  box-shadow: inset 0 1px rgba(255,255,255,.25);
 }
+.snc-logo .snc-brand-dot { color: var(--orange); }
 .snc-bell {
   width: 24px;
   height: 24px;
@@ -2928,17 +2934,10 @@
   background: var(--teal); vertical-align: -1px;
   animation: sncBlink 1s steps(1) infinite;
 }
-.snc-fpill {
-  position: absolute; inset-inline: 9px; bottom: -2px; height: 2px;
-  border-radius: 2px; background: var(--teal);
-  opacity: 0; transform: scaleX(0);
-  animation: sncPillGrow 34s linear infinite backwards;
-  animation-delay: 18s;
-}
-.fz1, .fz1 .snc-fval, .fz1 .snc-fpill { animation-delay: 15.9s !important; }
-.fz2, .fz2 .snc-fval, .fz2 .snc-fpill { animation-delay: 20.6s !important; }
-.fz3, .fz3 .snc-fval, .fz3 .snc-fpill { animation-delay: 25.3s !important; }
-.fz4, .fz4 .snc-fval, .fz4 .snc-fpill { animation-delay: 30s !important; }
+.fz1, .fz1 .snc-fval { animation-delay: 15.9s !important; }
+.fz2, .fz2 .snc-fval { animation-delay: 20.6s !important; }
+.fz3, .fz3 .snc-fval { animation-delay: 25.3s !important; }
+.fz4, .fz4 .snc-fval { animation-delay: 30s !important; }
 @keyframes sncCellZ {
   0%, 2.4%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(13,107,97,0); background: #f7faf9; }
   3.2%       { transform: scale(1.05); box-shadow: 0 0 0 3px rgba(13,107,97,.35); background: #fff; }
@@ -2950,13 +2949,6 @@
   0%, 2.7%   { opacity: 0; transform: translateX(3px); }
   4.2%       { opacity: 1; transform: translateX(0); }
   100%       { opacity: 1; transform: translateX(0); }
-}
-@keyframes sncPillGrow {
-  0%, 2.2%   { opacity: 0; transform: scaleX(0); }
-  4.4%       { opacity: 1; transform: scaleX(1); }
-  8%         { opacity: 1; transform: scaleX(1); }
-  9%         { opacity: 0; transform: scaleX(1); }
-  100%       { opacity: 0; transform: scaleX(1); }
 }
 
 .snc-save { margin-top: auto; }
@@ -3014,11 +3006,11 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .snc-plan--grat, .snc-plan--grat .snc-plan-check,
-  .snc-reg, .snc-fcell, .snc-fcell .snc-fval, .snc-fpill,
+  .snc-reg, .snc-fcell, .snc-fcell .snc-fval,
   .snc-savez, .snc-ok, .snc-ok *, .snc-cur, .snc-cur::after {
     animation: none !important; opacity: 1 !important; transform: none !important;
   }
-  .snc-fcell .snc-fval, .snc-fpill { opacity: 1; }
+  .snc-fcell .snc-fval { opacity: 1; }
   .snc-ok { opacity: 0 !important; }
   .snc-cur, .snc-cur::after { opacity: 0 !important; }
 }
@@ -3268,13 +3260,19 @@
   font-weight: 900;
   color: var(--teal);
 }
-.snc-site-logo::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--orange);
+.snc-site-logo .snc-box {
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: linear-gradient(145deg, #0d6b61, #071d1a);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  box-shadow: inset 0 1px rgba(255,255,255,.25);
 }
+.snc-site-logo .snc-brand-dot { color: var(--orange); }
 .snc-site-nav {
   display: flex;
   align-items: center;
@@ -3282,12 +3280,6 @@
   font-size: 8px;
   font-weight: 700;
   color: #55706a;
-}
-.snc-site-nav .snc-nav-cta {
-  border-radius: 999px;
-  background: var(--teal);
-  color: #fff;
-  padding: 3px 9px;
 }
 .snc-site-hero {
   display: flex;
@@ -4350,11 +4342,9 @@
               <div
                 class="
                   mt-4
-                  text-orange
                   text-lg
                 "
               >
-                ★★★★★
 
                 <span
                   id="heroCardRating"
@@ -4405,7 +4395,7 @@
                     mt-1
                   "
                 >
-                  2.4 km
+                  💵 250 DH
                 </div>
 
               </div>
@@ -5980,7 +5970,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                         <span class="snc-sig"><i></i><i></i><i></i></span>
                       </div>
                       <div class="snc-appbar">
-                        <span class="snc-logo">sna3ti</span>
+                        <span class="snc-logo"><span class="snc-box">S</span><span class="snc-name">Sna3ti<span class="snc-brand-dot">.</span>ma</span></span>
                         <span class="snc-bell" aria-hidden="true">🔔</span>
                       </div>
 
@@ -6076,22 +6066,18 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                               <span class="snc-field snc-fcell fz1">
                                 <small data-i18n="showcase.flPrénom">Prénom</small>
                                 <span class="snc-fval"><span data-i18n="showcase.fvPrénom">Karim</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                <span class="snc-fpill" aria-hidden="true"></span>
                               </span>
                               <span class="snc-field snc-fcell fz2">
                                 <small data-i18n="showcase.flNom">Nom</small>
                                 <span class="snc-fval"><span data-i18n="showcase.fvNom">El Amrani</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                <span class="snc-fpill" aria-hidden="true"></span>
                               </span>
                               <span class="snc-field snc-fcell fz3">
                                 <small data-i18n="showcase.flTel">Téléphone</small>
                                 <span class="snc-fval"><span data-i18n="showcase.fvTel">06 12 34 56 78</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                <span class="snc-fpill" aria-hidden="true"></span>
                               </span>
                               <span class="snc-field snc-fcell fz4">
                                 <small data-i18n="showcase.flCity">Ville</small>
                                 <span class="snc-fval"><span data-i18n="showcase.city">Casablanca</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                <span class="snc-fpill" aria-hidden="true"></span>
                               </span>
                               <div class="snc-save">
                                 <span class="snc-tap snc-btn snc-savez"><span data-i18n="showcase.jBtn">Créer mon compte</span></span>
@@ -6154,12 +6140,11 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
 
                       <div class="snc-browser-body">
                         <div class="snc-site-head">
-                          <span class="snc-site-logo">sna3ti</span>
+                          <span class="snc-site-logo"><span class="snc-box">S</span><span class="snc-name">Sna3ti<span class="snc-brand-dot">.</span>ma</span></span>
                           <span class="snc-site-nav">
                             <span data-i18n="showcase.dwNav1">Services</span>
                             <span data-i18n="showcase.dwNav2">Artisans</span>
                             <span data-i18n="showcase.dwNav3">Tarifs</span>
-                            <span class="snc-nav-cta" data-i18n="showcase.dwNavCta">S'inscrire</span>
                           </span>
                         </div>
 
@@ -6264,22 +6249,18 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                                 <span class="snc-field snc-fcell fz1">
                                   <small data-i18n="showcase.flPrénom">Prénom</small>
                                   <span class="snc-fval"><span data-i18n="showcase.fvPrénom">Karim</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                  <span class="snc-fpill" aria-hidden="true"></span>
                                 </span>
                                 <span class="snc-field snc-fcell fz2">
                                   <small data-i18n="showcase.flNom">Nom</small>
                                   <span class="snc-fval"><span data-i18n="showcase.fvNom">El Amrani</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                  <span class="snc-fpill" aria-hidden="true"></span>
                                 </span>
                                 <span class="snc-field snc-fcell fz3">
                                   <small data-i18n="showcase.flTel">Téléphone</small>
                                   <span class="snc-fval"><span data-i18n="showcase.fvTel">06 12 34 56 78</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                  <span class="snc-fpill" aria-hidden="true"></span>
                                 </span>
                                 <span class="snc-field snc-fcell fz4">
                                   <small data-i18n="showcase.flCity">Ville</small>
                                   <span class="snc-fval"><span data-i18n="showcase.city">Casablanca</span><i class="snc-caret2" aria-hidden="true"></i></span>
-                                  <span class="snc-fpill" aria-hidden="true"></span>
                                 </span>
                                 <div class="snc-save">
                                   <span class="snc-tap snc-btn snc-savez"><span data-i18n="showcase.jBtn">Créer mon compte</span></span>
@@ -6644,8 +6625,15 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             </select>
           </div>
           <div>
-            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.prix">Prix indicatif (DH/m²) <span class="text-white/40">· optionnel</span></label>
-            <input id="regPrix" type="number" inputmode="numeric" min="0" placeholder="Ex : 120" class="w-full rounded-xl bg-white/10 border border-white/15 px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPrix" />
+            <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.prix">Prix indicatif <span class="text-white/40">· optionnel</span></label>
+            <div class="flex items-stretch overflow-hidden rounded-xl bg-white/10 border border-white/15 focus-within:border-sna3ti-teal2">
+              <input id="regPrix" type="number" inputmode="numeric" min="0" placeholder="Ex : 120" class="w-full bg-transparent px-4 py-3 text-sm font-semibold text-white outline-none placeholder-white/40" data-i18n-placeholder="register.phPrix" />
+              <select id="regPrixUnit" class="shrink-0 cursor-pointer border-l border-white/15 bg-white/10 px-3 text-sm font-semibold text-white outline-none [&>option]:text-sna3ti-ink" aria-label="Unité du prix">
+                <option value="" class="text-sna3ti-ink"></option>
+                <option value="DH" class="text-sna3ti-ink">DH</option>
+                <option value="DH/m²" class="text-sna3ti-ink">DH/m²</option>
+              </select>
+            </div>
           </div>
           <div class="sm:col-span-2">
             <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-white/60" data-i18n="register.phone">Numéro WhatsApp</label>
@@ -7459,7 +7447,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "Sans le 0 au début · +212 suivi de 9 chiffres",
           back: "← Retour",
           submit: "Envoyer ma demande →",
-          prix: "Prix indicatif (DH/m²) · optionnel",
+          prix: "Prix indicatif · optionnel",
           phPrix: "Ex : 120",
           gateway: {
             title: "Virement bancaire sécurisé",
@@ -7901,7 +7889,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "بدون 0 في البداية · +212 يليها 9 أرقام",
           back: "رجوع",
           submit: "أرسل طلبي",
-          prix: "الثمن الإرشادي (درهم/م²) · اختياري",
+          prix: "الثمن الإرشادي · اختياري",
           phPrix: "مثال: 120",
           gateway: {
             title: "تحويل بنكي آمن",
@@ -8343,7 +8331,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "No leading 0 · +212 followed by 9 digits",
           back: "← Back",
           submit: "Send my request →",
-          prix: "Indicative price (DH/m²) · optional",
+          prix: "Indicative price · optional",
           phPrix: "Ex: 120",
           gateway: {
             title: "Secure bank transfer",
@@ -9409,7 +9397,7 @@ const sna3tiProfessionals = [
     price: 250,
     verified: true,
     available: true,
-    distance: "2.4 km",
+    pricingUnit: "DH",
     package: "gold",
     image: "https://i.pravatar.cc/300?img=12",
     phone: "212600000001"
@@ -9427,7 +9415,7 @@ const sna3tiProfessionals = [
     price: 200,
     verified: true,
     available: true,
-    distance: "3.1 km",
+    pricingUnit: "DH",
     package: "gold",
     image: "https://i.pravatar.cc/300?img=11",
     phone: "212600000002"
@@ -9445,7 +9433,7 @@ const sna3tiProfessionals = [
     price: 180,
     verified: true,
     available: true,
-    distance: "5.2 km",
+    pricingUnit: "DH/m²",
     package: "free",
     image: "https://i.pravatar.cc/300?img=14",
     phone: "212600000003"
@@ -9463,7 +9451,7 @@ const sna3tiProfessionals = [
     price: 300,
     verified: true,
     available: false,
-    distance: "6.4 km",
+    pricingUnit: "DH/m²",
     package: "verified",
     image: "https://i.pravatar.cc/300?img=15",
     phone: "212600000004"
@@ -9481,7 +9469,7 @@ const sna3tiProfessionals = [
     price: 220,
     verified: true,
     available: true,
-    distance: "7.1 km",
+    pricingUnit: "DH",
     package: "verified",
     image: "https://i.pravatar.cc/300?img=13",
     phone: "212600000005"
@@ -9499,7 +9487,7 @@ const sna3tiProfessionals = [
     price: 250,
     verified: true,
     available: true,
-    distance: "4.8 km",
+    pricingUnit: "DH",
     package: "free",
     image: "https://i.pravatar.cc/300?img=17",
     phone: "212600000006"
@@ -9787,6 +9775,18 @@ function proCityLabel(pro) {
   return pro.area || cityName("casablanca", lang) || "Casablanca";
 }
 
+function proPriceUnit(pro) {
+  return (pro && pro.pricingUnit) || "DH";
+}
+
+function proPriceLabel(pro) {
+  const value = (pro && pro.price) || 0;
+  const cur = heroCurrencyUnit();
+  return proPriceUnit(pro) === "DH/m²"
+    ? value + " " + cur + "/m²"
+    : value + " " + cur;
+}
+
 const aiUrgentWords = [
   "aujourd", "today", "dab", "daba", "urgent", "urgente", "maintenance",
   "اليوم", "دابا", "داب", "قريب", "dghia", "lhal", "غي", "بزاف"
@@ -9989,7 +9989,7 @@ function renderProfessionalCard(pro) {
         </span>
 
         <span class="meta-pill">
-          ${pro.distance}
+          💰 ${proPriceLabel(pro)}
         </span>
 
         ${
@@ -10296,10 +10296,6 @@ function renderSearchResults() {
             Prix croissant
           </option>
 
-          <option value="distance">
-            Plus proches
-          </option>
-
         </select>
 
       </div>
@@ -10601,17 +10597,6 @@ function setupResultFilters(originalResults) {
     }
 
 
-    if (sort.value === "distance") {
-
-      results.sort(
-        (a,b) =>
-          parseFloat(a.distance) -
-          parseFloat(b.distance)
-      );
-
-    }
-
-
     const grid =
       document.getElementById(
         "professionalsGrid"
@@ -10851,11 +10836,7 @@ function openProfessional(id) {
               </div>
 
               <div class="meta-pill">
-                📏 ${pro.distance}
-              </div>
-
-              <div class="meta-pill">
-                💰 Dès ${pro.price} DH
+                💰 ${proPriceLabel(pro)}
               </div>
 
               <div class="meta-pill">
@@ -11243,6 +11224,7 @@ function regSubmit() {
   const ville = regVal("regVille");
   const phone = regVal("regPhone");
   const prix = regVal("regPrix");
+  const prixUnit = (document.getElementById("regPrixUnit") || {}).value || "";
   const isOther = metier === "autre";
   const otherService = regVal("regOtherService");
   const desc = regVal("regDesc");
@@ -11317,7 +11299,7 @@ function regSubmit() {
     "Métier : " + metierLabel + "\n" +
     (desc ? "Description : " + desc + "\n" : "") +
     "Ville : " + (cityLabel || ville || "-") + "\n" +
-    "Prix (DH/m²) : " + (prix ? prix + " DH" : "Non précisé") + "\n" +
+    "Prix (" + (prixUnit || "DH") + ") : " + (prix ? (prix + " " + (prixUnit || "DH")) : "Non précisé") + "\n" +
     "WhatsApp : " + whatsappNumber + "\n" +
     "Photo de profil : " + photoPName + "\n" +
     "Photo de travail : " + photoTName + "\n" +
@@ -11422,10 +11404,10 @@ function sna3tiPersistToAdmin(data) {
     var pro = {
       id: proId, userId: "", professionId: "", name: data.nom + " " + data.prenom, job: data.metierLabel || data.metier || "",
       categoryId: "", category: data.metierLabel || "", cityId: "", city: data.cityLabel || data.ville || "",
-      area: "", rating: 0, reviewsCount: 0, price: 0,
+      area: "", rating: 0, reviewsCount: 0, price: prix ? Number(prix) : 0, pricingUnit: prixUnit || "DH",
       identityStatus: "pending", verificationStatus: "pending", professionStatus: "pending",
       subscriptionPlanId: planId, subscriptionStatus: "active", verified: false, package: data.pack || "free",
-      status: "pending", available: true, distance: 0, phone: data.whatsapp, email: "",
+      status: "pending", available: true, phone: data.whatsapp, email: "",
       experience: "", languages: ["arabe", "français"],
       created: new Date().toISOString().slice(0, 10),
       description: data.description || "", otherService: data.otherService || "",
@@ -12949,8 +12931,8 @@ function startHeroRotation() {
         heroPrint("reviews", p.reviews || 0, "%s avis");
     }
     if (e.area) e.area.textContent = "📍 " + proCityLabel(p);
-    if (e.distance) e.distance.textContent = p.distance || "";
-    if (e.price) e.price.textContent = (p.price || 0) + " " + heroCurrencyUnit();
+    if (e.distance) e.distance.textContent = "💵 " + proPriceLabel(p);
+    if (e.price) e.price.textContent = proPriceLabel(p);
 
     if (e.status) {
       e.status.textContent = p.available ? heroT("availableNow", "🟢 Disponible") : heroT("notAvailable", "🔴 Indisponible");
@@ -13253,7 +13235,7 @@ initAllGalleries();
     if (matches.length) {
       out += "\n🎯 <b>" + matches.length + "</b> pro(s) disponible(s)" + (city ? " à <b>" + esc(titleCase(city)) + "</b>" : "") + ", dont :\n";
       out += matches.slice(0, 3).map(function (p) {
-        return "· " + esc(p.name) + " (" + esc(proCityLabel(p)) + ", " + p.price + " DH, ★" + p.rating + ")";
+        return "· " + esc(p.name) + " (" + esc(proCityLabel(p)) + ", " + proPriceLabel(p) + ", ★" + p.rating + ")";
       }).join("\n");
       out += "\n👉 <a href='#/search?service=" + serv + (city ? ("&city=" + city) : "") + "' class='text-sna3ti-teal underline'>Voir tous les pros →</a>";
     } else {
