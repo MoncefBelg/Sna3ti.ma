@@ -12916,11 +12916,17 @@ function startHeroRotation() {
     };
   }
 
+  /* One badge max: it reflects the subscription plan.
+     GOLD → "👑 GOLD", Vérifié → "🛡️ Vérifié", free → no badge. */
   function badge (p) {
-    if (isGoldVerifiedPro(p)) {
-      return heroT("badgeGold", "👑 GOLD") + " · " + heroT("badgeVerified", "🛡️ Vérifié");
-    }
-    return heroT("badgeVerified", "🛡️ Vérifié");
+    const pack = proPackageName(p);
+    if (pack === "gold") return heroT("badgeGold", "👑 GOLD");
+    if (pack === "verified") return heroT("badgeVerified", "🛡️ Vérifié");
+    return "";
+  }
+
+  function showBadge (p) {
+    return proPackageName(p) === "gold" || proPackageName(p) === "verified";
   }
 
   function render(p) {
@@ -12953,17 +12959,23 @@ function startHeroRotation() {
       e.statusDay.textContent = p.available ? heroT("today", "Aujourd'hui") : heroT("later", "Plus tard");
     }
     if (e.chip) {
-      e.chip.style.display = "";
-      e.chip.textContent = badge(p);
-      e.chip.classList.toggle("hero-badge-gold", isGoldVerifiedPro(p));
+      e.chip.classList.toggle("hero-badge-gold", proPackageName(p) === "gold");
+      if (showBadge(p)) {
+        e.chip.style.display = "";
+        e.chip.textContent = badge(p);
+      } else {
+        e.chip.style.display = "none";
+        e.chip.textContent = "";
+      }
     }
+
     if (e.cta && e.ctaText) {
       e.cta.style.display = "";
       e.ctaText.textContent = heroT("viewProfile", "Voir le profil") + " →";
     }
     if (e.priceRow) e.priceRow.style.display = "";
 
-    card.classList.toggle("badge-gold", isGoldVerifiedPro(p));
+    card.classList.toggle("badge-gold", proPackageName(p) === "gold");
     delete card.dataset.heroState;
 
     /* Card click → the real professional profile (#/pro/{id}). */
