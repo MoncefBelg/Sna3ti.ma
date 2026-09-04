@@ -41,7 +41,9 @@ function makeKey(bucket, fileName) {
 // ── Local filesystem adapter (replacable by S3 / Cloudinary / R2) ───────────
 class LocalStorage {
   constructor({ root = path.join(process.cwd(), "storage"), baseUrl = "/files" } = {}) {
-    this.root = root;
+    // Always resolve to an absolute path so the traversal guard in _resolve
+    // compares absolute-to-absolute (a relative root broke startsWith checks).
+    this.root = path.resolve(root);
     this.baseUrl = baseUrl;
   }
 

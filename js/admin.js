@@ -137,7 +137,7 @@
         '<div class="kpi-grid grid-4">' +
           dashKpi(T("Utilisateurs"),"👥", k.users, "8,2%", T("vs mois dernier"), true, "users") +
           dashKpi(T("Utilisateurs"),"👥", k.users, "8,2%", T("vs mois dernier"), true, "users") +
-          dashKpi(T("Professionnels"),"🧑‍🔧", k.professionals, "12,4%", T("vs mois dernier"), true, "professionals") +
+          dashKpi(T("Artisans"),"🧑‍🔧", k.professionals, "12,4%", T("vs mois dernier"), true, "professionals") +
           dashKpi(T("Vérifiés"),"✅", k.verified, "4,1%", T("vs mois dernier"), true, "professionals?ver=verified") +
           dashKpi(T("Vérifications en attente"),"⏳", k.pendingVerification, null, T("à traiter"), null, "verification?status=pending") +
           dashKpi(T("Abonnements actifs"),"📦", k.activeSubscriptions, "6,2%", T("vs mois dernier"), true, "subscriptions") +
@@ -217,7 +217,7 @@
      ============================================================ */
   var proState = { page:1, q:"", city:"", category:"", job:"", verification:"", package:"", rating:"", created:"", status:"", sort:"name", dir:1, perPage:6, selected:{} };
   function renderProfessionals(q){
-    UI.setTitle(T("Professionnels"));
+    UI.setTitle(T("Artisans"));
     q = q || {};
     if(q.ver) proState.verification = q.ver;
     if(q.pkg) proState.package = q.pkg;
@@ -229,7 +229,7 @@
     var cats = unique(DATA.getProfessionals().map(function(p){ return p.category; }));
     var jobs = unique(DATA.getProfessionals().map(function(p){ return p.job; }));
     var html =
-      '<div class="page-head"><h1>'+T("Professionnels")+'</h1><div class="spacer"></div>' +
+      '<div class="page-head"><h1>'+T("Artisans")+'</h1><div class="spacer"></div>' +
         (AUTH.can("professionals","update") ? '<button class="btn btn-primary" id="btnNewPro">+ '+T("Nouveau professionnel")+'</button>' : "") +
         (AUTH.can("professionals","read") ? '<button class="btn btn-ghost" id="btnExportPro">⬇ '+T("Exporter CSV")+'</button>' : "") +
         (AUTH.can("professionals","export") ? "" : "") +
@@ -414,21 +414,21 @@
         UI.confirmAction({ title:T("Suspendre ce professionnel ?"), message:T("Le professionnel ne sera plus visible dans les recherches."), reasonRequired:true, reasonLabel:T("Raison de la suspension"), confirmLabel:T("Suspendre"), onConfirm:function(reason){
           DATA.updateProfessional(id, { status:"suspended" });
           DATA.logAudit({ admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:id, result:"Suspended", note:reason });
-          UI.toast(T("Professionnel suspendu.")); drawPros();
+          UI.toast(T("Artisan suspendu.")); drawPros();
         }});
       }); });
       document.querySelectorAll("#proBody [data-activate]").forEach(function(b){ b.addEventListener("click", function(){
         var id=b.dataset.activate;
         DATA.updateProfessional(id, { status:"active" });
         DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
-        UI.toast(T("Professionnel activé.")); drawPros();
+        UI.toast(T("Artisan activé.")); drawPros();
       }); });
       document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
         var id=b.dataset.del;
         UI.confirmAction({ title:T("Supprimer définitivement ?"), message:T("Cette action est irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
           DATA.deleteProfessional(id);
           DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
-          UI.toast(T("Professionnel supprimé.")); drawPros();
+          UI.toast(T("Artisan supprimé.")); drawPros();
         }});
       }); });
       (act = document.getElementById("proCheckAll")) && act.removeEventListener("change", refreshSelected);
@@ -531,11 +531,11 @@
       if(verifyMode){ data.verified = true; data.verificationStatus = "approved"; data.professionStatus = "verified"; }
       if(id){
         DATA.updateProfessional(id, data);
-        UI.toast(T("Professionnel mis à jour."));
+        UI.toast(T("Artisan mis à jour."));
       } else {
         var np = Object.assign({ id: DATA.nextProfessionalId(), professionId:"", categoryId:"", cityId:"", rating:0, reviewsCount:0, languages:[], created:new Date().toISOString().slice(0,10), verificationStatus:"pending", identityStatus:"pending", professionStatus:"pending", verified:false, available:true, verifiedStatus:false }, data, {verified:false});
         DATA.addProfessional(np);
-        UI.toast(T("Professionnel créé."));
+        UI.toast(T("Artisan créé."));
       }
       UI.closeModal(); renderProfessionals();
     });
@@ -550,7 +550,7 @@
     // Opaque ID passed verbatim; API ./429/500/network -> error state, never demo.
     DATA.fetchProfessional(id).then(function(resp){
       var p = resp && resp.data ? resp.data : null;
-      if(!p){ UI.renderEmpty(T("Professionnel introuvable."), "🔍"); return; }
+      if(!p){ UI.renderEmpty(T("Artisan introuvable."), "🔍"); return; }
       var uid = DATA.getUsers().find(function(u){ return u.id===p.userId; });
       var reviews = DATA.getReviews().filter(function(r){ return r.professionalId===p.id; });
       var sub = DATA.getSubscriptions().find(function(s){ return s.professionalId===p.id; });
@@ -579,7 +579,7 @@
             drow(T("Identité"), '<span class="badge '+(p.identityStatus==="verified"?"green":"amber")+'">'+(p.identityStatus==="verified"?T("✓ Vérifiée"):p.identityStatus)+'</span>') +
             drow("CIN", p.identityStatus==="verified"?T("Fourni"):"—") +
           '</div></div>' +
-          '<div class="card"><div class="card-title">'+T("Professionnel")+'</div><div class="detail-grid" style="margin-top:12px">' +
+          '<div class="card"><div class="card-title">'+T("Artisan")+'</div><div class="detail-grid" style="margin-top:12px">' +
             drow(T("Métier"), p.job) + drow(T("Expérience"), p.experience||"—") +
             (p.description ? '<div class="drow"><div class="dlabel">'+T("Description")+'</div><div class="dvalue" style="line-height:1.55">'+esc(p.description)+'</div></div>' : "") +
             ((p.services&&p.services.length) ? '<div class="drow"><div class="dlabel">'+T("Services")+'</div><div class="dvalue">'+p.services.map(function(s){ return '<span class="badge blue">'+esc(s)+'</span>'; }).join(" ")+'</div></div>' : "") +
@@ -630,15 +630,15 @@
 
       var ds = document.getElementById("dSuspend"); if(ds) ds.addEventListener("click", function(){
         UI.confirmAction({ title:T("Suspendre ce professionnel ?"), reasonRequired:true, reasonLabel:T("Raison"), confirmLabel:T("Suspendre"), onConfirm:function(reason){
-          DATA.updateProfessional(p.id, { status:"suspended" }); DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Suspended", note:reason}); UI.toast(T("Professionnel suspendu.")); renderProfessionalDetail(id);
+          DATA.updateProfessional(p.id, { status:"suspended" }); DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Suspended", note:reason}); UI.toast(T("Artisan suspendu.")); renderProfessionalDetail(id);
         }});
       });
       var da = document.getElementById("dActivate"); if(da) da.addEventListener("click", function(){
-        DATA.updateProfessional(p.id, { status:"active" }); DATA.logAudit({admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Active"}); UI.toast(T("Professionnel activé.")); renderProfessionalDetail(id);
+        DATA.updateProfessional(p.id, { status:"active" }); DATA.logAudit({admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Active"}); UI.toast(T("Artisan activé.")); renderProfessionalDetail(id);
       });
       var dv = document.getElementById("dVerify"); if(dv) dv.addEventListener("click", function(){
         UI.confirmAction({ title:T("Vérifier ce professionnel ?"), message:T("Approuve la vérification professionnelle."), confirmLabel:T("Vérifier"), onConfirm:function(){
-          DATA.updateProfessional(p.id, { verificationStatus:"approved", verified:true, professionStatus:"verified" }); DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Approved"}); UI.toast(T("Professionnel vérifié.")); renderProfessionalDetail(id);
+          DATA.updateProfessional(p.id, { verificationStatus:"approved", verified:true, professionStatus:"verified" }); DATA.logAudit({admin:AUTH.getSession().name, action:"VERIFY_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Approved"}); UI.toast(T("Artisan vérifié.")); renderProfessionalDetail(id);
         }});
       });
       var de = document.getElementById("dEdit"); if(de) de.addEventListener("click", function(){ openProModal(p.id); });
@@ -663,7 +663,7 @@
         UI.confirmAction({ title:T("Supprimer ce professionnel ?"), message:T("Action irréversible. Le profil, ses abonnements, paiements, avis et demandes seront retirés de la plateforme."), confirmLabel:T("Supprimer"), onConfirm:function(){
           DATA.deleteProfessional(p.id);
           DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Deleted"});
-          UI.toast(T("Professionnel supprimé.")); ROUTER.navigate("professionals");
+          UI.toast(T("Artisan supprimé.")); ROUTER.navigate("professionals");
         }});
       });
       var dcp = document.getElementById("dChangePlan"); if(dcp) dcp.addEventListener("click", function(){ changePlanModal(p.id, sub); });
@@ -988,7 +988,7 @@
       '<div class="card-title" style="margin:6px 0 4px">🔎 '+T("Activité de recherche")+'</div>'+
       '<div class="chip-grid" style="margin:8px 0">'+(d.recentSearches.map(function(s){return '<span class="chip">'+esc(s)+'</span>';}).join("")||'<span class="muted">—</span>')+'</div>'+
       '<div class="muted" style="font-size:12px;margin:2px 0 10px">'+d.searches.length+' '+T("recherches récentes enregistrées")+'</div>'+
-      '<div class="card-title" style="margin:6px 0 4px">👁 '+T("Professionnels consultés")+'</div>'+
+      '<div class="card-title" style="margin:6px 0 4px">👁 '+T("Artisans consultés")+'</div>'+
       (d.viewed.length? '<div class="chip-grid" style="margin:8px 0">'+d.viewed.map(function(v){ return '<span class="chip">'+esc(v.name)+' · '+esc(v.job)+' <span class="muted">('+esc(v.city)+')</span></span>'; }).join("")+'</div>':'<div class="muted" style="margin:8px 0">—</div>')+
       '<div class="card-title" style="margin:6px 0 4px">📨 '+T("Demandes de contact")+'</div>'+
       '<div style="margin:8px 0">'+d.contactRequests+' '+T("demandes de contact envoyées")+'</div>'+
@@ -1011,6 +1011,7 @@
   // data. Verification is displayed independently of subscriptions (business
   // rule); subscription state is a separate concern shown elsewhere.
   var _verCache = { list: [], loaded:false, error:null };
+  var _matchCache = { list: [], loaded:false, error:null };
   function verSkeleton(){
     return ['<div class="req"><div class="req-top"><div class="grow"><div class="pro"><div class="p-avatar skel"></div><div><div class="skel" style="width:160px;height:14px"></div><div class="skel" style="width:120px;height:12px;margin-top:6px"></div></div></div></div></div></div>'].join("");
   }
@@ -1106,7 +1107,7 @@
           ? '<div class="muted" style="margin-top:8px">'+T("Adhésion pack")+' <span class="badge gray">'+T("GRATUIT")+'</span> · 0 DH</div>'
           : '<div class="verif-steps">' +
             '<span class="step '+(v.level==="identity"||v.level==="professionnel"?"done":"")+'">1. '+T("Identité")+'</span>' +
-            '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. '+T("Professionnel")+'</span>' +
+            '<span class="step '+(v.level==="professionnel"?"done":"")+'">2. '+T("Artisan")+'</span>' +
             '</div>';
       var waiting = slaDays(v.submitted);
       var slaBadge = v.status==="pending" || v.status==="needs_info"
@@ -1259,7 +1260,7 @@
       UI.openModal(
         '<h3>'+T("Examen de l'adhésion GRATUIT")+'</h3>' +
         '<div class="review-workspace" style="grid-template-columns:1fr 1fr;gap:16px">' +
-          '<div class="rw-col"><h4>'+T("Professionnel")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
+          '<div class="rw-col"><h4>'+T("Artisan")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
             '<div class="detail-grid" style="margin-top:14px">'+drow(T("Ville"), p.city)+drow(T("Métier"), p.job)+drow(T("Pack"), pkgBadge({package:"free"}))+'</div></div>' +
           '<div class="rw-col"><h4>'+T("Pack Gratuit")+' — 0 DH / '+T("mois")+'</h4>' +
             '<p class="muted" style="margin-top:8px;font-size:13px">'+T("Admission sur la plateforme Sna3ti.ma")+' · '+T("Constat")+' : <b>'+T("3 photos max, aucune vidéo")+'</b>.</p>' +
@@ -1281,7 +1282,7 @@
       UI.openModal(
         '<h3>'+T("Examen de la demande d'abonnement")+'</h3>' +
         '<div class="review-workspace" style="grid-template-columns:220px 1fr;gap:16px">' +
-          '<div class="rw-col"><h4>'+T("Professionnel")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
+          '<div class="rw-col"><h4>'+T("Artisan")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
             '<div class="detail-grid" style="margin-top:14px">'+drow(T("Ville"), p.city)+drow(T("Expérience"), p.experience||"—")+'</div></div>' +
           '<div class="rw-col"><h4>'+T("Plan demandé")+'</h4>' +
             '<div style="display:flex;gap:10px;align-items:center;margin:10px 0">' +
@@ -1307,7 +1308,7 @@
     var html =
       '<h3>'+T("Examen de vérification")+'</h3>' +
       '<div class="review-workspace" style="grid-template-columns:220px 1fr 260px;gap:16px">' +
-        '<div class="rw-col"><h4>'+T("Professionnel")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
+        '<div class="rw-col"><h4>'+T("Artisan")+'</h4><div class="pro"><div class="p-avatar" style="width:44px;height:44px">'+initials(p.name)+'</div><div><div class="pro-name">'+esc(p.name)+'</div><div class="pro-job">'+esc(p.job)+'</div></div></div>' +
           '<div class="detail-grid" style="margin-top:14px">'+drow(T("Ville"), p.city)+drow(T("Expérience"), p.experience||"—")+drow(T("Niveau"), v.level)+'</div></div>' +
         '<div class="rw-col"><h4>'+T("Photo de profil")+'</h4>' +
           '<div class="prof-photo"><div class="p-avatar" style="width:96px;height:96px;font-size:34px">'+initials(p.name)+'</div>' +
@@ -1644,12 +1645,12 @@
     var el = document.getElementById("revBody");
     if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucun avis.")+'</div>'; return; }
     var rexp = document.getElementById("revExport"); if(rexp && !rexp._bound){ rexp._bound=true; rexp.addEventListener("click", function(){
-      var rows=[[T("Client"),T("Professionnel"),T("Note"),T("Commentaire"),T("Date"),T("Statut"),"ID"]];
+      var rows=[[T("Client"),T("Artisan"),T("Note"),T("Commentaire"),T("Date"),T("Statut"),"ID"]];
       DATA.getReviews({ status: currentReviewFilter()==="all"?"":currentReviewFilter() }).forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.customer,p?p.name:"?",r.rating,r.comment,r.date,r.status,r.id]); });
       UI.exportCSV("avis-sna3ti.csv", rows); UI.toast(T("Export généré."));
     }); }
     el.innerHTML =
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Artisan")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>' +
       list.map(function(r){
         var p = DATA.getProfessional(r.professionalId);
         var flagInfo = r.status==="flagged" ? '<div class="muted" style="margin-top:4px;color:var(--red)">🚩 '+esc(r.flaggedReason||T("Signalé"))+'<br><span style="font-size:11px">'+T("Signalé par")+' '+esc(r.flaggedReporter||"—")+' · '+esc(r.flaggedDate||"")+'</span></div>' : "";
@@ -1702,8 +1703,8 @@
     UI.setContent(html);
     drawReports(filter);
   }
-  function reportReasons(){ return [T("Faux professionnel"),T("Fraude"),T("Faux avis"),T("Spam"),T("Contenu inapproprié"),T("Mauvaise information"),T("Harcèlement"),T("Réclamation client")]; }
-  var reportTypeLabels = { false_professional:T("Faux professionnel"), price_misleading:T("Prix trompeur"), false_review:T("Faux avis"), scam:T("Fraude"), spam:T("Spam"), content:T("Contenu inapproprié"), misinformation:T("Mauvaise information"), harassment:T("Harcèlement"), complaint:T("Réclamation client") };
+  function reportReasons(){ return [T("Faux artisan"),T("Fraude"),T("Faux avis"),T("Spam"),T("Contenu inapproprié"),T("Mauvaise information"),T("Harcèlement"),T("Réclamation client")]; }
+  var reportTypeLabels = { false_professional:T("Faux artisan"), price_misleading:T("Prix trompeur"), false_review:T("Faux avis"), scam:T("Fraude"), spam:T("Spam"), content:T("Contenu inapproprié"), misinformation:T("Mauvaise information"), harassment:T("Harcèlement"), complaint:T("Réclamation client") };
   function reportTypeLabel(t){ return reportTypeLabels[t] || t || "—"; }
   var reportPrioClass = { critical:"red", high:"amber", medium:"blue", low:"gray" };
   var reportPrioLabel = { critical:T("Critique"), high:T("Haute"), medium:T("Moyenne"), low:T("Basse") };
@@ -1720,7 +1721,7 @@
     var list = DATA.getReports({ status: filter==="all"?"":filter });
     var el = document.getElementById("repBody");
     var rexpt = document.getElementById("repExport"); if(rexpt && !rexpt._bound){ rexpt._bound=true; rexpt.addEventListener("click", function(){
-      var rows=[[T("ID"),T("Professionnel"),T("Type"),T("Priorité"),T("Statut"),T("Signalé par"),T("Date"),T("Description")]];
+      var rows=[[T("ID"),T("Artisan"),T("Type"),T("Priorité"),T("Statut"),T("Signalé par"),T("Date"),T("Description")]];
       DATA.getReports({ status: currentReportFilter()==="all"?"":currentReportFilter() }).forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.id,p?p.name:"?",reportTypeLabel(r.type),r.priority,r.status,r.reporter,r.date,r.description]); });
       UI.exportCSV("signalements-sna3ti.csv", rows); UI.toast(T("Export généré."));
     }); }
@@ -1775,7 +1776,7 @@
         var rp = DATA.getReports().find(function(x){return x.id===b.dataset.susprof;});
         DATA.suspendProfessionalByReport(b.dataset.susprof);
         if(rp){ DATA.logAudit({admin:AUTH.getSession().name, action:"SUSPEND_PROFESSIONAL", entity:"Professional", entityId:rp.professionalId, result:"Suspended", note:reason}); }
-        UI.toast(T("Professionnel suspendu.")); drawReports(currentReportFilter());
+        UI.toast(T("Artisan suspendu.")); drawReports(currentReportFilter());
       }});
     }); });
     document.querySelectorAll("[data-assignrep]").forEach(function(b){ b.addEventListener("click", function(){
@@ -1948,7 +1949,7 @@
         benefitRow(T("Assistant IA de profil"),     [0,0,1]) +
         benefitRow(T("Support VIP"),                [0,0,1]) +
         '</tbody></table></div></div>' +
-      '<div class="card"><div class="card-title">'+T("Abonnés")+'</div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Prix")+'</th><th>'+T("Début")+'</th><th>'+T("Renouvellement")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
+      '<div class="card"><div class="card-title">'+T("Abonnés")+'</div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Artisan")+'</th><th>'+T("Plan")+'</th><th>'+T("Prix")+'</th><th>'+T("Début")+'</th><th>'+T("Renouvellement")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>'+
       subs.map(function(s){
         var p=DATA.getProfessional(s.professionalId);
         var pkg = s.planName.toLowerCase()==="gold"?"gold":s.planName.toLowerCase()==="vérifié"||s.planName.toLowerCase()==="verifié"?"verified":"free";
@@ -1980,7 +1981,7 @@
       } });
     }); });
     var sexp = document.getElementById("subExport"); if(sexp) sexp.addEventListener("click", function(){
-      var rows=[[T("Professionnel"),T("Plan"),T("Prix"),T("Début"),T("Renouvellement"),T("Statut"),T("Paiement"),"ID"]];
+      var rows=[[T("Artisan"),T("Plan"),T("Prix"),T("Début"),T("Renouvellement"),T("Statut"),T("Paiement"),"ID"]];
       DATA.getSubscriptions().forEach(function(s){ var p=DATA.getProfessional(s.professionalId); rows.push([p?p.name:"?",s.planName,s.price,s.since,s.renewal,s.status,s.paymentStatus,s.id]); });
       UI.exportCSV("abonnements-sna3ti.csv", rows); UI.toast(T("Export généré."));
     });
@@ -2015,7 +2016,7 @@
     var pl = DATA.getSubscriptionPlans().find(function(x){ return x.id===id; });
     var subs = DATA.getSubscriptions().filter(function(s){ return s.planName===pl.name; });
     var body = !subs.length ? '<div class="empty">'+T("Aucun abonné.")+'</div>'
-      : '<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Professionnel")+'</th><th>'+T("Prix")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th></tr></thead><tbody>' +
+      : '<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>'+T("Artisan")+'</th><th>'+T("Prix")+'</th><th>'+T("Statut")+'</th><th>'+T("Paiement")+'</th></tr></thead><tbody>' +
         subs.map(function(s){
           var p=DATA.getProfessional(s.professionalId);
           return '<tr><td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
@@ -2047,7 +2048,7 @@
   }
 
   function paymentExportRows(list){
-    var rows=[[T("Référence"),T("Professionnel"),T("Plan"),T("Montant"),T("Méthode"),T("Réf. bancaire"),T("Date"),T("Statut"),"ID"]];
+    var rows=[[T("Référence"),T("Artisan"),T("Plan"),T("Montant"),T("Méthode"),T("Réf. bancaire"),T("Date"),T("Statut"),"ID"]];
     list.forEach(function(pa){ var p=DATA.getProfessional(pa.professionalId); rows.push([pa.reference,p?p.name:"?",pa.planName,pa.amount,pa.method,pa.bankRef||"",pa.date,pa.status,pa.id]); });
     return rows;
   }
@@ -2067,9 +2068,9 @@
     UI.setTitle(T("Paiements"));
     UI.setContent(
       '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Professionnel")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody id="payBody">'+paymentsSkeleton()+'</tbody></table></div></div>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Artisan")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody id="payBody">'+paymentsSkeleton()+'</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">'+T("Workflow virement bancaire")+'</div>' +
-      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Professionnel choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
+      '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Artisan choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
       '<p class="muted" style="margin-top:12px">'+T("Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.")+'</p>' +
       '<p class="muted" style="margin-top:8px">'+T("Sna3ti ne collecte ni ne stocke jamais les coordonnées bancaires du professionnel (IBAN, numéro de carte, CVV, identifiants de banque en ligne). Le règlement s’effectue par virement manuel via votre banque et le reçu est transmis sur WhatsApp.")+'</p></div>' +
       '<div class="card"><div class="card-title">'+T("Paiement en ligne (carte)")+'</div><p class="muted" style="margin:8px 0">'+T("L'intégration du prestataire de paiement par carte (CMI / paymob / autre) est prévue comme prochaine étape. Actuellement, tous les paiements passent par virement bancaire manuel ; aucun prélèvement de données de carte n'est effectué.")+'</p><span class="badge gray">🔧 '+T("Bientôt disponible")+'</span></div>'
@@ -2118,7 +2119,7 @@
           drow(T("Méthode"), payMethodBadge(pa.method))+
           drow(T("Référence bancaire"), esc(pa.bankRef||"—"))+
           drow(T("Date"), esc(pa.date))+
-          drow(T("Professionnel"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
+          drow(T("Artisan"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
           (pa.rejectionReason ? drow(T("Raison du rejet"), esc(pa.rejectionReason)) : "")+
           (pa.infoRequested ? drow(T("Informations demandées"), esc(pa.infoRequested)) : "")+
         '</div></div>' +
@@ -2159,6 +2160,229 @@
     }});
   }
   function payMethodBadge(m){ var map={ bank_transfer:["blue","🏦 "+T("Virement")], card:["purple","💳 "+T("Carte")], cash:["green","💵 "+T("Espèces")], paypal:["amber","🅿️ PayPal"] }; var e=map[m]||["gray",m||"—"]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
+
+  /* ============================================================
+     DEMANDES DE MISE EN RELATION (Sna3ti Match)
+     ============================================================ */
+  var MATCH_STATUS_ORDER = ["new","reviewing","artisan_contacted","price_received","price_sent","customer_accepted","customer_rejected","matched","completed","cancelled"];
+  function matchStatusLabel(s){
+    var map = {
+      new: T("Nouvelle"), reviewing: T("En cours"), artisan_contacted: T("Artisan contacté"),
+      price_received: T("Prix reçu"), price_sent: T("Prix envoyé"), customer_accepted: T("Client accepté"),
+      customer_rejected: T("Client refusé"), matched: T("Correspondance trouvée"),
+      completed: T("Terminée"), cancelled: T("Annulée")
+    };
+    return map[s] || s;
+  }
+  function matchStatusBadge(s){
+    var map = { new:["green",T("Nouvelle")], reviewing:["blue",T("En cours")], artisan_contacted:["amber",T("Artisan contacté")], price_received:["amber",T("Prix reçu")], price_sent:["amber",T("Prix envoyé")], customer_accepted:["green",T("Client accepté")], customer_rejected:["red",T("Client refusé")], matched:["purple",T("Correspondance trouvée")], completed:["teal",T("Terminée")], cancelled:["gray",T("Annulée")] };
+    var e = map[s] || ["gray", s];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+  function waStatusLabel(s){
+    var map = { sent:["green",T("WhatsApp envoyé")], failed:["red",T("WhatsApp en échec")], pending:["amber",T("WhatsApp en attente")] };
+    var e = map[s] || ["gray", s || T("WhatsApp en attente")];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+  function matchPhotoUrl(id, photoId){
+    var base = (global.Sna3tiApi && global.Sna3tiApi.baseUrl) ? global.Sna3tiApi.baseUrl : "";
+    var route = (global.Sna3tiMatchRequestsApi && global.Sna3tiMatchRequestsApi.photoUrl)
+      ? global.Sna3tiMatchRequestsApi.photoUrl(id, photoId) : ("admin/match-requests/"+id+"/photo/"+photoId);
+    var token = (global.Sna3tiApi && global.Sna3tiApi.getToken) ? (global.Sna3tiApi.getToken()||"") : "";
+    return base + "/" + route + "?token=" + encodeURIComponent(token);
+  }
+
+  function renderMatchRequests(initialFilter){
+    UI.setTitle(T("Demandes de mise en relation"));
+    var valid = { all:1 };
+    MATCH_STATUS_ORDER.forEach(function(s){ valid[s]=1; });
+    var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
+    var html =
+      '<div class="page-head"><h1>'+T("Demandes de mise en relation")+'</h1><div class="spacer muted">'+T("Trouve-moi un artisan de confiance")+'</div></div>' +
+      '<div class="tabs" id="matchTabs">' +
+        tabBtn("all", T("Toutes"), 0) +
+        tabBtn("new", T("Nouvelle"), 0) + tabBtn("reviewing", T("En cours"), 0) +
+        tabBtn("artisan_contacted", T("Artisan contacté"), 0) + tabBtn("price_received", T("Prix reçu"), 0) +
+        tabBtn("price_sent", T("Prix envoyé"), 0) + tabBtn("customer_accepted", T("Client accepté"), 0) +
+        tabBtn("customer_rejected", T("Client refusé"), 0) + tabBtn("matched", T("Correspondance trouvée"), 0) +
+        tabBtn("completed", T("Terminée"), 0) + tabBtn("cancelled", T("Annulée"), 0) +
+      '</div>' +
+      '<div class="card"><div class="table-wrap"><table><thead><tr>' +
+        '<th>ID</th><th>'+T("Client")+'</th><th>'+T("Service")+'</th><th>'+T("Ville")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>WhatsApp</th><th>'+T("Actions")+'</th>' +
+      '</tr></thead><tbody id="matchBody"><tr><td colspan="8"><div class="empty" style="padding:30px">'+T("Chargement...")+'</div></td></tr></tbody></table></div></div>';
+    UI.setContent(html);
+    loadMatchRequests(filter);
+  }
+  function loadMatchRequests(filter){
+    DATA.fetchMatchRequests().then(function(res){
+      _matchCache.list = res.data || [];
+      _matchCache.loaded = true;
+      _matchCache.error = null;
+      updateMatchTabs();
+      drawMatchRequests(filter);
+      if (global.Sna3tiUI && typeof global.Sna3tiUI.updatePills === "function") global.Sna3tiUI.updatePills();
+    }).catch(function(err){
+      _matchCache.loaded = true;
+      _matchCache.error = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      var el = document.getElementById("matchBody");
+      if(!el) return;
+      el.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:30px"><div>⚠️ '+esc(_matchCache.error)+'</div><button class="btn btn-ghost btn-small" style="margin-top:10px">'+T("Réessayer")+'</button></div></td></tr>';
+      var retry = el.querySelector("button");
+      if(retry) retry.addEventListener("click", function(){ renderMatchRequests(filter); });
+    });
+  }
+  function updateMatchTabs(){
+    var all = _matchCache.list;
+    var n = function(s){ return s==="all" ? all.length : all.filter(function(r){ return r.status===s; }).length; };
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      var c = t.querySelector(".cnt");
+      if(c && t.dataset.tab) c.textContent = n(t.dataset.tab);
+    });
+  }
+  function drawMatchRequests(filter){
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      t.classList.toggle("active", t.dataset.tab===filter);
+      t.onclick=function(){ drawMatchRequests(t.dataset.tab); };
+    });
+    var source = (_matchCache.list && _matchCache.loaded) ? _matchCache.list : [];
+    var filtered = filter==="all" ? source : source.filter(function(r){ return r.status===filter; });
+    var el = document.getElementById("matchBody");
+    if(!el) return;
+    if(!filtered.length){
+      el.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:30px">'+T("Aucune demande")+'</div></td></tr>';
+      return;
+    }
+    el.innerHTML = filtered.map(function(r){
+      return '<tr>' +
+        '<td class="muted">'+esc(r.id)+'</td>' +
+        '<td><div class="pro"><div class="p-avatar">'+initials(r.name)+'</div><div><div class="pro-name">'+esc(r.name)+'</div><div class="pro-job">'+esc(r.phone||"—")+'</div></div></div></td>' +
+        '<td>'+esc(r.service||"—")+(r.otherService?'<div class="muted small">'+esc(r.otherService)+'</div>':"")+'</td>' +
+        '<td>'+esc(r.city||"—")+(r.area?'<div class="muted small">'+esc(r.area)+'</div>':"")+'</td>' +
+        '<td class="muted">'+esc(r.dateLabel||"—")+'</td>' +
+        '<td>'+matchStatusBadge(r.status)+'</td>' +
+        '<td>'+waStatusLabel(r.waStatus)+'</td>' +
+        '<td class="actions-cell"><button class="btn btn-soft btn-small" data-open="'+esc(r.id)+'">🔍 '+T("Ouvrir")+'</button></td>' +
+      '</tr>';
+    }).join("");
+    el.querySelectorAll("button[data-open]").forEach(function(b){
+      b.addEventListener("click", function(){ openMatchRequestDetail(b.dataset.open); refreshMatchPills(); });
+    });
+  }
+  function openMatchRequestDetail(id){
+    DATA.fetchMatchRequest(id).then(function(res){
+      var r = res && res.data;
+      if(!r){ UI.toast(T("Demande de mise en relation") + " " + T("introuvable."), true); return; }
+      renderMatchDetail(r);
+    }).catch(function(err){
+      UI.toast((err && err.message) || T("Erreur de chargement"), true);
+    });
+  }
+  function renderMatchDetail(r){
+    var canUpdate = AUTH.can("matchRequests", "update");
+    var photos = (r.photos || []).map(function(p){
+      return '<div class="match-photo"><img src="'+esc(matchPhotoUrl(r.id, p.id))+'" alt="'+esc(p.fileName||"photo")+'" loading="lazy" onerror="this.style.display=\'none\'"/></div>';
+    }).join("");
+    var statusOpts = MATCH_STATUS_ORDER.map(function(s){
+      return '<option value="'+esc(s)+'" '+(r.status===s?"selected":"")+'>'+esc(matchStatusLabel(s))+'</option>';
+    }).join("");
+    var pref = { phone: T("Téléphone"), whatsapp: T("WhatsApp"), both: T("Les deux") };
+    var html =
+      '<h3>'+T("Demande de mise en relation")+' — '+esc(r.id)+'</h3>' +
+      '<div class="detail-grid">' +
+        drow(T("Statut"), canUpdate
+          ? '<select id="mdStatus">'+statusOpts+'</select> ' + '<span id="mdStatusMsg"></span>'
+          : matchStatusBadge(r.status)) +
+        drow(T("Client"), esc(r.name)) +
+        drow(T("Téléphone"), r.phone ? '<a href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>' : "—") +
+        drow(T("WhatsApp"), r.whatsapp ? '<a href="https://wa.me/'+esc(r.whatsapp)+'" target="_blank" rel="noopener">'+esc(r.whatsapp)+'</a>' : (r.phone ? '<a href="https://wa.me/'+esc(r.phone)+'" target="_blank" rel="noopener">'+esc(r.phone)+'</a>' : "—")) +
+        drow(T("Ville"), esc(r.city||"—")) +
+        drow(T("Quartier"), esc(r.area||"—")) +
+        drow(T("Service demandé"), esc(r.service||"—") + (r.otherService ? ' <span class="badge gray">'+esc(r.otherService)+'</span>' : "")) +
+        drow(T("Description"), esc(r.description||"—")) +
+        drow(T("Date souhaitée"), esc(r.preferredDate||"—")) +
+        drow(T("Contact préféré"), esc(pref[r.preferredContact]||r.preferredContact||"—")) +
+      '</div>' +
+      (photos ? '<div class="card" style="margin-top:14px"><div class="card-title">'+T("Photos")+'</div><div class="match-photos">'+photos+'</div></div>' : "") +
+      (canUpdate ? (
+      '<div class="card" style="margin-top:14px"><div class="card-title">'+T("Artisan associé")+'</div>' +
+        '<div class="frm"><label>'+T("Nom de l'artisan")+'</label><input id="mdArtName" value="'+esc(r.artisanName||"")+'" placeholder="'+T("Nom de l'artisan")+'"></div>' +
+        '<div class="frm"><label>'+T("Téléphone de l'artisan")+'</label><input id="mdArtPhone" value="'+esc(r.artisanPhone||"")+'" placeholder="'+T("Téléphone de l'artisan")+'"></div>' +
+        '<button class="btn btn-primary" id="mdSaveArtisan">'+T("Enregistrer")+'</button> <span id="mdArtisanMsg"></span>' +
+      '</div>' +
+      '<div class="card" style="margin-top:14px"><div class="card-title">'+T("Prix")+'</div>' +
+        '<div class="frm"><label>'+T("Prix artisan")+'</label><input id="mdPArtisan" type="number" min="0" value="'+(r.artisanPrice==null?"":esc(r.artisanPrice))+'"></div>' +
+        '<div class="frm"><label>'+T("Prix client")+'</label><input id="mdPClient" type="number" min="0" value="'+(r.customerPrice==null?"":esc(r.customerPrice))+'"></div>' +
+        '<div class="frm"><label>'+T("Commission")+'</label><input id="mdPComm" type="number" min="0" value="'+(r.commission==null?"":esc(r.commission))+'"></div>' +
+        '<button class="btn btn-primary" id="mdSavePrices">'+T("Enregistrer les prix")+'</button> <span id="mdPricesMsg"></span>' +
+      '</div>' +
+      '<div class="card" style="margin-top:14px"><div class="card-title">WhatsApp</div>' +
+        '<div style="margin:8px 0">'+waStatusLabel(r.waStatus)+'</div>' +
+        '<button class="btn btn-ghost" id="mdRetryWa">🔄 '+T("Forcer l'envoi WhatsApp")+'</button> <span id="mdWaMsg"></span>' +
+      '</div>' ) : "") +
+      '<div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Fermer")+'</button></div>';
+    UI.openModal(html, true);
+    if(!canUpdate) return;
+    var statusMsg = document.getElementById("mdStatusMsg");
+    var statusSel = document.getElementById("mdStatus");
+    if(statusSel) statusSel.addEventListener("change", function(){
+      statusSel.disabled = true; statusMsg.textContent = T("Chargement...");
+      DATA.updateMatchStatus(r.id, statusSel.value).then(function(){
+        statusMsg.textContent = ""; statusSel.disabled = false;
+        refreshMatchPills();
+        openMatchRequestDetail(r.id);
+      }).catch(function(err){
+        statusMsg.textContent = "⚠️ " + ((err && err.message) || T("Erreur réseau"));
+        statusSel.disabled = false;
+      });
+    });
+    var artMsg = document.getElementById("mdArtisanMsg");
+    var saveArt = document.getElementById("mdSaveArtisan");
+    if(saveArt) saveArt.addEventListener("click", function(){
+      saveArt.disabled = true; artMsg.textContent = T("Chargement...");
+      DATA.updateMatchArtisan(r.id, { artisanName: document.getElementById("mdArtName").value.trim(), artisanPhone: document.getElementById("mdArtPhone").value.trim() }).then(function(){
+        artMsg.textContent = ""; saveArt.disabled = false;
+        refreshMatchPills();
+        openMatchRequestDetail(r.id);
+      }).catch(function(err){
+        artMsg.textContent = "⚠️ " + ((err && err.message) || T("Erreur réseau"));
+        saveArt.disabled = false;
+      });
+    });
+    var priceMsg = document.getElementById("mdPricesMsg");
+    var savePrices = document.getElementById("mdSavePrices");
+    if(savePrices) savePrices.addEventListener("click", function(){
+      function toNull(v){ var s=String(v).trim(); if(s==="") return null; var n=Number(s); return isNaN(n)?null:n; }
+      savePrices.disabled = true; priceMsg.textContent = T("Chargement...");
+      DATA.updateMatchPrices(r.id, {
+        artisanPrice: toNull(document.getElementById("mdPArtisan").value),
+        customerPrice: toNull(document.getElementById("mdPClient").value),
+        commission: toNull(document.getElementById("mdPComm").value)
+      }).then(function(){
+        priceMsg.textContent = ""; savePrices.disabled = false;
+        refreshMatchPills();
+        openMatchRequestDetail(r.id);
+      }).catch(function(err){
+        priceMsg.textContent = "⚠️ " + ((err && err.message) || T("Erreur réseau"));
+        savePrices.disabled = false;
+      });
+    });
+    var waMsg = document.getElementById("mdWaMsg");
+    var retryWa = document.getElementById("mdRetryWa");
+    if(retryWa) retryWa.addEventListener("click", function(){
+      retryWa.disabled = true; waMsg.textContent = T("Chargement...");
+      DATA.retryMatchWhatsApp(r.id).then(function(){
+        waMsg.textContent = ""; retryWa.disabled = false;
+        refreshMatchPills();
+        openMatchRequestDetail(r.id);
+      }).catch(function(err){
+        waMsg.textContent = "⚠️ " + ((err && err.message) || T("Erreur réseau"));
+        retryWa.disabled = false;
+      });
+    });
+  }
+  function refreshMatchPills(){
+    if (global.Sna3tiUI && typeof global.Sna3tiUI.updatePills === "function") global.Sna3tiUI.updatePills();
+  }
 
   /* ============================================================
      ANALYTICS
@@ -2289,7 +2513,7 @@
       if(!matches.length){
         body = '<div class="req" style="margin-top:12px"><div class="empty">'+T("Aucun professionnel actif ne correspond (essayez sans ville, ou un autre métier).")+'</div></div>';
       } else {
-        body = '<div class="card" style="margin-top:12px"><div class="card-head"><div class="card-title">'+T("Professionnels matchés")+agg+'</div><span class="muted small">'+T("Triés par pertinence")+'</span></div>'+
+        body = '<div class="card" style="margin-top:12px"><div class="card-head"><div class="card-title">'+T("Artisans matchés")+agg+'</div><span class="muted small">'+T("Triés par pertinence")+'</span></div>'+
           matches.map(function(m){
             var pct = Math.min(100, Math.round(m.score/95*100));
             return '<div class="row-item ai-m" data-pro="'+m.professionalId+'">' +
@@ -2812,6 +3036,7 @@
       case "cities": renderCities(); break;
       case "reviews": renderReviews((route.query||{}).status || "all"); break;
       case "reports": renderReports((route.query||{}).status || "all"); break;
+      case "matchRequests": renderMatchRequests((route.query||{}).status || "all"); break;
       case "support": renderSupport((route.query||{}).status || "all"); break;
       case "subscriptions": renderSubscriptions(); break;
       case "payments": renderPayments((route.query||{}).status || "all"); break;

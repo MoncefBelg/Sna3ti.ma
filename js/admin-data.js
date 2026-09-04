@@ -29,6 +29,8 @@
   // verification is INDEPENDENT of any paid subscription — never activate or
   // cancel a subscription from a verification action.
   var VerApi = global.Sna3tiVerificationsApi || null;
+  // Sna3ti Match requests API (loaded before admin-data.js).
+  var MatchApi = global.Sna3tiMatchRequestsApi || null;
 
   // REQ 52: pure idempotency helper — true when a payment is already in a
   // terminal state and should not be re-processed (used to mirror the backend
@@ -57,29 +59,30 @@
     settings: ["read", "update"],
     legal: ["read", "update"],
     adminUsers: ["read", "update"],
-    auditLogs: ["read", "export"]
+    auditLogs: ["read", "export"],
+    matchRequests: ["read", "update"]
   };
 
   var ROLES = {
     "super_admin": {
       label: T("Super Admin"),
       color: "purple",
-      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"], matchRequests:["read","update"] }
     },
     "admin": {
       label: T("Admin"),
       color: "teal",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"], matchRequests:["read","update"] }
     },
     "moderator": {
       label: T("Moderator"),
       color: "blue",
-      permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
     },
     "support": {
       label: T("Support"),
       color: "orange",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
     },
     "finance": {
       label: T("Finance"),
@@ -316,7 +319,7 @@
       advantages:[T("Profil de base"),T("Visibilité dans les recherches"),T("Réception de leads"),T("Téléphone / WhatsApp"),T("Avis"),T("Disponibilité"),T("Statistiques de base"),T("1 photo de profil + 3 échantillons (pas de vidéo)")] },
     { id:"PLAN-VERIFIED", name:T("VÉRIFIÉ"), price:99, period:T("mois"), badge:"teal", active:true, hot:false,
       description:T("Confiance & visibilité"), limits:{ profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:T("1 photo de profil + 10 échantillons (photos ou max 3 vidéos)") },
-      advantages:[T("Tout ce qui est inclus dans Gratuit"),T("Badge Professionnel Vérifié SI approuvé séparément"),T("Meilleur classement"),T("Visibilité accrue"),T("Portfolio professionnel"),T("Statistiques avancées"),T("Mise en avant du profil"),T("Meilleure exposition aux leads"),T("Support prioritaire"),T("1 photo de profil + 10 échantillons (incl. jusqu'à 3 vidéos)")] },
+      advantages:[T("Tout ce qui est inclus dans Gratuit"),T("Badge Professionnel Vérifié SI approuvé séparément"),T("Meilleur classement"),T("Visibilité accrue"),T("Portfolio d'artisan"),T("Statistiques avancées"),T("Mise en avant du profil"),T("Meilleure exposition aux leads"),T("Support prioritaire"),T("1 photo de profil + 10 échantillons (incl. jusqu'à 3 vidéos)")] },
     { id:"PLAN-GOLD", name:T("GOLD"), price:199, period:T("mois"), badge:"orange", active:true, hot:true,
       description:T("Impact maximal"), limits:{ profile:1, echantillonPhotos:20, echantillonVideos:3, echantillonTotal:20, kind:T("1 photo de profil + 20 échantillons (photos ou max 3 vidéos)") },
       advantages:[T("Tout ce qui est inclus dans Vérifié"),T("Badge GOLD"),T("Placement premium"),T("Profil mis en avant"),T("Boost de visibilité"),T("Analytiques avancées"),T("Leads prioritaires"),T("Assistant IA de profil"),T("Portfolio premium"),T("Support VIP"),T("Éligibilité au statut Top Pro"),T("1 photo de profil + 20 échantillons (incl. jusqu'à 3 vidéos)")] }
@@ -764,6 +767,51 @@
     return s.slice(0, 10);
   }
 
+  // REQ 52: normalize a backend "Demande de mise en relation" (Sna3ti Match)
+  // record into the UI shape. All backend fields pass through verbatim (opaque
+  // ids, status, dates as strings, prices, notificationStatus). WhatsApp is a
+  // NOTIFICATION CHANNEL ONLY — a request is saved even if WhatsApp failed, so
+  // we never treat the notification as a required gate.
+  function mapMatchRequest(remote) {
+    if (!remote) return null;
+    var wa = remote.notificationStatus && remote.notificationStatus.whatsapp;
+    var d = remote.createdAt || remote.updatedAt || null;
+    var dateLabel = "";
+    if (d) {
+      var t = new Date(d);
+      if (!isNaN(t.getTime())) {
+        dateLabel = t.toLocaleDateString("fr-MA", { day:"2-digit", month:"short", year:"numeric" }) + " " + t.toLocaleTimeString("fr-MA", { hour:"2-digit", minute:"2-digit" });
+      } else {
+        dateLabel = String(d).slice(0, 10);
+      }
+    }
+    return {
+      id: remote.id,
+      name: remote.name || "",
+      phone: remote.phone || "",
+      whatsapp: remote.whatsapp || null,
+      city: remote.city || "",
+      area: remote.area || "",
+      service: remote.service || "",
+      otherService: remote.otherService || "",
+      description: remote.description || "",
+      preferredContact: remote.preferredContact || "",
+      preferredDate: remote.preferredDate || null,
+      status: remote.status || "new",
+      artisanName: remote.artisanName || "",
+      artisanPhone: remote.artisanPhone || "",
+      notificationStatus: remote.notificationStatus || null,
+      artisanPrice: (typeof remote.artisanPrice === "number") ? remote.artisanPrice : null,
+      customerPrice: (typeof remote.customerPrice === "number") ? remote.customerPrice : null,
+      commission: (typeof remote.commission === "number") ? remote.commission : null,
+      createdAt: remote.createdAt || null,
+      updatedAt: remote.updatedAt || null,
+      photos: Array.isArray(remote.photos) ? remote.photos : null,
+      waStatus: wa || "pending",
+      dateLabel: dateLabel
+    };
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -862,6 +910,33 @@
         return { success:true, data: list.map(mapVerification), pagination: (res && res.pagination) || null };
       });
     },
+
+    // ---- REQ 52: async admin "Demandes de mise en relation" read. Source of
+    // truth = GET /admin/match-requests. The backend is authoritative and the
+    // request is saved even if the WhatsApp notification failed. A successful
+    // empty response ([]) resolves as an EMPTY state; a network / server / 401
+    // / 403 / 429 / 500 failure rejects so the UI renders an error/offline state
+    // — never demo data. Opaque IDs pass through verbatim.
+    fetchMatchRequests: function(params){
+      if(!MatchApi || !MatchApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API mises en relation non chargé." });
+      return MatchApi.adminList(params||{}).then(function(res){
+        var list=(res&&res.data)?res.data:[];
+        window.__sna3tiMatchCache = list.map(mapMatchRequest);
+        return { success:true, data:window.__sna3tiMatchCache, pagination:(res&&res.pagination)||null };
+      });
+    },
+    fetchMatchRequest: function(id){
+      if(!MatchApi || !MatchApi.adminGet) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API mises en relation non chargé." });
+      return MatchApi.adminGet(id).then(function(res){
+        var r=(res&&res.data)?res.data:null;
+        return { success:true, data:r?mapMatchRequest(r):null };
+      });
+    },
+    updateMatchStatus: function(id,status){ return MatchApi?MatchApi.updateStatus(id,status):Promise.reject({success:false}); },
+    updateMatchArtisan: function(id,data){ return MatchApi?MatchApi.updateArtisan(id,data):Promise.reject({success:false}); },
+    updateMatchPrices: function(id,data){ return MatchApi?MatchApi.updatePrices(id,data):Promise.reject({success:false}); },
+    retryMatchWhatsApp: function(id){ return MatchApi?MatchApi.retryWhatsApp(id):Promise.reject({success:false}); },
+    getMatchRequests: function(){ return window.__sna3tiMatchCache || []; },
 
     updateProfessional: function(id, data){
       var p = getById(store.professionals, id); if(!p) return false;
@@ -1065,7 +1140,7 @@
       return { ok:true };
     },
     addMedia: function(proId, item){
-      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:T("Professionnel introuvable.") };
+      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:T("Artisan introuvable.") };
       var kind = (item&&item.kind) || "echantillon";
       var type = (item&&item.type==="video") ? "video" : "photo";
       var gate = Sna3tiData.canUploadMedia(proId, { kind:kind, type:type });

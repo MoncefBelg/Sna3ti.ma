@@ -7,12 +7,17 @@ const MODELS = [
   "role", "adminUser", "auditLog", "category", "region", "city",
   "plan", "user", "professional", "subscription", "payment",
   "verificationRequest", "verificationDocument", "review", "report", "supportTicket",
-  "notification", "legalDocument", "idSequence"
+  "notification", "legalDocument", "idSequence", "matchRequest", "matchPhoto"
 ];
 
 function match(obj, where) {
   if (!where || !Object.keys(where).length) return true;
-  return Object.entries(where).every(([k, v]) => obj[k] === v);
+  return Object.entries(where).every(([k, v]) => {
+    if (v && typeof v === "object" && !(v instanceof Date) && Array.isArray(v.in)) {
+      return v.in.includes(obj[k]);
+    }
+    return obj[k] === v;
+  });
 }
 
 function applyWhere(rows, where) {
@@ -169,7 +174,8 @@ function bootstrapSequences(db, seed) {
     verificationRequest: "VR", verificationDocument: "VD",
     review: "RV", report: "RP", subscription: "SUB",
     adminUser: "AU", notification: "NT", auditLog: "AL",
-    category: "CAT", region: "REG", city: "CITY", plan: "PLAN"
+    category: "CAT", region: "REG", city: "CITY", plan: "PLAN",
+    matchRequest: "REQ", matchPhoto: "PH"
   };
   for (const [model, prefix] of Object.entries(MODELS_TO_PREFIX)) {
     const rows = seed[model] || [];

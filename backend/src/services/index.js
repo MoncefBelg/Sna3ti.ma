@@ -11,9 +11,9 @@ const legalService = require("./legalService");
 const searchService = require("./searchService");
 const reviewService = require("./reviewService");
 const reportService = require("./reportService");
-
+const matchService = require("./matchService");
 function createServices(repos) {
-  return {
+  const services = {
     auth: {
       login: (body) => authService.login(repos, body),
       register: (body) => authService.register(repos, body),
@@ -104,8 +104,19 @@ function createServices(repos) {
     },
     regions: { list: () => repos.regions.list({}, { orderBy: { order: "asc" } }) },
     plans: { list: () => repos.plans.list(), get: (id) => repos.plans.get(id) },
-    support: { list: () => repos.support.list() }
+    support: { list: () => repos.support.list() },
+    match: {
+      create: (data, photos) => matchService.create({ repos, storage: services.storage }, data, photos),
+      list: (query) => matchService.list({ repos, storage: services.storage }, query),
+      get: (id) => matchService.get({ repos, storage: services.storage }, id),
+      getPhoto: (id) => matchService.getPhoto({ repos, storage: services.storage }, id),
+      updateStatus: (id, status, admin) => matchService.updateStatus({ repos, storage: services.storage }, id, status, admin),
+      updateArtisan: (id, data, admin) => matchService.updateArtisan({ repos, storage: services.storage }, id, data, admin),
+      updatePrices: (id, prices, admin) => matchService.updatePrices({ repos, storage: services.storage }, id, prices, admin),
+      retryWhatsApp: (id) => matchService.retryWhatsApp({ repos, storage: services.storage }, id)
+    }
   };
+  return services;
 }
 
 module.exports = { createServices };

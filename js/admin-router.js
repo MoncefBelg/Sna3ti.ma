@@ -22,6 +22,7 @@
     { path:"cities", view:"cities", perm:["cities","read"] },
     { path:"reviews", view:"reviews", perm:["reviews","read"] },
     { path:"reports", view:"reports", perm:["reports","read"] },
+    { path:"match-requests", view:"matchRequests", perm:["matchRequests","read"] },
     { path:"support", view:"support", perm:["support","read"] },
     { path:"subscriptions", view:"subscriptions", perm:["subscriptions","read"] },
     { path:"payments", view:"payments", perm:["payments","read"] },

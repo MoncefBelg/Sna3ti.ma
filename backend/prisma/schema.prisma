@@ -98,6 +98,20 @@ enum SupportStatus {
   closed
 }
 
+// Sna3ti Match — "Trouve-moi un artisan de confiance" (req N).
+enum MatchStatus {
+  new
+  reviewing
+  artisan_contacted
+  price_received
+  price_sent
+  customer_accepted
+  customer_rejected
+  matched
+  completed
+  cancelled
+}
+
 // ---------------------------------------------------------------------------
 // RBAC
 // ---------------------------------------------------------------------------
@@ -383,6 +397,56 @@ model Report {
 
   @@index([professionalId])
   @@index([status])
+}
+
+// Sna3ti Match request — a customer asks to be matched with a trusted
+// artisan. WhatsApp is a notification channel only; the request itself is
+// ALWAYS persisted first (source of truth). Prices are entered by admins only,
+// never auto-generated. Photos are stored privately and served via guarded
+// admin endpoints only.
+model MatchRequest {
+  id                String          @id                // opaque REQ-xxxxx
+  name              String
+  phone             String
+  whatsapp          String?
+  city              String
+  area              String?
+  service           String          // service slug, or "autre"
+  otherService      String?
+  description       String?
+  preferredContact  String          @default("both")   // phone | whatsapp | both
+  preferredDate     DateTime?
+  status            MatchStatus     @default(new)
+  artisanName       String?
+  artisanPhone      String?
+  notificationStatus Json            @default("{}")     // { whatsapp: "sent"|"failed"|"pending" }
+  // Prices — entered by admin only, never auto-generated.
+  artisanPrice      Int?
+  customerPrice     Int?
+  commission        Int?
+  adminNote         String?
+  whatsappRetryAt   DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  photos            MatchPhoto[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model MatchPhoto {
+  id              String        @id   // opaque PH-xxxxx
+  matchRequestId  String
+  fileName        String
+  fileUrl         String
+  mimeType        String?
+  size            Int?
+  createdAt       DateTime      @default(now())
+
+  request         MatchRequest  @relation(fields: [matchRequestId], references: [id], onDelete: Cascade)
+
+  @@index([matchRequestId])
 }
 
 model SupportTicket {

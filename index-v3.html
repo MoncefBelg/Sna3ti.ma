@@ -7,7 +7,7 @@
   <title>Sna3ti.ma — L9a Lm3allem Li 9rib Lik | Plombier, électricien... partout au Maroc</title>
   <meta
     name="description"
-    content="Sna3ti.ma — Trouvez facilement un artisan ou professionnel de confiance près de chez vous au Maroc : plombier, électricien, mécanicien, maçon, coiffeur, professeur et plus. Recherche intelligente en arabe, darija et français."
+    content="Sna3ti.ma — Trouvez facilement un artisan de confiance près de chez vous au Maroc : plombier, électricien, mécanicien, maçon, coiffeur, professeur et plus. Recherche intelligente en arabe, darija et français."
   />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Sna3ti.ma" />
@@ -34,7 +34,7 @@
   <meta property="og:title" content="Sna3ti.ma — L9a Lm3allem Li 9rib Lik" />
   <meta
     property="og:description"
-    content="Trouvez facilement un professionnel de confiance près de chez vous au Maroc : plombier, électricien, maçon, coiffeur et plus."
+    content="Trouvez facilement un artisan de confiance près de chez vous au Maroc : plombier, électricien, maçon, coiffeur et plus."
   />
   <meta property="og:url" content="https://sna3ti.ma/" />
   <meta property="og:locale" content="fr_MA" />
@@ -47,7 +47,7 @@
   <meta name="twitter:title" content="Sna3ti.ma — L9a Lm3allem Li 9rib Lik" />
   <meta
     name="twitter:description"
-    content="Trouvez facilement un professionnel de confiance près de chez vous au Maroc."
+    content="Trouvez facilement un artisan de confiance près de chez vous au Maroc."
   />
   <meta name="twitter:image" content="https://sna3ti.ma/hero.webp" />
 
@@ -59,7 +59,7 @@
     "name": "Sna3ti.ma",
     "url": "https://sna3ti.ma/",
     "image": "https://sna3ti.ma/hero.webp",
-    "description": "Plateforme marocaine pour trouver des artisans et professionnels de confiance près de chez vous : plomberie, électricité, maçonnerie, mécanique, coiffure et plus.",
+    "description": "Plateforme marocaine pour trouver des artisans de confiance près de chez vous : plomberie, électricité, maçonnerie, mécanique, coiffure et plus.",
     "areaServed": {
       "@type": "Country",
       "name": "Maroc"
@@ -506,6 +506,44 @@
 
       box-shadow:
         0 18px 35px rgba(233,121,63,.36);
+    }
+
+    .btn-darkgreen {
+      background: linear-gradient(
+        135deg,
+        #1b5e20,
+        #14532d
+      );
+
+      box-shadow:
+        0 12px 28px rgba(27,94,32,.28);
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .btn-darkgreen:hover {
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 18px 35px rgba(27,94,32,.36);
+    }
+
+    .btn-white {
+      background: #ffffff;
+
+      color: #1f2937;
+
+      box-shadow:
+        0 10px 24px rgba(0,0,0,.5);
+    }
+
+    .btn-white:hover {
+      transform: translateY(-2px);
+
+      box-shadow:
+        0 16px 34px rgba(0,0,0,.6);
     }
 
     /* =========================================================
@@ -1340,6 +1378,178 @@
   left: 150%;
 }
 
+/* =========================================================
+   Sna3ti Match — signature service
+   Premium teal 3D glass CTA, gentle subtle depth, glowing
+   floating brand star, and feature card. Respects
+   prefers-reduced-motion.
+========================================================= */
+.btn-match {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #0d6b61 0%, #168f80 55%, #0f7a6c 100%);
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 10px 26px rgba(13,107,97,.32),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  transition: transform .2s ease, box-shadow .2s ease;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.btn-match::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -130%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+  z-index: 0;
+}
+
+.btn-match > * { position: relative; z-index: 1; }
+
+.btn-match:hover::before { left: 150%; }
+
+.btn-match:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 38px rgba(13,107,97,.42),
+    inset 0 1px 0 rgba(255,255,255,.4);
+}
+
+/* Glowing, gently floating star */
+.match-star {
+  display: inline-block;
+  color: #ffd77a;
+  text-shadow:
+    0 0 8px rgba(255,215,122,.9),
+    0 0 20px rgba(255,215,122,.55);
+  animation: matchFloat 3.2s ease-in-out infinite;
+}
+
+@keyframes matchFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-3px) scale(1.08); }
+}
+
+.match-card {
+  position: relative;
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(214,99,73,.10), transparent 45%),
+    radial-gradient(120% 120% at 0% 100%, rgba(22,143,128,.16), transparent 45%),
+    linear-gradient(160deg, #ffffff, #f6faf8);
+  border: 1px solid rgba(13,107,97,.16);
+  box-shadow:
+    0 30px 60px -20px rgba(13,107,97,.28),
+    0 10px 24px -12px rgba(0,0,0,.12);
+}
+
+.match-card .match-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(60% 60% at 50% -10%, rgba(22,143,128,.14), transparent 60%);
+  opacity: .8;
+}
+
+.match-step {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .65rem .85rem;
+  border-radius: .9rem;
+  background: rgba(13,107,97,.06);
+  border: 1px solid rgba(13,107,97,.1);
+}
+
+.match-step .match-step-num {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: .8rem;
+  color: #fff;
+  background: linear-gradient(135deg, #0d6b61, #168f80);
+  box-shadow: 0 4px 10px rgba(13,107,97,.3);
+}
+
+/* Search-like results / form page uses existing site look */
+.sna3ti-match-page {
+  background: linear-gradient(180deg, #fbfaf6 0%, #ffffff 100%);
+}
+
+.sna3ti-match-field input,
+.sna3ti-match-field select,
+.sna3ti-match-field textarea {
+  border: 1px solid rgba(13,107,97,.22);
+  background: #fff;
+  border-radius: .9rem;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.sna3ti-match-field input:focus,
+.sna3ti-match-field select:focus,
+.sna3ti-match-field textarea:focus {
+  outline: none;
+  border-color: #168f80;
+  box-shadow: 0 0 0 3px rgba(22,143,128,.16);
+}
+
+.photo-preview {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: .8rem;
+  overflow: hidden;
+  border: 1px solid rgba(13,107,97,.18);
+  background: #eef3f1;
+}
+
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-preview .photo-remove {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 20px; height: 20px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: .7rem;
+  line-height: 1;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match-star { animation: none; }
+  .btn-match,
+  .btn-match::before,
+  .btn-match:hover::before,
+  .btn-match:hover { transition: none; }
+}
+
+
 /* Hero card becomes more dimensional */
 .hero-card {
   box-shadow:
@@ -1553,14 +1763,14 @@
   min-width: 150px;
 
   box-shadow:
-    0 12px 25px rgba(233,121,63,.22);
+    0 12px 25px rgba(0,0,0,.45);
 }
 
 .search-button:hover {
   transform: translateY(-1px);
 
   box-shadow:
-    0 16px 32px rgba(233,121,63,.30);
+    0 16px 32px rgba(0,0,0,.45);
 }
 
 /* Trust pills */
@@ -1775,6 +1985,16 @@
   transition: height 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* One-line service carousel — hide the scrollbar but keep
+   swipe/scroll working. */
+.service-carousel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.service-carousel::-webkit-scrollbar {
+  display: none;
+}
+
   </style>
 </head>
 
@@ -1888,10 +2108,10 @@
             class="nav-link"
             data-i18n="nav.professionals"
           >
-            Professionnels <span class="caret">▼</span>
+            Artisans <span class="caret">▼</span>
           </a>
           <div class="nav-dropdown">
-            <span class="nav-dropdown-title">Pour les pros</span>
+            <span class="nav-dropdown-title">Pour les artisans</span>
             <a href="#professionals">🛠️ Rejoindre Sna3ti</a>
             <a href="#how">📖 Comment ça marche</a>
             <a href="#register">📝 Inscrire mon activité</a>
@@ -1939,31 +2159,95 @@
 
         <!-- LANGUAGE -->
 
-        <select
-          id="languageSelect"
+        <label
           class="
-            bg-transparent
-            text-sm
-            font-bold
-            outline-none
+            lang-globe
+            bg-white/10
+            border
+            border-gray-300
+            rounded-md
+            px-3
+            py-1.5
+            flex
+            items-center
+            gap-1.5
             cursor-pointer
           "
         >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <select
+            id="languageSelect"
+            class="
+              appearance-none
+              bg-transparent
+              text-sm
+              font-bold
+              outline-none
+              cursor-pointer
+              min-w-0
+              w-full
+            "
+          >
 
-          <option value="fr">
-            FR
-          </option>
+            <option value="fr">
+              FR
+            </option>
 
-          <option value="ar">
-            العربية
-          </option>
+            <option value="ar">
+              العربية
+            </option>
 
-          <option value="en">
-            EN
-          </option>
+            <option value="en">
+              EN
+            </option>
 
-        </select>
+          </select>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </label>
 
+
+        <!-- Sna3ti Match CTA -->
+
+        <a
+          href="#/match"
+          class="
+            btn-match
+            px-5
+            py-3
+            text-sm
+            hidden
+            sm:inline-flex
+          "
+          data-i18n="match.cta"
+        >
+          Artisan de confiance
+        </a>
 
         <!-- PROFESSIONAL CTA -->
 
@@ -1986,6 +2270,77 @@
         </a>
 
       </div>
+
+
+      <!-- MOBILE LANGUAGE (always visible, same style as desktop) -->
+
+      <label
+        class="
+          md:hidden
+          lang-globe
+          bg-white
+          border
+          border-gray-300
+          rounded-md
+          px-3
+          py-1.5
+          flex
+          items-center
+          gap-1.5
+          cursor-pointer
+          text-gray-800
+        "
+        aria-label="Language / Langue"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+
+        <select
+          id="mobileLangHeader"
+          class="
+            appearance-none
+            bg-transparent
+            text-sm
+            font-bold
+            outline-none
+            cursor-pointer
+            min-w-0
+            w-full
+            text-gray-800
+          "
+        >
+          <option value="fr">FR</option>
+          <option value="ar">العربية</option>
+          <option value="en">EN</option>
+        </select>
+
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </label>
 
 
       <!-- MOBILE BUTTON -->
@@ -2046,7 +2401,7 @@
         </div>
 
         <a href="#professionals">
-          Professionnels
+          Artisans
         </a>
 
         <a href="#how">
@@ -2065,35 +2420,19 @@
         </div>
 
         <a
+          href="#/match"
+          class="btn-match w-full px-5 py-3 text-sm justify-center"
+          data-i18n="match.cta"
+        >
+          Artisan de confiance
+        </a>
+
+        <a
           href="#register"
           class="text-sna3ti-teal"
         >
           Inscrire mon activité
         </a>
-
-        <select
-          id="mobileLanguage"
-          class="
-            border
-            border-gray-200
-            rounded-xl
-            p-3
-          "
-        >
-
-          <option value="fr">
-            Français
-          </option>
-
-          <option value="ar">
-            العربية
-          </option>
-
-          <option value="en">
-            English
-          </option>
-
-        </select>
 
       </div>
 
@@ -2208,7 +2547,7 @@
             "
             data-i18n="hero.subtitle"
           >
-            Trouvez un professionnel de confiance près de chez vous,
+            Trouvez un artisan de confiance près de chez vous,
             comparez les profils et contactez-le directement.
           </p>
 
@@ -2222,8 +2561,10 @@
             class="
               hero-search
               mt-9
-              grid
-              md:grid-cols-[1.2fr_1fr_auto]
+              flex
+              flex-col
+              md:flex-row
+              items-stretch
               gap-2
             "
           >
@@ -2233,18 +2574,22 @@
             <div
               class="
                 search-field
+                flex-1
                 flex
                 items-center
                 gap-3
                 px-4
               "
             >
+              <div class="flex-1 min-w-0">
 
-              <span class="text-2xl">
-                🔧
-              </span>
-
-              <div class="flex-1">
+                <label
+                  for="serviceSelect"
+                  class="block text-[10px] uppercase tracking-wide text-gray-400"
+                  data-i18n="hero.service"
+                >
+                  Service
+                </label>
 
                 <select
                   id="serviceSelect"
@@ -2263,18 +2608,34 @@
 
             </div>
 
+            <div
+              class="hidden md:block w-px self-stretch my-3 bg-gray-200"
+              aria-hidden="true"
+            ></div>
+
 
             <!-- CITY -->
 
             <div
-              class="search-field flex items-center gap-3 px-4 border-t md:border-t-0 md:border-l border-gray-100"
+              class="
+                search-field
+                flex-1
+                flex
+                items-center
+                gap-3
+                px-4
+                border-t md:border-t-0 border-gray-100
+              "
             >
 
-              <span class="text-2xl">📍</span>
+              <div class="flex-1 min-w-0">
 
-              <div class="flex-1">
-
-                <div id="locationHint" class="text-[10px] text-gray-400" data-i18n="hero.regionCityHint"></div>
+                <label
+                  for="citySelect"
+                  id="locationHint"
+                  class="block text-[10px] uppercase tracking-wide text-gray-400"
+                  data-i18n="hero.city"
+                >Ville</label>
 
                 <select
                   id="citySelect"
@@ -2294,17 +2655,32 @@
               type="submit"
               class="
                 search-button
-                btn-orange
+                btn-white
                 rounded-2xl
-                text-white
-                px-7
-                py-4
+                px-6
                 font-bold
                 text-sm
+                inline-flex
+                items-center
+                justify-center
+                gap-2
               "
-              data-i18n="hero.search"
             >
-              Rechercher →
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+              </svg>
+              <span data-i18n="hero.search">Rechercher</span>
             </button>
 
           </form>
@@ -2326,7 +2702,7 @@
             <span class="trust-pill">
               🛡️
               <span data-i18n="hero.verified">
-                Professionnels vérifiés
+                Artisans vérifiés
               </span>
             </span>
 
@@ -2347,6 +2723,30 @@
           </div>
 
 
+          <!-- PRO CTA (dual path: customers vs. professionals) -->
+
+          <div class="mt-8">
+            <a
+              href="#professionals"
+              class="
+                inline-flex
+                items-center
+                gap-2
+                text-sm
+                font-semibold
+                text-white/80
+                hover:text-white
+                group
+              "
+            >
+              <span data-i18n="hero.proCta">
+                Vous êtes un artisan ? Rejoignez Sna3ti
+              </span>
+              <span class="transition group-hover:translate-x-1">→</span>
+            </a>
+          </div>
+
+
           <!-- STATS -->
 
           <div
@@ -2360,32 +2760,32 @@
           >
 
             <div class="hero-stat">
-              <div class="text-2xl font-black">
-                1,200+
+              <div id="heroStatPros" class="text-2xl font-black">
+                —
               </div>
 
-              <div class="text-xs text-white/45 mt-1">
-                Professionnels
+              <div class="text-xs text-white/45 mt-1" data-i18n="hero.statPros">
+                Artisans
               </div>
             </div>
 
             <div>
-              <div class="text-2xl font-black">
-                4.8/5
+              <div id="heroStatRating" class="text-2xl font-black">
+                —
               </div>
 
-              <div class="text-xs text-white/45 mt-1">
+              <div class="text-xs text-white/45 mt-1" data-i18n="hero.statRating">
                 Note moyenne
               </div>
             </div>
 
             <div class="hero-stat">
-              <div class="text-2xl font-black">
-                15+
+              <div id="heroStatCities" class="text-2xl font-black">
+                —
               </div>
 
-              <div class="text-xs text-white/45 mt-1">
-                Catégories
+              <div class="text-xs text-white/45 mt-1" data-i18n="hero.statCities">
+                Villes couvertes
               </div>
             </div>
 
@@ -2480,7 +2880,7 @@
                 id="heroCardPhoto"
                 class="profile-photo mx-auto"
                 src="https://i.pravatar.cc/300?img=12"
-                alt="Professionnel Sna3ti"
+                alt="Artisan Sna3ti"
               />
 
               <h3
@@ -2503,7 +2903,7 @@
                   text-white/50
                 "
               >
-                Plombier professionnel
+                Plombier artisan
               </p>
 
 
@@ -2783,7 +3183,114 @@
     </section>
 
 
-   
+   <!-- =====================================================
+        Sna3ti Match — signature feature card
+   ====================================================== -->
+
+   <section
+     class="relative overflow-hidden bg-sna3ti-cream px-5 py-10 sm:py-14"
+     id="matchFeature"
+   >
+
+     <div class="mx-auto max-w-6xl">
+
+       <div class="match-card px-6 py-8 sm:px-10 sm:py-10">
+
+         <div class="match-glow"></div>
+
+         <div class="relative grid items-center gap-8 lg:grid-cols-[1.15fr_1fr]">
+
+           <div>
+
+             <p
+               class="
+                 inline-flex items-center gap-2 text-xs font-extrabold
+                 uppercase tracking-[0.18em] text-sna3ti-teal
+               "
+             >
+               <span class="match-star">⭐</span>
+               <span data-i18n="match.title">Sna3ti Match</span>
+             </p>
+
+             <h2
+               class="mt-3 text-2xl font-extrabold text-sna3ti-ink sm:text-3xl"
+               data-i18n="match.headline"
+             >
+               Vous cherchez un artisan ? On s’en occupe.
+             </h2>
+
+             <p
+               class="mt-3 max-w-xl text-[15px] leading-relaxed text-gray-600"
+               data-i18n="match.description"
+             >
+               Décrivez votre besoin et envoyez-nous des photos. Nous trouvons l’artisan adapté, obtenons son prix et vous le transmettons.
+             </p>
+
+             <div class="mt-6 flex flex-wrap items-center gap-3">
+
+               <a
+                 href="#/match"
+                 class="btn-match px-6 py-3.5 text-sm"
+                 data-i18n="match.cta"
+               >
+                 Artisan de confiance
+               </a>
+
+               <a
+                 href="#how"
+                 class="text-sm font-bold text-sna3ti-teal underline-offset-4 hover:underline"
+                 data-i18n="nav.how"
+               >
+                 Comment ça marche
+               </a>
+
+             </div>
+
+           </div>
+
+           <div class="grid gap-3">
+
+             <p
+               class="text-sm font-extrabold text-sna3ti-ink"
+               data-i18n="match.howTitle"
+             >
+               Comment ça marche ?
+             </p>
+
+             <ol class="grid gap-2.5">
+               <li class="match-step">
+                 <span class="match-step-num">1</span>
+                 <span data-i18n="match.step1">Vous nous envoyez votre besoin et vos photos.</span>
+               </li>
+               <li class="match-step">
+                 <span class="match-step-num">2</span>
+                 <span data-i18n="match.step2">Sna3ti recherche un artisan adapté.</span>
+               </li>
+               <li class="match-step">
+                 <span class="match-step-num">3</span>
+                 <span data-i18n="match.step3">Nous contactons l’artisan et obtenons son prix.</span>
+               </li>
+               <li class="match-step">
+                 <span class="match-step-num">4</span>
+                 <span data-i18n="match.step4">Nous vous transmettons le prix.</span>
+               </li>
+               <li class="match-step">
+                 <span class="match-step-num">5</span>
+                 <span data-i18n="match.step5">Si vous êtes d’accord, nous vous mettons en relation.</span>
+               </li>
+             </ol>
+
+           </div>
+
+         </div>
+
+       </div>
+
+     </div>
+
+   </section>
+
+
 <!-- =====================================================
      PREMIUM SERVICES / CATEGORIES
 ====================================================== -->
@@ -2846,7 +3353,7 @@
                  text-base sm:text-lg leading-7"
           data-i18n="services.subtitle"
         >
-          Trouvez rapidement le bon professionnel pour votre projet.
+          Trouvez rapidement le bon artisan pour votre projet.
         </p>
 
       </div>
@@ -2874,56 +3381,49 @@
     </div>
 
 
-    <!-- SERVICE CARDS -->
+    <!-- SERVICE CAROUSEL — one line, swipe left/right -->
     <div
-      class="grid grid-cols-2
-             sm:grid-cols-3
-             lg:grid-cols-6
+      id="serviceCarousel"
+      class="service-carousel
+             flex
              gap-4 sm:gap-5
-             mt-10"
+             mt-10
+             overflow-x-auto
+             snap-x snap-mandatory
+             pb-2
+             -mx-4 sm:-mx-6 px-4 sm:px-6"
     >
 
-      <!-- PLUMBING -->
+<!-- PLUMBING -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative
-                 w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:rotate-3"
+                 text-2xl"
         >
           🔧
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.plomberie.name"
         >
@@ -2938,49 +3438,44 @@
           Eau & installation
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- ELECTRICITY -->
+<!-- ELECTRICITY -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:-rotate-3"
+                 text-2xl"
         >
           ⚡
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.electricite.name"
         >
@@ -2995,47 +3490,44 @@
           Installation & dépannage
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- GYPSUM -->
+<!-- GYPSUM -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           🧱
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.gypsum.name"
         >
@@ -3050,48 +3542,44 @@
           Faux plafond & déco
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- PAINT -->
+<!-- PAINT -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:rotate-3"
+                 text-2xl"
         >
           🎨
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.peinture.name"
         >
@@ -3106,47 +3594,44 @@
           Intérieur & extérieur
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- CARPENTRY -->
+<!-- CARPENTRY -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           🪚
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.menuiserie.name"
         >
@@ -3161,47 +3646,44 @@
           Bois & aluminium
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- AC -->
+<!-- AC -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           ❄️
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.clim.name"
         >
@@ -3216,48 +3698,44 @@
           Installation & entretien
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
 
-      <!-- CARRELAGE / ZELLIGE -->
+<!-- CARRELAGE / ZELLIGE -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           🧱
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.carrelage.name"
         >
@@ -3272,48 +3750,43 @@
           Zellige &amp; faïence
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- ALUMINIUM & VITRAGE -->
+<!-- ALUMINIUM & VITRAGE -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:rotate-3"
+                 text-2xl"
         >
           🪟
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.vitrage.name"
         >
@@ -3328,48 +3801,43 @@
           Aluminium &amp; verre
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- MASONRY / GROS ŒUVRE -->
+<!-- MASONRY / GROS ŒUVRE -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:-rotate-3"
+                 text-2xl"
         >
           🏗️
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.maconnerie.name"
         >
@@ -3384,47 +3852,43 @@
           Gros œuvre
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- ROOFING / ÉTANCHÉITÉ -->
+<!-- ROOFING / ÉTANCHÉITÉ -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           🏠
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.toiture.name"
         >
@@ -3439,48 +3903,43 @@
           Zinc &amp; bitume
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- FRIDGE / APPLIANCES -->
+<!-- FRIDGE / APPLIANCES -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:rotate-3"
+                 text-2xl"
         >
           ❄️
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.electromenager.name"
         >
@@ -3495,48 +3954,43 @@
           Réparation &amp; entretien
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- GARDENING -->
+<!-- GARDENING -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:-rotate-3"
+                 text-2xl"
         >
           🌿
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.jardinage.name"
         >
@@ -3551,47 +4005,43 @@
           Espaces verts
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- LOCKSMITH -->
+<!-- LOCKSMITH -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-sna3ti-teal/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
+          class="relative w-12 h-12
+                 rounded-xl
                  bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110"
+                 text-2xl"
         >
           🔐
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.serrurerie.name"
         >
@@ -3606,48 +4056,43 @@
           Sécurité &amp; accès
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
-      <!-- TRANSPORT -->
+<!-- TRANSPORT -->
       <button
         type="button"
-        class="service-card group relative overflow-hidden
-               min-h-[155px]
-               rounded-3xl
+        class="service-card group relative shrink-0 snap-start
+               overflow-hidden
+               flex flex-col
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
                bg-white
                border border-gray-100
                p-5
                text-left
-               shadow-[0_10px_30px_rgba(15,92,91,.06)]
                transition-all duration-300
-               hover:-translate-y-2
-               hover:shadow-[0_22px_45px_rgba(15,92,91,.14)]"
+               hover:-translate-y-1
+               hover:border-sna3ti-teal/40
+               hover:shadow-[0_16px_40px_rgba(15,92,91,.12)]"
       >
-
         <div
-          class="absolute -right-8 -top-8
-                 w-24 h-24
-                 rounded-full
-                 bg-orange/5
-                 transition-transform duration-500
-                 group-hover:scale-150"
-        ></div>
-
-        <div
-          class="relative w-14 h-14
-                 rounded-2xl
-                 bg-orange/10
+          class="relative w-12 h-12
+                 rounded-xl
+                 bg-sna3ti-teal/10
                  grid place-items-center
-                 text-3xl
-                 transition-transform duration-300
-                 group-hover:scale-110
-                 group-hover:rotate-3"
+                 text-2xl"
         >
           🚛
         </div>
 
         <span
-          class="relative block mt-5
+          class="relative block mt-4
                  font-bold text-gray-900"
           data-i18n="services.cards.transport.name"
         >
@@ -3662,9 +4107,55 @@
           Camion &amp; déménagement
         </span>
 
+        <span
+          class="absolute right-4 bottom-4
+                 text-2xl leading-none text-gray-300"
+          aria-hidden="true"
+        >›</span>
       </button>
 
+
+      <!-- ALL SERVICES — swoop through the full catalogue -->
+      <a
+        href="#professionals"
+        class="service-all group relative shrink-0 snap-start
+               flex flex-col items-center justify-center
+               w-[168px] sm:w-[188px]
+               min-h-[188px]
+               rounded-2xl
+               border border-dashed border-sna3ti-teal/40
+               bg-sna3ti-teal/5
+               p-5
+               text-center
+               transition-all duration-300
+               hover:bg-sna3ti-teal/10
+               hover:border-sna3ti-teal/60"
+      >
+        <span
+          class="w-12 h-12 rounded-xl
+                 bg-white grid place-items-center
+                 text-2xl text-sna3ti-teal"
+          aria-hidden="true"
+        >⋮</span>
+
+        <span
+          class="relative block mt-4
+                 font-bold text-sna3ti-teal"
+          data-i18n="services.seeAllCards"
+        >
+          Voir tous les services
+        </span>
+
+        <span
+          class="relative block mt-1 text-xs text-gray-400"
+          data-i18n="services.seeAllCardsSub"
+        >
+          Toutes les catégories
+        </span>
+      </a>
+
     </div>
+
 
 
     <!-- MORE CATEGORIES -->
@@ -3701,28 +4192,6 @@
 
   </div>
 
-  <!-- PHOTO GALLERY (auto-rotating) -->
-  <div
-    class="sna3ti-gallery mt-10 max-w-7xl mx-auto px-4 sm:px-6"
-    aria-label="Galerie de réalisations"
-  >
-    <div class="sna3ti-gallery-track"></div>
-
-    <button
-      type="button"
-      class="sna3ti-gallery-nav sna3ti-gallery-prev"
-      aria-label="Photo précédente"
-    >‹</button>
-
-    <button
-      type="button"
-      class="sna3ti-gallery-nav sna3ti-gallery-next"
-      aria-label="Photo suivante"
-    >›</button>
-
-    <div class="sna3ti-gallery-dots"></div>
-  </div>
-
 </section>
 
 
@@ -3752,7 +4221,7 @@
                    tracking-[.18em] text-sna3ti-teal"
           >
             <span>🛠️</span>
-            <span data-i18n="pro.badge">Professionnels</span>
+            <span data-i18n="pro.badge">Artisans</span>
           </div>
 
           <h2
@@ -3760,7 +4229,7 @@
                    font-black tracking-tight text-sna3ti-ink"
             data-i18n="pro.title"
           >
-            Vous êtes un professionnel&nbsp;?
+            Vous êtes un artisan&nbsp;?
           </h2>
 
           <p
@@ -3823,7 +4292,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
               <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal/10 grid place-items-center text-2xl">👷</div>
               <div>
                 <div class="text-lg font-black text-sna3ti-ink" data-i18n="pro.join">Rejoignez</div>
-                <div class="text-sm text-gray-500" data-i18n="pro.active">1200+ professionnels actifs</div>
+                <div class="text-sm text-gray-500" data-i18n="pro.active">1200+ artisans actifs</div>
               </div>
             </div>
 
@@ -3886,7 +4355,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
 
-      <div class="text-center max-w-2xl mx-auto">
+      <div class="text-center max-w-4xl mx-auto">
 
         <div
           class="inline-flex items-center gap-2 rounded-full
@@ -3898,8 +4367,8 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
         </div>
 
         <h2
-          class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black
-                 tracking-tight text-sna3ti-ink"
+          class="mt-4 text-2xl sm:text-4xl lg:text-5xl font-black
+                 tracking-tight text-sna3ti-ink whitespace-nowrap"
           data-i18n="how.title"
         >
           Votre besoin, le bon pro, en 3 étapes
@@ -3944,10 +4413,62 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
           <div class="w-14 h-14 rounded-2xl bg-sna3ti-teal grid place-items-center text-white text-xl font-black">3</div>
           <h3 class="mt-5 text-xl font-black text-sna3ti-ink" data-i18n="how.s3t">Contactez directement</h3>
           <p class="mt-2 text-sm text-gray-500 leading-6" data-i18n="how.s3d">
-            Appelez ou envoyez un message WhatsApp au professionnel et fixez un rendez-vous.
+            Appelez ou envoyez un message WhatsApp à l'artisan et fixez un rendez-vous.
           </p>
         </div>
 
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       REALISATIONS / GALLERY
+  ====================================================== -->
+
+  <section
+    id="realisations"
+    class="relative overflow-hidden bg-white py-20 sm:py-24"
+  >
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+
+      <div class="text-center max-w-4xl mx-auto mb-12">
+
+        <div
+          class="inline-flex items-center gap-2 rounded-full
+                 bg-sna3ti-teal/10 px-3 py-1.5 text-xs font-black
+                 uppercase tracking-[.18em] text-sna3ti-teal"
+        >
+          <span>✦</span>
+          <span data-i18n="gallery.badge">Nos réalisations</span>
+        </div>
+
+        <h2
+          class="mt-4 text-2xl sm:text-4xl lg:text-5xl font-black
+                 tracking-tight text-sna3ti-ink"
+          data-i18n="gallery.title"
+        >
+          Un aperçu de nos chantiers
+        </h2>
+
+        <p
+          class="mt-4 text-gray-500 text-base sm:text-lg leading-7"
+          data-i18n="gallery.subtitle"
+        >
+          Quelques réalisations de nos artisans partenaires.
+        </p>
+
+      </div>
+
+      <!-- Carousel populated by initAllGalleries() -->
+      <div class="sna3ti-gallery" aria-roledescription="carrousel" aria-label="Galerie de réalisations">
+        <div class="sna3ti-gallery-track"></div>
+        <button type="button" class="sna3ti-gallery-nav sna3ti-gallery-prev" aria-label="Photo précédente">‹</button>
+        <button type="button" class="sna3ti-gallery-nav sna3ti-gallery-next" aria-label="Photo suivante">›</button>
+        <div class="sna3ti-gallery-dots"></div>
       </div>
 
     </div>
@@ -4004,7 +4525,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
           </div>
           <div class="price-details hidden px-6 pb-6 pt-4">
             <ul class="space-y-2.5 text-sm text-gray-600">
-              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil d'artisan</span></li>
               <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchStandard">Apparition standard dans la recherche</span></li>
               <li class="flex items-start gap-2 opacity-60"><span>❌</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
               <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
@@ -4037,7 +4558,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
           </div>
           <div class="price-details hidden px-6 pb-6 pt-4">
             <ul class="space-y-2.5 text-sm text-white/85">
-              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil d'artisan</span></li>
               <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPriority">Apparition prioritaire dans la recherche</span></li>
               <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
               <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
@@ -4068,7 +4589,7 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
           </div>
           <div class="price-details hidden px-6 pb-6 pt-4">
             <ul class="space-y-2.5 text-sm text-white">
-              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil professionnel</span></li>
+              <li class="flex items-start gap-2"><span>✅</span> <span data-i18n="pricing.features.fProfil">Profil d'artisan</span></li>
               <li class="flex items-start gap-2"><span>🔍</span> <span data-i18n="pricing.features.fSearchPremium">Apparition premium dans la recherche</span></li>
               <li class="flex items-start gap-2"><span>🛡️</span> <span data-i18n="pricing.features.fBadge">Badge vérifié</span></li>
               <li class="flex items-start gap-2"><span>💬</span> <span data-i18n="pricing.features.fWhatsapp">WhatsApp</span></li>
@@ -4267,6 +4788,139 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
 
 
   </main>
+
+
+  <!-- =======================================================
+       GLOBAL FOOTER (persists on web & mobile, all pages)
+  ======================================================== -->
+
+  <footer
+    class="relative bg-sna3ti-ink text-white mt-auto overflow-hidden"
+  >
+    <div
+      class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-sna3ti-teal/10 blur-3xl pointer-events-none"
+    ></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-10">
+
+      <!-- TOP: brand + newsletter -->
+      <div class="grid md:grid-cols-3 gap-8 items-center">
+
+        <!-- Brand -->
+        <div class="flex flex-col gap-3">
+          <a href="#" class="flex items-center gap-3">
+            <span class="logo-box">
+              S
+            </span>
+            <span class="text-xl font-black tracking-tight text-white">
+              Sna3ti<span class="text-sna3ti-orange text-orange">.</span>ma
+            </span>
+          </a>
+          <p class="text-sm text-white/60 leading-relaxed" data-i18n="footer.tagline">
+            Trouvez le bon artisan, partout au Maroc.
+          </p>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="md:text-center">
+          <p class="text-sm font-semibold text-white/80" data-i18n="footer.newsletter">
+            Restez informé des nouveautés
+          </p>
+          <form class="mt-3 flex gap-2" data-footer-form="newsletter" onsubmit="event.preventDefault()">
+            <input
+              type="email"
+              placeholder="email@exemple.com"
+              class="w-full min-w-0 flex-1 rounded-full bg-white/10 border border-white/20 px-4 py-2.5 text-sm text-white outline-none focus:border-sna3ti-teal"
+            />
+            <button type="submit" class="shrink-0 rounded-full bg-sna3ti-teal text-white px-4 text-sm font-bold hover:brightness-105">
+              <span data-i18n="footer.subscribe">S'inscrire</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Social -->
+        <div class="md:text-right">
+          <p class="text-xs font-semibold text-white/60" data-i18n="footer.follow">Suivez-nous</p>
+          <div class="flex flex-wrap gap-3 mt-3 md:justify-end">
+            <a href="mailto:contact@sna3ti.ma" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center hover:bg-sna3ti-teal" aria-label="Email">
+              <img src="assets/img/mail.png" alt="Email" class="h-5 w-5 object-contain" style="filter: brightness(0) invert(1);" />
+            </a>
+            <a href="https://wa.me/212600000000" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center hover:bg-sna3ti-teal" aria-label="WhatsApp">
+              <img src="assets/img/whatsapp.png" alt="WhatsApp" class="h-5 w-5 object-contain" style="filter: brightness(0) invert(1);" />
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61594074840554" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center text-white text-base font-bold hover:bg-sna3ti-teal" aria-label="Facebook">f</a>
+            <a href="https://www.instagram.com/sna3ti.ma/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-white/10 grid place-items-center text-white hover:bg-sna3ti-teal" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="6"></rect>
+                <circle cx="12" cy="12" r="4.5"></circle>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="border-t border-white/10 my-9"></div>
+
+      <!-- MIDDLE: link columns -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-7">
+
+        <div>
+          <h3 class="text-sm font-black text-white/80" data-i18n="footer.colServices">Services</h3>
+          <ul class="mt-3 space-y-2 text-sm text-white/70">
+            <li><a href="#/search?service=plomberie" data-i18n="services.cards.plomberie.name">Plomberie</a></li>
+            <li><a href="#/search?service=electricite" data-i18n="services.cards.electricite.name">Électricité</a></li>
+            <li><a href="#/search?service=peinture" data-i18n="services.cards.peinture.name">Peinture</a></li>
+            <li><a href="#/search?service=menuiserie" data-i18n="services.cards.menuiserie.name">Menuiserie</a></li>
+            <li><a href="#/search?service=climatisation" data-i18n="services.cards.clim.name">Climatisation</a></li>
+            <li><a href="#/search?service=carrelage" data-i18n="services.cards.carrelage.name">Carrelage</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-black text-white/80" data-i18n="footer.colCompany">Sna3ti</h3>
+          <ul class="mt-3 space-y-2 text-sm text-white/70">
+            <li><a href="#/" data-i18n="nav.home">Accueil</a></li>
+            <li><a href="#professionals" data-i18n="nav.professionals">Artisans</a></li>
+            <li><a href="#how" data-i18n="nav.how">Comment ça marche</a></li>
+            <li><a href="#pricing" data-i18n="nav.pricing">Tarifs</a></li>
+            <li><a href="#register" data-i18n="nav.register">Inscrire mon activité</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-black text-white/80" data-i18n="footer.colSupport">Aide</h3>
+          <ul class="mt-3 space-y-2 text-sm text-white/70">
+            <li><a href="#" data-i18n="footer.faq">Questions fréquentes</a></li>
+            <li><a href="#" data-i18n="footer.contact">Contactez-nous</a></li>
+            <li><a href="#" data-i18n="footer.help">Centre d'aide</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-black text-white/80" data-i18n="footer.colLegal">Légal</h3>
+          <ul class="mt-3 space-y-2 text-sm text-white/70">
+            <li><a href="#" data-i18n="footer.terms">Conditions d'utilisation</a></li>
+            <li><a href="#" data-i18n="footer.privacy">Politique de confidentialité</a></li>
+            <li><a href="#" data-i18n="footer.cgu">CGU</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM bar -->
+      <div class="border-t border-white/10 my-8"></div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+        <p class="text-white/50">© <span id="footerYear"></span> Sna3ti.ma — <span data-i18n="footer.rights">Tous droits réservés.</span></p>
+        <div class="flex items-center gap-1.5 text-white/50">
+          <span class="text-teal-300" aria-hidden="true">🔒</span>
+          <span data-i18n="footer.secure">Paiement sécurisé</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
 
 
   <!-- =======================================================
@@ -4517,9 +5171,9 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
       },
       {
         src: "photos/gallery-09.jpg",
-        fr: "Réalisation professionnelle",
+        fr: "Réalisation artisanale",
         ar: "إنجاز احترافي",
-        en: "Professional work"
+        en: "Artisan work"
       },
       {
         src: "photos/gallery-10.jpg",
@@ -4571,17 +5225,52 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         nav: {
           home: "Accueil",
           services: "Services",
-          professionals: "Professionnels",
+          professionals: "Artisans",
           how: "Comment ça marche",
           pricing: "Tarifs",
           register: "Inscrire mon activité"
+        },
+
+        footer: {
+          tagline:
+            "Trouvez le bon artisan, partout au Maroc.",
+          newsletter:
+            "Restez informé des nouveautés",
+          subscribe:
+            "S'inscrire",
+          follow:
+            "Suivez-nous",
+          colServices:
+            "Services",
+          colCompany:
+            "Sna3ti",
+          colSupport:
+            "Aide",
+          colLegal:
+            "Légal",
+          faq:
+            "Questions fréquentes",
+          contact:
+            "Contactez-nous",
+          help:
+            "Centre d'aide",
+          terms:
+            "Conditions d'utilisation",
+          privacy:
+            "Politique de confidentialité",
+          cgu:
+            "CGU",
+          rights:
+            "Tous droits réservés.",
+          secure:
+            "Paiement sécurisé"
         },
 
         hero: {
           eyebrow: "Pensé pour le Maroc",
           title: "L9a Lm3allem Li\u00a09rib\u00a0Lik.",
           subtitle:
-            "Trouvez un professionnel de confiance près de chez vous, comparez les profils et contactez-le directement.",
+            "Trouvez un artisan de confiance près de chez vous, comparez les profils et contactez-le directement.",
           servicePlaceholder:
             "Plomberie, peinture...",
           cityPlaceholder:
@@ -4594,20 +5283,32 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           search:
             "Rechercher",
           verified:
-            "Professionnels vérifiés",
+            "Artisans vérifiés",
           fast:
             "Réponse rapide",
           available:
-            "Disponible aujourd'hui"
+            "Disponible aujourd'hui",
+          statPros:
+            "Artisans",
+          statRating:
+            "Note moyenne",
+          statCities:
+            "Villes couvertes",
+          proCta:
+            "Vous êtes un artisan ? Rejoignez Sna3ti"
         },
 
         services: {
           title:
             "De quoi avez-vous besoin ?",
           subtitle:
-            "Trouvez rapidement le bon professionnel pour votre projet.",
+            "Trouvez rapidement le bon artisan pour votre projet.",
           seeAll:
             "Voir tous les services",
+          seeAllCards:
+            "Voir tous les services",
+          seeAllCardsSub:
+            "Toutes les catégories",
           cards: {
             plomberie: { name: "Plomberie", sub: "Eau & installation" },
             electricite: { name: "Électricité", sub: "Installation & dépannage" },
@@ -4622,25 +5323,32 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             electromenager: { name: "Froid & Électroménager", sub: "Réparation & entretien" },
             jardinage: { name: "Jardinage", sub: "Espaces verts" },
             serrurerie: { name: "Serrurerie", sub: "Sécurité & accès" },
-            transport: { name: "Déplacement & Transport", sub: "Camion & déménagement" }
+            transport: { name: "Déplacement & Transport", sub: "Camion & déménagement" },
+            match: { name: "⭐ Sna3ti Match", sub: "Trouvez l’artisan adapté" }
           }
         },
 
         how: {
           badge: "Comment ça marche",
-          title: "Votre besoin, le bon pro, en 3 étapes",
+          title: "Votre besoin, le bon artisan, en 3 étapes",
           subtitle: "Simple, rapide et sûr.",
           s1t: "Décrivez votre besoin",
           s1d: "Choisissez un service et votre localisation — ou laissez-nous comprendre votre demande.",
           s2t: "Comparez les profils",
           s2d: "Note, avis, vérification, prix et disponibilité — choisissez en toute confiance.",
           s3t: "Contactez directement",
-          s3d: "Appelez ou envoyez un message WhatsApp au professionnel et fixez un rendez-vous."
+          s3d: "Appelez ou envoyez un message WhatsApp à l'artisan et fixez un rendez-vous."
+        },
+
+        gallery: {
+          badge: "Nos réalisations",
+          title: "Un aperçu de nos chantiers",
+          subtitle: "Quelques réalisations de nos artisans partenaires."
         },
 
         pro: {
-          badge: "Professionnels",
-          title: "Vous êtes un professionnel ?",
+          badge: "Artisans",
+          title: "Vous êtes un artisan ?",
           subtitle: "Inscrivez votre activité sur Sna3ti.ma et recevez plus de demandes de clients proches de vous. Gérez vos disponibilités, vos prix et contactez vos clients en toute confiance.",
           item1: "Profil gratuit",
           item2: "Demandes qualifiées",
@@ -4648,7 +5356,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           item4: "Plus de visibilité",
           cta: "Inscrire mon activité",
           join: "Rejoignez",
-          active: "1200+ professionnels actifs",
+          active: "1200+ artisans actifs",
           month: "Demandes ce mois",
           chipCities: "Villes couvertes",
           chipVerified: "Profils vérifiés",
@@ -4680,7 +5388,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           recommended: "⭐ Recommandé",
           goldBadge: "👑 GOLD",
           features: {
-            fProfil: "Profil professionnel",
+            fProfil: "Profil d'artisan",
             fSearchStandard: "Apparition standard dans la recherche",
             fSearchPriority: "Apparition prioritaire dans la recherche",
             fSearchPremium: "Apparition premium dans la recherche",
@@ -4785,6 +5493,78 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phone: "WhatsApp",
           receipt: "Envoyer le reçu du virement",
           back: "← Retour au site"
+        },
+
+        match: {
+          title: "Sna3ti Match",
+          cta: "Artisan de confiance",
+          pageTitle: "Artisan de confiance",
+          headline: "Vous cherchez un artisan ? On s’en occupe.",
+          description: "Décrivez votre besoin et envoyez-nous des photos. Nous trouvons l’artisan adapté, obtenons son prix et vous le transmettons.",
+          howTitle: "Comment ça marche ?",
+          howSub: "Un service simple et encadré par Sna3ti.",
+          steps: [
+            "Vous envoyez votre besoin.",
+            "Sna3ti cherche le bon artisan.",
+            "Nous obtenons son prix.",
+            "Nous vous envoyons le prix.",
+            "Vous acceptez → nous vous mettons en contact."
+          ],
+          step1: "Vous envoyez votre besoin.",
+          step2: "Sna3ti cherche le bon artisan.",
+          step3: "Nous obtenons son prix.",
+          step4: "Nous vous envoyons le prix.",
+          step5: "Vous acceptez → nous vous mettons en contact.",
+          formTitle: "Décrivez votre besoin",
+          formSub: "Plus votre demande est précise, plus vite nous trouvons l’artisan et son prix.",
+          service: "De quel service avez-vous besoin ?",
+          servicePh: "Choisissez…",
+          otherService: "Autres services",
+          otherServicePh: "Décrivez votre service…",
+          location: "Localisation",
+          city: "Ville",
+          cityPh: "Choisissez votre ville…",
+          area: "Quartier",
+          areaPh: "Ex : Maârif, Agdal, Hay Riad…",
+          description: "Décrivez votre besoin",
+          descriptionPh: "Décrivez ce dont vous avez besoin…",
+          photos: "Photos du travail / problème",
+          photosPh: "Ajoutez des photos du travail à réaliser.",
+          photosAdd: "Ajoutez des photos",
+          date: "Date souhaitée (facultatif)",
+          datePh: "Quand souhaitez-vous le travail ?",
+          yourInfo: "Vos informations",
+          name: "Votre nom",
+          namePh: "Votre nom complet…",
+          phone: "Téléphone",
+          phonePh: "Votre numéro de téléphone…",
+          whatsapp: "WhatsApp",
+          whatsappPh: "Votre numéro WhatsApp…",
+          preferredContact: "Comment souhaitez-vous être contacté ?",
+          bothOpt: "Les deux",
+          submit: "Artisan de confiance",
+          privacyNote: "Vos informations et photos restent privées et ne sont vues que par Sna3ti et l’artisan retenu.",
+          successTitle: "Demande envoyée ✅",
+          successMsg: "Merci ! Notre équipe va chercher un artisan adapté, obtenir son prix et vous le transmettre par WhatsApp.",
+          successSteps: "Prochaines étapes :",
+          successStepsList: [
+            "Vous envoyez votre besoin.",
+            "Sna3ti cherche le bon artisan.",
+            "Nous obtenons son prix.",
+            "Nous vous envoyons le prix.",
+            "Vous acceptez → nous vous mettons en contact."
+          ],
+          newRequest: "Nouvelle demande",
+          backHome: "← Retour à l’accueil",
+          required: "Veuillez remplir les champs obligatoires.",
+          reqService: "Veuillez choisir un service.",
+          reqCity: "Veuillez choisir une ville.",
+          reqName: "Veuillez indiquer votre nom.",
+          reqPhone: "Veuillez indiquer un téléphone ou WhatsApp.",
+          reqOtherService: "Veuillez décrire votre service.",
+          sending: "Envoi en cours…",
+          sendError: "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
+          noPhotos: "Aucune photo ajoutée."
         }
 
       },
@@ -4799,6 +5579,41 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           how: "كيفاش خدام",
           pricing: "الأثمنة",
           register: "سجّل النشاط ديالك"
+        },
+
+        footer: {
+          tagline:
+            "لقى الحرفي المناسب، فكل أنحاء المغرب.",
+          newsletter:
+            "ابقَ على اطلاع بالجديد",
+          subscribe:
+            "سجّل",
+          follow:
+            "تابعونا",
+          colServices:
+            "الخدمات",
+          colCompany:
+            "Sna3ti",
+          colSupport:
+            "المساعدة",
+          colLegal:
+            "قانوني",
+          faq:
+            "الأسئلة الشائعة",
+          contact:
+            "اتصل بنا",
+          help:
+            "مركز المساعدة",
+          terms:
+            "شروط الاستخدام",
+          privacy:
+            "سياسة الخصوصية",
+          cgu:
+            "الشروط العامة",
+          rights:
+            "جميع الحقوق محفوظة.",
+          secure:
+            "دفع آمن"
         },
 
         hero: {
@@ -4822,7 +5637,15 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           fast:
             "جواب سريع",
           available:
-            "متوفر اليوم"
+            "متوفر اليوم",
+          statPros:
+            "حرفيين",
+          statRating:
+            "التقييم المتوسط",
+          statCities:
+            "مدن متوفرة",
+          proCta:
+            "أنت حرفي؟ انضم إلى SNA3TI"
         },
 
         services: {
@@ -4832,6 +5655,10 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "لقا الحرفي المناسب للمشروع ديالك بسهولة.",
           seeAll:
             "عرض جميع الخدمات",
+          seeAllCards:
+            "عرض جميع الخدمات",
+          seeAllCardsSub:
+            "جميع الفئات",
           cards: {
             plomberie: { name: "السباكة", sub: "الماء والتجهيزات" },
             electricite: { name: "الكهرباء", sub: "التركيب والإصلاح" },
@@ -4846,7 +5673,8 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             electromenager: { name: "التبريد والأجهزة", sub: "الإصلاح والصيانة" },
             jardinage: { name: "البستنة", sub: "المساحات الخضراء" },
             serrurerie: { name: "الأقفال", sub: "الأمان والولوج" },
-            transport: { name: "النقل", sub: "شاحنة ونقل الأثاث" }
+            transport: { name: "النقل", sub: "شاحنة ونقل الأثاث" },
+            match: { name: "⭐ Sna3ti Match", sub: "لقى الحرفي المناسب" }
           }
         },
 
@@ -4860,6 +5688,12 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           s2d: "التقييم، الآراء، التحقق، الثمن والتوفر — اختار بثقة.",
           s3t: "تواصل مباشرة",
           s3d: "عاود أو صيفط رسالة واتساب للحرفي وحدد موعد."
+        },
+
+        gallery: {
+          badge: "أعمالنا",
+          title: "لمحة عن أشغالنا",
+          subtitle: "بعض إنجازات حرفيينا الشركاء."
         },
 
         pro: {
@@ -5009,6 +5843,78 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phone: "الواتساب",
           receipt: "أرسل وصل التحويل",
           back: "← العودة للموقع"
+        },
+
+        match: {
+          title: "Sna3ti Match",
+          cta: "لقا ليا معلّم موثوق",
+          pageTitle: "لقا ليا معلّم موثوق",
+          headline: "كتقلب على معلّم؟ خليه علينا.",
+          description: "صيفط لينا شنو محتاج وصور ديال الخدمة، وحنا نلقاو ليك الحرفي المناسب، نجيبو ليك الثمن ونعطيوه ليك.",
+          howTitle: "كيفاش كتخدم؟",
+          howSub: "خدمة بسيطة ومضمونة من طرف Sna3ti.",
+          steps: [
+            "كتصيفط لينا الطلب ديالك.",
+            "Sna3ti كتقلب على الحرفي المناسب.",
+            "كنجيبو ليك الثمن.",
+            "كنصيفطو ليك الثمن.",
+            "إلا وافقت → كنوصلوك بالحرفي."
+          ],
+          step1: "كتصيفط لينا الطلب ديالك.",
+          step2: "Sna3ti كتقلب على الحرفي المناسب.",
+          step3: "كنجيبو ليك الثمن.",
+          step4: "كنصيفطو ليك الثمن.",
+          step5: "إلا وافقت → كنوصلوك بالحرفي.",
+          formTitle: "شرح لينا شنو محتاج",
+          formSub: "كلّما كانت طلباتك واضحة، كلّما أسرعنا في العثور على الحرفي وثمنه.",
+          service: "شنو هي الخدمة اللي محتاج؟",
+          servicePh: "اختر…",
+          otherService: "خدمات أخرى",
+          otherServicePh: "اشرح الخدمة ديالك…",
+          location: "الموقع",
+          city: "المدينة",
+          cityPh: "اختر مدينتك…",
+          area: "الحي",
+          areaPh: "مثال: المعاريف، أكدال، حي الرياض…",
+          description: "شرح لينا شنو محتاج",
+          descriptionPh: "صِف لنا ما تحتاجه بالتفصيل…",
+          photos: "صور الخدمة / المشكل",
+          photosPh: "زيد صور ديال الخدمة اللي بغيتي.",
+          photosAdd: "زيد صور",
+          date: "التاريخ اللي بغيتي (اختياري)",
+          datePh: "متى تريد الخدمة؟",
+          yourInfo: "معلوماتك",
+          name: "الاسم",
+          namePh: "اسمك الكامل…",
+          phone: "رقم الهاتف",
+          phonePh: "رقم هاتفك…",
+          whatsapp: "واتساب",
+          whatsappPh: "رقم الواتساب ديالك…",
+          preferredContact: "كيفاش بغيتي نتاصلو بيك؟",
+          bothOpt: "الاثنين معًا",
+          submit: "لقا ليا معلّم موثوق",
+          privacyNote: "معلوماتك وصورك تبقى خاصة، ولا يراها إلا Sna3ti والحرفي المختار.",
+          successTitle: "تم إرسال طلبك ✅",
+          successMsg: "شكرًا! فريقنا سيحصل على الحرفي المناسب وثمنه، وسنرسله لك عبر الواتساب.",
+          successSteps: "الخطوات القادمة:",
+          successStepsList: [
+            "كتصيفط لينا الطلب ديالك.",
+            "Sna3ti كتقلب على الحرفي المناسب.",
+            "كنجيبو ليك الثمن.",
+            "كنصيفطو ليك الثمن.",
+            "إلا وافقت → كنوصلوك بالحرفي."
+          ],
+          newRequest: "طلب جديد",
+          backHome: "← العودة للرئيسية",
+          required: "يرجى ملء الحقول الإجبارية.",
+          reqService: "يرجى اختيار خدمة.",
+          reqCity: "يرجى اختيار مدينة.",
+          reqName: "يرجى إدخال اسمك.",
+          reqPhone: "يرجى إدخال هاتف أو واتساب.",
+          reqOtherService: "يرجى وصف الخدمة ديالك.",
+          sending: "جارٍ الإرسال…",
+          sendError: "وقع خطأ. تحقق من الاتصال وحاول مرة أخرى.",
+          noPhotos: "لم تتم إضافة أي صورة."
         }
 
       },
@@ -5019,17 +5925,52 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         nav: {
           home: "Home",
           services: "Services",
-          professionals: "Professionals",
+          professionals: "Artisans",
           how: "How it works",
           pricing: "Pricing",
           register: "List my business"
         },
 
+        footer: {
+          tagline:
+            "Find the right artisan, all across Morocco.",
+          newsletter:
+            "Stay up to date",
+          subscribe:
+            "Subscribe",
+          follow:
+            "Follow us",
+          colServices:
+            "Services",
+          colCompany:
+            "Sna3ti",
+          colSupport:
+            "Support",
+          colLegal:
+            "Legal",
+          faq:
+            "FAQ",
+          contact:
+            "Contact us",
+          help:
+            "Help center",
+          terms:
+            "Terms of use",
+          privacy:
+            "Privacy policy",
+          cgu:
+            "Terms & conditions",
+          rights:
+            "All rights reserved.",
+          secure:
+            "Secure payments"
+        },
+
         hero: {
           eyebrow: "Made for Morocco",
-          title: "Find the professional you need.",
+          title: "Find the artisan you need.",
           subtitle:
-            "Discover trusted professionals near you, compare profiles and contact them directly.",
+            "Discover trusted artisans near you, compare profiles and contact them directly.",
           servicePlaceholder:
             "Plumbing, painting...",
           cityPlaceholder:
@@ -5041,20 +5982,32 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           search:
             "Search",
           verified:
-            "Verified professionals",
+            "Verified artisans",
           fast:
             "Fast response",
           available:
-            "Available today"
+            "Available today",
+          statPros:
+            "Artisans",
+          statRating:
+            "Average rating",
+          statCities:
+            "Cities covered",
+          proCta:
+            "Are you an artisan? Join Sna3ti"
         },
 
         services: {
           title:
             "What do you need?",
           subtitle:
-            "Quickly find the right professional for your project.",
+            "Quickly find the right artisan for your project.",
           seeAll:
             "See all services",
+          seeAllCards:
+            "See all services",
+          seeAllCardsSub:
+            "All categories",
           cards: {
             plomberie: { name: "Plumbing", sub: "Water & installation" },
             electricite: { name: "Electricity", sub: "Installation & repair" },
@@ -5069,25 +6022,32 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             electromenager: { name: "Fridge & Appliances", sub: "Repair & maintenance" },
             jardinage: { name: "Gardening", sub: "Green spaces" },
             serrurerie: { name: "Locksmith", sub: "Security & access" },
-            transport: { name: "Transport & Moving", sub: "Truck & moving" }
+            transport: { name: "Transport & Moving", sub: "Truck & moving" },
+            match: { name: "⭐ Sna3ti Match", sub: "Find the right artisan" }
           }
         },
 
         how: {
           badge: "How it works",
-          title: "Your need, the right pro, in 3 steps",
+          title: "Your need, the right artisan, in 3 steps",
           subtitle: "Simple, fast and safe.",
           s1t: "Describe your need",
           s1d: "Choose a service and your location — or let us understand your request.",
           s2t: "Compare profiles",
           s2d: "Rating, reviews, verification, price and availability — choose with confidence.",
           s3t: "Contact directly",
-          s3d: "Call or send the professional a WhatsApp message and set an appointment."
+          s3d: "Call or send the artisan a WhatsApp message and set an appointment."
+        },
+
+        gallery: {
+          badge: "Our work",
+          title: "A glimpse of our projects",
+          subtitle: "A selection of work by our partner artisans."
         },
 
         pro: {
-          badge: "Professionals",
-          title: "Are you a professional?",
+          badge: "Artisans",
+          title: "Are you an artisan?",
           subtitle: "List your business on Sna3ti.ma and receive more requests from nearby clients. Manage your availability, your prices and contact your clients with confidence.",
           item1: "Free profile",
           item2: "Qualified leads",
@@ -5095,7 +6055,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           item4: "More visibility",
           cta: "List my business",
           join: "Join us",
-          active: "1200+ active professionals",
+          active: "1200+ active artisans",
           month: "Requests this month",
           chipCities: "Cities covered",
           chipVerified: "Verified profiles",
@@ -5127,7 +6087,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           recommended: "⭐ Recommended",
           goldBadge: "👑 GOLD",
           features: {
-            fProfil: "Professional profile",
+            fProfil: "Artisan profile",
             fSearchStandard: "Standard visibility in search",
             fSearchPriority: "Priority visibility in search",
             fSearchPremium: "Premium visibility in search",
@@ -5232,6 +6192,78 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phone: "WhatsApp",
           receipt: "Send the transfer receipt",
           back: "← Back to site"
+        },
+
+        match: {
+          title: "Sna3ti Match",
+          cta: "Find me a trusted artisan",
+          pageTitle: "Find me a trusted artisan",
+          headline: "Looking for an artisan? Leave it to us.",
+          description: "Tell us what you need and send us photos. We find the right professional, get the price, and send it to you.",
+          howTitle: "How does it work?",
+          howSub: "A simple service, managed by Sna3ti.",
+          steps: [
+            "Send us your request.",
+            "Sna3ti finds the right artisan.",
+            "We get the artisan’s price.",
+            "We send you the price.",
+            "You accept → we connect you."
+          ],
+          step1: "Send us your request.",
+          step2: "Sna3ti finds the right artisan.",
+          step3: "We get the artisan’s price.",
+          step4: "We send you the price.",
+          step5: "You accept → we connect you.",
+          formTitle: "Describe what you need",
+          formSub: "The more precise your request, the faster we find the artisan and the price.",
+          service: "What service do you need?",
+          servicePh: "Choose…",
+          otherService: "Other service",
+          otherServicePh: "Describe your service…",
+          location: "Location",
+          city: "City",
+          cityPh: "Choose your city…",
+          area: "Area",
+          areaPh: "e.g. Maârif, Agdal, Hay Riad…",
+          description: "Describe what you need",
+          descriptionPh: "Describe what you need…",
+          photos: "Photos of the work / problem",
+          photosPh: "Add photos of the work to be done.",
+          photosAdd: "Add photos",
+          date: "Preferred date (optional)",
+          datePh: "When would you like the work done?",
+          yourInfo: "Your information",
+          name: "Your name",
+          namePh: "Your full name…",
+          phone: "Phone",
+          phonePh: "Your phone number…",
+          whatsapp: "WhatsApp",
+          whatsappPh: "Your WhatsApp number…",
+          preferredContact: "How would you like us to contact you?",
+          bothOpt: "Both",
+          submit: "Find me a trusted artisan",
+          privacyNote: "Your information and photos stay private and are only seen by Sna3ti and the chosen artisan.",
+          successTitle: "Request sent ✅",
+          successMsg: "Thank you! Our team will find a suitable artisan, get the price, and send it to you via WhatsApp.",
+          successSteps: "Next steps:",
+          successStepsList: [
+            "Send us your request.",
+            "Sna3ti finds the right artisan.",
+            "We get the artisan’s price.",
+            "We send you the price.",
+            "You accept → we connect you."
+          ],
+          newRequest: "New request",
+          backHome: "← Back to home",
+          required: "Please fill in the required fields.",
+          reqService: "Please choose a service.",
+          reqCity: "Please choose a city.",
+          reqName: "Please enter your name.",
+          reqPhone: "Please enter a phone or WhatsApp.",
+          reqOtherService: "Please describe your service.",
+          sending: "Sending…",
+          sendError: "Something went wrong. Check your connection and try again.",
+          noPhotos: "No photos added."
         }
 
       }
@@ -5303,6 +6335,11 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         language
       );
 
+      /* NOTE: populateServiceCounts() used to be called here but
+         reads sna3tiProfessionals before it is initialized (TDZ),
+         which halts the whole script. Its .service-count targets
+         no longer exist, so it is intentionally omitted. */
+
     }
 
 
@@ -5315,17 +6352,21 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         "languageSelect"
       );
 
-    const mobileLanguage =
+    const mobileLangHeader =
       document.getElementById(
-        "mobileLanguage"
+        "mobileLangHeader"
       );
 
 
     function syncLanguage(language) {
 
-      languageSelect.value = language;
+      if (languageSelect) {
+        languageSelect.value = language;
+      }
 
-      mobileLanguage.value = language;
+      if (mobileLangHeader) {
+        mobileLangHeader.value = language;
+      }
 
       setLanguage(language);
 
@@ -5357,24 +6398,65 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
     );
 
 
-    mobileLanguage.addEventListener(
-      "change",
-      event => {
+    /* Desktop: make the chevron SVG that follows #languageSelect
+       clickable so it also opens the language dropdown.
+       (Mobile keeps its own always-visible selector — untouched.) */
+    const languageChevron =
+      languageSelect && languageSelect.nextElementSibling;
 
-        syncLanguage(
-          event.target.value
-        );
+    if (languageSelect && languageChevron) {
 
-        populateLocationDropdowns();
-        populateRegCity();
-        populateRegMetier();
-        populateServiceSelect();
+      languageChevron.setAttribute("role", "button");
+      languageChevron.classList.add("cursor-pointer");
 
-        /* Return to the home page in the chosen language. */
-        window.location.hash = "#/";
+      languageChevron.addEventListener("click", function (event) {
 
-      }
-    );
+        event.preventDefault();
+        event.stopPropagation();
+
+        try {
+
+          if (typeof languageSelect.showPicker === "function") {
+            languageSelect.showPicker();
+          } else {
+            languageSelect.focus();
+            languageSelect.click();
+          }
+
+        } catch (err) {
+
+          languageSelect.focus();
+          languageSelect.click();
+
+        }
+
+      });
+
+    }
+
+
+    if (mobileLangHeader) {
+
+      mobileLangHeader.addEventListener(
+        "change",
+        event => {
+
+          syncLanguage(
+            event.target.value
+          );
+
+          populateLocationDropdowns();
+          populateRegCity();
+          populateRegMetier();
+          populateServiceSelect();
+
+          /* Return to the home page in the chosen language. */
+          window.location.hash = "#/";
+
+        }
+      );
+
+    }
 
 
     /* =========================================================
@@ -5436,23 +6518,6 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
 
       }
     );
-
-    /* Close the menu when a mobile language is chosen. */
-    const mobileLang =
-      document.getElementById(
-        "mobileLanguage"
-      );
-
-    if (mobileLang) {
-      mobileLang.addEventListener(
-        "change",
-        () => {
-          mobileMenu.classList.add(
-            "hidden"
-          );
-        }
-      );
-    }
 
 
     /* =========================================================
@@ -5644,7 +6709,8 @@ const SERVICE_CANONICAL = [
   { key: "electromenager", slug: "electromenager" },
   { key: "jardinage",      slug: "jardinage" },
   { key: "serrurerie",     slug: "serrurerie" },
-  { key: "transport",      slug: "transport" }
+  { key: "transport",      slug: "transport" },
+  { key: "match",          slug: "match" }
 ];
 
 /* Return the localized display name of a service-card key. */
@@ -5726,6 +6792,9 @@ function populateRegMetier() {
   sel.appendChild(ph);
 
   for (const item of SERVICE_CANONICAL) {
+    /* Sna3ti Match is a customer-facing matching service, not a
+       trade an artisan lists as their métier — skip it here. */
+    if (item.slug === "match") continue;
     const o = document.createElement("option");
     o.value = item.slug;
     o.textContent = serviceName(item.key, lang);
@@ -5888,6 +6957,116 @@ function countRegDesc() {
     bindServiceCards();
 
 
+    /* populateServiceCounts() — fill each service card's
+       pro-count footer with a REAL number drawn from
+       sna3tiProfessionals (no fabricated stats). Cards with no
+       pros show an honest "coming soon" label. */
+    function populateServiceCounts() {
+
+      const lang =
+        localStorage.getItem("sna3ti-language") || "fr";
+
+      const zeroLabel = {
+        fr: "Bientôt disponible",
+        ar: "قريبًا",
+        en: "Coming soon"
+      }[lang] || "Bientôt disponible";
+
+      const plural = {
+        fr: function (n) { return n > 1 ? n + " pros" : n + " pro"; },
+        ar: function (n) { return n > 2 ? n + " حرفيين" : n + " حرفي"; },
+        en: function (n) { return n > 1 ? n + " pros" : n + " pro"; }
+      }[lang] || function (n) { return n + " pro"; };
+
+      const pros =
+        Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
+
+      document
+        .querySelectorAll(".service-count")
+        .forEach(el => {
+
+          const slug =
+            (el.getAttribute("data-count-key") || "").trim().toLowerCase();
+
+          if (!slug) return;
+
+          const count = pros.filter(p => {
+            const c = normalizeText(p.category);
+            return c.includes(slug) || slug.includes(c);
+          }).length;
+
+          el.textContent =
+            count > 0 ? plural(count) : zeroLabel;
+
+        });
+
+    }
+
+    /* populateServiceCounts() is intentionally NOT called here:
+       it reads sna3tiProfessionals, which is declared later in the
+       script (TDZ), and its .service-count targets no longer exist. */
+
+
+    /* bindServiceSwipe() — make the one-line service carousel
+       draggable with a mouse/trackpad (native touch already
+       swipes). Prevents the card's click when the user is
+       dragging rather than tapping. */
+    function bindServiceSwipe() {
+
+      const track =
+        document.getElementById("serviceCarousel");
+
+      if (!track || track.dataset.swipeBound === "1") return;
+
+      track.dataset.swipeBound = "1";
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      let dragged = false;
+
+      track.addEventListener("pointerdown", e => {
+        isDown = true;
+        dragged = false;
+        startX = e.clientX;
+        scrollLeft = track.scrollLeft;
+        track.setPointerCapture(e.pointerId);
+      });
+
+      track.addEventListener("pointermove", e => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 4) dragged = true;
+        track.scrollLeft = scrollLeft - dx;
+      });
+
+      const stop = () => {
+        isDown = false;
+      };
+
+      track.addEventListener("pointerup", stop);
+      track.addEventListener("pointercancel", stop);
+      track.addEventListener("pointerleave", stop);
+
+      /* Let clicks on draggable cards still fire — unless the
+         pointer moved (drag finished, not a tap). */
+      track.addEventListener(
+        "click",
+        e => {
+          if (dragged) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragged = false;
+          }
+        },
+        true
+      );
+
+    }
+
+    bindServiceSwipe();
+
+
     /* bindPricing() — toggle each pricing card's details
        (accordion). Clicking "Voir les détails" opens a single
        card's feature list. */
@@ -5986,7 +7165,7 @@ const sna3tiProfessionals = [
   {
     id: 1,
     name: "Yassine El Amrani",
-    job: "Plombier professionnel",
+    job: "Plombier artisan",
     category: "plomberie",
     city: "casablanca",
     area: "Casablanca",
@@ -6022,7 +7201,7 @@ const sna3tiProfessionals = [
   {
     id: 3,
     name: "Omar El Idrissi",
-    job: "Peintre professionnel",
+    job: "Peintre artisan",
     category: "peinture",
     city: "marrakech",
     area: "Marrakech",
@@ -6810,13 +7989,13 @@ function renderSearchResults() {
               margin-top:8px;
             "
           >
-            Professionnels disponibles
+            Artisans disponibles
           </h1>
 
           <div class="results-count">
 
             ${results.length}
-            professionnel${
+            artisan${
               results.length !== 1
                 ? "s"
                 : ""
@@ -6912,7 +8091,7 @@ function renderSearchResults() {
                 id="verifiedFilter"
               />
 
-              Professionnels vérifiés
+              Artisans vérifiés
 
             </label>
 
@@ -7023,7 +8202,7 @@ function renderSearchResults() {
                         font-weight:900;
                       "
                     >
-                      Aucun professionnel trouvé
+                      Aucun artisan trouvé
                     </h2>
 
                     <p
@@ -7502,9 +8681,9 @@ function openProfessional(id) {
                   color:#64748b;
                 "
               >
-                Professionnel expérimenté spécialisé
-                dans son domaine. Contactez ce
-                professionnel directement pour discuter
+                Artisan expérimenté spécialisé
+                dans son domaine. Contactez cet
+                artisan directement pour discuter
                 de votre besoin et obtenir un devis.
               </p>
 
@@ -7522,7 +8701,7 @@ function openProfessional(id) {
                   <span data-star="4" style="color:#d1d5db; transition:color .15s">&#9733;</span>
                   <span data-star="5" style="color:#d1d5db; transition:color .15s">&#9733;</span>
                 </div>
-                <textarea id="reviewText" rows="3" placeholder="Partagez votre experience avec ce professionnel..." style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:14px; resize:vertical; font-size:14px; outline:none; font-family:inherit; box-sizing:border-box;"></textarea>
+                <textarea id="reviewText" rows="3" placeholder="Partagez votre experience avec cet artisan..." style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:14px; resize:vertical; font-size:14px; outline:none; font-family:inherit; box-sizing:border-box;"></textarea>
                 <button id="submitReview" style="margin-top:12px; padding:12px 28px; background:#168F80; color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size:14px;">Publier mon avis</button>
               </div>
 
@@ -8621,7 +9800,23 @@ function handleSna3tiRoute() {
   // SEARCH ROUTE
   if (hash.startsWith("#/search")) {
 
+    /* Selecting "⭐ Sna3ti Match" from a service dropdown routes to
+       the Match request page rather than an empty results list. */
+    if (hash.indexOf("service=match") !== -1) {
+      renderMatchPage();
+      return true;
+    }
+
     renderSearchResults();
+
+    return true;
+
+  }
+
+  // SNA3TI MATCH ROUTE
+  if (hash === "#/match") {
+
+    renderMatchPage();
 
     return true;
 
@@ -8642,6 +9837,472 @@ function handleSna3tiRoute() {
 
   return false;
 
+}
+
+
+/* =========================================================
+   SNA3TI MATCH — request form page
+   Collects a structured, API-ready request object (service,
+   location, description, photos, date, contact) with statuses
+   managed by Sna3ti/Admin. The price is NOT auto-generated
+   here — it comes from the artisan via Sna3ti.
+========================================================= */
+
+function matchT(key, fallback) {
+  const lang = localStorage.getItem("sna3ti-language") || "fr";
+  const m = (translations[lang] && translations[lang].match) || {};
+  return m[key] || fallback || "";
+}
+
+function matchLang() {
+  return localStorage.getItem("sna3ti-language") || "fr";
+}
+
+// Local-today in YYYY-MM-DD (used to constrain the date picker to the future,
+// which keeps the native month/year scroller from browsing past time).
+function matchTodayISO() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+
+// Backend base for the Sna3ti Match API. Override via a global if the API is
+// deployed elsewhere. Backend = source of truth (Admin Dashboard + WhatsApp);
+// the form never fakes a success.
+const MATCH_API_BASE = (window.SNA3TI_MATCH_API || "http://localhost:3000/api/v1").replace(/\/+$/, "");
+
+// Keep phone/WhatsApp numeric (strip everything except digits).
+function matchDigitsOnly(v) {
+  return String(v || "").replace(/\D/g, "");
+}
+
+// Best-effort extraction of a user-facing message from a failed fetch/JSON.
+function matchErrorMessage(e) {
+  try {
+    const d = e && e.detail && e.detail.error;
+    if (d && d.message) return d.message;
+    if (e && e.message && !/^fetch|Failed to/i.test(e.message)) return e.message;
+  } catch (err) { /* ignore */ }
+  return null;
+}
+
+function renderMatchPage() {
+
+  const main = document.querySelector("main");
+  if (!main) return;
+
+  /* Remove any previously rendered dynamic page. */
+  const existing = document.getElementById("matchPage");
+  if (existing) existing.remove();
+
+  const lang = matchLang();
+
+  const serviceOptions = SERVICE_CANONICAL
+    /* The Match page is for requesting any trade; don't list
+       "Sna3ti Match" itself as a selectable service here. */
+    .filter(function (s) { return s.slug !== "match"; })
+    .map(function (s) {
+      return '<option value="' + s.slug + '">' + serviceName(s.key, lang) + '</option>';
+    })
+    .join("");
+
+  const cityOptions = allCitiesSorted(lang)
+    .map(function (c) {
+      return '<option value="' + c.slug + '">' + (c.name[lang] || c.name.fr) + '</option>';
+    })
+    .join("");
+
+  const page = document.createElement("section");
+  page.id = "matchPage";
+  page.className = "sna3ti-match-page px-5 py-12 sm:py-16";
+
+  page.innerHTML = `
+    <div class="mx-auto max-w-3xl">
+
+      <a
+        href="#/"
+        class="inline-flex items-center gap-1 text-sm font-bold text-sna3ti-teal underline-offset-4 hover:underline"
+        data-i18n="match.backHome"
+      >
+        ← ${matchT("backHome", "← Retour à l’accueil")}
+      </a>
+
+      <!-- HEADER -->
+      <div class="mt-6 text-center">
+        <p class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-sna3ti-teal">
+          <span class="match-star">⭐</span>
+          <span data-i18n="match.title">Sna3ti Match</span>
+        </p>
+        <h1 class="mt-2 text-3xl font-extrabold text-sna3ti-ink" data-i18n="match.pageTitle">
+          ${matchT("pageTitle", "Artisan de confiance")}
+        </h1>
+        <p class="mx-auto mt-3 max-w-xl text-[15px] text-gray-600" data-i18n="match.description">
+          ${matchT("description", "Décrivez votre besoin et envoyez-nous des photos.")}
+        </p>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div class="match-card mt-10 px-6 py-7 sm:px-8">
+        <div class="match-glow"></div>
+        <div class="relative">
+          <h2 class="text-lg font-extrabold text-sna3ti-ink" data-i18n="match.howTitle">
+            ${matchT("howTitle", "Comment ça marche ?")}
+          </h2>
+          <p class="mt-1 text-sm text-gray-500" data-i18n="match.howSub">
+            ${matchT("howSub", "Un service simple et encadré par Sna3ti.")}
+          </p>
+          <ol class="mt-4 grid gap-2.5">
+            <li class="match-step"><span class="match-step-num">1</span><span data-i18n="match.step1">${matchT("step1", "")}</span></li>
+            <li class="match-step"><span class="match-step-num">2</span><span data-i18n="match.step2">${matchT("step2", "")}</span></li>
+            <li class="match-step"><span class="match-step-num">3</span><span data-i18n="match.step3">${matchT("step3", "")}</span></li>
+            <li class="match-step"><span class="match-step-num">4</span><span data-i18n="match.step4">${matchT("step4", "")}</span></li>
+            <li class="match-step"><span class="match-step-num">5</span><span data-i18n="match.step5">${matchT("step5", "")}</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <div class="match-card mt-8 px-6 py-7 sm:px-8">
+        <div class="match-glow"></div>
+        <div class="relative">
+          <h2 class="text-lg font-extrabold text-sna3ti-ink" data-i18n="match.formTitle">
+            ${matchT("formTitle", "Décrivez votre besoin")}
+          </h2>
+          <p class="mt-1 text-sm text-gray-500" data-i18n="match.formSub">
+            ${matchT("formSub", "Plus votre demande est précise, plus vite nous trouvons l’artisan.")}
+          </p>
+
+          <form id="matchForm" class="mt-6 grid gap-5" novalidate>
+
+              <!-- SERVICE -->
+              <div class="sna3ti-match-field grid gap-1.5">
+                <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.service">${matchT("service", "Service")}</label>
+                <select id="matchService" name="service" required>
+                  <option value="">${matchT("servicePh", "Choisissez le métier concerné…")}</option>
+                  ${serviceOptions}
+                  <option value="autre">${matchT("otherService", "Autres services")}</option>
+                </select>
+              </div>
+              <div class="sna3ti-match-field grid gap-1.5 hidden" id="matchOtherServiceWrap">
+                <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.otherService">${matchT("otherService", "Autres services")}</label>
+                <input type="text" id="matchOtherService" placeholder="${matchT("otherServicePh", "Décrivez votre service…")}">
+              </div>
+
+            <!-- LOCATION -->
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div class="sna3ti-match-field grid gap-1.5">
+                <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.city">${matchT("city", "Ville")}</label>
+                <select id="matchCity" name="city" required>
+                  <option value="">${matchT("cityPh", "Choisissez votre ville…")}</option>
+                  ${cityOptions}
+                </select>
+              </div>
+              <div class="sna3ti-match-field grid gap-1.5">
+                <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.area">${matchT("area", "Quartier / zone")}</label>
+                <input type="text" id="matchArea" name="area" placeholder="${matchT("areaPh", "Ex : Maârif, Agdal, Hay Riad…")}">
+              </div>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="sna3ti-match-field grid gap-1.5">
+              <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.description">${matchT("description", "Description")}</label>
+              <textarea id="matchDescription" name="description" rows="4" placeholder="${matchT("descriptionPh", "Décrivez ce dont vous avez besoin…")}"></textarea>
+            </div>
+
+            <!-- PHOTOS -->
+            <div class="grid gap-1.5">
+              <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.photos">${matchT("photos", "Photos du travail / problème")}</label>
+              <p class="text-xs text-gray-500" data-i18n="match.photosPh">${matchT("photosPh", "Ajoutez des photos du travail à réaliser…")}</p>
+              <div id="matchPhotoPreviews" class="flex flex-wrap gap-3"></div>
+              <div class="flex flex-wrap gap-2">
+                <label class="btn-match cursor-pointer px-5 py-2.5 text-sm" data-i18n="match.photosAdd">${matchT("photosAdd", "Ajoutez des photos")}
+                  <input type="file" id="matchPhotoInput" accept="image/*" multiple class="hidden">
+                </label>
+              </div>
+            </div>
+
+            <!-- DATE -->
+            <div class="sna3ti-match-field grid gap-1.5">
+              <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.date">${matchT("date", "Date souhaitée (optionnel)")}</label>
+              <input type="date" id="matchDate" name="date" min="${matchTodayISO()}">
+            </div>
+
+            <!-- CONTACT -->
+            <div class="border-t border-sna3ti-teal/10 pt-5">
+              <h3 class="text-sm font-extrabold text-sna3ti-ink" data-i18n="match.yourInfo">${matchT("yourInfo", "Vos informations")}</h3>
+              <div class="mt-4 grid gap-5 sm:grid-cols-2">
+                <div class="sna3ti-match-field grid gap-1.5">
+                  <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.name">${matchT("name", "Nom")}</label>
+                  <input type="text" id="matchName" name="name" required placeholder="${matchT("namePh", "Votre nom complet…")}">
+                </div>
+                <div class="sna3ti-match-field grid gap-1.5">
+                  <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.phone">${matchT("phone", "Téléphone")}</label>
+                  <input type="tel" id="matchPhone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="${matchT("phonePh", "Votre numéro de téléphone…")}">
+                </div>
+                <div class="sna3ti-match-field grid gap-1.5">
+                  <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.whatsapp">${matchT("whatsapp", "WhatsApp")}</label>
+                  <input type="tel" id="matchWhatsapp" name="whatsapp" inputmode="numeric" autocomplete="tel" placeholder="${matchT("whatsappPh", "Votre numéro WhatsApp…")}">
+                </div>
+                <div class="sna3ti-match-field grid gap-1.5">
+                  <label class="text-sm font-bold text-sna3ti-ink" data-i18n="match.preferredContact">${matchT("preferredContact", "Contact préféré")}</label>
+                  <div class="flex flex-wrap gap-3">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input type="radio" name="preferredContact" value="both" checked> ${matchT("bothOpt", "Les deux")}
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input type="radio" name="preferredContact" value="phone"> ${matchT("phone", "Téléphone")}
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                      <input type="radio" name="preferredContact" value="whatsapp"> ${matchT("whatsapp", "WhatsApp")}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-500" data-i18n="match.privacyNote">${matchT("privacyNote", "Vos informations et photos restent privées…")}</p>
+
+            <div id="matchAlert" class="hidden rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm font-semibold text-red-700"></div>
+
+            <button
+              type="submit"
+              class="btn-match w-full px-6 py-4 text-base"
+              data-i18n="match.submit"
+            >
+              ${matchT("submit", "Artisan de confiance")}
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  main.innerHTML = "";
+  main.appendChild(page);
+
+  /* Apply translations to the static [data-i18n] nodes. */
+  setLanguage(lang);
+
+  bindPhotoPreviews();
+  bindMatchSubmit();
+
+  window.scrollTo(0, 0);
+}
+
+/* Photo previews using the existing FileReader pattern. */
+let matchPhotos = [];
+
+function bindPhotoPreviews() {
+  const input = document.getElementById("matchPhotoInput");
+  if (!input) return;
+
+  input.addEventListener("change", function () {
+    const files = Array.from(input.files || []);
+    for (const file of files) {
+      if (matchPhotos.length >= 5) break;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        matchPhotos.push({ name: file.name, dataUrl: e.target.result });
+        renderMatchPhotoPreviews();
+      };
+      reader.readAsDataURL(file);
+    }
+    input.value = "";
+  });
+}
+
+function renderMatchPhotoPreviews() {
+  const wrap = document.getElementById("matchPhotoPreviews");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  matchPhotos.forEach(function (photo, i) {
+    const p = document.createElement("div");
+    p.className = "photo-preview";
+    const img = document.createElement("img");
+    img.src = photo.dataUrl;
+    img.alt = photo.name;
+    const rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "photo-remove";
+    rm.textContent = "✕";
+    rm.setAttribute("aria-label", "Remove");
+    rm.addEventListener("click", function () {
+      matchPhotos.splice(i, 1);
+      renderMatchPhotoPreviews();
+    });
+    p.appendChild(img);
+    p.appendChild(rm);
+    wrap.appendChild(p);
+  });
+}
+
+/* API-ready statuses managed by Sna3ti/Admin. The price is NOT
+   generated here — it arrives from the artisan via Sna3ti. */
+function bindMatchSubmit() {
+  const form = document.getElementById("matchForm");
+  if (!form) return;
+
+  const serviceEl = document.getElementById("matchService");
+  const otherWrap = document.getElementById("matchOtherServiceWrap");
+  const otherEl = document.getElementById("matchOtherService");
+
+  // Show the free-text field when "Autres services" is chosen.
+  const syncOther = function () {
+    const show = serviceEl && serviceEl.value === "autre";
+    if (otherWrap) otherWrap.classList.toggle("hidden", !show);
+    if (show && otherEl) otherEl.focus();
+  };
+  if (serviceEl) serviceEl.addEventListener("change", syncOther);
+  syncOther();
+
+  // Phone/WhatsApp: digits only, as the user interacts.
+  ["matchPhone", "matchWhatsapp"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", function () {
+      const digits = matchDigitsOnly(el.value);
+      if (el.value !== digits) el.value = digits;
+    });
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const alertEl = document.getElementById("matchAlert");
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const showError = function (msg) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = matchT("submit", "Artisan de confiance"); }
+      if (alertEl) {
+        alertEl.textContent = msg;
+        alertEl.classList.remove("hidden");
+        alertEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+    if (alertEl) alertEl.classList.add("hidden");
+
+    const service = serviceEl ? serviceEl.value : "";
+    const city = document.getElementById("matchCity").value;
+    const name = document.getElementById("matchName").value.trim();
+
+    const phone = matchDigitsOnly(document.getElementById("matchPhone").value);
+    const whatsapp = matchDigitsOnly(document.getElementById("matchWhatsapp").value);
+
+    if (!service) { showError(matchT("reqService", "Veuillez choisir un service.")); return; }
+    if (service === "autre" && !(otherEl && otherEl.value.trim())) {
+      showError(matchT("reqOtherService", "Veuillez décrire votre service.")); return;
+    }
+    if (!city) { showError(matchT("reqCity", "Veuillez choisir une ville.")); return; }
+    if (!name) { showError(matchT("reqName", "Veuillez indiquer votre nom.")); return; }
+    if (!phone && !whatsapp) { showError(matchT("reqPhone", "Veuillez indiquer un téléphone ou WhatsApp.")); return; }
+
+    const preferred =
+      form.querySelector('input[name="preferredContact"]:checked');
+
+    const payload = {
+      name: name,
+      phone: phone,
+      whatsapp: whatsapp || undefined,
+      city: city,
+      area: document.getElementById("matchArea").value.trim() || undefined,
+      service: service,
+      otherService: (service === "autre" && otherEl && otherEl.value.trim()) || undefined,
+      description: document.getElementById("matchDescription").value.trim() || undefined,
+      preferredContact: preferred ? preferred.value : "both",
+      preferredDate: document.getElementById("matchDate").value || undefined,
+      photos: matchPhotos.map(function (p) { return p.dataUrl; })
+    };
+
+    // Backend-first: disable + show progress, then POST. No fake success.
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = matchT("sending", "Envoi en cours…"); }
+
+    fetch(MATCH_API_BASE + "/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        return res.json().then(function (json) {
+          if (!res.ok || json.success === false) {
+            const err = new Error((json.error && json.error.message) || "Erreur lors de l’envoi.");
+            err.detail = json;
+            throw err;
+          }
+          return json.data;
+        }, function () {
+          if (!res.ok) { throw new Error("Erreur lors de l’envoi."); }
+          return null;
+        });
+      })
+      .then(function (request) {
+        showMatchSuccess(request);
+      })
+      .catch(function (err) {
+        const msg = matchErrorMessage(err) ||
+          matchT("sendError", "Une erreur est survenue. Vérifiez votre connexion et réessayez.");
+        showError(msg);
+      });
+  });
+}
+
+function showMatchSuccess(request) {
+  const main = document.querySelector("main");
+  if (!main) return;
+
+  const page = document.createElement("section");
+  page.id = "matchPage";
+  page.className = "sna3ti-match-page px-5 py-16";
+
+  const steps = matchArray("successStepsList");
+
+  page.innerHTML = `
+    <div class="mx-auto max-w-xl text-center">
+
+      <p class="text-5xl">✅</p>
+
+      <h1 class="mt-4 text-2xl font-extrabold text-sna3ti-ink" data-i18n="match.successTitle">
+        ${matchT("successTitle", "Demande envoyée")}
+      </h1>
+
+      <p class="mt-3 text-[15px] text-gray-600" data-i18n="match.successMsg">
+        ${matchT("successMsg", "Merci ! Notre équipe va trouver un artisan adapté et vous transmettre le prix.")}
+      </p>
+
+      <div class="match-card mt-8 px-6 py-6 text-left">
+        <div class="match-glow"></div>
+        <div class="relative">
+          <p class="text-sm font-extrabold text-sna3ti-ink" data-i18n="match.successSteps">${matchT("successSteps", "Prochaines étapes :")}</p>
+          <ol class="mt-3 grid gap-2.5">
+            ${steps.map(function (s, i) {
+              return '<li class="match-step"><span class="match-step-num">' + (i + 1) + '</span><span>' + s + '</span></li>';
+            }).join("")}
+          </ol>
+        </div>
+      </div>
+
+      <p class="mt-4 text-xs text-gray-400" data-i18n="match.privacyNote">${matchT("privacyNote", "Vos informations et photos restent privées…")}</p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="#/match" class="btn-match px-6 py-3 text-sm" data-i18n="match.newRequest">${matchT("newRequest", "Nouvelle demande")}</a>
+        <a href="#/" class="text-sm font-bold text-sna3ti-teal underline-offset-4 hover:underline" data-i18n="match.backHome">${matchT("backHome", "← Retour à l’accueil")}</a>
+      </div>
+
+    </div>
+  `;
+
+  main.innerHTML = "";
+  main.appendChild(page);
+
+  setLanguage(matchLang());
+  window.scrollTo(0, 0);
+}
+
+function matchArray(key) {
+  const lang = matchLang();
+  const m = (translations[lang] && translations[lang].match) || {};
+  const v = m[key];
+  return Array.isArray(v) ? v : [];
 }
 
 
@@ -8689,6 +10350,8 @@ function restoreHome() {
      active language to the restored markup. */
   bindHeroTilt();
   bindServiceCards();
+  bindServiceSwipe();
+  populateServiceCounts();
   bindPricing();
   setLanguage(savedLanguage);
   populateLocationDropdowns();
@@ -8737,6 +10400,14 @@ function initProStats() {
   if (chipCities) chipCities.textContent = cityCount;
   if (chipVerified) chipVerified.textContent = verifiedCount;
   if (chipRating) chipRating.textContent = ratingFixed;
+
+  /* Hero trust stats — real, derived from the dataset (no fabricated numbers). */
+  const heroPros = document.getElementById("heroStatPros");
+  const heroRating = document.getElementById("heroStatRating");
+  const heroCities = document.getElementById("heroStatCities");
+  if (heroPros) heroPros.textContent = pros.length ? pros.length.toLocaleString("fr-FR") : "—";
+  if (heroRating) heroRating.textContent = rating !== null ? rating.toFixed(1) + "/5" : "—";
+  if (heroCities) heroCities.textContent = cityCount ? cityCount.toLocaleString("fr-FR") : "—";
 
   /* Animated bars + counter: prefer the live monthly-contacts series the
      admin persists under "sna3ti_admin_analytics" (shared origin → same
@@ -9110,7 +10781,7 @@ initAllGalleries();
     return "Voici les formules :\n• <b>Gratuit</b> — 0 DH (profil + 3 photos)\n• <b>Vérifié</b> — 99 DH/mois (recommandé)\n• <b>GOLD</b> — 199 DH/mois (premium)\n👉 Pour le détail complet, va dans la section « Tarifs ». Quel est ton métier ?";
   }
   function walkthroughAnswer() {
-    return "Comment ça marche (en 3 étapes) :\n1️⃣ Trouve le professionnel (par métier et ville)\n2️⃣ Consulte son profil : photos, avis, disponibilité, prix\n3️⃣ Contacte-le directement par WhatsApp ou téléphone\nTu peux aussi t'inscrire comme professionnel gratuitement !";
+    return "Comment ça marche (en 3 étapes) :\n1️⃣ Trouve l'artisan (par métier et ville)\n2️⃣ Consulte son profil : photos, avis, disponibilité, prix\n3️⃣ Contacte-le directement par WhatsApp ou téléphone\nTu peux aussi t'inscrire comme artisan gratuitement !";
   }
   function servicesOverview() {
     var names = Object.keys(services).map(titleCase).join(", ");
@@ -9144,7 +10815,7 @@ initAllGalleries();
     return head + " Des pros sont déjà à Casablanca (Maarif, Bourgogne, Californie…). 👉 <a href='#/search' class='text-sna3ti-teal underline'>Voir tous →</a>";
   }
   function generalProsAnswer() {
-    return "🧰 Sna3ti.ma réunit des professionnels de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
+    return "🧰 Sna3ti.ma réunit des artisans de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
   }
   function fallbackAnswer(q) {
     return "Désolé, je n'ai pas bien compris. 🤔 Essaie avec des mots-clés, ex. « tarifs », « plombier à Casablanca », « comment ça marche », « GOLD », « m3allem zellige ».";
@@ -9156,7 +10827,7 @@ initAllGalleries();
     var n = norm(q);
 
     if (/\b(hi|hello|hey|salut|bonjour|bonsoir|salam|slm|marhba|ahlan|ahlaw|aw ba)\b/.test(n))
-      return "Salam ! 👋 Je suis l'assistant de Sna3ti.ma. Demande-moi pour trouver un professionnel, connaître les tarifs, ou en savoir plus sur le site.";
+      return "Salam ! 👋 Je suis l'assistant de Sna3ti.ma. Demande-moi pour trouver un artisan, connaître les tarifs, ou en savoir plus sur le site.";
     if (/merci|chokran|choukran|thanks|thank you|شكرا|صحا/.test(n))
       return "De rien ! 😊 Si tu as une autre question, je suis là. À bientôt !";
 
@@ -9172,9 +10843,9 @@ initAllGalleries();
     if (/comment (ca )?marche|comment ca s'appelle|etapes|fonctionne|comment trouver|comment utiliser|chnowa had site/.test(n))
       return walkthroughAnswer();
     if (/inscri|cr[ée].*compte|enregistr|sign ?up|register|compte/.test(n))
-      return "Pour t'inscrire comme professionnel, va dans la section « Tarifs » et choisis ta formule. Chacune a son bouton « Créer mon compte ». C'est rapide, et tu gères ensuite ton profil ! 📝";
+      return "Pour t'inscrire comme artisan, va dans la section « Tarifs » et choisis ta formule. Chacune a son bouton « Créer mon compte ». C'est rapide, et tu gères ensuite ton profil ! 📝";
     if (/contact|whatsapp|whats|watsap|wa ?tsapp|t[ée]l[ée]phone|appeler|joindre|\bphone\b|numero|dial/.test(n))
-      return "Tu peux contacter un professionnel directement depuis son profil (bouton WhatsApp) ou depuis la fiche de recherche. 📱 Chaque pro affiche son numéro avec un lien WhatsApp.";
+      return "Tu peux contacter un artisan directement depuis son profil (bouton WhatsApp) ou depuis la fiche de recherche. 📱 Chaque pro affiche son numéro avec un lien WhatsApp.";
 
     var serv = detectService(q);
     if (/servic|metier|m[ée]tier|categor|cat[ée]gorie/.test(n) && !serv)
@@ -9293,7 +10964,7 @@ initAllGalleries();
     el.btn.style.display = "none";
     applyDir();
     if (!el.msgs.children.length) {
-      addMsg("Salam ! 👋 Bienvenue sur Sna3ti.ma. Je peux t'aider à trouver un professionnel, connaître les tarifs ou en savoir plus. Qu'est-ce que tu cherches ?", "bot");
+      addMsg("Salam ! 👋 Bienvenue sur Sna3ti.ma. Je peux t'aider à trouver un artisan, connaître les tarifs ou en savoir plus. Qu'est-ce que tu cherches ?", "bot");
     }
     el.input.focus();
   }
@@ -9379,17 +11050,17 @@ initAllGalleries();
 
     var reply;
     if (pro) {
-      reply = "Merci <b>" + esc(name) + "</b> ! ✅ Nous avons reconnu votre profil professionnel (<b>" + esc(pro.name || pro.job || "") + "</b> — " + esc(pro.job || "Professionnel") + ") dans notre base. Votre demande a été <b>transmise au support</b> et y est bien liée.\n\nNuméro de ticket : <b>" + ticket.id + "</b>";
+      reply = "Merci <b>" + esc(name) + "</b> ! ✅ Nous avons reconnu votre profil d'artisan (<b>" + esc(pro.name || pro.job || "") + "</b> — " + esc(pro.job || "Artisan") + ") dans notre base. Votre demande a été <b>transmise au support</b> et y est bien liée.\n\nNuméro de ticket : <b>" + ticket.id + "</b>";
     } else {
       reply = name
         ? "Merci <b>" + esc(name) + "</b> ! ✅ Votre demande a été <b>transmise au support</b>.\n\nNuméro de ticket : <b>" + ticket.id + "</b>"
-        : "Votre demande a été <b>transmise au support</b>. ✅\n\nNuméro de ticket : <b>" + ticket.id + "</b><br><span class=\"text-[11px] opacity-70\">Pour un suivi précis, vous pouvez indiquer votre nom ou votre numéro de téléphone, ou créer un compte professionnel.</span>";
+        : "Votre demande a été <b>transmise au support</b>. ✅\n\nNuméro de ticket : <b>" + ticket.id + "</b><br><span class=\"text-[11px] opacity-70\">Pour un suivi précis, vous pouvez indiquer votre nom ou votre numéro de téléphone, ou créer un compte artisan.</span>";
     }
     addMsg(reply, "bot");
   }
 
   function startReport() {
-    addMsg("Bien sûr, je peux transmettre votre demande au support. 🛠️ Remplissez le petit formulaire ci-dessous — si vous êtes un professionnel déjà présent sur Sna3ti, votre demande sera automatiquement liée à votre profil.", "bot");
+    addMsg("Bien sûr, je peux transmettre votre demande au support. 🛠️ Remplissez le petit formulaire ci-dessous — si vous êtes un artisan déjà présent sur Sna3ti, votre demande sera automatiquement liée à votre profil.", "bot");
     var box = document.createElement("div");
     box.id = "sna3ti-report-box";
     box.className = "self-start w-full max-w-[92%] rounded-2xl rounded-bl-md border border-sna3ti-teal/15 bg-white p-3 text-sna3ti-ink";
@@ -9399,7 +11070,7 @@ initAllGalleries();
       '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Votre message</label>' +
       '<textarea id="sr-message" rows="3" placeholder="Décrivez votre problème…" class="w-full mb-2 resize-none rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal"></textarea>' +
       '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Votre nom <span class="font-normal opacity-60">(optionnel)</span></label>' +
-      '<input id="sr-name" type="text" placeholder="Si vous êtes professionnel" class="w-full mb-2 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
+      '<input id="sr-name" type="text" placeholder="Si vous êtes artisan" class="w-full mb-2 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
       '<label class="block text-[11px] font-bold text-sna3ti-teal mb-1">Téléphone <span class="font-normal opacity-60">(optionnel)</span></label>' +
       '<input id="sr-phone" type="text" placeholder="Ex : 2126…" class="w-full mb-3 rounded-xl border border-sna3ti-teal/20 bg-sna3ti-cream px-3 py-2 text-xs outline-none focus:border-sna3ti-teal">' +
       '<button id="sr-send" type="button" class="w-full rounded-xl bg-sna3ti-teal px-3 py-2 text-xs font-bold text-white transition hover:bg-sna3ti-teal2">Envoyer la demande</button>';
@@ -9615,6 +11286,15 @@ populateServiceSelect();
   </div>
 </div>
 
+
+<script>
+  (function () {
+    var y = document.getElementById("footerYear");
+    if (y) {
+      y.textContent = new Date().getFullYear();
+    }
+  })();
+</script>
 
 </body>
 </html>

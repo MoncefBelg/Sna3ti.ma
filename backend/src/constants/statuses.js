@@ -8,6 +8,7 @@ const REVIEW_STATUSES = ["published", "hidden", "flagged"];
 const SUPPORT_STATUSES = ["open", "pending", "resolved", "closed"];
 const PROFESSIONAL_STATUSES = ["pending", "active", "suspended", "rejected"];
 const USER_STATUSES = ["active", "inactive", "suspended"];
+const MATCH_STATUSES = ["new", "reviewing", "artisan_contacted", "price_received", "price_sent", "customer_accepted", "customer_rejected", "matched", "completed", "cancelled"];
 
 // Entity-id prefixes used for opaque string ids (PRO-, PAY-, VR-, ...).
 const ID_PREFIXES = {
@@ -26,7 +27,9 @@ const ID_PREFIXES = {
   region: "REG",
   city: "CITY",
   plan: "PLAN",
-  verificationDocument: "VD"
+  verificationDocument: "VD",
+  match: "REQ",
+  matchPhoto: "PH"
 };
 
 module.exports = {
@@ -38,5 +41,6 @@ module.exports = {
   SUPPORT_STATUSES,
   PROFESSIONAL_STATUSES,
   USER_STATUSES,
+  MATCH_STATUSES,
   ID_PREFIXES
 };

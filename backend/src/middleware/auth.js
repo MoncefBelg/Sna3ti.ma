@@ -10,7 +10,13 @@ function createAuthMiddleware(services) {
   };
 
   async function run(req) {
-    const header = req.headers.authorization || "";
+    // Prefer the Authorization bearer header, but also accept a JWT supplied via
+    // the `token` query param. This is required so protected file/image routes can
+    // be rendered by `<img>` tags, which cannot attach an Authorization header.
+    let header = req.headers.authorization || "";
+    if (!header && req.query && req.query.token) {
+      header = "Bearer " + String(req.query.token);
+    }
     const match = header.match(/^Bearer\s+(.+)$/i);
     if (!match) throw new AppError("Authentification requise.", 401);
 

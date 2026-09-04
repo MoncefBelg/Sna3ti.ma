@@ -16,6 +16,7 @@ function createRoutes(services, middleware) {
   const reportCtrl           = require("../controllers/reportController").createReportController(services);
   const legalCtrl            = require("../controllers/legalController").createLegalController(services);
   const notificationCtrl     = require("../controllers/notificationController").createNotificationController(services);
+  const matchCtrl            = require("../controllers/matchController").createMatchController(services);
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   router.post("/auth/login", authCtrl.login);
@@ -50,6 +51,9 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewCtrl.cr
 
   // ── Legal content (req 24) — public, published only ───────────────────────
   router.get("/legal/:type/:language", legalCtrl.getByTypeAndLanguage);
+
+  // ── Sna3ti Match — public create (customer submits the form) ──────────────
+  router.post("/match", matchCtrl.create);
 
   // ── Notifications (req 25) ─────────────────────────────────────────────────
   router.use("/notifications", requireAuth);
@@ -119,6 +123,15 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewCtrl.cr
   admin.post("/reports/:id/reject", requirePermission("reports.resolve"), reportCtrl.reject);
   admin.post("/reports/:id/warn", requirePermission("reports.resolve"), reportCtrl.warn);
   admin.post("/reports/:id/suspend", requirePermission("reports.resolve"), reportCtrl.suspend);
+
+  // Sna3ti Match — admin management
+  admin.get("/match-requests", requirePermission("matchRequests.view"), matchCtrl.list);
+  admin.get("/match-requests/:id", requirePermission("matchRequests.view"), matchCtrl.get);
+  admin.get("/match-requests/:id/photo/:photoId", requirePermission("matchRequests.view"), matchCtrl.getPhoto);
+  admin.patch("/match-requests/:id/status", requirePermission("matchRequests.edit"), matchCtrl.updateStatus);
+  admin.patch("/match-requests/:id/artisan", requirePermission("matchRequests.edit"), matchCtrl.updateArtisan);
+  admin.patch("/match-requests/:id/prices", requirePermission("matchRequests.edit"), matchCtrl.updatePrices);
+  admin.post("/match-requests/:id/whatsapp/retry", requirePermission("matchRequests.edit"), matchCtrl.retryWhatsApp);
 
   // Legal (req 24) — admin management
   admin.get("/legal", requirePermission("settings.manage"), legalCtrl.listAll);

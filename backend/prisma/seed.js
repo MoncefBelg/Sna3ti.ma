@@ -3,12 +3,18 @@ const { prisma, disconnectDb } = require("../src/config/database");
 const bcrypt = require("bcrypt");
 const env = require("../src/config/env");
 
+// NOTE: seed.js is partially out of sync with schema.prisma (Role label/Json,
+// Plan features vs limits, trilingual Json labels, User.name...). Only Role +
+// AdminUser are required for admin login. Set true to attempt the extended seed
+// (may fail on models whose shape drifted). Kept as-is for a later full sync.
+const SEED_EXTENDED = false;
+
 const ROLES = [
-  { id: "ROLE-SA",  code: "super_admin", name: "Super Administrateur" },
-  { id: "ROLE-AD",  code: "admin",       name: "Administrateur" },
-  { id: "ROLE-MO",  code: "moderator",   name: "Modérateur" },
-  { id: "ROLE-SU",  code: "support",     name: "Support" },
-  { id: "ROLE-FI",  code: "finance",     name: "Finance" }
+  { id: "super_admin", label: "Super Admin", color: "#7f3ff2", permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"] } },
+  { id: "admin", label: "Admin", color: "#1f9d55", permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"] } },
+  { id: "moderator", label: "Moderator", color: "#db8a00", permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"] } },
+  { id: "support", label: "Support", color: "#0b94a6", permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"] } },
+  { id: "finance", label: "Finance", color: "#9b2d2d", permissions: { dashboard:["read"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], auditLogs:["read","export"] } }
 ];
 
 const PLANS = [
@@ -49,6 +55,7 @@ async function seed() {
     await prisma.role.upsert({ where: { id: r.id }, update: {}, create: r });
   }
 
+  if (SEED_EXTENDED) {
   // Plans
   for (const p of PLANS) {
     await prisma.plan.upsert({ where: { id: p.id }, update: {}, create: { ...p, features: JSON.stringify(p.features) } });
@@ -66,6 +73,7 @@ async function seed() {
   for (const c of CITIES) {
     await prisma.city.upsert({ where: { id: c.id }, update: {}, create: c });
   }
+  }
 
   // Admin users
   const hash = await bcrypt.hash("admin123", env.bcryptRounds);
@@ -80,6 +88,7 @@ async function seed() {
     await prisma.adminUser.upsert({ where: { id: a.id }, update: {}, create: a });
   }
 
+  if (SEED_EXTENDED) {
   // Platform users (auth foundation) — passwords stored as bcrypt hashes only.
   const users = [
     {
@@ -103,12 +112,14 @@ async function seed() {
       }
     });
   }
+}
 
   // IdSequence counters so generated ids resume past seeded values.
   for (const [prefix, value] of Object.entries({ USR: 10001, PRO: 10001 })) {
     await prisma.idSequence.upsert({ where: { prefix }, update: {}, create: { prefix, value } });
   }
 
+  if (SEED_EXTENDED) {
   // Legal content (req 24) — terms / privacy / about across en / fr / ar.
   const LEGAL = (type) => ({
     terms: {
@@ -141,6 +152,7 @@ async function seed() {
       });
     }
   }
+}
 
   console.log("Seed complete.");
   await disconnectDb();

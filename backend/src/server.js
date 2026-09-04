@@ -1,13 +1,12 @@
 require("./config/env");
-const { connectDB, disconnectDB } = require("./config/database");
+const { prisma, disconnectDb: disconnectDB } = require("./config/database");
 const { createApp } = require("./app");
 const logger = require("./utils/logger");
 
 async function main() {
-  await connectDB();
+  await prisma.$connect();
 
   // Import the connected PrismaClient instance.
-  const { prisma } = require("./config/database");
   const app = createApp({ db: prisma });
 
   const port = process.env.PORT || 3000;

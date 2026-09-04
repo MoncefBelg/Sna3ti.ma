@@ -155,7 +155,7 @@
     var groups = [
       { label:"", items:[ { route:"dashboard", ico:"📊", label:T("Tableau de bord") } ] },
       { label:T("Marketplace"), items:[
-          { route:"professionals", ico:"🧑‍🔧", label:T("Professionnels") },
+          { route:"professionals", ico:"🧑‍🔧", label:T("Artisans") },
           { route:"users", ico:"👥", label:T("Utilisateurs") },
           { route:"categories", ico:"🗂️", label:T("Catégories") },
           { route:"cities", ico:"📍", label:T("Villes") }
@@ -164,6 +164,7 @@
           { route:"verification", ico:"✅", label:T("Vérification"), pill:"verification" },
           { route:"reviews", ico:"⭐", label:T("Avis") },
           { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" },
+          { route:"match-requests", ico:"🤝", label:T("Demandes de mise en relation"), pill:"matchRequests" },
           { route:"support", ico:"🧰", label:T("Support"), pill:"support" }
         ]},
       { label:T("Business"), items:[
@@ -204,7 +205,7 @@
   var ROUTE_PERM = {
     dashboard:["dashboard","read"], professionals:["professionals","read"], users:["users","read"],
     verification:["verification","read"], categories:["categories","read"], cities:["cities","read"],
-    reviews:["reviews","read"], reports:["reports","read"], support:["support","read"],
+    reviews:["reviews","read"], reports:["reports","read"], "match-requests":["matchRequests","read"], support:["support","read"],
     subscriptions:["subscriptions","read"],
     payments:["payments","read"], analytics:["analytics","read"], ai:["ai","read"],
     notifications:["notifications","read"], settings:["settings","read"], legal:["legal","read"],
@@ -251,6 +252,7 @@
     var set = function(id, n){ var el=document.getElementById("pill-"+id); if(el){ el.textContent=n; el.style.display = n>0?"":"none"; } };
     set("verification", kpi.pendingVerification);
     set("reports", DATA.getReports().filter(function(r){ return r.status==="new"||r.status==="under_review"; }).length);
+    set("matchRequests", (DATA.getMatchRequests()||[]).filter(function(r){ return r.status==="new" || r.status==="reviewing"; }).length);
     set("payments", kpi.pendingPayments);
     var openSupport = (DATA.getSupportTickets ? DATA.getSupportTickets().filter(function(t){ return t.status==="open"||t.status==="pending"; }).length : 0);
     set("support", openSupport);
@@ -282,7 +284,7 @@
     DATA.getProfessionals().forEach(function(p){
       var hay = (p.name+" "+p.job+" "+p.city+" "+p.category).toLowerCase();
       if(hay.indexOf(q)>-1){
-        results.push({ group:T("Professionnels"), id:p.id, main : p.name, sub: p.job+" · "+p.city+" · "+p.id, route:"professionals/"+p.id, ico:"🧑‍🔧" });
+        results.push({ group:T("Artisans"), id:p.id, main : p.name, sub: p.job+" · "+p.city+" · "+p.id, route:"professionals/"+p.id, ico:"🧑‍🔧" });
       }
     });
     // users

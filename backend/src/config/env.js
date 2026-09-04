@@ -32,6 +32,15 @@ const env = {
     driver: process.env.STORAGE_DRIVER || "local",
     root: process.env.STORAGE_ROOT || "storage",
     baseUrl: process.env.STORAGE_BASE_URL || "/files"
+  },
+  // WhatsApp Business API (NOTIFICATION CHANNEL ONLY — never the source of
+  // truth). Optional: if unset, match-lead notifications are stored as
+  // "pending" and can be retried from the admin dashboard.
+  whatsapp: {
+    apiUrl: process.env.WHATSAPP_API_URL || "",
+    apiToken: process.env.WHATSAPP_API_TOKEN || "",
+    businessPhone: process.env.WHATSAPP_BUSINESS_PHONE || "",
+    defaultRecipient: process.env.WHATSAPP_DEFAULT_RECIPIENT || ""
   }
 };
 
