@@ -12926,10 +12926,13 @@ function startHeroRotation() {
   function render(p) {
     const e = els();
 
-    if (e.photo) {
-      e.photo.style.display = "";
-      e.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
-    }
+    /* Un-hide every field in case a loading/error/empty state
+       hid them on a previous pass. */
+    Object.keys(e).forEach(function (key) {
+      if (e[key]) e[key].style.display = "";
+    });
+
+    if (e.photo) e.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
     if (e.name) e.name.textContent = p.name || "";
     if (e.job) e.job.textContent = p.job || "";
     if (e.rating) {
