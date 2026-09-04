@@ -2251,19 +2251,18 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  animation: sncCycle 25s linear infinite;
+  animation: sncCycle 20s linear infinite;
 }
 .snc-pane--1 { animation-delay: 0s; }
 .snc-pane--2 { animation-delay: -5s; }
 .snc-pane--3 { animation-delay: -10s; }
 .snc-pane--4 { animation-delay: -15s; }
-.snc-pane--5 { animation-delay: -20s; }
 
 @keyframes sncCycle {
   0%   { opacity: 0; transform: translateY(10px); }
-  4%   { opacity: 1; transform: translateY(0); }
-  19%  { opacity: 1; transform: translateY(0); }
-  23%  { opacity: 0; transform: translateY(-10px); }
+  5%   { opacity: 1; transform: translateY(0); }
+  24%  { opacity: 1; transform: translateY(0); }
+  29%  { opacity: 0; transform: translateY(-10px); }
   100% { opacity: 0; }
 }
 
@@ -2505,6 +2504,26 @@
   border: 1px solid rgba(13, 107, 97, 0.12);
   background: #fff;
 }
+.snc-plan--sel {
+  border: 2px solid var(--teal);
+  background: linear-gradient(160deg, #f0faf8, #fff);
+  box-shadow: 0 6px 16px rgba(13, 107, 97, 0.14);
+  position: relative;
+}
+.snc-plan--sel .snc-plan-check {
+  position: absolute;
+  top: -7px;
+  inset-inline-end: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+}
 .snc-plan b {
   font-size: 8px;
   font-weight: 900;
@@ -2704,6 +2723,49 @@
 
 /* phone pane: search tap target */
 .snc-search-btn-grp { display: flex; gap: 6px; align-items: center; }
+
+/* membre pane: selected pack + registration form */
+.snc-regform {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 8px 12px 10px;
+  overflow: hidden;
+}
+.snc-regform-lbl { font-size: 7px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal); }
+.snc-regform .snc-field { width: 100%; }
+.snc-regrow { display: flex; gap: 5px; }
+.snc-regrow .snc-field { flex: 1; min-width: 0; }
+.snc-regform .snc-btn { width: 100%; }
+.snc-regform-note { font-size: 7px; font-weight: 600; color: #7b8f8a; text-align: center; }
+
+/* laptop pane: selected pack + registration form */
+.snc-regform-lg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px 15px 10px;
+}
+.snc-regform-lg-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-regform-lg .snc-frow { display: flex; gap: 7px; }
+.snc-regform-lg .snc-field { flex: 1; min-width: 0; }
+.snc-regform-lg .snc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .snc-search-go {
   display: inline-flex;
   align-items: center;
@@ -5668,43 +5730,8 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                           <span class="snc-pt" style="inset-inline-end:14px;top:44%" aria-hidden="true">⇩</span>
                         </div>
 
-                        <!-- 2 · Résultats -->
+                        <!-- 2 · Profil -->
                         <div class="snc-pane snc-pane--2" aria-hidden="true">
-                          <div class="snc-rows-head">
-                            <b data-i18n="showcase.rTitle">Résultats</b>
-                            <small>3 · <span data-i18n="showcase.city">Casablanca</span></small>
-                          </div>
-                          <div class="snc-grid-cols">
-                            <div class="snc-tap snc-grid-card">
-                              <span class="snc-ava snc-ava--teal">KB</span>
-                              <span><b>Karim B.</b><small>Plombier</small></span>
-                              <span class="snc-stars">★★★★★</span>
-                              <span class="snc-price">350 DH</span>
-                            </div>
-                            <div class="snc-tap snc-grid-card">
-                              <span class="snc-ava snc-ava--terra">YM</span>
-                              <span><b>Youssef M.</b><small>Plombier</small></span>
-                              <span class="snc-stars">★★★★☆</span>
-                              <span class="snc-price">250 DH</span>
-                            </div>
-                            <div class="snc-tap snc-grid-card">
-                              <span class="snc-ava snc-ava--teal">HS</span>
-                              <span><b>Hamid S.</b><small>Plombier</small></span>
-                              <span class="snc-stars">★★★★★</span>
-                              <span class="snc-price">400 DH</span>
-                            </div>
-                            <div class="snc-tap snc-grid-card">
-                              <span class="snc-ava snc-ava--terra">RA</span>
-                              <span><b>Rachid A.</b><small>Plombier</small></span>
-                              <span class="snc-stars">★★★★☆</span>
-                              <span class="snc-price">280 DH</span>
-                            </div>
-                          </div>
-                          <span class="snc-pt" style="inset-inline-start:16%;top:55%" aria-hidden="true">👆</span>
-                        </div>
-
-                        <!-- 3 · Profil -->
-                        <div class="snc-pane snc-pane--3" aria-hidden="true">
                           <div class="snc-profile">
                             <span class="snc-ava snc-ava--teal">KB</span>
                             <div>
@@ -5723,8 +5750,8 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                           <span class="snc-pt" style="inset-inline-end:18%;bottom:10%" aria-hidden="true">👆</span>
                         </div>
 
-                        <!-- 4 · WhatsApp -->
-                        <div class="snc-pane snc-pane--4" aria-hidden="true">
+                        <!-- 3 · WhatsApp -->
+                        <div class="snc-pane snc-pane--3" aria-hidden="true">
                           <div class="snc-chat">
                             <div class="snc-chat-head">
                               <span class="snc-ava">KB</span>
@@ -5740,30 +5767,40 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                           </div>
                         </div>
 
-                        <!-- 5 · Devenir membre -->
-                        <div class="snc-pane snc-pane--5" aria-hidden="true">
+                        <!-- 4 · Devenir membre -->
+                        <div class="snc-pane snc-pane--4" aria-hidden="true">
                           <span class="snc-plan-head" data-i18n="showcase.jTitle">Devenez membre</span>
                           <div class="snc-plans">
-                            <div class="snc-plan">
+                            <div class="snc-plan snc-plan--sel">
+                              <span class="snc-plan-check" aria-hidden="true">✓</span>
                               <b>Gratuit</b>
                               <span class="snc-plan-price">0 DH</span>
                               <span class="snc-plan-feat" data-i18n="showcase.jP1">Profil · 3 photos</span>
-                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
                             </div>
                             <div class="snc-plan">
                               <b>Vérifié</b>
                               <span class="snc-plan-price">99 DH</span>
                               <span class="snc-plan-feat" data-i18n="showcase.jP2">Badge ✓ · Prioritaire</span>
-                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
                             </div>
                             <div class="snc-plan snc-plan--gold">
                               <b>GOLD</b>
                               <span class="snc-plan-price">199 DH</span>
                               <span class="snc-plan-feat" data-i18n="showcase.jP3">Premium · Mise en avant</span>
-                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
                             </div>
                           </div>
-                          <span class="snc-member-note" data-i18n="showcase.jNote">Gratuit · 2 min</span>
+                          <div class="snc-regform">
+                            <span class="snc-regform-lbl" data-i18n="showcase.fTitle">Vos informations</span>
+                            <div class="snc-regrow">
+                              <span class="snc-field"><span data-i18n="showcase.fvPrénom">Karim</span></span>
+                              <span class="snc-field"><span data-i18n="showcase.fvNom">El Amrani</span></span>
+                            </div>
+                            <div class="snc-regrow">
+                              <span class="snc-field"><span data-i18n="showcase.fvTel">06 12 34 56 78</span></span>
+                              <span class="snc-field"><span data-i18n="showcase.city">Casablanca</span></span>
+                            </div>
+                            <span class="snc-tap snc-btn"><span data-i18n="showcase.jBtn">Créer mon compte</span></span>
+                            <span class="snc-regform-note" data-i18n="showcase.jNote">Gratuit · 2 min</span>
+                          </div>
                         </div>
 
                       </div>
@@ -5856,43 +5893,8 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                             <span class="snc-pt" style="inset-inline-end:40px;top:44%" aria-hidden="true">👆</span>
                           </div>
 
-                          <!-- 2 · Résultats -->
+                          <!-- 2 · Profil -->
                           <div class="snc-pane snc-pane--2" aria-hidden="true">
-                            <div class="snc-rows-head">
-                              <b data-i18n="showcase.rTitle">Résultats</b>
-                              <small>Plombier · <span data-i18n="showcase.city">Casablanca</span></small>
-                            </div>
-                            <div class="snc-rows">
-                              <div class="snc-tap snc-row">
-                                <span class="snc-ava snc-ava--teal">KB</span>
-                                <span>
-                                  <b>Karim B.</b>
-                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★★ 4,9</small>
-                                </span>
-                                <span class="snc-price">350 DH</span>
-                              </div>
-                              <div class="snc-tap snc-row">
-                                <span class="snc-ava snc-ava--terra">YM</span>
-                                <span>
-                                  <b>Youssef M.</b>
-                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★☆ 4,7</small>
-                                </span>
-                                <span class="snc-price">250 DH</span>
-                              </div>
-                              <div class="snc-tap snc-row">
-                                <span class="snc-ava snc-ava--teal">HS</span>
-                                <span>
-                                  <b>Hamid S.</b>
-                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★★ 4,9</small>
-                                </span>
-                                <span class="snc-price">400 DH</span>
-                              </div>
-                            </div>
-                            <span class="snc-pt" style="inset-inline-start:22%;top:52%" aria-hidden="true">👆</span>
-                          </div>
-
-                          <!-- 3 · Profil -->
-                          <div class="snc-pane snc-pane--3" aria-hidden="true">
                             <div class="snc-profbg">
                               <div class="snc-profbg-main">
                                 <div class="snc-profile">
@@ -5912,8 +5914,8 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                             <span class="snc-pt" style="inset-inline-end:34%;bottom:8%" aria-hidden="true">👆</span>
                           </div>
 
-                          <!-- 4 · WhatsApp -->
-                          <div class="snc-pane snc-pane--4" aria-hidden="true">
+                          <!-- 3 · WhatsApp -->
+                          <div class="snc-pane snc-pane--3" aria-hidden="true">
                             <div class="snc-chat">
                               <div class="snc-chat-head">
                                 <span class="snc-ava">KB</span>
@@ -5929,30 +5931,43 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
                             </div>
                           </div>
 
-                          <!-- 5 · Devenir membre -->
-                          <div class="snc-pane snc-pane--5" aria-hidden="true">
+                          <!-- 4 · Devenir membre -->
+                          <div class="snc-pane snc-pane--4" aria-hidden="true">
                             <div class="snc-plans-lg-head">
                               <b data-i18n="showcase.jTitle">Devenez membre</b>
                               <small data-i18n="showcase.jNote">Gratuit · 2 min</small>
                             </div>
                             <div class="snc-plans-row snc-plans-row--lg">
-                              <div class="snc-plan">
+                              <div class="snc-plan snc-plan--sel">
+                                <span class="snc-plan-check" aria-hidden="true">✓</span>
                                 <b>Gratuit</b>
                                 <span class="snc-plan-price">0 DH</span>
                                 <span class="snc-plan-feat" data-i18n="showcase.jP1">Profil · 3 photos</span>
-                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
                               </div>
                               <div class="snc-plan">
                                 <b>Vérifié</b>
                                 <span class="snc-plan-price">99 DH/mois</span>
                                 <span class="snc-plan-feat" data-i18n="showcase.jP2">Badge ✓ · Prioritaire</span>
-                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
                               </div>
                               <div class="snc-plan snc-plan--gold">
                                 <b>GOLD</b>
                                 <span class="snc-plan-price">199 DH/mois</span>
                                 <span class="snc-plan-feat" data-i18n="showcase.jP3">Premium · Mise en avant</span>
-                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                              </div>
+                            </div>
+                            <div class="snc-regform-lg">
+                              <div class="snc-regform-lg-card">
+                                <span class="snc-regform-lbl" data-i18n="showcase.fTitle">Vos informations</span>
+                                <div class="snc-frow">
+                                  <span class="snc-field"><span data-i18n="showcase.fvPrénom">Karim</span></span>
+                                  <span class="snc-field"><span data-i18n="showcase.fvNom">El Amrani</span></span>
+                                  <span class="snc-field"><span data-i18n="showcase.fvTel">06 12 34 56 78</span></span>
+                                  <span class="snc-field"><span data-i18n="showcase.city">Casablanca</span></span>
+                                </div>
+                                <div class="snc-footer">
+                                  <span class="snc-tap snc-btn"><span data-i18n="showcase.jBtn">Créer mon compte</span></span>
+                                  <span class="snc-regform-note" data-i18n="showcase.jNote">Gratuit · 2 min</span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -6976,6 +6991,10 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           jP3: "Premium · Mise en avant",
           jBtn: "Créer mon compte",
           jNote: "Gratuit · 2 min",
+          fTitle: "Vos informations",
+          fvPrénom: "Karim",
+          fvNom: "El Amrani",
+          fvTel: "06 12 34 56 78",
           tTrouvez: "Trouvez",
           dTrouvez: "Trouvez rapidement le bon artisan.",
           tComparez: "Comparez",
@@ -7384,6 +7403,10 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           jP3: "Premium · ترويج",
           jBtn: "صايب حسابي",
           jNote: "مجاني · 2 دقائق",
+          fTitle: "معلوماتك",
+          fvPrénom: "كريم",
+          fvNom: "العمراني",
+          fvTel: "06 12 34 56 78",
           tTrouvez: "لقّي",
           dTrouvez: "لقّي الحرفي المناسب بسرعة.",
           tComparez: "قارن",
@@ -7791,6 +7814,10 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           jP3: "Premium · Featured",
           jBtn: "Create my account",
           jNote: "Free · 2 min",
+          fTitle: "Your information",
+          fvPrénom: "Karim",
+          fvNom: "El Amrani",
+          fvTel: "06 12 34 56 78",
           tTrouvez: "Find",
           dTrouvez: "Quickly find the right artisan.",
           tComparez: "Compare",
