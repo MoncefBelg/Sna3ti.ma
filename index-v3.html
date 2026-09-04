@@ -1715,6 +1715,95 @@
   opacity: .7;
 }
 
+/* The Hero card is clickable and leads to the real profile. */
+#heroCard {
+  cursor: pointer;
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    box-shadow .3s ease;
+}
+
+#heroCard .hero-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,.8);
+  border-bottom: 1px dashed rgba(255,255,255,.35);
+  padding-bottom: 2px;
+}
+
+#heroCard:hover .hero-card-cta {
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,.7);
+}
+
+/* GOLD + Verified pros get a subtle gold rim on the Hero card. */
+#heroCard.badge-gold {
+  border-color: rgba(251,191,36,.55);
+  box-shadow:
+    0 50px 110px rgba(0,0,0,.34),
+    0 15px 35px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(251,191,36,.35);
+}
+
+#heroCard.badge-gold::before {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(251,191,36,.75),
+      transparent
+    );
+}
+
+#heroCard.badge-gold .hero-badge-gold {
+  color: #fbbf24;
+  border-color: rgba(251,191,36,.45);
+  background: rgba(251,191,36,.14);
+}
+
+/* On small screens the Hero card stacks under the search box and
+   keeps working as a normal clickable card (no 3D offsets). */
+@media (max-width: 767px) {
+
+  .hero-visual {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 620px;
+  }
+
+  .hero-visual-back {
+    display: none;
+  }
+
+  [dir="rtl"] .hero-content-grid .hero-visual {
+    order: 0;
+  }
+
+  .hero-card,
+  .hero-card-main,
+  [dir="rtl"] .hero-card,
+  [dir="rtl"] .hero-card-main {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    transform: none !important;
+  }
+
+  .floating-badge,
+  .tool-orb {
+    display: none;
+  }
+
+}
+
 /* Give the profile a more premium presence */
 .profile-photo {
   width: 112px;
@@ -4153,8 +4242,6 @@
             hero-visual
             relative
             h-[580px]
-            hidden
-            lg:block
           "
         >
 
@@ -4162,6 +4249,7 @@
 
           <div
             class="
+              hero-visual-back
               absolute
               inset-10
               rounded-[3rem]
@@ -4353,9 +4441,33 @@
             </div>
 
 
+            <!-- VIEW PROFILE CTA -->
+
+            <div
+              id="heroCardCta"
+              class="
+                mt-5
+                text-center
+              "
+            >
+              <span
+                id="heroCardCtaText"
+                class="
+                  hero-card-cta
+                  text-xs
+                  font-bold
+                  tracking-wide
+                "
+              >
+                Voir le profil →
+              </span>
+            </div>
+
+
             <!-- PRICE -->
 
             <div
+              id="heroCardPriceRow"
               class="
                 mt-5
                 flex
@@ -4369,6 +4481,7 @@
                   text-white/40
                   text-sm
                 "
+                data-i18n="hero.from"
               >
                 À partir de
               </span>
@@ -7100,7 +7213,31 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           statCities:
             "Villes couvertes",
           proCta:
-            "Vous êtes un artisan ? Rejoignez Sna3ti"
+            "Vous êtes un artisan ? Rejoignez Sna3ti",
+          from:
+            "À partir de",
+          reviews:
+            "%s avis",
+          availableNow:
+            "🟢 Disponible",
+          today:
+            "Aujourd'hui",
+          notAvailable:
+            "🔴 Indisponible",
+          later:
+            "Plus tard",
+          badgeGold:
+            "👑 GOLD",
+          badgeVerified:
+            "🛡️ Vérifié",
+          viewProfile:
+            "Voir le profil",
+          loading:
+            "Chargement des artisans…",
+          empty:
+            "Aucun artisan mis en avant pour le moment.",
+          error:
+            "Impossible de charger les artisans. Réessayez dans un instant."
         },
 
         services: {
@@ -7518,7 +7655,31 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           statCities:
             "مدن متوفرة",
           proCta:
-            "أنت حرفي؟ انضم إلى SNA3TI"
+            "أنت حرفي؟ انضم إلى SNA3TI",
+          from:
+            "ابتداءً من",
+          reviews:
+            "%s مراجعات",
+          availableNow:
+            "🟢 متوفر",
+          today:
+            "اليوم",
+          notAvailable:
+            "🔴 غير متوفر",
+          later:
+            "لاحقًا",
+          badgeGold:
+            "👑 GOLD",
+          badgeVerified:
+            "🛡️ موثّق",
+          viewProfile:
+            "عرض الملف الشخصي",
+          loading:
+            "جارٍ تحميل الحرفيين…",
+          empty:
+            "لا يوجد حرفيون مميزون في الوقت الحالي.",
+          error:
+            "تعذّر تحميل الحرفيين. يرجى إعادة المحاولة."
         },
 
         services: {
@@ -7936,7 +8097,31 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           statCities:
             "Cities covered",
           proCta:
-            "Are you an artisan? Join Sna3ti"
+            "Are you an artisan? Join Sna3ti",
+          from:
+            "From",
+          reviews:
+            "%s reviews",
+          availableNow:
+            "🟢 Available",
+          today:
+            "Today",
+          notAvailable:
+            "🔴 Unavailable",
+          later:
+            "Later",
+          badgeGold:
+            "👑 GOLD",
+          badgeVerified:
+            "🛡️ Verified",
+          viewProfile:
+            "View profile",
+          loading:
+            "Loading artisans…",
+          empty:
+            "No featured artisans right now.",
+          error:
+            "Couldn't load artisans. Please try again."
         },
 
         services: {
@@ -9864,7 +10049,7 @@ function renderProfessionalCard(pro) {
 
         <button
           class="pro-btn pro-btn-primary"
-          onclick="openProfessional(${pro.id})"
+          onclick="openProfessional('${pro.id}')"
         >
           Voir le profil
         </button>
@@ -10507,9 +10692,13 @@ function setupResultFilters(originalResults) {
 
 function openProfessional(id) {
 
+  /* IDs are opaque (numeric today, possibly "PRO-10295" from the
+     backend later). Preserve them exactly, never Number() them. */
+  const want = String(id).trim();
+
   const pro =
-    sna3tiProfessionals.find(
-      item => item.id === id
+    currentProfessionals().find(
+      item => String(item.id) === want
     );
 
   if (!pro) return;
@@ -10517,8 +10706,8 @@ function openProfessional(id) {
   /* Give the profile its own hash route so browser
      back/refresh work correctly. Avoid triggering the
      router again if we're already on this profile. */
-  if (window.location.hash !== "#/pro/" + id) {
-    window.location.hash = "#/pro/" + id;
+  if (window.location.hash !== "#/pro/" + want) {
+    window.location.hash = "#/pro/" + want;
   }
 
   document
@@ -11839,11 +12028,11 @@ function handleSna3tiRoute() {
 
   const hash = window.location.hash;
 
-  // PROFILE ROUTE
-  const proMatch = hash.match(/^#\/pro\/(\d+)$/);
+  // PROFILE ROUTE — the id is opaque (no Number() conversion).
+  const proMatch = hash.match(/^#\/pro\/([^\/?#]+)\/?$/);
 
   if (proMatch) {
-    openProfessional(Number(proMatch[1]));
+    openProfessional(decodeURIComponent(proMatch[1]));
     return true;
   }
 
@@ -12425,8 +12614,8 @@ function initProStats() {
   const root = document.getElementById("proStats");
   if (!root) return;
 
-  /* Real dataset aggregates. */
-  const pros = Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
+  /* Real dataset aggregates (same dynamic source as the Hero). */
+  const pros = currentProfessionals();
   const cities = new Set(pros.map(function (p) { return p.city; }).filter(Boolean));
   const verified = pros.filter(function (p) { return p.verified; }).length;
 
@@ -12553,76 +12742,280 @@ if ("serviceWorker" in navigator) {
 }
 
 /* =========================================================
-   HERO CARD — ROTATING PROFESSIONAL PROFILE
-   Cycles through the site's professionals so the home
-   visual card doesn't always show the same person.
+   HERO CARD — LIVE PROFESSIONAL PROFILES
+   The Hero is a real marketplace surface, not a fixed showcase.
+   It renders professionals straight from the professionals source
+   of truth using getHeroProfessionals():
+
+     Priority 1 — GOLD + Verified   (package "gold" && verified)
+     Priority 2 — Verified          (verified, package != "gold")
+     Priority 3 — Other pros        (NOT auto-featured)
+
+   Free / unverified professionals are excluded from the premium
+   Hero. A GOLD subscription is NOT identity verification — the two
+   stay independent and the ranking always reflects the current
+   backend state (expired GOLD or revoked verification lose their
+   priority automatically).
+
+   When a backend API is deployed, define window.SNA3TI_PROFESSIONALS_API
+   (base URL) and the Hero pulls live professionals from it on every
+   rotation. API failures show an honest error state (no fake pros),
+   empty responses remain empty, and the built-in roster is only used
+   when no API is configured.
 ========================================================= */
+const PROFESSIONALS_API = (window.SNA3TI_PROFESSIONALS_API || "").replace(/\/+$/, "");
+let proCache = null;
+
+/* Single gateway to the professionals source of truth. */
+function getProfessionals() {
+  return Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
+}
+
+function normalizeProfessionPayload(data) {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.data)) return data.data;
+  if (data && Array.isArray(data.professionals)) return data.professionals;
+  return null;
+}
+
+async function loadProfessionalsFromAPI() {
+  const res = await fetch(PROFESSIONALS_API + "/professionals");
+  if (!res.ok) throw new Error("professionals request failed");
+  const data = await res.json();
+  const list = normalizeProfessionPayload(data);
+  if (list === null) throw new Error("unexpected professionals payload");
+  return list;
+}
+
+async function refreshProfessionals() {
+  if (PROFESSIONALS_API) {
+    try {
+      const remote = await loadProfessionalsFromAPI();
+      proCache = remote.length ? remote : [];
+      return { ok: true, empty: remote.length === 0 };
+    } catch (err) {
+      proCache = null;
+      return { ok: false, error: err };
+    }
+  }
+  /* No API configured yet — the site's roster is the source of
+     truth. It is never served when an API is configured and failing. */
+  proCache = null;
+  return { ok: true, empty: getProfessionals().length === 0 };
+}
+
+function currentProfessionals() {
+  if (PROFESSIONALS_API && proCache) return proCache;
+  return getProfessionals();
+}
+
+/* --- Hero ranking (single, reusable selection algorithm) --- */
+function proPackageName(p) {
+  return String((p && p.package) || "").toLowerCase();
+}
+
+function isGoldVerifiedPro(p) {
+  return !!p && p.verified === true && proPackageName(p) === "gold";
+}
+
+function isVerifiedPro(p) {
+  return !!p && p.verified === true && proPackageName(p) !== "gold";
+}
+
+function dedupeProfessionals(pros) {
+  const seen = {};
+  const out = [];
+  (Array.isArray(pros) ? pros : []).forEach(function (p) {
+    const key = p && p.id != null ? String(p.id) : "";
+    if (!key || seen[key]) return;
+    seen[key] = true;
+    out.push(p);
+  });
+  return out;
+}
+
+/* Opaque backend IDs (e.g. "PRO-10295") are preserved as-is. */
+function getHeroProfessionals(pros) {
+  return dedupeProfessionals(pros)
+    .filter(function (p) {
+      return p && p.name && (isGoldVerifiedPro(p) || isVerifiedPro(p));
+    })
+    .sort(function (a, b) {
+      const gold = Number(isGoldVerifiedPro(b)) - Number(isGoldVerifiedPro(a));
+      if (gold !== 0) return gold;
+      const verified = Number(isVerifiedPro(b)) - Number(isVerifiedPro(a));
+      if (verified !== 0) return verified;
+      return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+    });
+}
+
+function heroT(key, fallback) {
+  const lang = localStorage.getItem("sna3ti-language") || "fr";
+  const h = (translations[lang] && translations[lang].hero) || {};
+  return h[key] || fallback || "";
+}
+
+function heroPrint(key, n, fallback) {
+  const s = heroT(key, fallback);
+  return n != null ? String(s).replace("%s", String(n)) : s;
+}
+
+function heroCurrencyUnit() {
+  const lang = localStorage.getItem("sna3ti-language") || "fr";
+  const u = (translations[lang] && translations[lang].unit) || {};
+  return u.dh || "DH";
+}
+
+/* Honest states: loading / API error / empty roster. Never fabricates. */
+function renderHeroState(card, message) {
+  if (!card) return;
+  card.classList.remove("badge-gold");
+  const ids = ["heroCardPhoto", "heroCardName", "heroCardJob", "heroCardRating",
+    "heroCardArea", "heroCardDistance", "heroCardStatus", "heroCardStatusDay",
+    "heroCardPrice", "heroCardVerified", "heroCardCta", "heroCardPriceRow"];
+  ids.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+  const name = document.getElementById("heroCardName");
+  if (name) name.textContent = message;
+  name.style.display = "";
+  card.dataset.heroState = "1";
+}
+
 let heroTimer = null;
 
 function startHeroRotation() {
 
+  if (heroTimer) {
+    clearInterval(heroTimer);
+    heroTimer = null;
+  }
+
   const card = document.getElementById("heroCard");
   if (!card) return;
 
-  if (!sna3tiProfessionals || !sna3tiProfessionals.length) return;
+  /* Show an honest loading state before the source resolves. */
+  renderHeroState(card, heroT("loading", "Chargement des artisans…"));
 
-  // Suggest paying professionals (GOLD first, then Vérifié)
-  // before the rest, so visitors always see the best first.
-  const suggestOrder = [...sna3tiProfessionals].sort((a, b) => {
-    const d = planRank(b) - planRank(a);
-    if (d !== 0) return d;
-    return (b.rating || 0) - (a.rating || 0);
-  });
-
-  let i = Math.floor(Math.random() * suggestOrder.length);
-
-  const els = {
-    photo: document.getElementById("heroCardPhoto"),
-    name: document.getElementById("heroCardName"),
-    job: document.getElementById("heroCardJob"),
-    rating: document.getElementById("heroCardRating"),
-    area: document.getElementById("heroCardArea"),
-    distance: document.getElementById("heroCardDistance"),
-    status: document.getElementById("heroCardStatus"),
-    statusDay: document.getElementById("heroCardStatusDay"),
-    price: document.getElementById("heroCardPrice"),
-    verified: document.getElementById("heroCardVerified")
-  };
-
-  function render() {
-    const p = suggestOrder[i % suggestOrder.length];
-    i = (i + 1) % suggestOrder.length;
-
-    if (els.photo) els.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
-    if (els.name) els.name.textContent = p.name || "";
-    if (els.job) els.job.textContent = p.job || "";
-
-    if (els.rating) {
-      const stars = "★★★★★";
-      els.rating.textContent =
-        stars + " " + (p.rating || "5").toFixed(1) + " · " + (p.reviews || 0) + " avis";
-    }
-
-    if (els.area) els.area.textContent = "📍 " + proCityLabel(p);
-    if (els.distance) els.distance.textContent = p.distance || "";
-    if (els.price) els.price.textContent = (p.price || 0) + " DH";
-
-    if (els.status) {
-      els.status.textContent = p.available ? "🟢 Disponible" : "🔴 Indisponible";
-    }
-    if (els.statusDay) {
-      els.statusDay.textContent = p.available ? "Aujourd'hui" : "Plus tard";
-    }
-
-    if (els.verified) {
-      els.verified.style.display =
-        p.verified === false ? "none" : "";
-    }
+  function els() {
+    return {
+      photo: document.getElementById("heroCardPhoto"),
+      name: document.getElementById("heroCardName"),
+      job: document.getElementById("heroCardJob"),
+      rating: document.getElementById("heroCardRating"),
+      area: document.getElementById("heroCardArea"),
+      distance: document.getElementById("heroCardDistance"),
+      status: document.getElementById("heroCardStatus"),
+      statusDay: document.getElementById("heroCardStatusDay"),
+      price: document.getElementById("heroCardPrice"),
+      chip: document.getElementById("heroCardVerified"),
+      ctaText: document.getElementById("heroCardCtaText"),
+      cta: document.getElementById("heroCardCta"),
+      priceRow: document.getElementById("heroCardPriceRow")
+    };
   }
 
-  render();
-  if (heroTimer) clearInterval(heroTimer);
-  heroTimer = setInterval(render, 4500);
+  function badge (p) {
+    if (isGoldVerifiedPro(p)) {
+      return heroT("badgeGold", "👑 GOLD") + " · " + heroT("badgeVerified", "🛡️ Vérifié");
+    }
+    return heroT("badgeVerified", "🛡️ Vérifié");
+  }
+
+  function render(p) {
+    const e = els();
+
+    if (e.photo) {
+      e.photo.style.display = "";
+      e.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
+    }
+    if (e.name) e.name.textContent = p.name || "";
+    if (e.job) e.job.textContent = p.job || "";
+    if (e.rating) {
+      e.rating.textContent =
+        "★★★★★ " +
+        (Number(p.rating) || 5).toFixed(1) +
+        " · " +
+        heroPrint("reviews", p.reviews || 0, "%s avis");
+    }
+    if (e.area) e.area.textContent = "📍 " + proCityLabel(p);
+    if (e.distance) e.distance.textContent = p.distance || "";
+    if (e.price) e.price.textContent = (p.price || 0) + " " + heroCurrencyUnit();
+
+    if (e.status) {
+      e.status.textContent = p.available ? heroT("availableNow", "🟢 Disponible") : heroT("notAvailable", "🔴 Indisponible");
+    }
+    if (e.statusDay) {
+      e.statusDay.textContent = p.available ? heroT("today", "Aujourd'hui") : heroT("later", "Plus tard");
+    }
+    if (e.chip) {
+      e.chip.style.display = "";
+      e.chip.textContent = badge(p);
+      e.chip.classList.toggle("hero-badge-gold", isGoldVerifiedPro(p));
+    }
+    if (e.cta && e.ctaText) {
+      e.cta.style.display = "";
+      e.ctaText.textContent = heroT("viewProfile", "Voir le profil") + " →";
+    }
+    if (e.priceRow) e.priceRow.style.display = "";
+
+    card.classList.toggle("badge-gold", isGoldVerifiedPro(p));
+    delete card.dataset.heroState;
+
+    /* Card click → the real professional profile (#/pro/{id}). */
+    const id = p && p.id != null ? String(p.id) : "";
+    if (id) card.dataset.heroPro = id;
+    else delete card.dataset.heroPro;
+
+    bindHeroCardOpen(card);
+  }
+
+  async function tick() {
+    const state = await refreshProfessionals();
+
+    if (!state.ok) {
+      if (heroTimer) clearInterval(heroTimer);
+      renderHeroState(card, heroT("error", "Impossible de charger les artisans. Réessayez dans un instant."));
+      return;
+    }
+
+    const list = getHeroProfessionals(currentProfessionals());
+
+    if (!list.length) {
+      if (heroTimer) clearInterval(heroTimer);
+      renderHeroState(card, heroT("empty", "Aucun artisan mis en avant pour le moment."));
+      return;
+    }
+
+    if (!card.dataset.heroIndex) card.dataset.heroIndex = "0";
+    let i = Number(card.dataset.heroIndex || 0) % list.length;
+    render(list[i]);
+    card.dataset.heroIndex = String((i + 1) % list.length);
+  }
+
+  tick().then(function () {
+    if (heroTimer) clearInterval(heroTimer);
+    heroTimer = setInterval(tick, 4500);
+  });
+}
+
+/* Each rendered Hero card opens its own professional profile. */
+function bindHeroCardOpen(card) {
+  if (!card || card.dataset.heroLinked === "1") return;
+
+  function go() {
+    const id = card.dataset.heroPro;
+    if (id) openProfessional(id);
+  }
+
+  card.addEventListener("click", go);
+  card.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); go(); }
+  });
+  card.setAttribute("role", "link");
+  card.setAttribute("tabindex", "0");
+  card.dataset.heroLinked = "1";
 }
 
 startHeroRotation();
