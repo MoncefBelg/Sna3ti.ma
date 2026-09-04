@@ -1995,6 +1995,1126 @@
   display: none;
 }
 
+/* =========================================================
+   SHOWCASE — "Sna3ti, partout avec vous" (Mobile + Web)
+   Pure white product showcase: phone + desktop mockups,
+   thin SVG connectors, floating step chips, soft 3D depth.
+========================================================= */
+
+.snc-stage {
+  position: relative;
+}
+
+.snc-connector {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.snc-device {
+  position: relative;
+}
+.snc-device-inner {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.snc-device:hover .snc-device-inner {
+  transform: translateY(-8px);
+}
+
+.snc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(13, 107, 97, 0.18);
+  color: var(--teal);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 30px rgba(7, 29, 26, 0.08);
+  white-space: nowrap;
+}
+.snc-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal2);
+}
+
+/* ---------- PHONE ---------- */
+.snc-phone {
+  position: relative;
+  flex: none;
+  width: min(284px, 84vw);
+  aspect-ratio: 284 / 582;
+  padding: 10px;
+  border-radius: 3rem;
+  border: 1px solid rgba(7, 29, 26, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f6f5 100%);
+  box-shadow:
+    0 45px 90px rgba(7, 29, 26, 0.22),
+    0 12px 28px rgba(7, 29, 26, 0.1);
+}
+.snc-phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 2.3rem;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(7, 29, 26, 0.06);
+}
+.snc-phone-notch {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 21px;
+  border-radius: 999px;
+  background: #071d1a;
+  z-index: 4;
+}
+.snc-phone-ui {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+}
+
+.snc-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 21px 4px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.snc-status i { font-style: normal; }
+.snc-sig { display: flex; gap: 3px; align-items: center; }
+.snc-sig i { width: 5px; height: 5px; border-radius: 50%; background: rgba(7, 29, 26, 0.35); }
+
+.snc-appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px 0;
+}
+.snc-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--teal);
+}
+.snc-logo::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.snc-bell {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(13, 107, 97, 0.1);
+  color: var(--teal);
+  font-size: 10px;
+}
+
+.snc-searchwrap { padding: 10px 14px 0; }
+.snc-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 11px;
+  background: var(--cream);
+  border: 1px solid rgba(13, 107, 97, 0.12);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #62807b;
+}
+.snc-city {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(233, 121, 63, 0.1);
+  color: #b3542a;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+/* focused "typing" caret used in phone + laptop search fields */
+.snc-search-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+.snc-caret {
+  display: inline-block;
+  width: 1.6px;
+  height: 11px;
+  margin-inline-start: 2px;
+  border-radius: 1px;
+  background: var(--teal);
+  animation: sncBlink 1.1s steps(2, start) infinite;
+}
+@keyframes sncBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* quick search suggestion chips (phone) */
+.snc-fast {
+  display: flex;
+  overflow: hidden;
+  gap: 5px;
+  margin-top: 7px;
+}
+.snc-fast-chip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(13, 107, 97, 0.14);
+  color: var(--teal);
+  font-size: 7.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.snc-fast-chip--on {
+  background: var(--teal);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* "Rechercher" button (laptop) + example chips */
+.snc-hs-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  background: var(--teal);
+  color: #fff;
+  padding: 5px 9px;
+  font-size: 8px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.snc-hs-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 7.5px;
+  font-weight: 700;
+  color: #6b807b;
+}
+.snc-hs-tag {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(13, 107, 97, 0.08);
+  color: var(--teal);
+  font-size: 7px;
+  font-weight: 800;
+}
+
+/* ---------- DYNAMIC SCREENS (auto-cycling panes) ---------- */
+.snc-phone-stage,
+.snc-lb-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.snc-pane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  animation: sncCycle 25s linear infinite;
+}
+.snc-pane--1 { animation-delay: 0s; }
+.snc-pane--2 { animation-delay: -5s; }
+.snc-pane--3 { animation-delay: -10s; }
+.snc-pane--4 { animation-delay: -15s; }
+.snc-pane--5 { animation-delay: -20s; }
+
+@keyframes sncCycle {
+  0%   { opacity: 0; transform: translateY(10px); }
+  4%   { opacity: 1; transform: translateY(0); }
+  19%  { opacity: 1; transform: translateY(0); }
+  23%  { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 0; }
+}
+
+/* mini-UI atoms */
+.snc-hs-field { flex: 1; min-width: 0; }
+.snc-lbl {
+  display: inline-block;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.snc-field {
+  border: 1px solid rgba(13, 107, 97, 0.16);
+  background: var(--cream);
+  border-radius: 9px;
+  padding: 6px 9px;
+  font-size: 8px;
+  font-weight: 600;
+  color: #8aa09b;
+  white-space: nowrap;
+}
+.snc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.snc-btn--wa { background: #25d366; }
+.snc-btn--out {
+  background: #fff;
+  border: 1px solid rgba(13, 107, 97, 0.28);
+  color: var(--teal);
+}
+
+/* phone pane: artisan profile */
+.snc-profile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  text-align: center;
+}
+.snc-profile .snc-ava { width: 58px; height: 58px; font-size: 17px; }
+.snc-profile b { font-size: 13px; color: var(--ink); }
+.snc-profile small { font-size: 8.5px; font-weight: 600; color: #6b807b; }
+.snc-profile-tags { display: flex; gap: 5px; margin-top: 2px; }
+.snc-profile-tags span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(13, 107, 97, 0.08);
+  color: var(--teal);
+  font-size: 7px;
+  font-weight: 700;
+}
+.snc-actions { display: flex; gap: 7px; margin-top: 6px; }
+
+/* phone pane: Artisan de confiance */
+.snc-match {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 16px;
+}
+.snc-match h4 { font-size: 12px; font-weight: 900; color: var(--ink); }
+.snc-match .snc-field { width: 100%; }
+.snc-match .snc-btn { width: 100%; }
+.snc-match-note { font-size: 7.5px; font-weight: 600; color: #6b807b; text-align: center; }
+.snc-tagrow { display: flex; gap: 5px; }
+.snc-tagrow span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(13, 107, 97, 0.16);
+  background: #fff;
+  color: var(--teal);
+  font-size: 7px;
+  font-weight: 700;
+}
+.snc-tagrow .on {
+  background: var(--teal);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* phone pane: devenir membre */
+.snc-member {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 16px;
+  text-align: center;
+}
+.snc-member h4 { font-size: 13px; font-weight: 900; color: var(--ink); }
+.snc-member small { font-size: 8.5px; font-weight: 600; color: #6b807b; }
+.snc-member-pts { display: flex; flex-direction: column; gap: 4px; margin: 2px 0; }
+.snc-member-pts span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #0b2e29;
+}
+.snc-member-pts i {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--teal2);
+}
+.snc-member .snc-btn { width: 100%; }
+.snc-member-note { font-size: 7px; font-weight: 600; color: #7b8f8a; }
+
+/* laptop pane: résultats */
+.snc-rows-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 15px 2px;
+}
+.snc-rows-head b { font-size: 9.5px; color: var(--ink); }
+.snc-rows-head small { font-size: 7px; font-weight: 600; color: #6b807b; }
+.snc-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 15px 8px;
+  overflow: hidden;
+}
+.snc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-row b { display: block; font-size: 8.5px; line-height: 1.2; color: var(--ink); }
+.snc-row small { font-size: 7px; font-weight: 600; color: #6b807b; }
+.snc-row .snc-ava { width: 26px; height: 26px; font-size: 8px; }
+.snc-row .snc-wa { width: 22px; height: 22px; }
+.snc-row .snc-price { margin: 0; }
+
+/* laptop pane: Artisan de confiance */
+.snc-matchlg {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 15px;
+}
+.snc-matchlg-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: linear-gradient(120deg, rgba(13, 107, 97, 0.04), rgba(233, 121, 63, 0.05));
+}
+.snc-matchlg h4 { font-size: 11px; font-weight: 900; color: var(--ink); }
+.snc-matchlg p { margin: 0; font-size: 7.5px; font-weight: 600; color: #57706b; }
+.snc-matchlg .snc-field { width: 100%; }
+.snc-matchlg .snc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.snc-matchlg .snc-match-note { text-align: start; }
+
+/* laptop pane: devenir membre */
+.snc-memberlg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 9px 15px;
+}
+.snc-memberlg-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-memberlg h4 { font-size: 11px; font-weight: 900; color: var(--ink); }
+.snc-memberlg .snc-frow { display: flex; gap: 7px; }
+.snc-memberlg .snc-field { flex: 1; min-width: 0; }
+.snc-memberlg .snc-member-pts { flex-direction: row; flex-wrap: wrap; column-gap: 12px; }
+.snc-memberlg .snc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ---------- PLANS (Devenir membre pane) ---------- */
+.snc-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 12px;
+  overflow: hidden;
+}
+.snc-plans-row {
+  display: flex;
+  gap: 5px;
+}
+.snc-plan {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 5px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(13, 107, 97, 0.12);
+  background: #fff;
+}
+.snc-plan b {
+  font-size: 8px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.snc-plan .snc-plan-price {
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--teal);
+}
+.snc-plan .snc-plan-feat {
+  font-size: 6.5px;
+  font-weight: 600;
+  color: #6b807b;
+  text-align: center;
+  line-height: 1.3;
+}
+.snc-plan .snc-plan-cta {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 6.5px;
+  font-weight: 800;
+  color: var(--teal);
+  border: 1px solid var(--teal);
+  background: #fff;
+  margin-top: auto;
+  white-space: nowrap;
+}
+.snc-plan--gold {
+  border-color: rgba(217, 119, 6, 0.28);
+  background: linear-gradient(160deg, #fff8eb, #fff);
+}
+.snc-plan--gold b { color: #92400e; }
+.snc-plan--gold .snc-plan-price { color: #d97706; }
+.snc-plan--gold .snc-plan-cta {
+  color: #fff;
+  background: #d97706;
+  border-color: transparent;
+}
+.snc-plan-head {
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--teal);
+  padding: 2px 12px 0;
+}
+
+/* laptop plans row */
+.snc-plans-row--lg {
+  display: flex;
+  gap: 8px;
+  padding: 0 15px 9px;
+}
+.snc-plans-row--lg .snc-plan {
+  padding: 10px 10px 9px;
+  gap: 5px;
+}
+.snc-plans-row--lg .snc-plan b { font-size: 9.5px; }
+.snc-plans-row--lg .snc-plan-price { font-size: 11px !important; }
+.snc-plans-row--lg .snc-plan-feat { font-size: 7.5px; }
+.snc-plans-row--lg .snc-plan-cta { font-size: 7.5px; padding: 4px 10px; }
+.snc-plans-lg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 15px 5px;
+}
+
+/* ---------- TAP / CLICK CUE ---------- */
+.snc-tap {
+  position: relative;
+  cursor: default;
+}
+.snc-tap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(233, 121, 63, 0.9);
+  animation: sncRipple 5s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes sncRipple {
+  0%   { transform: scale(1); opacity: 0.9; }
+  35%  { transform: scale(1.05); opacity: 0; }
+  36%  { transform: scale(1); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.snc-pt {
+  position: absolute;
+  z-index: 6;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(233, 121, 63, 0.7);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 8px;
+  animation: sncTap 5s cubic-bezier(.4,0,.2,1) infinite;
+  pointer-events: none;
+}
+.snc-pt::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(233, 121, 63, 0.4);
+  animation: sncTapRing 5s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes sncTap {
+  0%   { transform: translateY(0); opacity: 0; }
+  8%   { opacity: 1; }
+  26%  { opacity: 1; transform: translateY(-2px); }
+  30%  { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 0; transform: translateY(4px); }
+}
+@keyframes sncTapRing {
+  0%   { transform: scale(0.5); opacity: 0.8; }
+  30%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(0.5); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .snc-tap::after { animation: none; opacity: 0; }
+  .snc-pt { animation: none; opacity: 0; }
+  .snc-pt::after { animation: none; opacity: 0; }
+}
+
+/* ---------- WHATSAPP CHAT SCREEN ---------- */
+.snc-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+.snc-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  background: #075e54;
+  color: #fff;
+}
+.snc-chat-head .snc-ava { width: 24px; height: 24px; font-size: 8px; background: #128c7e; }
+.snc-chat-head b { font-size: 9px; }
+.snc-chat-head small { display: block; font-size: 6.5px; font-weight: 600; opacity: 0.8; }
+.snc-chat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 10px;
+  overflow: hidden;
+}
+.snc-bubl {
+  max-width: 86%;
+  padding: 6px 9px;
+  border-radius: 9px;
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 1.35;
+  background: #fff;
+  color: #1c1e21;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.12);
+  align-self: flex-start;
+}
+.snc-bubl--in {
+  background: #dcf8c6;
+  align-self: flex-end;
+}
+.snc-bubl-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #25d366;
+  color: #fff;
+  font-weight: 800;
+  font-size: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  align-self: flex-end;
+}
+.snc-chat-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #f0f0f0;
+}
+.snc-chat-input .snc-wa {
+  width: 22px;
+  height: 22px;
+  margin-inline-start: 0;
+}
+
+/* phone pane: search tap target */
+.snc-search-btn-grp { display: flex; gap: 6px; align-items: center; }
+.snc-search-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.snc-search-go.off { background: rgba(13,107,97,0.14); color: var(--teal); }
+
+/* phone pane: results grid matching search */
+.snc-grid-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  padding: 6px 14px 8px;
+}
+.snc-grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 11px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-grid-card .snc-ava { width: 30px; height: 30px; font-size: 9px; }
+.snc-grid-card b { font-size: 8.5px; color: var(--ink); line-height: 1.2; }
+.snc-grid-card small { font-size: 7px; font-weight: 600; color: #6b807b; }
+.snc-grid-card .snc-stars { font-size: 7px; }
+.snc-grid-card .snc-price { font-size: 8px; font-weight: 800; color: var(--teal); }
+.snc-grid-card .snc-verify { font-size: 7px; }
+
+/* laptop pane: profile detail + whatsapp panel */
+.snc-profbg {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  padding: 10px 15px;
+}
+.snc-profbg-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-profbg-main .snc-ava { width: 46px; height: 46px; font-size: 14px; }
+.snc-profbg-main b { font-size: 12px; color: var(--ink); }
+.snc-profbg-main small { font-size: 8px; font-weight: 600; color: #6b807b; }
+.snc-ptgt { position: relative; display: inline-flex; }
+.snc-plans-lg-head b { font-size: 11px; font-weight: 900; color: var(--ink); }
+.snc-plans-lg-head small { font-size: 7px; font-weight: 600; color: #6b807b; }
+
+.snc-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 11px 14px 4px;
+}
+.snc-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  box-shadow: 0 8px 20px rgba(7, 29, 26, 0.06);
+}
+.snc-ava {
+  width: 33px;
+  height: 33px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.snc-ava--teal { background: linear-gradient(135deg, #168f80, #0d6b61); }
+.snc-ava--terra { background: linear-gradient(135deg, #e9905f, #d96f3e); }
+.snc-card b { display: block; font-size: 10px; line-height: 1.15; color: var(--ink); }
+.snc-card small { display: block; font-size: 8px; font-weight: 600; color: #6b807b; }
+.snc-stars { color: var(--orange); font-size: 8px; letter-spacing: 1px; }
+.snc-verify { color: var(--teal2); font-size: 8px; font-weight: 800; }
+.snc-wa {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  margin-inline-start: auto;
+  border-radius: 9px;
+  background: #25d366;
+  color: #fff;
+  font-size: 10px;
+}
+.snc-wa svg { width: 13px; height: 13px; }
+
+.snc-tabbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 7px 8px 12px;
+}
+.snc-tab {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 26px;
+  border-radius: 9px;
+  color: #8aa09b;
+  font-size: 11px;
+}
+.snc-tab--on {
+  color: var(--teal);
+  background: rgba(13, 107, 97, 0.1);
+}
+
+/* ---------- FLOATING STEP CHIPS ---------- */
+.snc-chip {
+  position: absolute;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(13, 107, 97, 0.14);
+  box-shadow: 0 18px 40px rgba(7, 29, 26, 0.14);
+  color: #0b2e29;
+  white-space: nowrap;
+  animation: floating 7s ease-in-out infinite;
+}
+.snc-chip em { font-style: normal; font-size: 12px; }
+.snc-chip-tx { display: flex; flex-direction: column; line-height: 1.1; }
+.snc-chip b { display: block; font-size: 9.5px; font-weight: 800; }
+.snc-chip small { display: block; margin-top: 1px; font-size: 8px; font-weight: 600; color: #6b807b; }
+.snc-chip--solid {
+  background: rgba(13, 107, 97, 0.96);
+  border-color: transparent;
+  color: #fff;
+}
+.snc-chip--solid small { color: rgba(255, 255, 255, 0.8); }
+.snc-chip--wa {
+  background: #25d366;
+  border-color: transparent;
+  color: #fff;
+}
+.snc-chip--wa small { color: rgba(255, 255, 255, 0.85); }
+.snc-chip--2 { animation-duration: 8s; animation-delay: -2s; }
+.snc-chip--3 { animation-duration: 9s; animation-delay: -4s; }
+.snc-chip--4 { animation-duration: 7.5s; animation-delay: -3s; }
+
+.snc-chip--p1 { top: -16px; inset-inline-end: -28px; }
+.snc-chip--p2 { top: 34%; inset-inline-start: -52px; }
+.snc-chip--p3 { bottom: 24%; inset-inline-end: -40px; }
+.snc-chip--p4 { bottom: 7%; inset-inline-start: -34px; }
+
+.snc-chip--l1 { top: -16px; inset-inline-end: 28px; }
+.snc-chip--l2 { bottom: -16px; inset-inline-start: 28px; }
+
+/* ---------- LAPTOP ---------- */
+.snc-laptop {
+  position: relative;
+  flex: none;
+  width: min(540px, 94vw);
+}
+.snc-laptop-screen {
+  padding: 9px 9px 0;
+  border-radius: 1.05rem 1.05rem 0 0;
+  border: 1px solid rgba(7, 29, 26, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #eef3f1 100%);
+  box-shadow:
+    0 35px 70px rgba(7, 29, 26, 0.16),
+    0 10px 24px rgba(7, 29, 26, 0.08);
+}
+.snc-browser {
+  display: flex;
+  flex-direction: column;
+  height: clamp(272px, 30vw, 310px);
+  border-radius: 0.55rem 0.55rem 0 0;
+  overflow: hidden;
+  background: #fff;
+}
+.snc-browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  background: var(--cream);
+  border-bottom: 1px solid rgba(13, 107, 97, 0.08);
+}
+.snc-dots { display: flex; gap: 4px; }
+.snc-dots i { width: 8px; height: 8px; border-radius: 50%; }
+.snc-dots i:nth-child(1) { background: #e5b297; }
+.snc-dots i:nth-child(2) { background: #eacba2; }
+.snc-dots i:nth-child(3) { background: #9cc9bd; }
+.snc-url {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-inline-start: 4px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #6b807b;
+}
+.snc-browser-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.snc-site-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 15px;
+}
+.snc-site-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--teal);
+}
+.snc-site-logo::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.snc-site-nav {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #55706a;
+}
+.snc-site-nav .snc-nav-cta {
+  border-radius: 999px;
+  background: var(--teal);
+  color: #fff;
+  padding: 3px 9px;
+}
+.snc-site-hero {
+  display: flex;
+  flex-direction: column;
+  margin: 0 15px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 107, 97, 0.08);
+  background: linear-gradient(120deg, rgba(13, 107, 97, 0.06), rgba(233, 121, 63, 0.07));
+}
+.snc-site-hero h4 { font-size: 12px; font-weight: 900; line-height: 1.25; color: var(--ink); }
+.snc-site-hero p { margin-top: 2px; font-size: 7.5px; font-weight: 600; color: #57706b; }
+.snc-hero-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(13, 107, 97, 0.14);
+  background: #fff;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #8aa09b;
+}
+.snc-cats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  padding: 10px 15px 0;
+}
+.snc-cat {
+  padding: 7px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+  text-align: center;
+}
+.snc-cat em { display: block; font-style: normal; font-size: 13px; }
+.snc-cat small { font-size: 7px; font-weight: 800; color: var(--ink); }
+.snc-cat--terra {
+  background: rgba(233, 121, 63, 0.06);
+  border-color: rgba(233, 121, 63, 0.16);
+}
+.snc-pros {
+  display: flex;
+  gap: 7px;
+  padding: 9px 15px 0;
+}
+.snc-pro {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+}
+.snc-pro-head { display: flex; align-items: center; gap: 6px; }
+.snc-pro .snc-ava { width: 25px; height: 25px; font-size: 8px; }
+.snc-pro b { display: block; font-size: 8.5px; line-height: 1.2; color: var(--ink); }
+.snc-pro small { display: block; font-size: 7px; font-weight: 600; color: #6b807b; }
+.snc-pro .snc-stars { display: block; margin-top: 6px; font-size: 7px; }
+.snc-price {
+  display: inline-flex;
+  margin-top: 5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(13, 107, 97, 0.08);
+  color: var(--teal);
+  font-size: 7px;
+  font-weight: 800;
+}
+.snc-laptop-base {
+  position: relative;
+  height: 12px;
+  width: 104%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 0 0 1.55rem 1.55rem;
+  background: linear-gradient(180deg, #ffffff 0%, #e8efec 100%);
+  box-shadow: 0 22px 40px rgba(7, 29, 26, 0.16);
+}
+.snc-laptop-base::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(13, 107, 97, 0.3);
+}
+
+/* ---------- BENEFITS ---------- */
+.snc-benefit {
+  border-radius: 1.25rem;
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  background: #fff;
+  padding: 1.4rem;
+  box-shadow: 0 15px 50px rgba(7, 29, 26, 0.08);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+}
+.snc-benefit:hover {
+  transform: translateY(-5px);
+  border-color: rgba(13, 107, 97, 0.24);
+  box-shadow: 0 30px 80px rgba(7, 29, 26, 0.14);
+}
+.snc-benefit-ico {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(13, 107, 97, 0.12), rgba(13, 107, 97, 0.04));
+  border: 1px solid rgba(13, 107, 97, 0.1);
+  font-size: 17px;
+}
+.snc-benefit--match .snc-benefit-ico {
+  background: linear-gradient(135deg, rgba(233, 121, 63, 0.13), rgba(233, 121, 63, 0.04));
+  border-color: rgba(233, 121, 63, 0.14);
+}
+
+@media (max-width: 1023px) {
+  .snc-chip--p1 { inset-inline-end: -10px; }
+  .snc-chip--p2 { inset-inline-start: -14px; }
+  .snc-chip--p3 { inset-inline-end: -18px; }
+  .snc-chip--p4 { inset-inline-start: -10px; }
+  .snc-chip--l1 { inset-inline-end: 12px; }
+  .snc-chip--l2 { inset-inline-start: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snc-chip { animation: none; }
+  .snc-caret { animation: none; }
+  .snc-pane { animation: none; opacity: 0; }
+  .snc-pane--1 { opacity: 1; }
+  .snc-device-inner { transition: none; }
+  .snc-device:hover .snc-device-inner { transform: none; }
+  .snc-benefit { transition: none; }
+  .snc-benefit:hover { transform: none; }
+}
+
   </style>
 </head>
 
@@ -4425,6 +5545,468 @@ Inscrivez votre activité sur Sna3ti.ma et recevez
 
 
   <!-- =====================================================
+       SHOWCASE — Sna3ti, partout avec vous (Mobile + Web)
+  ====================================================== -->
+
+  <section
+    id="showcase"
+    class="relative overflow-hidden bg-white py-20 sm:py-24"
+  >
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+
+      <div class="text-center max-w-3xl mx-auto">
+        <h2
+          class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-sna3ti-ink"
+          data-i18n="showcase.headline"
+        >
+          Sna3ti, partout avec vous
+        </h2>
+        <p
+          class="mt-4 text-gray-500 text-base sm:text-lg leading-7"
+          data-i18n="showcase.subtitle"
+        >
+          Sur mobile ou sur ordinateur, trouvez votre artisan en quelques clics.
+        </p>
+      </div>
+
+      <div class="snc-stage relative mt-14 sm:mt-16">
+
+        <svg
+          class="snc-connector hidden lg:block"
+          viewBox="0 0 1200 600"
+          preserveAspectRatio="xMidYMid meet"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M250 330 C 420 330, 760 330, 950 330" stroke="rgba(13,107,97,0.22)" stroke-width="1.5" stroke-linecap="butt" />
+          <path d="M300 348 C 470 348, 710 348, 900 348" stroke="rgba(13,107,97,0.12)" stroke-width="1.5" stroke-linecap="butt" />
+          <path d="M600 318 v24 M588 330 h24" stroke="rgba(13,107,97,0.35)" stroke-width="1.5" stroke-linecap="butt" />
+          <circle cx="600" cy="330" r="3.5" fill="rgba(13,107,97,0.4)" />
+          <circle cx="600" cy="330" r="10" fill="none" stroke="rgba(13,107,97,0.16)" stroke-width="1.5" stroke-linecap="butt" />
+        </svg>
+
+        <div
+          class="relative z-10 flex flex-col items-center gap-14 sm:gap-16 lg:flex-row lg:items-center lg:justify-center lg:gap-20"
+        >
+
+          <!-- Smartphone -->
+          <div class="snc-device">
+            <div class="snc-device-inner">
+              <div class="text-center">
+                <span class="snc-label" data-i18n="showcase.mobileLabel">Sur mobile</span>
+              </div>
+
+              <div class="mt-7 flex justify-center">
+                <div class="snc-phone">
+                  <span class="snc-chip snc-chip--p1">
+                    <em>🔎</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.ch1a">Recherche</b>
+                      <small data-i18n="showcase.typed">plombier à Casablanca</small>
+                    </span>
+                  </span>
+                  <span class="snc-chip snc-chip--p2 snc-chip--2">
+                    <em>👤</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.ch2a">Profil</b>
+                      <small data-i18n="showcase.ch2b">Karim B. · ★ 4,9</small>
+                    </span>
+                  </span>
+                  <span class="snc-chip snc-chip--p3 snc-chip--solid snc-chip--3">
+                    <em>💬</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.ch3a">WhatsApp</b>
+                      <small data-i18n="showcase.ch3b">Salut, j'ai besoin…</small>
+                    </span>
+                  </span>
+                  <span class="snc-chip snc-chip--p4 snc-chip--wa snc-chip--4">
+                    <em>👥</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.ch4a">Devenir membre</b>
+                      <small data-i18n="showcase.ch4b">Compte créé</small>
+                    </span>
+                  </span>
+
+                  <span class="snc-phone-notch" aria-hidden="true"></span>
+
+                  <div class="snc-phone-screen">
+                    <div class="snc-phone-ui">
+                      <div class="snc-status">
+                        <span>9:41</span>
+                        <span class="snc-sig"><i></i><i></i><i></i></span>
+                      </div>
+                      <div class="snc-appbar">
+                        <span class="snc-logo">sna3ti</span>
+                        <span class="snc-bell" aria-hidden="true">🔔</span>
+                      </div>
+
+                      <div class="snc-phone-stage">
+
+                        <!-- 1 · Recherche -->
+                        <div class="snc-pane snc-pane--1" aria-hidden="true">
+                          <div class="snc-searchwrap">
+                            <div class="snc-search">
+                              <span aria-hidden="true">🔍</span>
+                              <span class="snc-search-field">
+                                <span data-i18n="showcase.typed">plombier à Casablanca</span>
+                                <i class="snc-caret" aria-hidden="true"></i>
+                              </span>
+                            </div>
+                            <div class="snc-search-btn-grp">
+                              <span class="snc-hs-tag" data-i18n="showcase.js1">plombier</span>
+                              <span class="snc-hs-tag" data-i18n="showcase.js2">électricien</span>
+                              <span class="snc-hs-tag" data-i18n="showcase.js3">peintre</span>
+                              <span class="snc-tap snc-search-go" style="margin-inline-start:auto"><span data-i18n="showcase.dwSearchBtn">Rechercher</span><span aria-hidden="true">→</span></span>
+                            </div>
+                            <div class="snc-city">
+                              <span aria-hidden="true">📍</span>
+                              <span data-i18n="showcase.city">Casablanca</span>
+                              <span aria-hidden="true">✓</span>
+                            </div>
+                          </div>
+                          <span class="snc-pt" style="inset-inline-end:14px;top:44%" aria-hidden="true">⇩</span>
+                        </div>
+
+                        <!-- 2 · Résultats -->
+                        <div class="snc-pane snc-pane--2" aria-hidden="true">
+                          <div class="snc-rows-head">
+                            <b data-i18n="showcase.rTitle">Résultats</b>
+                            <small>3 · <span data-i18n="showcase.city">Casablanca</span></small>
+                          </div>
+                          <div class="snc-grid-cols">
+                            <div class="snc-tap snc-grid-card">
+                              <span class="snc-ava snc-ava--teal">KB</span>
+                              <span><b>Karim B.</b><small>Plombier</small></span>
+                              <span class="snc-stars">★★★★★</span>
+                              <span class="snc-price">350 DH</span>
+                            </div>
+                            <div class="snc-tap snc-grid-card">
+                              <span class="snc-ava snc-ava--terra">YM</span>
+                              <span><b>Youssef M.</b><small>Plombier</small></span>
+                              <span class="snc-stars">★★★★☆</span>
+                              <span class="snc-price">250 DH</span>
+                            </div>
+                            <div class="snc-tap snc-grid-card">
+                              <span class="snc-ava snc-ava--teal">HS</span>
+                              <span><b>Hamid S.</b><small>Plombier</small></span>
+                              <span class="snc-stars">★★★★★</span>
+                              <span class="snc-price">400 DH</span>
+                            </div>
+                            <div class="snc-tap snc-grid-card">
+                              <span class="snc-ava snc-ava--terra">RA</span>
+                              <span><b>Rachid A.</b><small>Plombier</small></span>
+                              <span class="snc-stars">★★★★☆</span>
+                              <span class="snc-price">280 DH</span>
+                            </div>
+                          </div>
+                          <span class="snc-pt" style="inset-inline-start:16%;top:55%" aria-hidden="true">👆</span>
+                        </div>
+
+                        <!-- 3 · Profil -->
+                        <div class="snc-pane snc-pane--3" aria-hidden="true">
+                          <div class="snc-profile">
+                            <span class="snc-ava snc-ava--teal">KB</span>
+                            <div>
+                              <b>Karim B.</b>
+                              <small><span data-i18n="showcase.cat1">Plomberie</span> · <span class="snc-stars">★★★★★</span> 4,9</small>
+                              <small><span class="snc-verify">✓ <span data-i18n="showcase.dl2a">Artisan vérifié</span></span></small>
+                            </div>
+                            <div class="snc-profile-tags">
+                              <span>🔧 <span data-i18n="showcase.cat1">Plomberie</span></span>
+                              <span>📍 <span data-i18n="showcase.city">Casablanca</span></span>
+                            </div>
+                            <div class="snc-actions">
+                              <span class="snc-tap snc-btn snc-btn--wa">💬 <span data-i18n="showcase.btnWa">WhatsApp</span></span>
+                            </div>
+                          </div>
+                          <span class="snc-pt" style="inset-inline-end:18%;bottom:10%" aria-hidden="true">👆</span>
+                        </div>
+
+                        <!-- 4 · WhatsApp -->
+                        <div class="snc-pane snc-pane--4" aria-hidden="true">
+                          <div class="snc-chat">
+                            <div class="snc-chat-head">
+                              <span class="snc-ava">KB</span>
+                              <span><b>Karim B.</b><small>en ligne</small></span>
+                            </div>
+                            <div class="snc-chat-body">
+                              <span class="snc-bubl snc-bubl--in"><span data-i18n="showcase.waHi">Bonjour, j'ai besoin d'un plombier à Casablanca. 🛠️</span></span>
+                            </div>
+                            <div class="snc-chat-input">
+                              <span class="snc-wa" aria-hidden="true">💬</span>
+                              <span class="snc-field snc-hs-field" aria-hidden="true">………</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- 5 · Devenir membre -->
+                        <div class="snc-pane snc-pane--5" aria-hidden="true">
+                          <span class="snc-plan-head" data-i18n="showcase.jTitle">Devenez membre</span>
+                          <div class="snc-plans">
+                            <div class="snc-plan">
+                              <b>Gratuit</b>
+                              <span class="snc-plan-price">0 DH</span>
+                              <span class="snc-plan-feat" data-i18n="showcase.jP1">Profil · 3 photos</span>
+                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                            </div>
+                            <div class="snc-plan">
+                              <b>Vérifié</b>
+                              <span class="snc-plan-price">99 DH</span>
+                              <span class="snc-plan-feat" data-i18n="showcase.jP2">Badge ✓ · Prioritaire</span>
+                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                            </div>
+                            <div class="snc-plan snc-plan--gold">
+                              <b>GOLD</b>
+                              <span class="snc-plan-price">199 DH</span>
+                              <span class="snc-plan-feat" data-i18n="showcase.jP3">Premium · Mise en avant</span>
+                              <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                            </div>
+                          </div>
+                          <span class="snc-member-note" data-i18n="showcase.jNote">Gratuit · 2 min</span>
+                        </div>
+
+                      </div>
+
+                      <div class="snc-tabbar">
+                        <span class="snc-tab snc-tab--on" aria-hidden="true">🏠</span>
+                        <span class="snc-tab" aria-hidden="true">🔍</span>
+                        <span class="snc-tab" aria-hidden="true">＋</span>
+                        <span class="snc-tab" aria-hidden="true">👤</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop -->
+          <div class="snc-device">
+            <div class="snc-device-inner">
+              <div class="text-center">
+                <span class="snc-label" data-i18n="showcase.desktopLabel">Sur ordinateur</span>
+              </div>
+
+              <div class="mt-7 flex justify-center">
+                <div class="snc-laptop">
+
+                  <span class="snc-chip snc-chip--l1 snc-chip--2">
+                    <em>⭐</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.dl1a">Note moyenne</b>
+                      <small data-i18n="showcase.dl1b">4,9 · 128 avis</small>
+                    </span>
+                  </span>
+                  <span class="snc-chip snc-chip--l2 snc-chip--solid snc-chip--3">
+                    <em>✓</em>
+                    <span class="snc-chip-tx">
+                      <b data-i18n="showcase.dl2a">Artisan vérifié</b>
+                      <small data-i18n="showcase.dl2b">Badge officiel</small>
+                    </span>
+                  </span>
+
+                  <div class="snc-laptop-screen">
+                    <div class="snc-browser">
+                      <div class="snc-browser-bar">
+                        <span class="snc-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="snc-url"><span aria-hidden="true">🔒</span> sna3ti.ma</span>
+                      </div>
+
+                      <div class="snc-browser-body">
+                        <div class="snc-site-head">
+                          <span class="snc-site-logo">sna3ti</span>
+                          <span class="snc-site-nav">
+                            <span data-i18n="showcase.dwNav1">Services</span>
+                            <span data-i18n="showcase.dwNav2">Artisans</span>
+                            <span data-i18n="showcase.dwNav3">Tarifs</span>
+                            <span class="snc-nav-cta" data-i18n="showcase.dwNavCta">S'inscrire</span>
+                          </span>
+                        </div>
+
+                        <div class="snc-lb-stage">
+
+                          <!-- 1 · Recherche -->
+                          <div class="snc-pane snc-pane--1" aria-hidden="true">
+                            <div class="snc-site-hero">
+                              <h4 data-i18n="showcase.dwHero">Trouvez l'artisan parfait</h4>
+                              <p data-i18n="showcase.dwHeroSub">Comparez profils, avis et prix en quelques minutes.</p>
+                              <div class="snc-hero-search">
+                                <span aria-hidden="true">🔍</span>
+                                <span class="snc-search-field snc-hs-field">
+                                  <span data-i18n="showcase.typed">plombier à Casablanca</span>
+                                  <i class="snc-caret" aria-hidden="true"></i>
+                                </span>
+                                <span class="snc-tap snc-hs-btn"><span data-i18n="showcase.dwSearchBtn">Rechercher</span><span aria-hidden="true">→</span></span>
+                              </div>
+                              <div class="snc-hs-hint">
+                                <span data-i18n="showcase.try">Essayez</span>
+                                <span aria-hidden="true">·</span>
+                                <span class="snc-hs-tag" data-i18n="showcase.js2">électricien</span>
+                                <span class="snc-hs-tag" data-i18n="showcase.js1">plombier</span>
+                                <span class="snc-hs-tag" data-i18n="showcase.js3">peintre</span>
+                              </div>
+                            </div>
+                            <div class="snc-cats">
+                              <div class="snc-cat"><em>🔧</em><small data-i18n="showcase.cat1">Plomberie</small></div>
+                              <div class="snc-cat snc-cat--terra"><em>⚡</em><small data-i18n="showcase.cat2">Électricité</small></div>
+                              <div class="snc-cat"><em>🎨</em><small data-i18n="showcase.cat3">Peinture</small></div>
+                              <div class="snc-cat"><em>🪚</em><small data-i18n="showcase.cat4">Menuiserie</small></div>
+                            </div>
+                            <span class="snc-pt" style="inset-inline-end:40px;top:44%" aria-hidden="true">👆</span>
+                          </div>
+
+                          <!-- 2 · Résultats -->
+                          <div class="snc-pane snc-pane--2" aria-hidden="true">
+                            <div class="snc-rows-head">
+                              <b data-i18n="showcase.rTitle">Résultats</b>
+                              <small>Plombier · <span data-i18n="showcase.city">Casablanca</span></small>
+                            </div>
+                            <div class="snc-rows">
+                              <div class="snc-tap snc-row">
+                                <span class="snc-ava snc-ava--teal">KB</span>
+                                <span>
+                                  <b>Karim B.</b>
+                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★★ 4,9</small>
+                                </span>
+                                <span class="snc-price">350 DH</span>
+                              </div>
+                              <div class="snc-tap snc-row">
+                                <span class="snc-ava snc-ava--terra">YM</span>
+                                <span>
+                                  <b>Youssef M.</b>
+                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★☆ 4,7</small>
+                                </span>
+                                <span class="snc-price">250 DH</span>
+                              </div>
+                              <div class="snc-tap snc-row">
+                                <span class="snc-ava snc-ava--teal">HS</span>
+                                <span>
+                                  <b>Hamid S.</b>
+                                  <small><span data-i18n="showcase.cat1">Plomberie</span> · ★★★★★ 4,9</small>
+                                </span>
+                                <span class="snc-price">400 DH</span>
+                              </div>
+                            </div>
+                            <span class="snc-pt" style="inset-inline-start:22%;top:52%" aria-hidden="true">👆</span>
+                          </div>
+
+                          <!-- 3 · Profil -->
+                          <div class="snc-pane snc-pane--3" aria-hidden="true">
+                            <div class="snc-profbg">
+                              <div class="snc-profbg-main">
+                                <div class="snc-profile">
+                                  <span class="snc-ava snc-ava--teal">KB</span>
+                                  <span><b>Karim B.</b>
+                                    <small><span data-i18n="showcase.cat1">Plomberie</span> · <span class="snc-stars">★★★★★</span> 4,9</small>
+                                    <small><span class="snc-verify">✓ <span data-i18n="showcase.dl2a">Artisan vérifié</span></span></small>
+                                  </span>
+                                  <div class="snc-profile-tags">
+                                    <span>🔧 <span data-i18n="showcase.cat1">Plomberie</span></span>
+                                    <span>📍 <span data-i18n="showcase.city">Casablanca</span></span>
+                                  </div>
+                                  <span class="snc-tap snc-btn snc-btn--wa" style="width:auto">&nbsp;💬 <span data-i18n="showcase.btnWa">WhatsApp</span></span>
+                                </div>
+                              </div>
+                            </div>
+                            <span class="snc-pt" style="inset-inline-end:34%;bottom:8%" aria-hidden="true">👆</span>
+                          </div>
+
+                          <!-- 4 · WhatsApp -->
+                          <div class="snc-pane snc-pane--4" aria-hidden="true">
+                            <div class="snc-chat">
+                              <div class="snc-chat-head">
+                                <span class="snc-ava">KB</span>
+                                <span><b>Karim B.</b><small>en ligne</small></span>
+                              </div>
+                              <div class="snc-chat-body">
+                                <span class="snc-bubl snc-bubl--in"><span data-i18n="showcase.waHi">Bonjour, j'ai besoin d'un plombier à Casablanca. 🛠️</span></span>
+                              </div>
+                              <div class="snc-chat-input">
+                                <span class="snc-wa" aria-hidden="true">💬</span>
+                                <span class="snc-field snc-hs-field" aria-hidden="true">………</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- 5 · Devenir membre -->
+                          <div class="snc-pane snc-pane--5" aria-hidden="true">
+                            <div class="snc-plans-lg-head">
+                              <b data-i18n="showcase.jTitle">Devenez membre</b>
+                              <small data-i18n="showcase.jNote">Gratuit · 2 min</small>
+                            </div>
+                            <div class="snc-plans-row snc-plans-row--lg">
+                              <div class="snc-plan">
+                                <b>Gratuit</b>
+                                <span class="snc-plan-price">0 DH</span>
+                                <span class="snc-plan-feat" data-i18n="showcase.jP1">Profil · 3 photos</span>
+                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                              </div>
+                              <div class="snc-plan">
+                                <b>Vérifié</b>
+                                <span class="snc-plan-price">99 DH/mois</span>
+                                <span class="snc-plan-feat" data-i18n="showcase.jP2">Badge ✓ · Prioritaire</span>
+                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                              </div>
+                              <div class="snc-plan snc-plan--gold">
+                                <b>GOLD</b>
+                                <span class="snc-plan-price">199 DH/mois</span>
+                                <span class="snc-plan-feat" data-i18n="showcase.jP3">Premium · Mise en avant</span>
+                                <span class="snc-plan-cta" data-i18n="showcase.jBtn">Créer mon compte</span>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="snc-laptop-base" aria-hidden="true"></div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="mt-16 sm:mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div class="snc-benefit">
+          <span class="snc-benefit-ico" aria-hidden="true">🔎</span>
+          <h3 class="mt-4 text-lg font-black text-sna3ti-ink" data-i18n="showcase.tTrouvez">Trouvez</h3>
+          <p class="mt-1.5 text-sm text-gray-500 leading-6" data-i18n="showcase.dTrouvez">Trouvez rapidement le bon artisan.</p>
+        </div>
+
+        <div class="snc-benefit">
+          <span class="snc-benefit-ico" aria-hidden="true">⭐</span>
+          <h3 class="mt-4 text-lg font-black text-sna3ti-ink" data-i18n="showcase.tComparez">Comparez</h3>
+          <p class="mt-1.5 text-sm text-gray-500 leading-6" data-i18n="showcase.dComparez">Découvrez profils, avis et services.</p>
+        </div>
+
+        <div class="snc-benefit">
+          <span class="snc-benefit-ico" aria-hidden="true">💬</span>
+          <h3 class="mt-4 text-lg font-black text-sna3ti-ink" data-i18n="showcase.tContactez">Contactez</h3>
+          <p class="mt-1.5 text-sm text-gray-500 leading-6" data-i18n="showcase.dContactez">Contactez directement votre artisan.</p>
+        </div>
+
+        <div class="snc-benefit snc-benefit--match">
+          <span class="snc-benefit-ico" aria-hidden="true">🤝</span>
+          <h3 class="mt-4 text-lg font-black text-sna3ti-ink" data-i18n="showcase.tMatch">Sna3ti Match</h3>
+          <p class="mt-1.5 text-sm text-gray-500 leading-6" data-i18n="showcase.dMatch">Laissez Sna3ti vous trouver un artisan de confiance.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
        REALISATIONS / GALLERY
   ====================================================== -->
 
@@ -5346,6 +6928,64 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           subtitle: "Quelques réalisations de nos artisans partenaires."
         },
 
+        showcase: {
+          headline: "Sna3ti, partout avec vous",
+          subtitle: "Sur mobile ou sur ordinateur, trouvez votre artisan en quelques clics.",
+          mobileLabel: "Sur mobile",
+          desktopLabel: "Sur ordinateur",
+          typed: "plombier à Casablanca",
+          js1: "plombier",
+          js2: "électricien",
+          js3: "peintre",
+          try: "Essayez",
+          dwSearchBtn: "Rechercher",
+          city: "Casablanca",
+          ch1a: "Recherche",
+          ch2a: "Profil",
+          ch2b: "Karim B. · ★ 4,9",
+          ch3a: "WhatsApp",
+          ch3b: "Salut, j'ai besoin…",
+          ch4a: "Devenir membre",
+          ch4b: "Compte créé",
+          waHi: "Bonjour, j'ai besoin d'un plombier à Casablanca. 🛠️",
+          dl1a: "Note moyenne",
+          dl1b: "4,9 · 128 avis",
+          dl2a: "Artisan vérifié",
+          dl2b: "Badge officiel",
+          dwNav1: "Services",
+          dwNav2: "Artisans",
+          dwNav3: "Tarifs",
+          dwNavCta: "S'inscrire",
+          dwHero: "Trouvez l'artisan parfait",
+          dwHeroSub: "Comparez profils, avis et prix en quelques minutes.",
+          cat1: "Plomberie",
+          cat2: "Électricité",
+          cat3: "Peinture",
+          cat4: "Menuiserie",
+          mBrand: "Artisan de confiance",
+          mPh: "Écrivez votre besoin ici…",
+          mBtn: "Envoyer ma demande",
+          mNote: "Réponse sous 24h",
+          mDesc: "En quelques clics, Sna3ti trouve l'artisan idéal près de chez vous.",
+          btnWa: "WhatsApp",
+          btnTel: "Appeler",
+          rTitle: "Résultats",
+          jTitle: "Devenez membre",
+          jP1: "Profil · 3 photos",
+          jP2: "Badge ✓ · Prioritaire",
+          jP3: "Premium · Mise en avant",
+          jBtn: "Créer mon compte",
+          jNote: "Gratuit · 2 min",
+          tTrouvez: "Trouvez",
+          dTrouvez: "Trouvez rapidement le bon artisan.",
+          tComparez: "Comparez",
+          dComparez: "Découvrez profils, avis et services.",
+          tContactez: "Contactez",
+          dContactez: "Contactez directement votre artisan.",
+          tMatch: "Sna3ti Match",
+          dMatch: "Laissez Sna3ti vous trouver un artisan de confiance."
+        },
+
         pro: {
           badge: "Artisans",
           title: "Vous êtes un artisan ?",
@@ -5696,6 +7336,64 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           subtitle: "بعض إنجازات حرفيينا الشركاء."
         },
 
+        showcase: {
+          headline: "Sna3ti معاك في كل مكان",
+          subtitle: "على الهاتف أو على الكمبيوتر، لقّي حرفيك في بضع نقرات.",
+          mobileLabel: "على الهاتف",
+          desktopLabel: "على الكمبيوتر",
+          typed: "سبّاك ف الدار البيضاء",
+          js1: "سبّاك",
+          js2: "كتريسي",
+          js3: "سطّاي",
+          try: "جرّب",
+          dwSearchBtn: "بحث",
+          city: "الدار البيضاء",
+          ch1a: "البحث",
+          ch2a: "البروفايل",
+          ch2b: "كريم ب. · ★ 4,9",
+          ch3a: "واتساب",
+          ch3b: "سلام، محتاج…",
+          ch4a: "سجّل حسابك",
+          ch4b: "الحساب تصايب",
+          waHi: "سلام، محتاج سبّاك ف الدار البيضاء. 🛠️",
+          dl1a: "متوسط التقييم",
+          dl1b: "4,9 · 128 تقييم",
+          dl2a: "حرفي موثّق",
+          dl2b: "شارة رسمية",
+          dwNav1: "الخدمات",
+          dwNav2: "الحرفيين",
+          dwNav3: "الأثمنة",
+          dwNavCta: "سجّل",
+          dwHero: "لقّي الحرفي المثالي",
+          dwHeroSub: "قارن البروفايلات، الآراء والأثمنة في دقائق.",
+          cat1: "السباكة",
+          cat2: "الكهرباء",
+          cat3: "الطلاء",
+          cat4: "النجارة",
+          mBrand: "حرفي موثوق",
+          mPh: "كتب الحاجة اللي بغيتي هنا…",
+          mBtn: "صيفط الطلب",
+          mNote: "الرد خلال 24 سا",
+          mDesc: "فـ بضغطات، Sna3ti يلقّي ليك الحرفي المناسب قريب منك.",
+          btnWa: "واتساب",
+          btnTel: "عاود",
+          rTitle: "النتائج",
+          jTitle: "سجّل حسابك",
+          jP1: "بروفايل · 3 صور",
+          jP2: "شارة ✓ · أولوية",
+          jP3: "Premium · ترويج",
+          jBtn: "صايب حسابي",
+          jNote: "مجاني · 2 دقائق",
+          tTrouvez: "لقّي",
+          dTrouvez: "لقّي الحرفي المناسب بسرعة.",
+          tComparez: "قارن",
+          dComparez: "اكتشف البروفايلات، الآراء والخدمات.",
+          tContactez: "تواصل",
+          dContactez: "تواصل مباشرة مع حرفيك.",
+          tMatch: "Sna3ti Match",
+          dMatch: "خلّي Sna3ti يلقّي ليك حرفي موثوق."
+        },
+
         pro: {
           badge: "الحرفيون",
           title: "أنت حرفي؟",
@@ -6043,6 +7741,64 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           badge: "Our work",
           title: "A glimpse of our projects",
           subtitle: "A selection of work by our partner artisans."
+        },
+
+        showcase: {
+          headline: "Sna3ti, everywhere with you",
+          subtitle: "On mobile or on your computer, find your artisan in a few clicks.",
+          mobileLabel: "On mobile",
+          desktopLabel: "On desktop",
+          typed: "plumber in Casablanca",
+          js1: "plumber",
+          js2: "electrician",
+          js3: "painter",
+          try: "Try",
+          dwSearchBtn: "Search",
+          city: "Casablanca",
+          ch1a: "Search",
+          ch2a: "Profile",
+          ch2b: "Karim B. · ★ 4.9",
+          ch3a: "WhatsApp",
+          ch3b: "Hi, I need…",
+          ch4a: "Become a member",
+          ch4b: "Account created",
+          waHi: "Hello, I need a plumber in Casablanca. 🛠️",
+          dl1a: "Average rating",
+          dl1b: "4.9 · 128 reviews",
+          dl2a: "Verified artisan",
+          dl2b: "Official badge",
+          dwNav1: "Services",
+          dwNav2: "Artisans",
+          dwNav3: "Pricing",
+          dwNavCta: "Sign up",
+          dwHero: "Find the perfect artisan",
+          dwHeroSub: "Compare profiles, reviews and prices in minutes.",
+          cat1: "Plumbing",
+          cat2: "Electricity",
+          cat3: "Painting",
+          cat4: "Woodwork",
+          mBrand: "Trusted artisan",
+          mPh: "Describe your need here…",
+          mBtn: "Send my request",
+          mNote: "Reply within 24h",
+          mDesc: "In a few clicks, Sna3ti finds the ideal artisan near you.",
+          btnWa: "WhatsApp",
+          btnTel: "Call",
+          rTitle: "Results",
+          jTitle: "Become a member",
+          jP1: "Profile · 3 photos",
+          jP2: "Badge ✓ · Priority",
+          jP3: "Premium · Featured",
+          jBtn: "Create my account",
+          jNote: "Free · 2 min",
+          tTrouvez: "Find",
+          dTrouvez: "Quickly find the right artisan.",
+          tComparez: "Compare",
+          dComparez: "Discover profiles, reviews and services.",
+          tContactez: "Contact",
+          dContactez: "Contact your artisan directly.",
+          tMatch: "Sna3ti Match",
+          dMatch: "Let Sna3ti find you a trusted artisan."
         },
 
         pro: {
@@ -6398,41 +8154,81 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
     );
 
 
-    /* Desktop: make the chevron SVG that follows #languageSelect
-       clickable so it also opens the language dropdown.
-       (Mobile keeps its own always-visible selector — untouched.) */
-    const languageChevron =
-      languageSelect && languageSelect.nextElementSibling;
+    /* Make the whole language capsule reliably open the dropdown.
+       Clicking anywhere on the globe, current-language text or the
+       chevron should open the native picker — not just the native
+       <select> element (whose area with appearance:none is unreliable).
+       Works for both the desktop (#languageSelect) and the mobile
+       (#mobileLangHeader) capsules. */
+    function wireLanguageCapsule(label) {
 
-    if (languageSelect && languageChevron) {
+      if (!label) return;
 
-      languageChevron.setAttribute("role", "button");
-      languageChevron.classList.add("cursor-pointer");
+      const select =
+        label.querySelector("select");
 
-      languageChevron.addEventListener("click", function (event) {
+      if (!select) return;
 
-        event.preventDefault();
-        event.stopPropagation();
+      const openPicker = function () {
 
         try {
 
-          if (typeof languageSelect.showPicker === "function") {
-            languageSelect.showPicker();
+          if (typeof select.showPicker === "function") {
+            select.showPicker();
           } else {
-            languageSelect.focus();
-            languageSelect.click();
+            select.focus();
+            select.click();
           }
 
         } catch (err) {
 
-          languageSelect.focus();
-          languageSelect.click();
+          select.focus();
+          select.click();
 
         }
 
+      };
+
+      /* Interrupt the <label>'s implicit click-forwarding to the
+         <select>: with appearance:none that forwarding is what made
+         the dropdown feel broken. We open the picker ourselves. */
+      label.addEventListener("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        /* Don't swallow clicks meant for the chevron/picker if a
+           browser already handles them natively. */
+        openPicker();
+
+      });
+
+      /* The native <select> itself must still react to direct clicks
+         (and keyboard) — only stop the double-open when the browser
+         already opened the picker. */
+      select.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+
+      label.style.cursor = "pointer";
+      label.setAttribute("role", "button");
+      label.setAttribute("tabindex", "0");
+
+      label.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openPicker();
+        }
       });
 
     }
+
+    wireLanguageCapsule(
+      document.querySelector("#languageSelect")?.closest(".lang-globe")
+    );
+    wireLanguageCapsule(
+      document.querySelector("#mobileLangHeader")?.closest(".lang-globe")
+    );
 
 
     if (mobileLangHeader) {
