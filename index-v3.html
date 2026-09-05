@@ -8768,23 +8768,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
        SEARCH
     ========================================================= */
 
-    const searchForm =
-      document.getElementById(
-        "searchForm"
-      );
-
-    const serviceSelect =
-      document.getElementById(
-        "serviceSelect"
-      );
-
-    const cityInput =
-      document.getElementById(
-        "cityInput"
-      );
-
-
-  /* =========================================================
+    /* =========================================================
    SNA3TI V2 — REALLY SEARCH (plus AI Smart Search)
 ========================================================= */
 
@@ -8835,12 +8819,36 @@ function runSearchQuery(rawService, rawCity) {
 
 }
 
-searchForm.addEventListener("submit", function (event) {
+
+/* Bind the hero search with event delegation: route renders replace
+   #searchForm via innerHTML (and restoreHome() rebuilds it), which
+   detaches any direct listener. Reading fresh nodes each time also
+   avoids stale references to removed elements. */
+document.addEventListener("submit", function (event) {
+  const form = event.target && event.target.closest
+    ? event.target.closest("#searchForm")
+    : null;
+  if (!form || !document.body.contains(form)) return;
+
   event.preventDefault();
 
+  const selectEl =
+    document.getElementById("serviceSelect");
+  const hiddenCity =
+    document.getElementById("cityInput");
+  const citySelectEl =
+    document.getElementById("citySelect");
+
+  /* Hidden input keeps the search city; fall back to the visible
+     select in case its change listener hasn't run yet. */
+  let city = (hiddenCity && hiddenCity.value) || "";
+  if (!city && citySelectEl) {
+    city = String(citySelectEl.value || "").trim();
+  }
+
   runSearchQuery(
-    serviceSelect?.value || "",
-    cityInput?.value.trim() || ""
+    (selectEl && selectEl.value) || "",
+    city
   );
 });
 
@@ -11850,6 +11858,18 @@ document.addEventListener("submit", function (e) {
   }
 });
 
+/* Force digits in the WhatsApp number fields (typed or pasted):
+   drop every non-numeric character as the user enters it. */
+document.addEventListener("input", function (e) {
+  const el = e.target;
+  if (!el || !el.id) return;
+  if (el.id === "regPhone" || el.id === "matchPhone" || el.id === "matchWhatsapp") {
+    if (el.value && /\D/.test(el.value)) {
+      el.value = el.value.replace(/\D/g, "");
+    }
+  }
+});
+
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
 
@@ -13019,6 +13039,21 @@ function startHeroRotation() {
   /* Show an honest loading state before the source resolves. */
   renderHeroState(card, heroT("loading", "Chargement des artisans…"));
 
+  /* Don't swap the card while the user is interacting with it, is on
+     another tab, or has left the home page. Re-rendering the element
+     right where a click is happening makes the click silently vanish.
+     Pure behaviour, no visual change. */
+  card._heroPaused = false;
+  if (!card._heroHoverBound) {
+    card._heroHoverBound = true;
+    card.addEventListener("mouseenter", function () { card._heroPaused = true; }, { passive: true });
+    card.addEventListener("mouseleave", function () { card._heroPaused = false; }, { passive: true });
+  }
+
+  function rotationPaused() {
+    return card._heroPaused || document.hidden || !card.isConnected;
+  }
+
   function els() {
     return {
       photo: document.getElementById("heroCardPhoto"),
@@ -13108,8 +13143,11 @@ function startHeroRotation() {
   }
 
   async function tick() {
+    if (rotationPaused()) return;
+
     const state = await refreshProfessionals();
 
+    if (rotationPaused()) return;
     if (!state.ok) {
       if (heroTimer) clearInterval(heroTimer);
       renderHeroState(card, heroT("error", "Impossible de charger les artisans. Réessayez dans un instant."));
@@ -13171,6 +13209,16 @@ function initGallery(root) {
   const track = root.querySelector(".sna3ti-gallery-track");
   if (!track || !GALLERY_PHOTOS.length) return;
 
+  /* Stop auto-advance while the user hovers the gallery, the tab is
+     hidden, or the gallery is off-screen (innerHTML swap): the track
+     must not move under the user's cursor mid-click. No visual change. */
+  root._galleryPaused = false;
+  if (!root._galleryHoverBound) {
+    root._galleryHoverBound = true;
+    root.addEventListener("mouseenter", function () { root._galleryPaused = true; }, { passive: true });
+    root.addEventListener("mouseleave", function () { root._galleryPaused = false; }, { passive: true });
+  }
+
   const lang =
     localStorage.getItem("sna3ti-language") || "fr";
 
@@ -13225,7 +13273,12 @@ function initGallery(root) {
     }
   }
 
-  function next() { setIndex(index + 1); }
+  function next() {
+    /* Skip auto-advance while hovered / tab hidden / gallery detached.
+       Manual prev/next buttons still work (they call setIndex directly). */
+    if (root._galleryPaused || document.hidden || !root.isConnected) return;
+    setIndex(index + 1);
+  }
   function prev() { setIndex(index - 1); }
 
   function restart() {
