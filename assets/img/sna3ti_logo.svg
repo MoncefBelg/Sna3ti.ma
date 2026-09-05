@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1" gradientTransform="rotate(145 .5 .5)">
+      <stop offset="0" stop-color="#0d6b61"/>
+      <stop offset="1" stop-color="#071d1a"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="230" y="230" width="620" height="620" rx="220" fill="url(#brand)"/>
+  <rect x="230" y="230" width="620" height="620" rx="220" fill="url(#glow)"/>
+  <text x="540" y="574" text-anchor="middle" dominant-baseline="central"
+        font-family="'Space Grotesk','Inter','Segoe UI',sans-serif"
+        font-size="360" font-weight="800" fill="#ffffff">S</text>
+</svg>
