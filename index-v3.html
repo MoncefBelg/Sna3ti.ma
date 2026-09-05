@@ -7777,7 +7777,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           mPh: "كتب الحاجة اللي بغيتي هنا…",
           mBtn: "صيفط الطلب",
           mNote: "الرد خلال 24 سا",
-          mDesc: "فـ بضغطات، Sna3ti يلقّي ليك الحرفي المناسب قريب منك.",
+          mDesc: "فـ بضغطات، Sna3ti يلقى ليك الحرفي المناسب قريب منك.",
           btnWa: "واتساب",
           btnTel: "عاود",
           rTitle: "النتائج",
@@ -7804,7 +7804,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           tContactez: "تواصل",
           dContactez: "تواصل مباشرة مع حرفيك.",
           tMatch: "Sna3ti Match",
-          dMatch: "خلّي Sna3ti يلقّي ليك حرفي موثوق."
+          dMatch: "خلّي Sna3ti يلقى ليك حرفي موثوق."
         },
 
         pro: {
@@ -8821,7 +8821,17 @@ function runSearchQuery(rawService, rawCity) {
     params.set("available", "1");
   }
 
-  window.location.hash = "#/search?" + params.toString();
+  const target = "#/search?" + params.toString();
+
+  /* If the hash is already the target (repeat search with the same
+     query), a new hashchange won't fire — render the route directly
+     so the button always responds. */
+  if (window.location.hash === target) {
+    handleSna3tiRoute();
+    return;
+  }
+
+  window.location.hash = target;
 
 }
 
@@ -9000,11 +9010,22 @@ function populateServiceSelect() {
   sel.appendChild(ph);
 
   for (const item of SERVICE_CANONICAL) {
+    /* "Sna3ti Match" is not a trade — keep it out of the search
+       dropdown (a customer finds it via "Autres services"). */
+    if (item.slug === "match") continue;
     const o = document.createElement("option");
     o.value = item.slug;
     o.textContent = serviceName(item.key, lang);
     sel.appendChild(o);
   }
+
+  /* "Autres services" — a trade not in the list routes to the
+     Sna3ti Match request form instead of empty results. */
+  const other = document.createElement("option");
+  other.value = "autre";
+  const regT = (translations[lang] && translations[lang].register) || {};
+  other.textContent = t.otherServiceOption || regT.otherServiceOption || "Autres services";
+  sel.appendChild(other);
 
   if (prev) sel.value = prev;
 }
@@ -11740,6 +11761,21 @@ document.addEventListener("click", function (e) {
     openPackPopup();
   }
 
+  /* Registration form (step 2): any click outside the open form
+     closes it and returns to the "Choisir" (step 1) view. */
+  const regS1 = document.getElementById("regStep1");
+  const regS2 = document.getElementById("regStep2");
+  if (
+    regS1 &&
+    regS2 &&
+    !regS2.classList.contains("hidden") &&
+    !e.target.closest("#regStep2") &&
+    !e.target.closest("#packPopup")
+  ) {
+    regS1.classList.remove("hidden");
+    regS2.classList.add("hidden");
+  }
+
   /* Home-section anchors (#services / #professionals / #how /
      #pricing / #home) must keep working even when a search or
      profile page replaced <main>: restore the home first, then
@@ -11771,6 +11807,23 @@ document.addEventListener("submit", function (e) {
   if (e.target && e.target.id === "regForm") {
     e.preventDefault();
     regSubmit();
+  }
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key !== "Escape") return;
+
+  const popup = document.getElementById("packPopup");
+  if (popup && !popup.classList.contains("hidden")) {
+    closePackPopup();
+    return;
+  }
+
+  const s1 = document.getElementById("regStep1");
+  const s2 = document.getElementById("regStep2");
+  if (s1 && s2 && !s2.classList.contains("hidden")) {
+    s1.classList.remove("hidden");
+    s2.classList.add("hidden");
   }
 });
 
@@ -12042,9 +12095,10 @@ function handleSna3tiRoute() {
   // SEARCH ROUTE
   if (hash.startsWith("#/search")) {
 
-    /* Selecting "⭐ Sna3ti Match" from a service dropdown routes to
-       the Match request page rather than an empty results list. */
-    if (hash.indexOf("service=match") !== -1) {
+    /* Selecting "⭐ Sna3ti Match" (or "Autres services") from a service
+       dropdown routes to the Match request page rather than an empty
+       results list. */
+    if (hash.indexOf("service=match") !== -1 || hash.indexOf("service=autre") !== -1) {
       renderMatchPage();
       return true;
     }
@@ -12576,6 +12630,14 @@ window.addEventListener("popstate", function () {
   if (el && !el.classList.contains("hidden")) {
     closeRegSuccess();
   }
+});
+
+/* Always start at the top after a full page refresh. */
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+window.addEventListener("load", function () {
+  window.scrollTo(0, 0);
 });
 
 
