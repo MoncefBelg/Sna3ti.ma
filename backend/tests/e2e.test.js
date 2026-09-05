@@ -69,9 +69,35 @@ function buildSeed() {
         job: "plombier", status: "active", identityStatus: "pending", professionStatus: "pending",
         verificationStatus: "pending", planEligible: false, verified: false,
         package: "free", subscriptionStatus: "none", createdAt: new Date()
+      },
+      {
+        id: "PRO-5001", name: "Brahim Fes", categoryId: "CAT-1", city: "Fes",
+        job: "macon", status: "active", identityStatus: "pending", professionStatus: "pending",
+        verificationStatus: "pending", planEligible: false, verified: false,
+        package: "free", subscriptionStatus: "none", createdAt: new Date()
       }
     ],
     user: [{ id: "USR-1", name: "User One", phone: "+212600000001", status: "active", createdAt: new Date() }],
+    // Verified WhatsApp contacts (confirmed + 48h cooldown elapsed) that unlock
+    // review eligibility for USR-1 on PRO-5000 (lifecycle) and PRO-5001 (RBAC).
+    professionalContactInteraction: [
+      {
+        id: "INT-E2E-1", customerId: "USR-1", professionalId: "PRO-5000",
+        channel: "WHATSAPP", source: "PROFILE", status: "CONFIRMED_CONTACT",
+        customerConfirmed: true, customerConfirmedAt: new Date(Date.now() - 50000),
+        reviewEligibleAt: new Date(Date.now() - 1000),
+        riskScore: 0, riskFlags: [], lastContactAt: new Date(Date.now() - 50000),
+        createdAt: new Date(Date.now() - 50000), updatedAt: new Date()
+      },
+      {
+        id: "INT-E2E-2", customerId: "USR-1", professionalId: "PRO-5001",
+        channel: "WHATSAPP", source: "PROFILE", status: "CONFIRMED_CONTACT",
+        customerConfirmed: true, customerConfirmedAt: new Date(Date.now() - 50000),
+        reviewEligibleAt: new Date(Date.now() - 1000),
+        riskScore: 0, riskFlags: [], lastContactAt: new Date(Date.now() - 50000),
+        createdAt: new Date(Date.now() - 50000), updatedAt: new Date()
+      }
+    ],
     verificationRequest: [
       {
         id: "VR-E2E", professionalId: "PRO-5000", level: "identity",
@@ -312,16 +338,16 @@ describe("E2E Payments", () => {
 // REVIEWS — create / edit / publish / hide / flag moderation lifecycle
 // ═════════════════════════════════════════════════════════════════════════════
 describe("E2E Reviews", () => {
-  const userTok = makeToken({ id: "client-1", role: "user", name: "Client" });
+  const userTok = makeToken({ id: "USR-1", role: "user", name: "User One" });
   const modTok = makeToken(ROLES.moderator);
   let proId, reviewId;
 
-  it("creates an approved professional and a published review", async () => {
-    const created = await request("POST", "/professionals", { name: "Avis Pro", job: "plombier", city: "Rabat" }, modTok);
-    proId = created.body.data.id;
+  it("posts a published review after a verified WhatsApp contact", async () => {
+    proId = "PRO-5000";
     const rev = await request("POST", `/professionals/${proId}/reviews`, { rating: 4, comment: "Bien" }, userTok);
     assert.equal(rev.status, 201);
     assert.equal(rev.body.data.status, "published");
+    assert.equal(rev.body.data.verifiedContact, true, "verified-contact badge flag must be present");
     reviewId = rev.body.data.id;
   });
 
@@ -403,10 +429,9 @@ describe("E2E RBAC matrix", () => {
   const t = ROLES.super_admin;
 
   it("finance cannot moderate reviews (403)", async () => {
-    // create a review to moderate
-    const created = await request("POST", "/professionals", { name: "RBAC Pro", job: "plombier", city: "Rabat" }, R("admin"));
-    const pid = created.body.data.id;
-    const rev = await request("POST", `/professionals/${pid}/reviews`, { rating: 5, comment: "ok" }, R("admin"));
+    // USR-1 has a verified WhatsApp contact with PRO-5001, so this review
+    // submission is legal; the forbidden part is the finance moderation.
+    const rev = await request("POST", `/professionals/PRO-5001/reviews`, { rating: 5, comment: "ok" }, makeToken({ id: "USR-1", role: "user", name: "User One" }));
     const res = await request("POST", `/admin/reviews/${rev.body.data.id}/hide`, {}, R("finance"));
     assert.equal(res.status, 403);
   });

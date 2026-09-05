@@ -84,6 +84,18 @@ function buildSeed() {
     user: [
       { id: "USR-1", name: "User One", phone: "+212600000001", status: "active", createdAt: new Date() }
     ],
+    // A single verified WhatsApp contact (confirmed + cooldown elapsed) unlocks
+    // review eligibility for USR-1 on PRO-10295.
+    professionalContactInteraction: [
+      {
+        id: "INT-20001", customerId: "USR-1", professionalId: "PRO-10295",
+        channel: "WHATSAPP", source: "PROFILE", status: "CONFIRMED_CONTACT",
+        customerConfirmed: true, customerConfirmedAt: new Date(Date.now() - 50000),
+        reviewEligibleAt: new Date(Date.now() - 1000),
+        riskScore: 0, riskFlags: [], lastContactAt: new Date(Date.now() - 50000),
+        createdAt: new Date(Date.now() - 50000), updatedAt: new Date()
+      }
+    ],
     verificationRequest: [
       {
         id: "VR-201", professionalId: "PRO-10295", level: "identity",
@@ -144,6 +156,9 @@ function makeToken(admin = SEED_ADMIN) {
 }
 
 const token = makeToken();
+// Platform-User token used where the API requires a customer account
+// (reviews). Admin tokens are NOT valid for reviews (only customers can review).
+const USER_TOKEN = makeToken({ id: "USR-1", role: "user", name: "User One" });
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SCENARIO A — Verify identity badge (VR-201)
@@ -573,17 +588,22 @@ describe("Reviews API", () => {
   let proId;
   let reviewId;
 
-  it("creates a professional and posts a review", async () => {
-    const created = await request("POST", "/professionals", { name: "Avis Pro", job: "peintre", city: "Rabat" }, token);
-    proId = created.body.data.id;
-    const res = await request("POST", `/professionals/${proId}/reviews`, { rating: 5, comment: "Excellent travail" }, token);
+  it("posts a review after a verified WhatsApp contact (customer account + 48h)", async () => {
+    proId = "PRO-10295";
+    const res = await request("POST", `/professionals/${proId}/reviews`, { rating: 5, comment: "Excellent travail" }, USER_TOKEN);
     assert.equal(res.status, 201);
     assert.equal(res.body.data.rating, 5);
+    assert.equal(res.body.data.verifiedContact, true, "review must be marked as verified WhatsApp contact");
     reviewId = res.body.data.id;
   });
 
+  it("rejects a review from an admin account (only customers can review)", async () => {
+    const res = await request("POST", `/professionals/${proId}/reviews`, { rating: 5, comment: "x" }, token);
+    assert.equal(res.status, 403);
+  });
+
   it("rejects an out-of-range rating with a validation error", async () => {
-    const res = await request("POST", `/professionals/${proId}/reviews`, { rating: 9 }, token);
+    const res = await request("POST", `/professionals/${proId}/reviews`, { rating: 9 }, USER_TOKEN);
     assert.equal(res.status, 400);
     assert.equal(res.body.success, false);
     assert.equal(res.body.error.code, "VALIDATION_ERROR");
@@ -597,7 +617,7 @@ describe("Reviews API", () => {
   });
 
   it("allows the author to update their review", async () => {
-    const res = await request("PATCH", `/reviews/${reviewId}`, { comment: "Mise à jour" }, token);
+    const res = await request("PATCH", `/reviews/${reviewId}`, { comment: "Mise à jour" }, USER_TOKEN);
     assert.equal(res.status, 200);
     assert.equal(res.body.data.comment, "Mise à jour");
   });

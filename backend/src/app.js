@@ -30,6 +30,25 @@ const authLimiter = rateLimit({
   message: { success: false, error: { code: "RATE_LIMITED", message: "Trop de tentatives de connexion. Réessayez plus tard." } }
 });
 
+// Dedicated limiters for the WhatsApp-trust surfaces (record/confirm contact,
+// review submission). Keeping spam specific to these endpoints away from the
+// general API budget.
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: env.isProduction ? 60 : 10000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: { code: "RATE_LIMITED", message: "Trop de requêtes de contact. Réessayez plus tard." } }
+});
+
+const reviewLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: env.isProduction ? 20 : 10000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: { code: "RATE_LIMITED", message: "Trop d'avis soumis. Réessayez plus tard." } }
+});
+
 /**
  * Creates the Express app. Accepts an optional `db` adapter so tests inject
  * InMemoryDb while production uses Prisma.
@@ -62,7 +81,7 @@ function createApp({ db }) {
   app.use("/api/v1", apiLimiter);
 
   // Mount versioned routes. All API routes live under /api/v1 (req 12).
-  app.use("/api/v1", createRoutes(services, { requireAuth, requirePermission }));
+  app.use("/api/v1", createRoutes(services, { requireAuth, requirePermission, contactLimiter, reviewLimiter }));
 
   // 404 catch-all.
   app.use(notFound);

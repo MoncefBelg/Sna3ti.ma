@@ -45,7 +45,38 @@ function createReviewRepo(db) {
   return {
     ...base,
     async findByProfessional(professionalId) { return base.list({ professionalId }); },
-    async listFlagged() { return base.list({ status: "flagged" }); }
+    async listFlagged() { return base.list({ status: "flagged" }); },
+    async countByCustomer(customerId) { return base.count({ userId: customerId }); }
+  };
+}
+
+// Professional contact interactions (req contact-trust). Rows record when an
+// authenticated (or anonymous) customer reached an artisan; they are the only
+// proof that can unlock review eligibility.
+function createInteractionRepo(db) {
+  const base = createGenericRepository("professionalContactInteraction", db);
+  return {
+    ...base,
+    async findByCustomerAndProfessional(customerId, professionalId) {
+      if (!customerId) return base.find({ professionalId, customerId: null });
+      return base.find({ customerId, professionalId });
+    },
+    async findByProfessional(professionalId) { return base.list({ professionalId }); },
+    async findByCustomer(customerId) {
+      if (!customerId) return base.list({ customerId: null });
+      return base.list({ customerId });
+    },
+    async countContactsInWindow(customerId, since) {
+      if (!customerId) return 0;
+      const rows = await base.list({ customerId });
+      return rows.filter((r) => r.createdAt && new Date(r.createdAt) >= since).length;
+    },
+    async listReviewsByCustomer(customerId) {
+      if (!customerId) return [];
+      // Reviews belong to a different store; reuse the generic repo so both
+      // the in-memory adapter and Prisma expose the same `list` surface.
+      return createGenericRepository("review", db).list({ userId: customerId });
+    }
   };
 }
 
@@ -75,6 +106,7 @@ function createTransactionRepo(db) {
     verification: createVerificationRepo(db),
     verificationDocuments: createVerificationDocumentRepo(db),
     reviews: createReviewRepo(db),
+    interactions: createInteractionRepo(db),
     reports: createReportRepo(db),
     support: createSupportRepo(db)
   };

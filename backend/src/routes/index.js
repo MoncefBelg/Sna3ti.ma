@@ -1,7 +1,7 @@
 const { Router } = require("express");
 
 function createRoutes(services, middleware) {
-  const { requireAuth, requirePermission } = middleware;
+  const { requireAuth, requirePermission, contactLimiter, reviewLimiter } = middleware;
   const router = Router();
 
   const authCtrl             = require("../controllers/authController").createAuthController(services);
@@ -17,6 +17,7 @@ function createRoutes(services, middleware) {
   const legalCtrl            = require("../controllers/legalController").createLegalController(services);
   const notificationCtrl     = require("../controllers/notificationController").createNotificationController(services);
   const matchCtrl            = require("../controllers/matchController").createMatchController(services);
+  const interactionCtrl      = require("../controllers/interactionController").createInteractionController(services);
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   router.post("/auth/login", authCtrl.login);
@@ -43,8 +44,15 @@ function createRoutes(services, middleware) {
 
   // ── Reviews (req 21) ───────────────────────────────────────────────────────
 router.get("/professionals/:professionalId/reviews", reviewCtrl.list);
-router.post("/professionals/:professionalId/reviews", requireAuth, reviewCtrl.create);
+router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter, reviewCtrl.create);
   router.patch("/reviews/:id", requireAuth, reviewCtrl.update);
+
+  // ── Contact interactions (WhatsApp trust) ──────────────────────────────────
+  // Recording is best-effort by design: the frontend opens WhatsApp regardless
+  // of whether this POST succeeds. Eligibility is always derived server-side.
+  router.post("/professionals/:id/contact", requireAuth, contactLimiter, interactionCtrl.record);
+  router.post("/professionals/:id/contact/confirm", requireAuth, contactLimiter, interactionCtrl.confirm);
+  router.get("/professionals/:id/contact/eligibility", requireAuth, interactionCtrl.myEligibility);
 
   // ── Reports (req 22) ───────────────────────────────────────────────────────
   router.post("/reports", requireAuth, reportCtrl.create);
@@ -116,6 +124,10 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewCtrl.cr
   admin.post("/reviews/:id/flag", requirePermission("reviews.moderate"), reviewCtrl.flag);
   admin.post("/reviews/:id/hide", requirePermission("reviews.moderate"), reviewCtrl.hide);
   admin.post("/reviews/:id/delete", requirePermission("reviews.moderate"), reviewCtrl.remove);
+
+  // Contact interactions (WhatsApp trust) — dashboard list / detail
+  admin.get("/interactions", requirePermission("interactions.view"), interactionCtrl.list);
+  admin.get("/interactions/:id", requirePermission("interactions.view"), interactionCtrl.get);
 
   // Reports (req 22)
   admin.get("/reports", requirePermission("reports.view"), reportCtrl.list);

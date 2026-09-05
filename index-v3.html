@@ -10098,7 +10098,7 @@ function renderProfessionalCard(pro) {
 
         <button
           class="pro-btn pro-btn-whatsapp"
-          onclick="contactWhatsApp('${pro.phone}')"
+          onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
         >
           WhatsApp
         </button>
@@ -10911,7 +10911,7 @@ function openProfessional(id) {
 
               <button
                 class="pro-btn pro-btn-whatsapp"
-                onclick="contactWhatsApp('${pro.phone}')"
+                onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
               >
                 💬 WhatsApp
               </button>
@@ -11032,10 +11032,18 @@ function openProfessional(id) {
    WHATSAPP
 ========================================================= */
 
-function contactWhatsApp(phone) {
+function contactWhatsApp(phone, proId) {
 
   /* A real contact attempt → grow the live "demandes du mois" stat. */
   recordPublicContact();
+
+  /* Best-effort, non-blocking tracking for the backend trust system:
+     POST /professionals/:id/contact with keepalive so the request is
+     flushed even when the tab is closing after the WhatsApp redirect.
+     Anonymous visitors get 401 (tracked contact requires a Sna3ti
+     account); any failure is silently ignored and the WhatsApp link
+     below is NEVER blocked. */
+  trackWhatsAppContact(proId);
 
   const message =
     encodeURIComponent(
@@ -11047,6 +11055,38 @@ function contactWhatsApp(phone) {
     "_blank"
   );
 
+}
+
+/* ==== WhatsApp contact tracking (best-effort) ====
+   Records that this visitor initiated a WhatsApp contact with a
+   professional in the backend (server-authoritative metadata only —
+   never message content). Tracking requires authentication; without a
+   valid JWT the backend answers 401 and this function does nothing.
+   The GET-then-open wa.me flow must always succeed, so this is fully
+   non-blocking: silent catch, keepalive, no await. */
+function trackWhatsAppContact(proId) {
+  if (!proId) return;
+  try {
+    const base = (
+      window.SNA3TI_CONTACTS_API ||
+      window.SNA3TI_PROFESSIONALS_API ||
+      window.SNA3TI_MATCH_API ||
+      "http://localhost:3000/api/v1"
+    ).replace(/\/+$/, "");
+    fetch(
+      base + "/professionals/" + encodeURIComponent(String(proId)) + "/contact",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel: "WHATSAPP", source: "PROFILE" }),
+        keepalive: true
+      }
+    ).catch(function () {
+      /* ignore — the pro is free to call anonymously, stats just don't track */
+    });
+  } catch (err) {
+    /* never block the WhatsApp flow */
+  }
 }
 
 /* Bump the current month's contact counter in the shared admin analytics

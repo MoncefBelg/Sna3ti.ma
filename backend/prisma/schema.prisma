@@ -79,9 +79,30 @@ enum SubscriptionStatus {
 }
 
 enum ReviewStatus {
+  pending
   published
   hidden
   flagged
+}
+
+// WhatsApp/phone contact interaction (req contact-trust). Channels are closed
+// sets; "WHATSAPP" is the only channel that can ever unlock review eligibility.
+enum InteractionChannel {
+  WHATSAPP
+  PHONE
+}
+
+enum InteractionSource {
+  PROFILE
+  SEARCH
+  MATCH
+}
+
+enum InteractionStatus {
+  TRACKED
+  CONFIRMED_CONTACT
+  FLAGGED
+  REJECTED
 }
 
 enum ReportStatus {
@@ -367,7 +388,10 @@ model Review {
   customer       String
   rating         Int
   comment        String?
-  status         ReviewStatus  @default(published)
+  status         ReviewStatus  @default(pending)
+  verifiedContact Boolean      @default(false) // true only for validated WhatsApp contacts
+  interactionId  String?       // linked ProfessionalContactInteraction (one review per contact)
+  riskScore      Int           @default(0) // 0-100; computed server-side at creation
   flaggedReason  String?
   flaggedReporter String?
   flaggedDate    DateTime?
@@ -377,6 +401,38 @@ model Review {
 
   @@index([professionalId])
   @@index([status])
+  @@index([interactionId])
+}
+
+// A contact interaction is the server-side record of a customer reaching an
+// artisan (WhatsApp / phone) from the marketplace. It is the ONLY source of
+// proof used to unlock a review: eligibility requires an authenticated customer,
+// channel WHATSAPP, a positive confirmation, and a 48h cooling-off period. The
+// customer id is checked server-side; anonymous (null) interactions are
+// tracked for analytics but can never unlock a review.
+model ProfessionalContactInteraction {
+  id                     String            @id // opaque INT-xxxxx, never parsed as int
+  customerId             String?           // null = anonymous (tracked, never review-eligible)
+  professionalId         String
+  channel                InteractionChannel @default(WHATSAPP)
+  source                 InteractionSource  @default(PROFILE)
+  status                 InteractionStatus  @default(TRACKED)
+  riskScore              Int                @default(0) // 0-100 (see evaluation signals)
+  riskFlags              Json               @default("[]")
+  lastContactAt          DateTime           @default(now())
+  reviewEligibleAt       DateTime?          // createdAt + 48h cooling-off
+  customerConfirmed      Boolean            @default(false)
+  customerConfirmedAt    DateTime?
+  customerReportedService String?           // "yes" | "no" | "in_progress" (customer self-report)
+  reviewId               String?            // set once a review is created (one review max)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  @@unique([customerId, professionalId]) // one interaction session per customer+pro
+  @@index([professionalId])
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
 }
 
 model Report {

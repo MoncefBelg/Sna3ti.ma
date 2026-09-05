@@ -12,6 +12,7 @@ const searchService = require("./searchService");
 const reviewService = require("./reviewService");
 const reportService = require("./reportService");
 const matchService = require("./matchService");
+const interactionService = require("./interactionService");
 function createServices(repos) {
   const services = {
     auth: {
@@ -96,6 +97,13 @@ function createServices(repos) {
       reject: (id, admin, note) => reportService.reject({ repos }, id, admin, note),
       warn: (id, admin, note) => reportService.warn({ repos }, id, admin, note),
       suspend: (id, admin, reason) => reportService.suspend({ repos }, id, admin, reason)
+    },
+    interactions: {
+      record: (professionalId, opts) => interactionService.record(repos, professionalId, opts),
+      confirm: (professionalId, opts) => interactionService.confirm(repos, professionalId, opts),
+      myEligibility: (professionalId, actor) => interactionService.myEligibility(repos, professionalId, actor),
+      list: () => interactionService.list(repos),
+      get: (id) => interactionService.get(repos, id)
     },
     categories: {
       list: () => repos.categories.listActive(),

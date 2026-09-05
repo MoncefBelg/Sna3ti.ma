@@ -7,7 +7,8 @@ const MODELS = [
   "role", "adminUser", "auditLog", "category", "region", "city",
   "plan", "user", "professional", "subscription", "payment",
   "verificationRequest", "verificationDocument", "review", "report", "supportTicket",
-  "notification", "legalDocument", "idSequence", "matchRequest", "matchPhoto"
+  "notification", "legalDocument", "idSequence", "matchRequest", "matchPhoto",
+  "professionalContactInteraction"
 ];
 
 function match(obj, where) {
@@ -175,7 +176,7 @@ function bootstrapSequences(db, seed) {
     review: "RV", report: "RP", subscription: "SUB",
     adminUser: "AU", notification: "NT", auditLog: "AL",
     category: "CAT", region: "REG", city: "CITY", plan: "PLAN",
-    matchRequest: "REQ", matchPhoto: "PH"
+    matchRequest: "REQ", matchPhoto: "PH", professionalContactInteraction: "INT"
   };
   for (const [model, prefix] of Object.entries(MODELS_TO_PREFIX)) {
     const rows = seed[model] || [];
