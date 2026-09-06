@@ -1,4 +1,5 @@
 const { AppError } = require("../utils/AppError");
+const { listScope, canReadRecord } = require("./billingAccess");
 const subscriptionSvc = require("./subscriptionService");
 
 function toInt(value, fallback) {
@@ -7,19 +8,27 @@ function toInt(value, fallback) {
 }
 
 // ─── List / get / create (req 17) ───────────────────────────────────────────
-async function list(repos, query = {}) {
+async function list(repos, query = {}, actor) {
+  // REQ 57-D: staff may list all verification requests; a professional owner
+  // sees only their own requests; anonymous/unrelated callers are denied.
+  const scope = await listScope(repos, actor);
+  if (!scope) throw new AppError("Accès non autorisé.", 403);
   const rows = await repos.verification.listByStatus(query.status || "all");
-  const total = rows.length;
+  const scoped = scope.professionalId ? rows.filter((r) => r.professionalId === scope.professionalId) : rows;
+  const total = scoped.length;
   const page = toInt(query.page, 1);
   const limit = Math.min(toInt(query.limit, 20), 100);
   const pages = Math.max(1, Math.ceil(total / limit));
-  const data = rows.slice((page - 1) * limit, page * limit);
+  const data = scoped.slice((page - 1) * limit, page * limit);
   return { data, pagination: { page, limit, total, pages } };
 }
 
-async function get(repos, id) {
+async function get(repos, id, actor) {
   const vr = await repos.verification.get(id);
   if (!vr) throw new AppError("Demande de vérification introuvable.", 404);
+  // REQ 57-D: staff with verification.view, or the owning professional.
+  const allowed = await canReadRecord(repos, actor, "verification.view", vr.professionalId);
+  if (!allowed) throw new AppError("Accès non autorisé.", 403);
   return vr;
 }
 
@@ -75,7 +84,7 @@ async function create(repos, data) {
 // ─── Scenario A: approve verification ────────────────────────────────────────
 // • plan-level request: activates the requested subscription; badge unchanged
 // • identity / professionnel: grants the verified badge; subscription untouched
-// • join: activates the free subscription
+// • join: activates the free subscription; NEVER publishes (REQ 57-E)
 // • approval never touches payment status
 async function approve(repos, requestId, admin) {
   const vr = await repos.verification.get(requestId);
@@ -98,7 +107,7 @@ async function approve(repos, requestId, admin) {
     await repos.professionals.update(vr.professionalId, { planEligible: true });
     if (vr.planId) {
       const plan = await repos.plans.get(vr.planId);
-      if (plan) await subscriptionSvc.activateForProfessional(repos, vr.professionalId, plan);
+      if (plan) await subscriptionSvc.activateForProfessional(repos, vr.professionalId, plan, { audit: true, admin });
     }
 
     // Audit + professional's verification badge remains unchanged (independence rule).
@@ -116,17 +125,17 @@ async function approve(repos, requestId, admin) {
       status: "approved", reviewedAt: now, reviewerId: admin.id, reviewerName: admin.name,
       history: [...(vr.history || []), { date: now.toISOString(), text: `Adhésion confirmée par ${admin.name}` }]
     });
-    // Activate professional (pending → active) + free subscription
-    const pro = await repos.professionals.get(vr.professionalId);
-    if (pro && pro.status !== "active") {
-      await repos.professionals.update(vr.professionalId, { status: "active", professionStatus: "pending" });
-    }
+    // REQ 57-E: approval MUST NOT publish. The FREE subscription is activated
+    // so the account is usable, but the professional STAYS PENDING in the
+    // marketplace until an authorized admin activates it explicitly
+    // (POST /admin/professionals/:id/activate).
     const freePlan = await repos.plans.find({ code: "free" }) || await repos.plans.get("PLAN-FREE");
-    if (freePlan) await subscriptionSvc.activateForProfessional(repos, vr.professionalId, freePlan);
+    if (freePlan) await subscriptionSvc.activateForProfessional(repos, vr.professionalId, freePlan, { audit: true, admin });
     await repos.auditLogs.log({
       adminId: admin.id, adminName: admin.name,
       action: "JOIN_APPROVED", entity: "VerificationRequest",
-      entityId: requestId, result: "Approved"
+      entityId: requestId, result: "Approved",
+      metadata: { note: "Professional remains pending; publication requires admin activation" }
     });
     return repos.verification.get(requestId);
   }

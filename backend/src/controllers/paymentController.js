@@ -9,7 +9,7 @@ function createPaymentController(services) {
       ok(res, { data });
     }),
     get: asyncHandler(async (req, res) => {
-      const data = services.payments.get ? await services.payments.get(req.params.id) : null;
+      const data = services.payments.get ? await services.payments.get(req.params.id, req.admin) : null;
       if (!data) throw new AppError("Paiement introuvable.", 404);
       ok(res, { data });
     }),

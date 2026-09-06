@@ -422,6 +422,22 @@
         return PayApi.reject(id, reason).then(function () { return { success: true }; });
       });
     }
+    // REQ 57-B — admin requests more information on a PENDING payment. This
+    // override is PROMISE-RETURNING (not fire-and-forget): the UI awaits it so
+    // it can surface processing/error state and refresh the list only on
+    // success. The backend enforces pending-only (409 otherwise) and writes the
+    // PAYMENT_INFO_REQUESTED audit.
+    if (DATA.requestPaymentInfo && PayApi.requestInfo) {
+      intercept("requestPaymentInfo", function (id, note) {
+        return PayApi.requestInfo(id, note).then(function (res) {
+          var remote = res && res.data ? res.data : res;
+          if (remote && remote.id) reconcile("payments", remote.id, {
+            status: remote.status, infoRequested: remote.infoRequested, reviewedAt: remote.reviewedAt
+          });
+          return { success: true };
+        });
+      });
+    }
     if (DATA.addPayment && PayApi.create) {
       intercept("addPayment", function (data) {
         return PayApi.create({

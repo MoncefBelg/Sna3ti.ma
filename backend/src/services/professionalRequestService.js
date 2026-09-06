@@ -20,9 +20,10 @@ const professionalSvc = require("./professionalService");
 
 // Admin approves/rejects a PENDING request. Decide metadata is stored on the
 // request (reason / reviewer / reviewedAt / history / professionalId) and
-// mirrored to the append-only audit log. Approval (REQ 56) creates exactly one
-// PENDING Professional (never published, never subscribed) — the marketplace
-// listing happens only via the explicit admin activate action.
+// mirrored to the append-only audit log. Approval (REQ 56 + REQ 57-A) creates
+// exactly one PENDING Professional on the FREE account (package=free) — the
+// marketplace listing happens only via the explicit admin activate action, and
+// the paid package is never applied at registration.
 const REQUEST_PLAN_CODES = ["free", "verified", "gold"];
 
 // Resolve the requested plan against the active catalogue. Server-authoritative:
@@ -208,6 +209,10 @@ async function get(repos, id) {
 // REQ 56 — approval materialises the artisan's account:
 //   * creates EXACTLY ONE Professional with status "pending" (never published
 //     automatically — the marketplace only lists "active"),
+//   * starts on the FREE account (package=free) regardless of the requested
+//     plan — the chosen formula stays recorded on the request itself
+//     (planCode/planName/planPrice), so no paid package is ever applied at
+//     registration (REQ 57-A),
 //   * does NOT activate any subscription and does NOT grant any badge,
 //   * persists the ARQ → PRO link (professionalId) on the request for
 //     end-to-end traceability.
@@ -241,7 +246,7 @@ async function approve(repos, requestId, admin) {
       : null,
     phone: request.phone,
     description: request.description || null,
-    package: request.planCode || "free",
+    package: "free",
     status: "pending"
   }, admin);
 

@@ -18,6 +18,7 @@
 // - Prices always come from the database plan — never from the frontend.
 
 const { AppError } = require("../utils/AppError");
+const { listScope, canReadRecord } = require("./billingAccess");
 
 function toInt(value, fallback) {
   const n = parseInt(value, 10);
@@ -133,9 +134,14 @@ async function reconcileExpiredAcross(repos) {
 
 // ── API methods (req 16) ─────────────────────────────────────────────────────
 
-async function list(repos, query = {}) {
+async function list(repos, query = {}, actor) {
   await reconcileExpiredAcross(repos);
-  const rows = await repos.subscriptions.list({}, { orderBy: { createdAt: "desc" } });
+  // REQ 57-D: staff may list all subscriptions; a professional owner sees only
+  // their own rows; anonymous/unrelated callers are denied.
+  const scope = await listScope(repos, actor);
+  if (!scope) throw new AppError("Accès non autorisé.", 403);
+  const where = scope.professionalId ? { professionalId: scope.professionalId } : {};
+  const rows = await repos.subscriptions.list(where, { orderBy: { createdAt: "desc" } });
   const total = rows.length;
   const page = toInt(query.page, 1);
   const limit = Math.min(toInt(query.limit, 20), 100);
@@ -144,9 +150,12 @@ async function list(repos, query = {}) {
   return { data, pagination: { page, limit, total, pages } };
 }
 
-async function get(repos, id) {
+async function get(repos, id, actor) {
   const sub = await repos.subscriptions.get(id);
   if (!sub) throw new AppError("Abonnement introuvable.", 404);
+  // REQ 57-D: staff with subscriptions.view, or the owning professional.
+  const allowed = await canReadRecord(repos, actor, "subscriptions.view", sub.professionalId);
+  if (!allowed) throw new AppError("Accès non autorisé.", 403);
   await reconcileExpiredForProfessional(repos, sub.professionalId);
   return repos.subscriptions.get(id);
 }
@@ -177,7 +186,7 @@ async function create(repos, data, actor) {
   if (actor) {
     await repos.auditLogs.log({
       adminId: actor && actor.id, adminName: actor && actor.name,
-      action: "SUBSCRIPTION_ACTIVATED", entity: "Subscription",
+      action: "SUBSCRIPTION_CREATED", entity: "Subscription",
       entityId: id, result: "Created"
     });
   }

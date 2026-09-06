@@ -5,11 +5,11 @@ const { ok, created } = require("../utils/respond");
 function createVerificationController(services) {
   return {
     list: asyncHandler(async (req, res) => {
-      const result = services.verification.list ? await services.verification.list(req.query) : { data: [], pagination: { page: 1, limit: 20, total: 0, pages: 1 } };
+      const result = services.verification.list ? await services.verification.list(req.query, req.admin) : { data: [], pagination: { page: 1, limit: 20, total: 0, pages: 1 } };
       ok(res, result);
     }),
     get: asyncHandler(async (req, res) => {
-      const vr = await services.verification.get(req.params.id);
+      const vr = await services.verification.get(req.params.id, req.admin);
       ok(res, { data: vr });
     }),
     create: asyncHandler(async (req, res) => {

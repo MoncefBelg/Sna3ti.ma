@@ -17,7 +17,8 @@
     get: function (id) { return R("GET", "payments/:id", { pathParams: { id: id } }); },
     create: function (payload) { return R("POST", "payments", { body: payload }); },
     confirm: function (id) { return R("POST", "admin/payments/:id/confirm", { pathParams: { id: id } }); },
-    reject: function (id, reason) { return R("POST", "admin/payments/:id/reject", { pathParams: { id: id }, body: { reason: reason } }); }
+    reject: function (id, reason) { return R("POST", "admin/payments/:id/reject", { pathParams: { id: id }, body: { reason: reason } }); },
+    requestInfo: function (id, note) { return R("POST", "admin/payments/:id/request-information", { pathParams: { id: id }, body: { note: note } }); }
   };
 
 })(window);

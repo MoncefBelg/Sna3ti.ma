@@ -75,15 +75,18 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   router.post("/notifications/:id/read", notificationCtrl.markRead);
 
   // ── Subscriptions (req 16) ─────────────────────────────────────────────────
-  router.get("/subscriptions", subscriptionCtrl.list);
-  router.get("/subscriptions/:id", subscriptionCtrl.get);
+  // REQ 57-D: read endpoints are authenticated; a professional only sees their
+  // own records, staff per RBAC (enforced in the service).
+  router.get("/subscriptions", requireAuth, subscriptionCtrl.list);
+  router.get("/subscriptions/:id", requireAuth, subscriptionCtrl.get);
   router.post("/subscriptions", requireAuth, subscriptionCtrl.create);
   router.patch("/subscriptions/:id", requireAuth, subscriptionCtrl.update);
   router.post("/subscriptions/:id/cancel", requireAuth, subscriptionCtrl.cancel);
 
   // ── Verifications (req 17) ─────────────────────────────────────────────────
-  router.get("/verifications", verificationCtrl.list);
-  router.get("/verifications/:id", verificationCtrl.get);
+  // REQ 57-D: read endpoints are authenticated; scoped for professionals.
+  router.get("/verifications", requireAuth, verificationCtrl.list);
+  router.get("/verifications/:id", requireAuth, verificationCtrl.get);
   router.post("/verifications", requireAuth, verificationCtrl.create);
   router.post("/verifications/:id/approve", requireAuth, requirePermission("verification.approve"), verificationCtrl.approve);
   router.post("/verifications/:id/reject", requireAuth, requirePermission("verification.reject"), verificationCtrl.reject);
@@ -91,7 +94,8 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
 
   // ── Payments (req 19) ──────────────────────────────────────────────────────
   router.post("/payments", requireAuth, paymentCtrl.create);
-  router.get("/payments/:id", paymentCtrl.get);
+  // REQ 57-D: single-payment lookup is authenticated; owner/staff RBAC enforced.
+  router.get("/payments/:id", requireAuth, paymentCtrl.get);
 
   // ── Admin namespace ────────────────────────────────────────────────────────
   const admin = Router();
@@ -108,6 +112,8 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.get("/payments", requirePermission("payments.view"), paymentCtrl.list);
   admin.post("/payments/:id/confirm", requirePermission("payments.confirm"), paymentCtrl.confirm);
   admin.post("/payments/:id/reject", requirePermission("payments.reject"), paymentCtrl.reject);
+  // REQ 57-B — admin asks the professional for more information on a payment.
+  admin.post("/payments/:id/request-information", requirePermission("payments.reject"), paymentCtrl.requestInfo);
 
   // Subscriptions
   admin.get("/subscriptions", requirePermission("subscriptions.view"), subscriptionCtrl.list);

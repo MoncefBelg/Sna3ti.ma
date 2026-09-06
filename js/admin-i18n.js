@@ -295,6 +295,8 @@
     "Confirmer le paiement active la souscription VÉRIFIÉ (99 DH/mois) ou GOLD (199 DH/mois). Le badge “Professionnel Vérifié” reste soumis à une vérification distincte et ne se déclenche jamais automatiquement par le paiement seul.": "Confirming the payment activates the VÉRIFIÉ (99 DH/month) or GOLD (199 DH/month) subscription. The \"Verified Professional\" badge remains subject to a separate verification and is never triggered automatically by the payment alone.",
     "Après contrôle du virement, la souscription VÉRIFIÉ ou GOLD sera activée sur le profil. Le badge « Professionnel Vérifié » reste soumis à une vérification distincte, indépendante du paiement.": "After checking the transfer, the VÉRIFIÉ or GOLD subscription will be activated on the profile. The \"Verified Professional\" badge remains subject to a separate verification, independent of the payment.",
     "Paiement confirmé — souscription activée (vérification du badge = processus distinct).": "Payment confirmed - subscription activated (badge verification = separate process).",
+    "Note au professionnel": "Note to the professional",
+    "Demande d'information envoyée au professionnel.": "Information request sent to the professional.",
 
     // ---- professionals (list/filters) ----
     "Nouvel artisan": "New artisan",
@@ -835,7 +837,9 @@
     "Activé sur la place de marché": "مفعّل على السوق",
     "Non publié": "غير منشور",
     "Un compte artisan sera créé en attente, puis publié uniquement après votre activation explicite.": "سيتم إنشاء حساب حرفي كقيد الانتظار، ثم نشره فقط بعد تنشيطك الصريح.",
-    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "سينتقل الطلب إلى حالة «مقبول». لا إضافة تلقائية إلى السوق؛ النشر التسويقي خطوة منفصلة."
+    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "سينتقل الطلب إلى حالة «مقبول». لا إضافة تلقائية إلى السوق؛ النشر التسويقي خطوة منفصلة.",
+    "Note au professionnel": "ملاحظة للحرفي",
+    "Demande d'information envoyée au professionnel.": "تم إرسال طلب المعلومات إلى الحرفي."
   };
 
   function loadLang(){

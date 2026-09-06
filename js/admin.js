@@ -2611,7 +2611,7 @@
       '<td class="actions-cell">'+
         (AUTH.can("payments","approve") && pa.status==="pending" ? '<button class="icon-act" data-confp="'+pa.id+'" title="'+T("Confirmer (active la souscription VÉRIFIÉ/GOLD)")+'" style="color:var(--green)">✓</button>' : "") +
         (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="'+T("Rejeter")+'">✖</button>' : "") +
-        (AUTH.can("payments","update") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="'+T("Demander des informations")+'" style="color:var(--amber)">💡</button>' : "") +
+        (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="'+T("Demander des informations")+'" style="color:var(--amber)">💡</button>' : "") +
         '<button class="icon-act" data-whats="'+pa.id+'" title="'+T("Discuter sur WhatsApp")+'">💬</button>' +
         (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Voir en vérification")+'">✅</button>' : "") +
       '</td></tr>';
@@ -2724,9 +2724,17 @@
   }
   function requestPaymentInfo(id){
     UI.confirmAction({ title:T("Demander des informations"), reasonRequired:true, reasonLabel:T("Note au professionnel"), confirmLabel:T("Envoyer"), onConfirm:function(note){
-      DATA.requestPaymentInfo(id, note);
-      DATA.logAudit({admin:AUTH.getSession().name, action:"PAYMENT_INFO_REQUESTED", entity:"Payment", entityId:id, result:"Needs info", note:note});
-      UI.toast(T("Demande d'information envoyée.")); renderPayments();
+      UI.openModal('<h3>'+T("Traitement en cours...")+'</h3><div class="reg-processing"><span class="spinner"></span><span>'+T("Traitement en cours...")+'</span></div>');
+      Promise.resolve(DATA.requestPaymentInfo(id, note)).then(function(){
+        UI.closeModal();
+        DATA.logAudit({admin:AUTH.getSession().name, action:"PAYMENT_INFO_REQUESTED", entity:"Payment", entityId:id, result:"Needs info", note:note});
+        UI.toast(T("Demande d'information envoyée au professionnel."));
+        renderPayments();
+      }).catch(function(err){
+        UI.closeModal();
+        UI.toast(proFriendlyError(err), true);
+        renderPayments();
+      });
     }});
   }
   function payMethodBadge(m){ var map={ bank_transfer:["blue","🏦 "+T("Virement")], card:["purple","💳 "+T("Carte")], cash:["green","💵 "+T("Espèces")], paypal:["amber","🅿️ PayPal"] }; var e=map[m]||["gray",m||"—"]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }

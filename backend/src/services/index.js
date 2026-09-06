@@ -26,8 +26,8 @@ function createServices(repos) {
       getAdmin: (id) => authService.getAdmin(repos, id)
     },
     verification: {
-      list: (query) => verificationService.list(repos, query),
-      get: (id) => verificationService.get(repos, id),
+      list: (query, actor) => verificationService.list(repos, query, actor),
+      get: (id, actor) => verificationService.get(repos, id, actor),
       create: (data) => verificationService.create(repos, data),
       approve: (id, admin) => verificationService.approve(repos, id, admin),
       reject: (id, reason, admin) => verificationService.reject(repos, id, reason, admin),
@@ -35,7 +35,7 @@ function createServices(repos) {
     },
     payments: {
       list: (query) => repos.payments.findPending ? repos.payments.list({}) : [],
-      get: (id) => paymentService.get(repos, id),
+      get: (id, actor) => paymentService.get(repos, id, actor),
       create: (data, actor) => paymentService.create(repos, data, actor),
       confirm: (id, admin) => paymentService.confirm(repos, id, admin),
       reject: (id, reason, admin) => paymentService.reject(repos, id, reason, admin),
@@ -55,8 +55,8 @@ function createServices(repos) {
       search: (query) => searchService.search(repos, query)
     },
     subscriptions: {
-      list: (query) => subscriptionService.list(repos, query),
-      get: (id) => subscriptionService.get(repos, id),
+      list: (query, actor) => subscriptionService.list(repos, query, actor),
+      get: (id, actor) => subscriptionService.get(repos, id, actor),
       create: (data, actor) => subscriptionService.create(repos, data, actor),
       update: (id, data, actor) => subscriptionService.update(repos, id, data, actor),
       cancel: (id, actor) => subscriptionService.cancel(repos, id, actor),

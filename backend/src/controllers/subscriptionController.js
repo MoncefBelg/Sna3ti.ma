@@ -4,11 +4,11 @@ const { ok, created } = require("../utils/respond");
 function createSubscriptionController(services) {
   return {
     list: asyncHandler(async (req, res) => {
-      const result = await services.subscriptions.list(req.query);
+      const result = await services.subscriptions.list(req.query, req.admin);
       ok(res, result); // { data, pagination }
     }),
     get: asyncHandler(async (req, res) => {
-      const sub = await services.subscriptions.get(req.params.id);
+      const sub = await services.subscriptions.get(req.params.id, req.admin);
       ok(res, { data: sub });
     }),
     create: asyncHandler(async (req, res) => {

@@ -3,6 +3,7 @@
 // closes the linked plan request if present; never touches the verified badge.
 
 const { AppError } = require("../utils/AppError");
+const { canReadRecord } = require("./billingAccess");
 const subscriptionSvc = require("./subscriptionService");
 
 function paidPlanCode(planName) {
@@ -107,9 +108,12 @@ async function create(repos, data, actor) {
 }
 
 // Public single-payment lookup (only for the payment owner or admin handling).
-async function get(repos, id) {
+// REQ 57-D: staff with payments.view, or the owning professional.
+async function get(repos, id, actor) {
   const pay = await repos.payments.get(id);
   if (!pay) throw new AppError("Paiement introuvable.", 404);
+  const allowed = await canReadRecord(repos, actor, "payments.view", pay.professionalId);
+  if (!allowed) throw new AppError("Accès non autorisé.", 403);
   return pay;
 }
 
@@ -143,10 +147,13 @@ async function reject(repos, paymentId, reason, admin) {
 }
 
 // ─── Request more information ───────────────────────────────────────────────
+// REQ 57-B: only a currently PENDING payment may be moved back to the
+// professional for clarification (409 otherwise), mirroring the confirm gate.
 async function requestInfo(repos, paymentId, note, admin) {
   if (!note || !String(note).trim()) throw new AppError("La note est requise.", 400);
   const pay = await repos.payments.get(paymentId);
   if (!pay) throw new AppError("Paiement introuvable.", 404);
+  if (pay.status !== "pending") throw new AppError("Seul un paiement en attente peut être modifié.", 409);
   await repos.payments.update(paymentId, {
     status: "needs_info", infoRequested: note, reviewedAt: new Date(), reviewedById: admin.id
   });
