@@ -18,6 +18,8 @@
     { path:"professionals/:id", view:"professionalDetail", perm:["professionals","read"] },
     { path:"users", view:"users", perm:["users","read"] },
     { path:"verification", view:"verification", perm:["verification","read"] },
+    { path:"registrations", view:"registrations", perm:["professionalRequests","read"] },
+    { path:"registrations/:id", view:"registrationDetail", perm:["professionalRequests","read"] },
     { path:"categories", view:"categories", perm:["categories","read"] },
     { path:"cities", view:"cities", perm:["cities","read"] },
     { path:"reviews", view:"reviews", perm:["reviews","read"] },

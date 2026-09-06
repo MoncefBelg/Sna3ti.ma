@@ -1,7 +1,7 @@
 const { Router } = require("express");
 
 function createRoutes(services, middleware) {
-  const { requireAuth, requirePermission, contactLimiter, reviewLimiter } = middleware;
+  const { requireAuth, requirePermission, contactLimiter, reviewLimiter, requestLimiter } = middleware;
   const router = Router();
 
   const authCtrl             = require("../controllers/authController").createAuthController(services);
@@ -18,6 +18,7 @@ function createRoutes(services, middleware) {
   const notificationCtrl     = require("../controllers/notificationController").createNotificationController(services);
   const matchCtrl            = require("../controllers/matchController").createMatchController(services);
   const interactionCtrl      = require("../controllers/interactionController").createInteractionController(services);
+  const professionalRequestCtrl = require("../controllers/professionalRequestController").createProfessionalRequestController(services);
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   router.post("/auth/login", authCtrl.login);
@@ -63,6 +64,9 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   // ── Sna3ti Match — public create (customer submits the form) ──────────────
   router.post("/match", matchCtrl.create);
 
+  // ── Account-free artisan onboarding (REQ 53) — public submit ──────────────
+  router.post("/professional-requests", requestLimiter, professionalRequestCtrl.create);
+
   // ── Notifications (req 25) ─────────────────────────────────────────────────
   router.use("/notifications", requireAuth);
   router.post("/notifications/read-all", notificationCtrl.markAllRead);
@@ -94,11 +98,11 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.use(requireAuth);
 
   // Professionals
-  admin.get("/professionals", requirePermission("professionals.view"), professionalCtrl.list);
+  admin.get("/professionals", requirePermission("professionals.view"), professionalCtrl.adminList);
   admin.get("/professionals/:id", requirePermission("professionals.view"), professionalCtrl.get);
   admin.patch("/professionals/:id", requirePermission("professionals.edit"), professionalCtrl.update);
   admin.post("/professionals/:id/suspend", requirePermission("professionals.suspend"), professionalCtrl.suspend);
-  admin.post("/professionals/:id/activate", requirePermission("professionals.edit"), professionalCtrl.activate);
+  admin.post("/professionals/:id/activate", requirePermission("professionals.activate"), professionalCtrl.activate);
 
   // Payments
   admin.get("/payments", requirePermission("payments.view"), paymentCtrl.list);
@@ -144,6 +148,13 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.patch("/match-requests/:id/artisan", requirePermission("matchRequests.edit"), matchCtrl.updateArtisan);
   admin.patch("/match-requests/:id/prices", requirePermission("matchRequests.edit"), matchCtrl.updatePrices);
   admin.post("/match-requests/:id/whatsapp/retry", requirePermission("matchRequests.edit"), matchCtrl.retryWhatsApp);
+
+  // Account-free artisan onboarding — admin read-only (approval in a later step).
+  admin.get("/professional-requests", requirePermission("professionalRequests.view"), professionalRequestCtrl.list);
+  admin.get("/professional-requests/:id", requirePermission("professionalRequests.view"), professionalRequestCtrl.get);
+  // REQ 54 — admin decision endpoints (pending -> approved / rejected).
+  admin.post("/professional-requests/:id/approve", requirePermission("professionalRequests.approve"), professionalRequestCtrl.approve);
+  admin.post("/professional-requests/:id/reject", requirePermission("professionalRequests.reject"), professionalRequestCtrl.reject);
 
   // Legal (req 24) — admin management
   admin.get("/legal", requirePermission("settings.manage"), legalCtrl.listAll);

@@ -316,8 +316,17 @@
         UI.toast(ids.length+T(" professionnel(s) vérifié(s).")); drawPros();
       }});
     } else if(action==="activate"){
-      ids.forEach(function(id){ DATA.updateProfessional(id, { status:"active" }); DATA.logAudit({admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active"}); });
-      UI.toast(ids.length+T(" professionnel(s) activé(s).")); drawPros();
+      UI.confirmAction({ title:T("Activer ")+ids.length+T(" professionnel(s) ?"), message:T("Les comptes seront visibles par les visiteurs et les recherches."), confirmLabel:T("Activer"), onConfirm:function(){
+        UI.toast(T("Activation en cours..."));
+        var pending = ids.length;
+        function done(){ if(--pending <= 0){ UI.toast(ids.length+T(" professionnel(s) activé(s).")); drawPros(); } }
+        ids.forEach(function(id){
+          DATA.activateProfessional(id).then(function(p){
+            DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
+            done();
+          }).catch(function(err){ done(); UI.toast(proFriendlyError(err), true); });
+        });
+      }});
     }
   }
 
@@ -396,7 +405,7 @@
             (AUTH.can("professionals","update")?'<button class="icon-act" title="'+T("Modifier")+'" data-edit="'+p.id+'">✏️</button>':"") +
             (AUTH.can("professionals","verify")?'<button class="icon-act" title="'+T("Vérifier")+'" data-verify="'+p.id+'" style="color:var(--teal)">✅</button>':"") +
             (AUTH.can("professionals","suspend") && (p.status==="active"||p.status==="pending") ?'<button class="icon-act" title="'+T("Suspendre")+'" data-suspend="'+p.id+'" style="color:var(--amber)">⏸️</button>':"") +
-            (AUTH.can("professionals","activate") && p.status==="suspended" ?'<button class="icon-act" title="'+T("Activer")+'" data-activate="'+p.id+'" style="color:var(--green)">▶️</button>':"") +
+            (AUTH.can("professionals","activate") && (p.status==="suspended"||p.status==="pending") ?'<button class="icon-act" title="'+T("Activer")+'" data-activate="'+p.id+'" style="color:var(--green)">▶️</button>':"") +
             (AUTH.can("professionals","delete") ?'<button class="icon-act danger" title="'+T("Supprimer")+'" data-del="'+p.id+'">🗑️</button>':"") +
           '</td></tr>';
       }).join("") : '<tr><td colspan="11"><div class="empty" style="padding:30px">'+T("Aucun professionnel trouvé.")+'</div></td></tr>';
@@ -419,9 +428,17 @@
       }); });
       document.querySelectorAll("#proBody [data-activate]").forEach(function(b){ b.addEventListener("click", function(){
         var id=b.dataset.activate;
-        DATA.updateProfessional(id, { status:"active" });
-        DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
-        UI.toast(T("Artisan activé.")); drawPros();
+        UI.confirmAction({ title:T("Activer ce professionnel ?"), message:T("Le compte sera visible par les visiteurs et les recherches."), confirmLabel:T("Activer"), onConfirm:function(){
+          UI.toast(T("Activation en cours..."));
+          DATA.activateProfessional(id).then(function(p){
+            DATA.logAudit({ admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Active" });
+            UI.toast((p&&p.data&&p.data.name?p.data.name+" — ":"")+T("Artisan activé."));
+            drawPros();
+          }).catch(function(err){
+            UI.toast(proFriendlyError(err), true);
+            drawPros();
+          });
+        }});
       }); });
       document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
         var id=b.dataset.del;
@@ -561,7 +578,7 @@
       var html =
         '<div class="page-head"><h1>'+esc(p.name)+'</h1><div class="spacer">'+
           (AUTH.can("professionals","suspend") && p.status!=="suspended" ? '<button class="btn btn-warn" id="dSuspend">⏸️ '+T("Suspendre")+'</button>' : "") +
-          (AUTH.can("professionals","activate") && p.status==="suspended" ? '<button class="btn btn-soft" id="dActivate">▶️ '+T("Activer")+'</button>' : "") +
+          (AUTH.can("professionals","activate") && (p.status==="suspended"||p.status==="pending") ? '<button class="btn btn-soft" id="dActivate">▶️ '+T("Activer")+'</button>' : "") +
           (AUTH.can("professionals","verify") && p.verificationStatus!=="approved" ? '<button class="btn btn-primary" id="dVerify">✅ '+T("Vérifier")+'</button>' : "") +
           (AUTH.can("professionals","verify") && p.verificationStatus!=="approved" ? '<button class="btn btn-danger" id="dReject">✖ '+T("Rejeter vérification")+'</button>' : "") +
           (AUTH.can("professionals","update") ? '<button class="btn btn-ghost" id="dEdit">✏️ '+T("Modifier")+'</button>' : "") +
@@ -634,7 +651,15 @@
         }});
       });
       var da = document.getElementById("dActivate"); if(da) da.addEventListener("click", function(){
-        DATA.updateProfessional(p.id, { status:"active" }); DATA.logAudit({admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Active"}); UI.toast(T("Artisan activé.")); renderProfessionalDetail(id);
+        UI.confirmAction({ title:T("Activer ce professionnel ?"), message:T("Le compte sera visible par les visiteurs et les recherches."), confirmLabel:T("Activer"), onConfirm:function(){
+          UI.toast(T("Activation en cours..."));
+          DATA.activateProfessional(p.id).then(function(){
+            DATA.logAudit({admin:AUTH.getSession().name, action:"ACTIVATE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Active"});
+            UI.toast(T("Artisan activé.")); renderProfessionalDetail(id);
+          }).catch(function(err){
+            UI.toast(proFriendlyError(err), true); renderProfessionalDetail(id);
+          });
+        }});
       });
       var dv = document.getElementById("dVerify"); if(dv) dv.addEventListener("click", function(){
         UI.confirmAction({ title:T("Vérifier ce professionnel ?"), message:T("Approuve la vérification professionnelle."), confirmLabel:T("Vérifier"), onConfirm:function(){
@@ -1347,6 +1372,551 @@
     });
     var rj = document.getElementById("rvReject"); if(rj) rj.addEventListener("click", function(){
       UI.closeModal(); rejectVer(id);
+    });
+  }
+
+  /* ============================================================
+     DEMANDES D'INSCRIPTION (registration approvals — REQ 54 + REQ 55)
+     ============================================================ */
+  // Source of truth = backend professional-requests API. Search, status/plan/
+  // city filters, sort and pagination are SENT to the backend, which is
+  // authoritative. The KPI counters come from the backend GLOBAL `counts`
+  // envelope (never from a single filtered page). Approve/reject call the
+  // authenticated decision endpoints and refetch after each decision so the
+  // list and the nav pill always reflect server truth.
+  // Routes: #/admin/registrations, #/admin/registrations?status=pending,
+  // #/admin/registrations/:id (opens the detail modal).
+  var _reg = {
+    status: "all",
+    q: "", plan: "", city: "",
+    sort: "createdAt", dir: "desc",
+    page: 1, pageSize: 25,
+    loading: false, error: null, seq: 0, loaded: false,
+    data: [], pagination: null, counts: null
+  };
+  var REG_PAGE_SIZES = [10, 25, 50, 100];
+
+  function regStatusBadge(s){
+    var m={ pending:["amber",T("En attente")], approved:["green",T("Approuvée")], rejected:["red",T("Rejetée")] };
+    var e=m[s]||["gray",s];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+  function regPlanBadge(r){
+    var code=String(r.planCode||"free").toLowerCase();
+    var m={ free:["gray",T("GRATUIT")], verified:["teal",T("Vérifié")], gold:["orange","👑 "+T("GOLD")] };
+    var e=m[code]||["gray",r.planName||code];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+
+  // Map a normalized API error ({code, status, message}) to a friendly,
+  // translated message that the user can act on.
+  function regFriendlyError(err){
+    var code = String((err && (err.code || err.status)) || "");
+    var m = {
+      "UNAUTHORIZED": T("Session expirée, veuillez vous reconnecter."),
+      "FORBIDDEN": T("Accès refusé pour cette action."),
+      "NOT_FOUND": T("Demande introuvable."),
+      "CONFLICT": T("Demande déjà traitée, veuillez rafraîchir la liste."),
+      "RATE_LIMITED": T("Trop de requêtes. Réessayez dans un instant."),
+      "INTERNAL_ERROR": T("Erreur serveur. Réessayez plus tard."),
+      "NETWORK_ERROR": T("Problème réseau. Vérifiez votre connexion et réessayez."),
+      "UNSUPPORTED": T("Session expirée, veuillez vous reconnecter."),
+      "401": T("Session expirée, veuillez vous reconnecter."),
+      "403": T("Accès refusé pour cette action."),
+      "404": T("Demande introuvable."),
+      "409": T("Demande déjà traitée, veuillez rafraîchir la liste."),
+      "429": T("Trop de requêtes. Réessayez dans un instant."),
+      "500": T("Erreur serveur. Réessayez plus tard."),
+      "400": T("Donnée invalide envoyée au serveur.")
+    };
+    var msg = m[code] || m[code.toUpperCase()];
+    if(msg) return msg;
+    return (err && err.message) || T("Problème réseau. Vérifiez votre connexion et réessayez.");
+  }
+
+  // Friendly, translated message for professional activation/publish failures
+  // (REQ 56) — mirrors regFriendlyError but with professional-scoped wording.
+  function proFriendlyError(err){
+    var code = String((err && (err.code || err.status)) || "");
+    var m = {
+      "UNAUTHORIZED": T("Session expirée, veuillez vous reconnecter."),
+      "FORBIDDEN": T("Accès refusé pour cette action."),
+      "NOT_FOUND": T("Artisan introuvable."),
+      "CONFLICT": T("Action impossible : le compte ne peut plus être activé."),
+      "RATE_LIMITED": T("Trop de requêtes. Réessayez dans un instant."),
+      "INTERNAL_ERROR": T("Erreur serveur. Réessayez plus tard."),
+      "NETWORK_ERROR": T("Problème réseau. Vérifiez votre connexion et réessayez."),
+      "UNSUPPORTED": T("Module API professionnels non chargé."),
+      "401": T("Session expirée, veuillez vous reconnecter."),
+      "403": T("Accès refusé pour cette action."),
+      "404": T("Artisan introuvable."),
+      "409": T("Action impossible : le compte ne peut plus être activé."),
+      "429": T("Trop de requêtes. Réessayez dans un instant."),
+      "500": T("Erreur serveur. Réessayez plus tard."),
+      "400": T("Donnée invalide envoyée au serveur.")
+    };
+    var msg = m[code] || m[code.toUpperCase()];
+    if(msg) return msg;
+    return (err && err.message) || T("Problème réseau. Vérifiez votre connexion et réessayez.");
+  }
+
+  function regTab(id, label, n){
+    var v=(typeof n==="number"&&isFinite(n))?n:0;
+    return '<button class="tab" data-tab="'+id+'">'+label+' <span class="cnt">'+v+'</span></button>';
+  }
+  function regKpiCards(c){
+    c=c||{total:0,pending:0,approved:0,rejected:0};
+    function card(title,ico,val,sub,st){
+      return '<div class="kpi kpi-link" data-reg-kpi="'+st+'">'+
+        '<div class="k-top"><span class="k-title">'+esc(title)+'</span><span class="k-ico">'+ico+'</span></div>'+
+        '<div class="k-val">'+(typeof val==="number"?esc(val.toLocaleString("fr-MA")):"—")+'</div>'+
+        '<div class="k-delta"><span class="cmp">'+esc(sub)+'</span></div>'+
+        '</div>';
+    }
+    return card(T("Toutes les candidatures"),"📋",c.total,T("Candidatures d'inscription"),"all")+
+      card(T("En attente"),"⏳",c.pending,T("En cours d'examen"),"pending")+
+      card(T("Approuvées"),"✅",c.approved,T("Examinées"),"approved")+
+      card(T("Rejetées"),"❌",c.rejected,T("Examinées"),"rejected");
+  }
+  function regBodySkeleton(){
+    var rows="";
+    for(var j=0;j<5;j++){
+      rows += '<tr>';
+      for(var c=0;c<8;c++){ rows += '<td><div class="skeleton skel-line" style="width:86%"></div></td>'; }
+      rows += '</tr>';
+    }
+    return rows;
+  }
+  function regSkeleton(){
+    return '<div class="kpi-grid grid-4">'+
+      '<div class="card"><div class="skeleton skel-box" style="height:92px"></div></div>'.repeat(4)+
+      '</div>'+
+      '<div class="card" style="margin-top:16px"><div class="table-wrap"><table><thead><tr>'+
+        '<th>'+T("Référence")+'</th><th>'+T("Candidat")+'</th><th class="col-hide-sm">'+T("Métier")+'</th><th class="col-hide-sm">'+T("Ville")+'</th><th class="col-hide-md">'+T("Formule")+'</th><th>'+T("Statut")+'</th><th>'+T("Date")+'</th><th>'+T("Actions")+'</th>'+
+      '</tr></thead><tbody>'+regBodySkeleton()+'</tbody></table></div></div>';
+  }
+
+  function regSortArrow(field){
+    if(_reg.sort!==field) return '<span class="sort-ic">⇅</span>';
+    return '<span class="sort-ic">'+(_reg.dir==="asc"?"▲":"▼")+'</span>';
+  }
+  function drawSortHeaders(){
+    document.querySelectorAll("#regTable thead th.sortable").forEach(function(th){
+      var ic=th.querySelector(".sort-ic");
+      if(ic){ ic.textContent=(_reg.sort===th.dataset.sort)?(_reg.dir==="asc"?"▲":"▼"):"⇅"; }
+    });
+  }
+
+  function renderRegistrations(initialFilter){
+    var valid={ all:1, pending:1, approved:1, rejected:1 };
+    _reg.status=(initialFilter&&valid[initialFilter])?initialFilter:"all";
+    _reg.q=""; _reg.plan=""; _reg.city="";
+    _reg.sort="createdAt"; _reg.dir="desc";
+    _reg.page=1; _reg.loaded=false; _reg.error=null;
+    _reg.data=[]; _reg.pagination=null;
+    _reg.counts=DATA.getProfessionalRequestStats()||{total:0,pending:0,approved:0,rejected:0};
+    UI.setTitle(T("Demandes d'inscription"));
+    var c=_reg.counts||{};
+    var html =
+      '<div class="page-head"><h1>'+T("Demandes d'inscription")+'</h1>'+
+        '<span class="muted">'+T("Aperçu de toutes les candidatures reçues via le formulaire sans compte. Les compteurs et la pagination sont calculés côté serveur.")+'</span>'+
+      '</div>'+
+      '<div id="regError" class="alert-bar" style="display:none"></div>'+
+      '<div class="kpi-grid grid-4" id="regKpis">'+regKpiCards(c)+'</div>'+
+      '<div class="tabs" id="regTabs">'+
+        regTab("all",T("Toutes les candidatures"),c.total)+regTab("pending",T("En attente"),c.pending)+
+        regTab("approved",T("Approuvées"),c.approved)+regTab("rejected",T("Rejetées"),c.rejected)+
+      '</div>'+
+      '<div class="vfilter-bar">'+
+        '<div class="vf-grid">'+
+          '<label class="vf-field" style="flex:2">'+T("Recherche")+'<input id="regQ" type="search" placeholder="'+T("Rechercher une référence, un nom ou un téléphone...")+'" value="'+esc(_reg.q)+'" aria-label="'+T("Recherche")+'"></label>'+
+          '<label class="vf-field">'+T("Formule")+'<select id="regPlan" aria-label="'+T("Formule")+'"><option value="">'+T("Toutes les candidatures")+'</option><option value="free">'+T("GRATUIT")+'</option><option value="verified">'+T("Vérifié")+'</option><option value="gold">'+T("GOLD")+'</option></select></label>'+
+          '<label class="vf-field">'+T("Ville")+'<input id="regCity" placeholder="'+T("Ville")+'" value="'+esc(_reg.city)+'" aria-label="'+T("Ville")+'"></label>'+
+        '</div>'+
+        '<div class="vf-sort" style="margin-top:12px">'+
+          '<span class="muted">'+T("Afficher")+'</span>'+
+          '<select id="regPageSize" aria-label="'+T("Afficher")+'">'+REG_PAGE_SIZES.map(function(s){ return '<option value="'+s+'"'+(s===_reg.pageSize?" selected":"")+'>'+s+'</option>'; }).join("")+'</select>'+
+          '<span class="muted">'+T("par page")+'</span>'+
+          '<span class="grow" style="flex:1"></span>'+
+          '<button class="btn btn-ghost btn-small" id="regReset">'+T("Effacer les filtres")+'</button>'+
+          '<button class="btn btn-ghost btn-small" id="regExport">⬇ '+T("Exporter CSV")+'</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card" style="margin-top:16px">'+
+        '<div id="regRefresh" class="reg-refresh" style="display:none"><span class="spinner spinner-sm"></span> '+T("Actualisation des données...")+'</div>'+
+        '<div class="table-wrap">'+
+          '<table id="regTable">'+
+            '<thead><tr>'+
+              '<th>'+T("Référence")+'</th>'+
+              '<th class="sortable" data-sort="name">'+T("Candidat")+' '+regSortArrow("name")+'</th>'+
+              '<th class="col-hide-sm">'+T("Métier")+'</th>'+
+              '<th class="col-hide-sm">'+T("Ville")+'</th>'+
+              '<th class="col-hide-md">'+T("Formule")+'</th>'+
+              '<th class="sortable" data-sort="status">'+T("Statut")+' '+regSortArrow("status")+'</th>'+
+              '<th class="sortable" data-sort="createdAt">'+T("Date")+' '+regSortArrow("createdAt")+'</th>'+
+              '<th>'+T("Actions")+'</th>'+
+            '</tr></thead>'+
+            '<tbody id="regRows">'+regBodySkeleton()+'</tbody>'+
+          '</table>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)">'+
+          '<span id="regMeta" class="muted small"></span>'+
+          '<span id="regPager" class="pagination"></span>'+
+        '</div>'+
+      '</div>';
+    UI.setContent(html);
+    bindRegFilters();
+    loadRegistrationsFromServer();
+  }
+
+  function regReadInputs(){
+    var g=function(id){ var e=document.getElementById(id); return e?String(e.value).trim():""; };
+    _reg.q=g("regQ"); _reg.plan=g("regPlan"); _reg.city=g("regCity");
+    var ps=document.getElementById("regPageSize");
+    if(ps){ var v=parseInt(ps.value,10); if(v>0&&v<=500) _reg.pageSize=v; }
+  }
+  function regShowLoading(useSkeleton, showRefresh){
+    var listEl=document.getElementById("regRows");
+    if(useSkeleton&&listEl){ listEl.innerHTML=regBodySkeleton(); }
+    var rf=document.getElementById("regRefresh");
+    if(rf){ rf.style.display=showRefresh?"flex":"none"; }
+  }
+
+  function loadRegistrationsFromServer(opts){
+    opts=opts||{};
+    regReadInputs();
+    if(opts.status){ _reg.status=opts.status; }
+    if(opts.page){ _reg.page=opts.page; }
+    var seq=++_reg.seq;
+    var hadData=_reg.loaded&&_reg.data&&_reg.data.length?true:false;
+    _reg.loading=true; _reg.error=null;
+    // First load: repaint the table with skeleton rows. Refresh: keep the
+    // previous rows and show a slim "refreshing" bar so inputs stay stable.
+    regShowLoading(!hadData, hadData);
+    drawSortHeaders();
+    var params={ page:_reg.page, pageSize:_reg.pageSize, sort:_reg.sort, dir:_reg.dir };
+    if(_reg.status!=="all") params.status=_reg.status;
+    if(_reg.q) params.q=_reg.q;
+    if(_reg.plan) params.plan=_reg.plan;
+    if(_reg.city) params.city=_reg.city;
+    DATA.fetchProfessionalRequests(params).then(function(res){
+      if(seq!==_reg.seq) return;
+      _reg.loading=false; _reg.error=null;
+      _reg.data=(res&&res.data)?res.data:[];
+      _reg.pagination=(res&&res.pagination)||null;
+      if(res&&res.counts) _reg.counts=res.counts;
+      _reg.loaded=true;
+      regShowLoading(false,false);
+      drawRegistrations();
+      UI.updatePills && global.Sna3tiUI && global.Sna3tiUI.updatePills();
+    }).catch(function(err){
+      if(seq!==_reg.seq) return;
+      _reg.loading=false;
+      _reg.error=regFriendlyError(err);
+      regShowLoading(false,false);
+      drawRegistrations();
+    });
+  }
+
+  function regEmptyState(){
+    if(_reg.q){
+      return '<div class="e-ico">🔍</div><div>'+T("Aucun résultat pour votre recherche.")+'</div><div class="muted" style="margin-top:4px">« '+esc(_reg.q)+' »</div>';
+    }
+    if(_reg.status!=="all"||_reg.plan||_reg.city||(_reg.pagination&&_reg.pagination.page>1)){
+      return '<div class="e-ico">🗂️</div><div>'+T("Aucune candidature ne correspond aux filtres.")+'</div>'+
+        '<button class="btn btn-ghost btn-small" style="margin-top:10px" id="regEmptyClear">'+T("Effacer les filtres")+'</button>';
+    }
+    return '<div class="e-ico">📭</div><div>'+T("Aucune candidature pour le moment.")+'</div>';
+  }
+
+  function regService(r){
+    return String(r.profession||"")==="autre" ? (r.otherService||r.profession) : r.profession;
+  }
+  function regRowHtml(r){
+    var actions='<button class="btn btn-ghost btn-small" data-reg-open="'+esc(r.id)+'">🔍 '+T("Détails")+'</button>';
+    if(AUTH.can("professionalRequests","approve")&&r.status==="pending") actions+='<button class="btn btn-primary btn-small" data-reg-app="'+esc(r.id)+'">✓ '+T("Approuver")+'</button>';
+    if(AUTH.can("professionalRequests","reject")&&r.status==="pending") actions+='<button class="btn btn-danger btn-small" data-reg-rej="'+esc(r.id)+'">✖ '+T("Rejeter")+'</button>';
+    return '<tr>'+
+      '<td class="td-ref">'+esc(r.reference||r.id)+'</td>'+
+      '<td><div class="pro"><div class="p-avatar" style="width:34px;height:34px;font-size:13px">'+initials(r.fullName||r.firstName)+'</div>'+
+        '<div><div class="pro-name" style="font-size:13.5px">'+esc(r.fullName||"—")+'</div><div class="pro-job" dir="ltr">'+esc(r.phone||"")+'</div></div></div></td>'+
+      '<td class="col-hide-sm">'+esc(regService(r)||"—")+'</td>'+
+      '<td class="col-hide-sm">'+esc(r.cityLabel||"—")+'</td>'+
+      '<td class="col-hide-md">'+regPlanBadge(r)+'</td>'+
+      '<td>'+regStatusBadge(r.status)+'</td>'+
+      '<td class="td-date">'+esc(r.dateLabel||"—")+'</td>'+
+      '<td class="actions-cell">'+actions+'</td>'+
+    '</tr>';
+  }
+  function drawRegistrations(){
+    var el=document.getElementById("regRows"); if(!el) return;
+    var data=(_reg.loaded&&Array.isArray(_reg.data))?_reg.data:[];
+    var counts=_reg.counts||{total:0,pending:0,approved:0,rejected:0};
+
+    var tabsEl=document.getElementById("regTabs");
+    if(tabsEl){
+      tabsEl.innerHTML=regTab("all",T("Toutes les candidatures"),counts.total)+regTab("pending",T("En attente"),counts.pending)+
+        regTab("approved",T("Approuvées"),counts.approved)+regTab("rejected",T("Rejetées"),counts.rejected);
+      tabsEl.querySelectorAll(".tab").forEach(function(t){
+        t.classList.toggle("active",t.dataset.tab===_reg.status);
+        t.addEventListener("click",function(){ if(_reg.status!==t.dataset.tab){ _reg.status=t.dataset.tab; loadRegistrationsFromServer({page:1}); } });
+      });
+    }
+    var kEl=document.getElementById("regKpis");
+    if(kEl){
+      kEl.innerHTML=regKpiCards(counts);
+      kEl.querySelectorAll("[data-reg-kpi]").forEach(function(k){
+        k.addEventListener("click",function(){ var s=k.dataset.regKpi; if(_reg.status!==s){ _reg.status=s; loadRegistrationsFromServer({page:1}); } });
+      });
+    }
+    var errEl=document.getElementById("regError");
+    if(errEl){
+      if(_reg.error){
+        errEl.style.display="flex";
+        errEl.innerHTML='<span>⚠️ '+esc(_reg.error)+'</span><button class="btn btn-ghost btn-small" id="regRetryBanner">'+T("Réessayer")+'</button>';
+        var rb=errEl.querySelector("#regRetryBanner");
+        if(rb) rb.addEventListener("click",function(){ loadRegistrationsFromServer({page:_reg.page}); });
+      } else { errEl.style.display="none"; }
+    }
+
+    if(_reg.error&&!data.length){
+      el.innerHTML='<tr><td colspan="8"><div class="empty">'+
+        '<div class="e-ico">⚠️</div><div>'+esc(_reg.error)+'</div>'+
+        '<button class="btn btn-ghost btn-small" style="margin-top:10px" id="regRetry">'+T("Réessayer")+'</button>'+
+        '</div></td></tr>';
+      var rt=el.querySelector("#regRetry"); if(rt) rt.addEventListener("click",function(){ loadRegistrationsFromServer({page:_reg.page}); });
+    } else if(!data.length){
+      el.innerHTML='<tr><td colspan="8"><div class="empty">'+regEmptyState()+'</div></td></tr>';
+      var ec=document.getElementById("regEmptyClear");
+      if(ec) ec.addEventListener("click",regClearFilters);
+    } else {
+      el.innerHTML=data.map(regRowHtml).join("");
+    }
+    bindRegActions();
+
+    var pg=_reg.pagination;
+    var metaEl=document.getElementById("regMeta");
+    if(metaEl&&pg){
+      var total=pg.total||0, from=0, to=0;
+      if(total>0){ from=((pg.page-1)*pg.limit)+1; to=Math.min(from+data.length-1,total); }
+      metaEl.textContent=T("Résultats")+": "+from+"–"+to+" "+T("sur")+" "+total+"   ·   "+T("Page")+" "+pg.page+" "+T("sur")+" "+pg.pages;
+    }
+    var pagEl=document.getElementById("regPager");
+    if(pagEl){
+      if(pg&&pg.pages>1){ UI.renderPagination("regPager",pg.page,pg.pages,function(p){ loadRegistrationsFromServer({page:p}); }); }
+      else { pagEl.innerHTML=""; }
+    }
+    drawSortHeaders();
+  }
+
+  function bindRegFilters(){
+    var q=document.getElementById("regQ");
+    if(q) q.addEventListener("input",UI.debounce(function(){ _reg.page=1; loadRegistrationsFromServer(); },260));
+    ["regPlan","regCity"].forEach(function(id){
+      var e=document.getElementById(id);
+      if(e) e.addEventListener("change",function(){ _reg.page=1; loadRegistrationsFromServer(); });
+    });
+    var ps=document.getElementById("regPageSize");
+    if(ps) ps.addEventListener("change",function(){ _reg.page=1; loadRegistrationsFromServer(); });
+    var r=document.getElementById("regReset"); if(r) r.addEventListener("click",regClearFilters);
+    var ex=document.getElementById("regExport"); if(ex) ex.addEventListener("click",regExportCSV);
+    document.querySelectorAll("#regTable thead th.sortable").forEach(function(th){
+      th.addEventListener("click",function(){
+        var f=th.dataset.sort;
+        if(_reg.sort===f){ _reg.dir=(_reg.dir==="asc"?"desc":"asc"); }
+        else { _reg.sort=f; _reg.dir=(f==="createdAt"?"desc":"asc"); }
+        _reg.page=1;
+        drawSortHeaders();
+        loadRegistrationsFromServer();
+      });
+    });
+  }
+  function regClearFilters(){
+    ["regQ","regPlan","regCity"].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=""; });
+    _reg.q=""; _reg.plan=""; _reg.city=""; _reg.page=1;
+    loadRegistrationsFromServer();
+  }
+  function regExportCSV(){
+    if(!(_reg.data&&_reg.data.length)){ UI.toast(T("Aucune demande."), true); return; }
+    var rows=[[T("Référence"),T("Nom"),T("Téléphone"),T("Métier"),T("Ville"),T("Formule"),T("Statut"),T("Prix annoncé"),T("Créé le")]];
+    var stLabel={ pending:T("En attente"), approved:T("Approuvée"), rejected:T("Rejetée") };
+    (_reg.data||[]).forEach(function(r){
+      rows.push([
+        r.reference||r.id, r.fullName||"", r.phone||"", regService(r)||"", r.cityLabel||"",
+        r.planName||"", stLabel[r.status]||r.status||"",
+        (r.price==null?"":(String(r.price)+(r.priceUnit?" "+r.priceUnit:""))), r.dateLabel||""
+      ]);
+    });
+    UI.exportCSV("demandes-inscription.csv", rows);
+    UI.toast(T("Export généré."));
+  }
+  function bindRegActions(){
+    document.querySelectorAll("[data-reg-open]").forEach(function(b){ b.addEventListener("click",function(){ openRegistrationDetail(b.dataset.regOpen); }); });
+    document.querySelectorAll("[data-reg-app]").forEach(function(b){ b.addEventListener("click",function(){ approveRegistration(b.dataset.regApp); }); });
+    document.querySelectorAll("[data-reg-rej]").forEach(function(b){ b.addEventListener("click",function(){ rejectRegistration(b.dataset.regRej); }); });
+  }
+  function regRequest(id){
+    var arr=(_reg.loaded&&Array.isArray(_reg.data))?_reg.data:[];
+    for(var i=0;i<arr.length;i++){ if(arr[i].id===id) return arr[i]; }
+    return null;
+  }
+
+  function registrationDetailHtml(r){
+    var h='<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:2px 0 6px">'+T("Vue d'ensemble")+'</div>';
+    h += '<div class="detail-grid">'+
+      drow(T("Référence"),esc(r.reference||r.id))+
+      drow(T("Statut"),regStatusBadge(r.status))+
+      drow(T("Nom"),esc(r.fullName||"—"))+
+      drow(T("Formule"),regPlanBadge(r))+
+      drow(T("Métier"),esc(regService(r)||"—"))+
+      drow(T("Ville"),esc(r.cityLabel||"—"))+
+      (r.phone?drow(T("Téléphone"),'<a href="tel:'+esc(String(r.phone).replace(/\s/g,""))+'" dir="ltr">'+esc(r.phone)+'</a>'):drow(T("Téléphone"),"—"))+
+      (r.phone?drow(T("WhatsApp"),'<a href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,""))+'" target="_blank" rel="noopener" dir="ltr">'+T("Voir →")+'</a>'):"")+
+      (r.price==null?"":drow(T("Prix annoncé"),esc(r.price)+" "+esc(r.priceUnit)))+
+      drow(T("Demandé le"),esc(r.dateLabel||"—"))+
+      (r.description?drow(T("Description"),esc(r.description)):"")+
+    '</div>';
+    if(r.reviewerName||r.reviewedLabel||(r.reason&&r.status==="rejected")){
+      h += '<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 6px">'+T("Traitée par")+'</div>';
+      h += '<div class="detail-grid">'+
+        (r.reviewerName?drow(T("Décidé par"),esc(r.reviewerName)):"")+
+        (r.reviewedLabel?drow(T("Décidé le"),esc(r.reviewedLabel)):"")+
+        (r.reason?drow(T("Raison du rejet"),esc(r.reason)):"")+
+      '</div>';
+    }
+    if(r.history&&r.history.length){
+      h += '<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 6px">'+T("Historique de traitement")+'</div>';
+      h += '<div class="timeline">'+r.history.map(function(e){ return '<div class="tl-item"><div class="t-txt">'+esc(e.text)+'</div><div class="t-when">'+esc(e.date)+'</div></div>'; }).join("")+'</div>';
+    }
+    if(r.professionalId){
+      h += '<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 6px">'+T("Professionnel lié")+'</div>';
+      h += '<div class="reg-linked-card" data-reg-linked="'+esc(r.professionalId)+'">'+
+        '<div class="reg-linked-head">💼 <span dir="ltr">'+esc(r.professionalId)+'</span></div>'+
+        '<div class="reg-linked-body"><span class="spinner spinner-sm"></span> '+T("Chargement...")+'</div>'+
+        '<div class="reg-linked-actions" style="display:none"></div>'+
+      '</div>';
+    }
+    return h;
+  }
+  function openRegistrationDetail(id){
+    var r=regRequest(id);
+    var fill=function(r){
+      var canApprove=AUTH.can("professionalRequests","approve")&&r.status==="pending";
+      var canReject=AUTH.can("professionalRequests","reject")&&r.status==="pending";
+      var decided=(r.status!=="pending")?'<div class="note">🔒 '+T("Candidature déjà traitée")+' — '+T("Cette candidature a été finalisée.")+'</div>':"";
+      UI.openModal(
+        '<h3>'+T("Détails de la candidature")+' — '+esc(r.reference||r.id)+'</h3>'+
+        '<div class="modal-body">'+registrationDetailHtml(r)+decided+'</div>'+
+        '<div class="modal-actions">'+
+          (canApprove?'<button class="btn btn-primary" id="regApprove">✓ '+T("Approuver")+'</button>':"")+
+          (canReject?'<button class="btn btn-danger" id="regReject">✖ '+T("Rejeter")+'</button>':"")+
+          '<button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Fermer")+'</button>'+
+        '</div>', true
+      );
+      var app=document.getElementById("regApprove"); if(app) app.addEventListener("click",function(){ UI.closeModal(); approveRegistration(id); });
+      var rj=document.getElementById("regReject"); if(rj) rj.addEventListener("click",function(){ UI.closeModal(); rejectRegistration(id); });
+
+      // REQ 56 — fetch the professional the approval created and expose an
+      // explicit "Publish / Activate" action while it is still pending.
+      var linked = document.querySelector('[data-reg-linked]');
+      if(linked){
+        var proId = linked.getAttribute("data-reg-linked");
+        DATA.fetchProfessional(proId).then(function(res){
+          var p = res && res.data ? res.data : null;
+          var card = linked.querySelector(".reg-linked-body");
+          var actions = linked.querySelector(".reg-linked-actions");
+          if(!p){
+            if(card) card.innerHTML = '<span class="muted">'+T("Non disponible")+'</span>';
+            return;
+          }
+          if(card){
+            card.innerHTML = '<div class="reg-linked-name">'+esc(p.name)+'</div>'+
+              '<div class="reg-linked-sub">'+esc(p.job||"")+(p.city?(' · '+esc(p.city)):"")+'</div>'+
+              '<div style="margin-top:6px">'+statusBadge(p.status)+pkgBadge(p)+'</div>';
+          }
+          if(actions && AUTH.can("professionals","activate") && p.status==="pending"){
+            actions.style.display = "";
+            actions.innerHTML = '<button class="btn btn-primary btn-small" data-reg-publish="'+esc(proId)+'">▶️ '+T("Publier")+'</button>';
+            var pub = actions.querySelector("[data-reg-publish]");
+            if(pub) pub.addEventListener("click", function(){
+              pub.disabled = true; pub.textContent = T("Publication en cours...");
+              DATA.activateProfessional(proId).then(function(){
+                UI.toast(T("Professionnel publié."));
+                loadRegistrationsFromServer();
+                UI.closeModal();
+              }).catch(function(err){
+                pub.disabled = false; pub.textContent = T("Publier");
+                if(UI.toast) UI.toast(proFriendlyError(err), true);
+              });
+            });
+          } else if(actions){
+            actions.style.display = "";
+            var label = p.status==="active" ? T("Activé sur la place de marché") : (p.status==="suspended" ? T("Suspendu") : T("Non publié"));
+            actions.innerHTML = '<span class="badge '+(p.status==="active"?"green":"gray")+'">'+label+'</span>';
+          }
+        }).catch(function(){
+          var card = linked.querySelector(".reg-linked-body");
+          if(card) card.innerHTML = '<span class="muted">'+T("Non disponible")+'</span>';
+        });
+      }
+    };
+    if(r){ fill(r); return; }
+    UI.openModal('<h3>'+T("Détails de la candidature")+'</h3><div class="modal-body"><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div></div>', true);
+    DATA.fetchProfessionalRequest(id).then(function(res){
+      if(!res||!res.data){ UI.closeModal(); UI.toast(T("Demande introuvable."), true); return; }
+      fill(res.data);
+    }).catch(function(err){
+      UI.closeModal();
+      UI.toast(regFriendlyError(err), true);
+    });
+  }
+  function regProcessing(){
+    UI.openModal('<h3>'+T("Traitement en cours...")+'</h3><div class="reg-processing"><span class="spinner"></span><span>'+T("Traitement en cours...")+'</span></div>');
+  }
+  function regRejectOptions(){
+    return [ T("Demande incomplète"), T("Information incohérente"), T("Document/justificatif manquant"), T("Activité non conforme"), T("Doublon"), T("Autre") ];
+  }
+  function approveRegistration(id){
+    UI.confirmAction({
+      title:T("Approuver cette demande d'inscription ?"),
+      message:T("La demande passera au statut Approuvée. Un compte artisan sera créé en attente, puis publié uniquement après votre activation explicite."),
+      confirmLabel:T("Approuver"),
+      confirmClass:"btn-primary",
+      onConfirm:function(){
+        regProcessing();
+        DATA.approveProfessionalRequest(id).then(function(){
+          UI.closeModal();
+          UI.toast(T("Demande approuvée."));
+          loadRegistrationsFromServer();
+        }).catch(function(err){
+          UI.closeModal();
+          UI.toast(regFriendlyError(err), true);
+        });
+      }
+    });
+  }
+  function rejectRegistration(id){
+    UI.confirmAction({
+      title:T("Rejeter cette demande d'inscription ?"),
+      message:T("Le motif est obligatoire et sera enregistré."),
+      reasonRequired:true,
+      options:regRejectOptions(),
+      otherLabel:T("Précision (si « Autre »)"),
+      otherPlaceholder:T("Détaillez le motif..."),
+      reasonLabel:T("Raison du rejet"),
+      confirmLabel:T("Rejeter"),
+      confirmClass:"btn-danger-solid",
+      onConfirm:function(reason){
+        regProcessing();
+        DATA.rejectProfessionalRequest(id, reason).then(function(){
+          UI.closeModal();
+          UI.toast(T("Demande rejetée."));
+          loadRegistrationsFromServer();
+        }).catch(function(err){
+          UI.closeModal();
+          UI.toast(regFriendlyError(err), true);
+        });
+      }
     });
   }
 
@@ -3023,7 +3593,7 @@
      ============================================================ */
   function dispatch(route){
     if(route.route.view === "login"){ renderLogin(); return; }
-    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : route.route.view));
+    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : (route.route.view === "registrationDetail" ? "registrations" : route.route.view)));
     currentView = route.route.view;
     try {
     switch(route.route.view){
@@ -3032,6 +3602,8 @@
       case "professionalDetail": renderProfessionalDetail(route.params.id, route.query||{}); break;
       case "users": renderUsers(); break;
       case "verification": renderVerification((route.query||{}).status || "all"); break;
+      case "registrations": renderRegistrations((route.query||{}).status || "all"); if(route.params && route.params.id){ setTimeout(function(){ openRegistrationDetail(route.params.id); }, 350); } break;
+      case "registrationDetail": renderRegistrations((route.query||{}).status || "all"); setTimeout(function(){ openRegistrationDetail(route.params.id); }, 350); break;
       case "categories": renderCategories(); break;
       case "cities": renderCities(); break;
       case "reviews": renderReviews((route.query||{}).status || "all"); break;

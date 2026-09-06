@@ -9,6 +9,10 @@ function createProfessionalController(services) {
       const result = await services.professionals.list(req.query);
       ok(res, result); // { data, pagination }
     }),
+    adminList: asyncHandler(async (req, res) => {
+      const result = await services.professionals.adminList(req.query);
+      ok(res, result); // all statuses — pending accounts are visible & actionable
+    }),
     get: asyncHandler(async (req, res) => {
       const pro = await services.professionals.get(req.params.id);
       if (!pro) throw new AppError("Professionnel introuvable.", 404);

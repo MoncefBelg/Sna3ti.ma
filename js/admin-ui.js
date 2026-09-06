@@ -139,13 +139,21 @@
     }
     var langBtn = document.getElementById("langToggle");
     if(langBtn){
-      langBtn.textContent = (I18N.getLang() === "en") ? "FR" : "EN";
+      // 3-way cycle: fr -> en -> ar -> fr ; the button always shows the
+      // NEXT target language so the user knows what one click will do.
+      var NEXT_LANG = { fr:"en", en:"ar", ar:"fr" };
+      var LANG_LABEL = { en:"EN", ar:"عربية", fr:"FR" };
+      var syncLangBtn = function(){
+        var next = NEXT_LANG[I18N.getLang()] || "en";
+        langBtn.textContent = LANG_LABEL[next];
+        langBtn.setAttribute("aria-label", "Language: " + next);
+      };
       langBtn.addEventListener("click", function(){
-        var to = (I18N.getLang() === "en") ? "fr" : "en";
+        var to = NEXT_LANG[I18N.getLang()] || "en";
         I18N.setLang(to);
-        langBtn.textContent = (to === "en") ? "FR" : "EN";
         global.Sna3tiUI.reload();
       });
+      syncLangBtn();
     }
 
     renderSidebarUser();
@@ -162,6 +170,7 @@
         ]},
       { label:T("Confiance et sécurité"), items:[
           { route:"verification", ico:"✅", label:T("Vérification"), pill:"verification" },
+          { route:"registrations", ico:"📋", label:T("Demandes d'inscription"), pill:"professionalRequests" },
           { route:"reviews", ico:"⭐", label:T("Avis") },
           { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" },
           { route:"match-requests", ico:"🤝", label:T("Demandes de mise en relation"), pill:"matchRequests" },
@@ -205,6 +214,7 @@
   var ROUTE_PERM = {
     dashboard:["dashboard","read"], professionals:["professionals","read"], users:["users","read"],
     verification:["verification","read"], categories:["categories","read"], cities:["cities","read"],
+    registrations:["professionalRequests","read"],
     reviews:["reviews","read"], reports:["reports","read"], "match-requests":["matchRequests","read"], support:["support","read"],
     subscriptions:["subscriptions","read"],
     payments:["payments","read"], analytics:["analytics","read"], ai:["ai","read"],
@@ -253,6 +263,12 @@
     set("verification", kpi.pendingVerification);
     set("reports", DATA.getReports().filter(function(r){ return r.status==="new"||r.status==="under_review"; }).length);
     set("matchRequests", (DATA.getMatchRequests()||[]).filter(function(r){ return r.status==="new" || r.status==="reviewing"; }).length);
+    // Backend-driven count when available (REQ 55); fall back to the page
+    // cache count for the pending filter when the stats didn't load.
+    var stats = (typeof DATA.getProfessionalRequestStats === "function") ? DATA.getProfessionalRequestStats() : null;
+    var regPending = (stats && typeof stats.pending === "number") ? stats.pending :
+      ((DATA.getProfessionalRequests ? (DATA.getProfessionalRequests()||[]) : []).filter(function(r){ return r.status==="pending"; }).length);
+    set("professionalRequests", regPending);
     set("payments", kpi.pendingPayments);
     var openSupport = (DATA.getSupportTickets ? DATA.getSupportTickets().filter(function(t){ return t.status==="open"||t.status==="pending"; }).length : 0);
     set("support", openSupport);
@@ -310,7 +326,7 @@
     });
 
     if(results.length === 0){
-      panel.innerHTML = '<div class="sp-empty">'+ (I18N.getLang()==="en" ? "No results for \u00AB "+esc(q)+" \u00BB" : "Aucun résultat pour \u00AB "+esc(q)+" \u00BB") +'</div>';
+      panel.innerHTML = '<div class="sp-empty">'+ T("Aucun résultat pour « {q} »").replace("{q}", esc(q)) +'</div>';
     } else {
       var byGroup = {};
       results.forEach(function(r){ (byGroup[r.group]=byGroup[r.group]||[]).push(r); });
@@ -427,7 +443,8 @@
 
   // confirm with reason for destructive/sensitive actions
   function confirmAction(opts){
-    // opts: { title, message, confirmLabel, reasonLabel(bool), reasonRequired(bool),
+    // opts: { title, message, confirmLabel, confirmClass, cancelLabel,
+    //         reasonLabel(bool), reasonRequired(bool),
     //         options:[preset reason list], otherLabel, otherPlaceholder,
     //         onConfirm(reason) }
     var html = '<h3>'+esc(opts.title||T("Confirmer"))+'</h3>';
@@ -447,7 +464,7 @@
     }
     html += '<div class="modal-actions">' +
       '<button class="btn btn-ghost" onclick="window.Sna3tiUI.cancelAction()">'+T("Annuler")+'</button>' +
-      '<button class="btn btn-danger-solid" id="confirmOk">'+esc(opts.confirmLabel||T("Confirmer"))+'</button>' +
+      '<button class="btn '+(opts.confirmClass||"btn-danger-solid")+'" id="confirmOk">'+esc(opts.confirmLabel||T("Confirmer"))+'</button>' +
       '</div>';
     openModal(html);
     var cb = opts.onConfirm;
@@ -482,12 +499,23 @@
   }
 
   function renderPagination(container, page, totalPages, onGo){
+    // Bounded window: keep the current page centered (±2) and always expose
+    // first/last so large server-side page counts stay navigable.
+    totalPages = Math.max(1, Math.floor(+totalPages||1));
+    page = Math.min(Math.max(1, Math.floor(+page||1)), totalPages);
     var h = '<div class="pagination">' +
-      '<button '+(page<=1?'disabled':'')+' data-p="'+Math.max(1,page-1)+'">‹</button>';
-    for(var i=1;i<=totalPages;i++){
-      h += '<button data-p="'+i+'" class="'+(i===page?'active':'')+'">'+i+'</button>';
-    }
-    h += '<button '+(page>=totalPages?'disabled':'')+' data-p="'+Math.min(totalPages,page+1)+'">›</button></div>';
+      '<button '+(page<=1?'disabled':'')+' data-p="'+Math.max(1,page-1)+'" aria-label="'+T("Précédent")+'">‹</button>';
+    var windowStart = Math.max(1, page-2);
+    var windowEnd = Math.min(totalPages, page+2);
+    var items = [];
+    if(windowStart > 1){ items.push(1); if(windowStart > 2) items.push("gap"); }
+    for(var i=windowStart;i<=windowEnd;i++){ items.push(i); }
+    if(windowEnd < totalPages){ if(windowEnd < totalPages-1) items.push("gap"); items.push(totalPages); }
+    items.forEach(function(p){
+      if(p === "gap"){ h += '<span class="pg-gap">…</span>'; }
+      else { h += '<button data-p="'+p+'" class="'+(p===page?'active':'')+'">'+p+'</button>'; }
+    });
+    h += '<button '+(page>=totalPages?'disabled':'')+' data-p="'+Math.min(totalPages,page+1)+'" aria-label="'+T("Suivant")+'">›</button></div>';
     var holder = document.getElementById(container);
     if(holder){ holder.innerHTML = h; holder.querySelectorAll("button[data-p]").forEach(function(b){
       if(b.disabled) return;

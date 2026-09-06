@@ -13,6 +13,7 @@ const reviewService = require("./reviewService");
 const reportService = require("./reportService");
 const matchService = require("./matchService");
 const interactionService = require("./interactionService");
+const professionalRequestService = require("./professionalRequestService");
 function createServices(repos) {
   const services = {
     auth: {
@@ -42,6 +43,7 @@ function createServices(repos) {
     },
     professionals: {
       list: (query) => professionalService.list(repos, query),
+      adminList: (query) => professionalService.adminList(repos, query),
       get: (id) => professionalService.get(repos, id),
       create: (data, actor) => professionalService.create(repos, data, actor),
       remove: (id, actor) => professionalService.remove(repos, id, actor),
@@ -122,6 +124,13 @@ function createServices(repos) {
       updateArtisan: (id, data, admin) => matchService.updateArtisan({ repos, storage: services.storage }, id, data, admin),
       updatePrices: (id, prices, admin) => matchService.updatePrices({ repos, storage: services.storage }, id, prices, admin),
       retryWhatsApp: (id) => matchService.retryWhatsApp({ repos, storage: services.storage }, id)
+    },
+    professionalRequests: {
+      create: (data) => professionalRequestService.create(repos, data),
+      list: (query) => professionalRequestService.list(repos, query),
+      get: (id) => professionalRequestService.get(repos, id),
+      approve: (id, admin) => professionalRequestService.approve(repos, id, admin),
+      reject: (id, reason, admin) => professionalRequestService.reject(repos, id, reason, admin)
     }
   };
   return services;

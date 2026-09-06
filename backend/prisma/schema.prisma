@@ -133,6 +133,14 @@ enum MatchStatus {
   cancelled
 }
 
+// Account-free artisan subscription requests. approved/rejected are reserved
+// for the upcoming admin approval flow; intake only ever creates pending.
+enum ProfessionalRequestStatus {
+  pending
+  approved
+  rejected
+}
+
 // ---------------------------------------------------------------------------
 // RBAC
 // ---------------------------------------------------------------------------
@@ -519,6 +527,45 @@ model SupportTicket {
   updatedAt      DateTime      @updatedAt
 
   @@index([status])
+}
+
+// Account-free artisan onboarding request (REQ 53 — intake).
+// Backend-authoritative: status is always "pending" at creation, subscription
+// activation and marketplace publication are admin-only actions. The plan is
+// resolved server-side against the active plan catalogue (never from client
+// input), and `id` doubles as the reference shown to the artisan.
+model ProfessionalRequest {
+  id                String                       @id // opaque ARQ-xxxxx
+  firstName         String
+  lastName          String
+  phone             String
+  profession        String                       // metier slug, or "autre"
+  otherService      String?
+  city              String                       // city slug
+  cityLabel         String?                      // readable label for admin/WhatsApp
+  description       String?
+  price             Int?
+  priceUnit         String?
+  planId            String?                      // resolved server-side
+  planCode          String?                      // free | verified | gold
+  planName          String?
+  planPrice         Int?                         // server-side plan price (MAD)
+  status            ProfessionalRequestStatus    @default(pending)
+  notificationStatus Json                       @default("{}") // { whatsapp: sent|failed|pending }
+  whatsappRetryAt   DateTime?
+  reason            String?                      // rejection reason (admin)
+  reviewedAt        DateTime?                    // last admin decision time
+  reviewerId        String?                      // admin user id
+  reviewerName      String?                      // admin display name
+  professionalId    String?                      // REQ 56 — linked Professional created on approval (PRO-xxxxx)
+  history           Json                         @default("[]") // decision trail
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+
+  @@index([status])
+  @@index([phone])
+  @@index([createdAt])
+  @@index([professionalId]) // REQ 56 — ARQ→PRO traceability
 }
 
 model Notification {

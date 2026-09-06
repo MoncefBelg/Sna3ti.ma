@@ -9,6 +9,9 @@ const SUPPORT_STATUSES = ["open", "pending", "resolved", "closed"];
 const PROFESSIONAL_STATUSES = ["pending", "active", "suspended", "rejected"];
 const USER_STATUSES = ["active", "inactive", "suspended"];
 const MATCH_STATUSES = ["new", "reviewing", "artisan_contacted", "price_received", "price_sent", "customer_accepted", "customer_rejected", "matched", "completed", "cancelled"];
+// Artisan subscription requests (account-free onboarding). Approved/rejected are
+// reserved for the upcoming admin approval flow; intake only ever creates pending.
+const PROFESSIONAL_REQUEST_STATUSES = ["pending", "approved", "rejected"];
 
 // Contact interactions (WhatsApp / phone) — closed sets (req contact-trust).
 const INTERACTION_CHANNELS = ["WHATSAPP", "PHONE"];
@@ -46,7 +49,8 @@ const ID_PREFIXES = {
   verificationDocument: "VD",
   match: "REQ",
   matchPhoto: "PH",
-  interaction: "INT"
+  interaction: "INT",
+  professionalRequest: "ARQ"
 };
 
 module.exports = {
@@ -59,6 +63,7 @@ module.exports = {
   PROFESSIONAL_STATUSES,
   USER_STATUSES,
   MATCH_STATUSES,
+  PROFESSIONAL_REQUEST_STATUSES,
   INTERACTION_CHANNELS,
   INTERACTION_SOURCES,
   INTERACTION_STATUSES,

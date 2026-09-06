@@ -6,6 +6,7 @@ const { createTransactionRepo } = require("./transactions");
 const { createSystemRepo } = require("./system");
 const { createIdSequenceRepo } = require("./idSequence");
 const { createMatchRepo } = require("./match");
+const { createProfessionalRequestsRepo } = require("./professionalRequests");
 
 function createRepos(db) {
   return {
@@ -13,6 +14,7 @@ function createRepos(db) {
     ...createMarketplaceRepo(db),
     ...createTransactionRepo(db),
     ...createMatchRepo(db),
+    ...createProfessionalRequestsRepo(db),
     ...createSystemRepo(db),
     // Sequence-backed opaque ID generation for newly-created entities.
     ids: createIdSequenceRepo(db),

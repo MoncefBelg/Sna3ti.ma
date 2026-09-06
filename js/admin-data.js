@@ -31,6 +31,12 @@
   var VerApi = global.Sna3tiVerificationsApi || null;
   // Sna3ti Match requests API (loaded before admin-data.js).
   var MatchApi = global.Sna3tiMatchRequestsApi || null;
+  // REQ 54: professional registration API (loaded before admin-data.js). The
+  // backend is the single source of truth for registration requests — admin
+  // list/search/filter via GET /admin/professional-requests
+  // ("professionalRequests.view"); approve/reject via the authenticated
+  // decision endpoints (transition rules are enforced server-side).
+  var ProReqApi = global.Sna3tiProfessionalRequestsApi || null;
 
   // REQ 52: pure idempotency helper — true when a payment is already in a
   // terminal state and should not be re-processed (used to mirror the backend
@@ -60,29 +66,30 @@
     legal: ["read", "update"],
     adminUsers: ["read", "update"],
     auditLogs: ["read", "export"],
-    matchRequests: ["read", "update"]
+    matchRequests: ["read", "update"],
+    professionalRequests: ["read", "approve", "reject"]
   };
 
   var ROLES = {
     "super_admin": {
       label: T("Super Admin"),
       color: "purple",
-      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"], matchRequests:["read","update"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"], matchRequests:["read","update"] }
     },
     "admin": {
       label: T("Admin"),
       color: "teal",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"], matchRequests:["read","update"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"], matchRequests:["read","update"] }
     },
     "moderator": {
       label: T("Moderator"),
       color: "blue",
-      permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
+      permissions: { dashboard:["read"], users:["read"], professionals:["read","update","verify"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], analytics:["read"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
     },
     "support": {
       label: T("Support"),
       color: "orange",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update"], professionalRequests:["read"], reviews:["read"], reports:["read","resolve"], support:["read","update","assign"], notifications:["read","send"], auditLogs:["read"], matchRequests:["read"] }
     },
     "finance": {
       label: T("Finance"),
@@ -812,6 +819,58 @@
     };
   }
 
+  function mapProfessionalRequest(remote) {
+    if (!remote) return null;
+    var plan = remote.planCode || "";
+    var planLabel = { free:"GRATUIT", verified:T("Vérifié"), gold:"GOLD" }[String(plan).toLowerCase()] || remote.planName || plan;
+    var d = remote.createdAt || null;
+    var dateLabel = "";
+    if (d) {
+      var t = new Date(d);
+      dateLabel = !isNaN(t.getTime())
+        ? t.toLocaleDateString("fr-MA", { day:"2-digit", month:"short", year:"numeric" }) + " " + t.toLocaleTimeString("fr-MA", { hour:"2-digit", minute:"2-digit" })
+        : String(d).slice(0, 10);
+    }
+    var rd = remote.reviewedAt || null;
+    var reviewedLabel = "";
+    if (rd) {
+      var t2 = new Date(rd);
+      reviewedLabel = !isNaN(t2.getTime())
+        ? t2.toLocaleDateString("fr-MA", { day:"2-digit", month:"short", year:"numeric" }) + " " + t2.toLocaleTimeString("fr-MA", { hour:"2-digit", minute:"2-digit" })
+        : String(rd).slice(0, 10);
+    }
+    return {
+      id: remote.id,
+      reference: remote.reference || remote.id,
+      firstName: remote.firstName || "",
+      lastName: remote.lastName || "",
+      fullName: ((remote.firstName || "") + " " + (remote.lastName || "")).trim(),
+      phone: remote.phone || "",
+      profession: remote.profession || "",
+      otherService: remote.otherService || "",
+      city: remote.city || "",
+      cityLabel: remote.cityLabel || remote.city || "",
+      description: remote.description || "",
+      price: (typeof remote.price === "number") ? remote.price : null,
+      priceUnit: remote.priceUnit || "",
+      planCode: plan,
+      planName: planLabel,
+      planPrice: (typeof remote.planPrice === "number") ? remote.planPrice : null,
+      status: remote.status || "pending",
+      reason: remote.reason || null,
+      reviewedAt: remote.reviewedAt || null,
+      reviewerId: remote.reviewerId || null,
+      reviewerName: remote.reviewerName || null,
+      reviewedLabel: reviewedLabel,
+      history: Array.isArray(remote.history) ? remote.history : [],
+      notificationStatus: remote.notificationStatus || null,
+      professionalId: remote.professionalId || null,
+      createdAt: remote.createdAt || null,
+      updatedAt: remote.updatedAt || null,
+      dateLabel: dateLabel
+    };
+  }
+
   var Sna3tiData = {
     permissionsCatalog: PERMISSION_CATALOG,
     roles: ROLES,
@@ -866,6 +925,16 @@
     fetchProfessional: function(id){
       if(!ProfApi || !ProfApi.adminGet) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API professionnels non chargé." });
       return ProfApi.adminGet(id).then(function(res){
+        var p = (res && res.data) ? res.data : null;
+        return { success:true, data: p ? mapAdminProfessional(p) : null };
+      });
+    },
+    // REQ 56 — publish/activate a professional on the marketplace via the real
+    // backend (POST /admin/professionals/:id/activate). Only pending or
+    // suspended accounts may be activated; the backend enforces this with 409.
+    activateProfessional: function(id){
+      if(!ProfApi || !ProfApi.adminActivate) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API professionnels non chargé." });
+      return ProfApi.adminActivate(id).then(function(res){
         var p = (res && res.data) ? res.data : null;
         return { success:true, data: p ? mapAdminProfessional(p) : null };
       });
@@ -937,6 +1006,46 @@
     updateMatchPrices: function(id,data){ return MatchApi?MatchApi.updatePrices(id,data):Promise.reject({success:false}); },
     retryMatchWhatsApp: function(id){ return MatchApi?MatchApi.retryWhatsApp(id):Promise.reject({success:false}); },
     getMatchRequests: function(){ return window.__sna3tiMatchCache || []; },
+
+    // ---- REQ 54/55: async admin registration read. Source of truth =
+    // GET /admin/professional-requests ("professionalRequests.view"). Search
+    // (q) and status/plan/city filter params are sent to the backend, which is
+    // authoritative for the result set. The response envelope adds `pagination`
+    // (page/limit/total/pages) and global `counts` (total/pending/approved/
+    // rejected) — dashboard counters come from counts, never from a filtered
+    // page. A successful empty response ([]) is an EMPTY state; a network /
+    // server / 401 / 403 / 429 / 500 failure rejects so the UI renders an
+    // error/offline state — never demo data. Opaque IDs (ARQ-xxxxx) pass
+    // through verbatim.
+    fetchProfessionalRequests: function(params){
+      if(!ProReqApi || !ProReqApi.adminList) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API demandes d'inscription non chargé." });
+      return ProReqApi.adminList(params || {}).then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        var mapped = list.map(mapProfessionalRequest);
+        window.__sna3tiRegCache = mapped;
+        window.__sna3tiRegCounts = (res && res.counts) || null;
+        return { success:true, data:mapped, pagination:(res && res.pagination) || null, counts:(res && res.counts) || null };
+      });
+    },
+    getProfessionalRequests: function(){ return window.__sna3tiRegCache || []; },
+    // Backend global registration counters (REQ 55 KPIs), refreshed by every
+    // list fetch. Falls back to a pending-count derived from the page cache
+    // only as a last resort — the real numbers come from the backend.
+    getProfessionalRequestStats: function(){
+      return window.__sna3tiRegCounts || null;
+    },
+    fetchProfessionalRequest: function(id){
+      if(!ProReqApi || !ProReqApi.adminGet) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API demandes d'inscription non chargé." });
+      return ProReqApi.adminGet(id).then(function(res){
+        var r = (res && res.data) ? res.data : null;
+        return { success:true, data:mapProfessionalRequest(r) };
+      });
+    },
+    // Decision endpoints — approval (pending -> approved) and rejection
+    // (pending -> rejected, reason required). The transition rules and RBAC are
+    // enforced server-side; these calls never fabricate a client-only result.
+    approveProfessionalRequest: function(id){ return ProReqApi ? ProReqApi.approve(id) : Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API demandes d'inscription non chargé." }); },
+    rejectProfessionalRequest: function(id, reason){ return ProReqApi ? ProReqApi.reject(id, reason) : Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API demandes d'inscription non chargé." }); },
 
     updateProfessional: function(id, data){
       var p = getById(store.professionals, id); if(!p) return false;

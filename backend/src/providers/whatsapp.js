@@ -71,4 +71,40 @@ async function sendMatchLead(request) {
   }
 }
 
-module.exports = { sendMatchLead, buildLeadMessage, httpSend };
+// Compose a human-readable application message for account-free artisan
+// onboarding (REQ 53). Sentinel to the business line, never part of the
+// persisted source of truth (that is the ProfessionalRequest row).
+function buildApplicationMessage(req) {
+  const planLabel = req.planName || req.planCode || "-";
+  const planPrice = req.planPrice != null ? ` (${req.planPrice} DH/mois)` : "";
+  const lines = [
+    "🛠️ NOUVELLE INSCRIPTION — Sna3ti.ma",
+    "----------------------------------------",
+    `Formule : ${planLabel}${planPrice}`,
+    `Référence : ${req.id}`,
+    `Nom : ${req.firstName} ${req.lastName}`,
+    `Métier : ${req.profession}`,
+    req.otherService ? `Autre service : ${req.otherService}` : "",
+    `Ville : ${req.cityLabel || req.city}`,
+    req.description ? `Description : ${req.description}` : "",
+    req.price != null ? `Prix : ${req.price} ${req.priceUnit || "DH"}` : "",
+    `WhatsApp : ${req.phone}`,
+    `Gérer dans l'admin : /#/admin/professional-requests/${req.id}`
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+// Send a "new artisan onboarding request" notification to the business WhatsApp
+// line. Like match, this is a channel only — never blocks or fails creation.
+async function sendApplicationLead(request) {
+  try {
+    const body = buildApplicationMessage(request);
+    const to = whatsapp.businessPhone || whatsapp.defaultRecipient || "";
+    const result = await httpSend(to, body);
+    return { whatsapp: result.status };
+  } catch (err) {
+    return { whatsapp: "failed" };
+  }
+}
+
+module.exports = { sendMatchLead, buildLeadMessage, httpSend, sendApplicationLead, buildApplicationMessage };

@@ -807,3 +807,75 @@ table.matrix input[type=radio]:disabled + .tick { opacity:.5; }
 :root[data-theme="dark"] .legal-sec { background:var(--cream); border-color:rgba(230,242,239,.18); }
 :root[data-theme="dark"] .legal-sec .ls-head,
 :root[data-theme="dark"] .legal-sec .ls-body { background:var(--sand); color:var(--ink); border-color:var(--line-strong); }
+
+/* ============================================================
+   REQ 55 — registration management (admin)
+   Server-driven list: KPI counters, sortable table, pagination,
+   refresh bar, spinner, error banner, decided-note.
+   ============================================================ */
+.alert-bar {
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  background:#fdf3e7; color:#9a5b12; border:1px solid #f3d9b3;
+  border-radius:12px; padding:10px 14px; margin-bottom:16px; font-size:13.5px;
+}
+:root[data-theme="dark"] .alert-bar { background:rgba(234,179,8,.1); border-color:rgba(234,179,8,.3); color:#f7c768; }
+
+.reg-refresh {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 16px; font-size:12.5px; color:var(--muted);
+  border-bottom:1px solid var(--line); background:var(--field);
+}
+.spinner {
+  width:18px; height:18px; flex-shrink:0; border-radius:50%;
+  border:2px solid var(--line-strong); border-top-color:var(--teal);
+  animation:regspin .7s linear infinite;
+}
+.spinner-sm { width:14px; height:14px; }
+@keyframes regspin { to { transform:rotate(360deg); } }
+.reg-processing { display:flex; align-items:center; gap:12px; padding:18px 4px 6px; font-size:14px; color:var(--muted); }
+
+.note {
+  margin-top:16px; padding:11px 14px; border-radius:12px;
+  background:var(--field); border:1px solid var(--line);
+  color:var(--muted); font-size:13px;
+}
+.sort-ic { font-size:11px; color:var(--muted); margin-left:3px; }
+.td-ref { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; white-space:nowrap; }
+.td-date { white-space:nowrap; font-size:12.5px; color:var(--muted); }
+
+/* Lower-priority columns hide progressively on narrower screens */
+@media (max-width:1180px){ #regTable .col-hide-md { display:none; } }
+@media (max-width:960px){ #regTable .col-hide-sm { display:none; } }
+
+/* ============================================================
+   RTL (Arabic) — the root dir="rtl" flips flex/grid automatically;
+   these refine hard-coded left/right details.
+   ============================================================ */
+[dir="rtl"] .actions-cell { text-align:left; }
+[dir="rtl"] .kpi::after { right:auto; left:-32px; }
+[dir="rtl"] .timeline { padding-left:0; padding-right:24px; }
+[dir="rtl"] .timeline::before { left:auto; right:7px; }
+[dir="rtl"] .tl-item::before { left:auto; right:-21px; }
+[dir="rtl"] #regMeta,
+[dir="rtl"] .pagination { direction:ltr; unicode-bidi:embed; }
+[dir="rtl"] .tab .cnt { margin-left:0; margin-right:4px; }
+[dir="rtl"] .sort-ic { margin-left:0; margin-right:3px; }
+
+/* ============================================================
+   REQ 56 — approved-registration → pending professional (linked card)
+   ============================================================ */
+.reg-linked-card {
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  background:var(--card, var(--field)); margin-top:10px;
+}
+.reg-linked-head {
+  padding:10px 14px; font-weight:800; font-size:13px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--mint, #eefaf6); border-bottom:1px solid var(--line);
+}
+.reg-linked-body { padding:12px 14px; font-size:13px; }
+.reg-linked-body .reg-linked-name { font-weight:800; font-size:14px; }
+.reg-linked-body .reg-linked-sub { color:var(--muted); font-size:12.5px; }
+.reg-linked-actions { padding:0 14px 14px; }
+.reg-linked-actions .badge { margin-top:6px; }
+[dir="rtl"] .reg-linked-head { direction:ltr; unicode-bidi:embed; text-align:right; }

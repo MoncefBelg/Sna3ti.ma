@@ -4330,7 +4330,7 @@
               <img
                 id="heroCardPhoto"
                 class="profile-photo mx-auto"
-                src="https://i.pravatar.cc/300?img=12"
+                src="assets/img/sna3ti_logo.png"
                 alt="Artisan Sna3ti"
               />
 
@@ -6703,6 +6703,8 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           </div>
         </form>
 
+        <div id="regErrorBox" class="hidden mt-6 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-3 py-2 text-sm font-semibold text-white"><span id="regErrorMessage">Une erreur est survenue.</span></div>
+
         <div class="mt-6 flex flex-col-reverse items-center justify-center gap-3 sm:flex-row">
           <button type="button" id="regBack" class="rounded-full border-2 border-white/20 px-6 py-3 text-sm font-bold text-white hover:bg-white/10 transition" data-i18n="register.back">← Retour</button>
           <button type="button" id="regSubmit" class="rounded-full bg-sna3ti-orange px-8 py-3 text-sm font-bold text-white hover:opacity-90 transition" data-i18n="register.submit">Envoyer ma demande →</button>
@@ -6906,6 +6908,9 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
       <h2 class="relative z-10 text-2xl font-black leading-tight" data-i18n="regSuccess.title">Inscription réussie !</h2>
       <p class="relative z-10 text-sm text-white/60 leading-6 max-w-xs" data-i18n="regSuccess.message">Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.</p>
 
+      <!-- backend request reference (REQ 53) -->
+      <p id="regSuccessRef" class="relative z-10 hidden mt-3 rounded-full bg-teal-400/10 px-4 py-1.5 text-xs font-black text-teal-300 ring-1 ring-teal-400/30"><span data-i18n="regSuccess.reference">N° de demande :</span> <span id="regSuccessRefValue">—</span></p>
+
       <!-- payment details (shown only for paid packs) -->
       <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-5 text-start text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
         <div class="grid gap-4 sm:grid-cols-2">
@@ -7036,6 +7041,13 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
     </form>
   </section>
   <button id="sna3ti-chat-btn" type="button" class="grid h-14 w-14 place-items-center rounded-full bg-sna3ti-ink text-2xl text-white shadow-premium transition hover:scale-105" aria-label="Ouvrir le chat">💬</button>
+
+  <!-- Shared Sna3ti API layer (must load before the app script below) -->
+  <script src="js/api-client.js"></script>
+  <script src="js/fallback-gate.js"></script>
+  <script src="js/public-professionals.js"></script>
+  <script src="js/public-reviews.js"></script>
+  <script src="js/public-registration.js"></script>
 </div>
 
   <script>
@@ -7225,6 +7237,8 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "Vous êtes un artisan ? Rejoignez Sna3ti",
           from:
             "À partir de",
+          priceOnRequest:
+            "Sur devis",
           reviews:
             "%s avis",
           availableNow:
@@ -7246,7 +7260,13 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           empty:
             "Aucun artisan mis en avant pour le moment.",
           error:
-            "Impossible de charger les artisans. Réessayez dans un instant."
+            "Impossible de charger les artisans. Réessayez dans un instant.",
+          reviewLoading:
+            "Chargement des avis…",
+          reviewEmpty:
+            "Aucun avis pour le moment.",
+          reviewUnavailable:
+            "Les avis sont momentanément indisponibles. Contactez cet artisan directement via WhatsApp pour partager votre expérience."
         },
 
         services: {
@@ -7468,6 +7488,15 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "Sans le 0 au début · +212 suivi de 9 chiffres",
           back: "← Retour",
           submit: "Envoyer ma demande →",
+          sending: "Envoi en cours…",
+          errors: {
+            validation: "Merci de vérifier les informations saisies.",
+            duplicate: "Une demande existe déjà pour ce numéro WhatsApp. Notre équipe vous contactera bientôt.",
+            ratelimit: "Trop de demandes envoyées. Merci de réessayer dans quelques minutes.",
+            network: "Connexion impossible. Vérifiez votre connexion internet et réessayez.",
+            server: "Une erreur est survenue. Merci de réessayer dans quelques instants.",
+            unsupported: "L'envoi n'est pas disponible pour le moment. Contactez-nous directement sur WhatsApp."
+          },
           prix: "Prix indicatif · optionnel",
           phPrix: "Ex : 120",
           gateway: {
@@ -7503,6 +7532,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         regSuccess: {
           title: "Inscription réussie !",
           message: "Votre demande a bien été envoyée. Notre équipe va vous contacter très rapidement via WhatsApp pour finaliser votre inscription.",
+          reference: "N° de demande :",
           whatsapp: "Nous contacter sur WhatsApp",
           payLabel: "Virement bancaire · CIH",
           amount: "Montant",
@@ -7667,6 +7697,8 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "أنت حرفي؟ انضم إلى SNA3TI",
           from:
             "ابتداءً من",
+          priceOnRequest:
+            "السعر عند الطلب",
           reviews:
             "%s مراجعات",
           availableNow:
@@ -7688,7 +7720,13 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           empty:
             "لا يوجد حرفيون مميزون في الوقت الحالي.",
           error:
-            "تعذّر تحميل الحرفيين. يرجى إعادة المحاولة."
+            "تعذّر تحميل الحرفيين. يرجى إعادة المحاولة.",
+          reviewLoading:
+            "جارٍ تحميل التقييمات…",
+          reviewEmpty:
+            "لا توجد تقييمات في الوقت الحالي.",
+          reviewUnavailable:
+            "التقييمات متاحة للقراءة فقط حالياً. تواصل مع هذا الحرفي مباشرة عبر واتساب لمشاركة تجربتك."
         },
 
         services: {
@@ -7910,6 +7948,15 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "بدون 0 في البداية · +212 يليها 9 أرقام",
           back: "رجوع",
           submit: "أرسل طلبي",
+          sending: "جاري الإرسال…",
+          errors: {
+            validation: "تحقق من المعلومات المدخلة من فضلك.",
+            duplicate: "طلب مسجل مسبقاً بهذا الرقم. فرقتنا ستتواصل معك قريباً.",
+            ratelimit: "عدد كبير من الطلبات أُرسلت. حاول مجدداً بعد بضع دقائق.",
+            network: "تعذر الاتصال. تحقق من اتصالك بالإنترنت ثم أعد المحاولة.",
+            server: "حدث خطأ. حاول مجدداً بعد لحظات.",
+            unsupported: "الإرسال غير متاح حالياً. تواصل معنا مباشرة عبر الواتساب."
+          },
           prix: "الثمن الإرشادي · اختياري",
           phPrix: "مثال: 120",
           gateway: {
@@ -7945,6 +7992,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         regSuccess: {
           title: "تم التسجيل بنجاح !",
           message: "تم إرسال طلبك بنجاح. فريقنا سيتواصل معك قريباً عبر واتساب لإنهاء تسجيلك.",
+          reference: "رقم الطلب :",
           whatsapp: "تواصل معنا عبر واتساب",
           payLabel: "تحويل بنكي · بنك CIH",
           amount: "المبلغ",
@@ -8109,6 +8157,8 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "Are you an artisan? Join Sna3ti",
           from:
             "From",
+          priceOnRequest:
+            "Price on request",
           reviews:
             "%s reviews",
           availableNow:
@@ -8130,7 +8180,13 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           empty:
             "No featured artisans right now.",
           error:
-            "Couldn't load artisans. Please try again."
+            "Couldn't load artisans. Please try again.",
+          reviewLoading:
+            "Loading reviews…",
+          reviewEmpty:
+            "No reviews yet.",
+          reviewUnavailable:
+            "Reviews are temporarily read-only. Contact this artisan directly on WhatsApp to share your experience."
         },
 
         services: {
@@ -8352,6 +8408,15 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
           phoneHint: "No leading 0 · +212 followed by 9 digits",
           back: "← Back",
           submit: "Send my request →",
+          sending: "Sending…",
+          errors: {
+            validation: "Please check the information you entered.",
+            duplicate: "A request already exists for this WhatsApp number. Our team will contact you soon.",
+            ratelimit: "Too many requests sent. Please try again in a few minutes.",
+            network: "Cannot connect. Check your internet connection and try again.",
+            server: "Something went wrong. Please try again in a moment.",
+            unsupported: "Sending is not available right now. Contact us directly on WhatsApp."
+          },
           prix: "Indicative price · optional",
           phPrix: "Ex: 120",
           gateway: {
@@ -8387,6 +8452,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
         regSuccess: {
           title: "Registration successful!",
           message: "Your request has been sent. Our team will contact you shortly via WhatsApp to complete your registration.",
+          reference: "Request number:",
           whatsapp: "Contact us on WhatsApp",
           payLabel: "Bank transfer · CIH",
           amount: "Amount",
@@ -9252,7 +9318,7 @@ function countRegDesc() {
       }[lang] || function (n) { return n + " pro"; };
 
       const pros =
-        Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
+        currentProfessionals();
 
       document
         .querySelectorAll(".service-count")
@@ -9829,8 +9895,47 @@ function proPriceUnit(pro) {
   return (pro && pro.pricingUnit) || "DH";
 }
 
+/* Honest helpers for the API-backed dataset: when a field is not provided by
+   the backend we render the fallback (— / "Sur devis" / project logo), never
+   a fabricated value. */
+
+const PRO_PHOTO_FALLBACK = "assets/img/sna3ti_logo.png";
+
+function proPhotoSrc(pro) {
+  return (pro && pro.image) || PRO_PHOTO_FALLBACK;
+}
+
+function proRatingNumber(pro) {
+  const r = Number(pro && pro.rating);
+  return (isFinite(r) && r > 0) ? r : null;
+}
+
+function proStars(pro) {
+  const r = proRatingNumber(pro);
+  if (r === null) return "";
+  return "★".repeat(Math.round(r)) + "☆".repeat(5 - Math.round(r));
+}
+
+function proRatingLabel(pro) {
+  const r = proRatingNumber(pro);
+  return r !== null ? r.toFixed(1) : "—";
+}
+
+function proReviewsLabel(pro) {
+  const n = Number(pro && pro.reviews);
+  return isFinite(n) && n > 0 ? n : 0;
+}
+
+function proPriceValue(pro) {
+  const v = pro && pro.price;
+  if (v === undefined || v === null || v === "") return null;
+  const n = Number(v);
+  return isFinite(n) ? n : null;
+}
+
 function proPriceLabel(pro) {
-  const value = (pro && pro.price) || 0;
+  const value = proPriceValue(pro);
+  if (value === null) return heroT("priceOnRequest", "Sur devis");
   const cur = heroCurrencyUnit();
   return proPriceUnit(pro) === "DH/m²"
     ? value + " " + cur + "/m²"
@@ -9975,9 +10080,7 @@ function professionalMatches(pro, service, city) {
 
 function renderProfessionalCard(pro) {
 
-  const stars =
-    "★".repeat(Math.round(pro.rating)) +
-    "☆".repeat(5 - Math.round(pro.rating));
+  const stars = proStars(pro);
 
 
   return `
@@ -10022,11 +10125,11 @@ function renderProfessionalCard(pro) {
         </span>
 
         <span class="rating-number">
-          ${pro.rating}
+          ${proRatingLabel(pro)}
         </span>
 
         <span class="review-count">
-          (${pro.reviews} avis)
+          (${proReviewsLabel(pro)} avis)
         </span>
 
       </div>
@@ -10066,13 +10169,23 @@ function renderProfessionalCard(pro) {
 
         <div>
 
-          <div class="price-label">
-            À partir de
-          </div>
+          ${
+            proPriceValue(pro) !== null
+              ? `
+                <div class="price-label">
+                  À partir de
+                </div>
 
-          <div class="price-value">
-            ${pro.price} DH
-          </div>
+                <div class="price-value">
+                  ${proPriceLabel(pro)}
+                </div>
+              `
+              : `
+                <div class="price-value">
+                  ${proPriceLabel(pro)}
+                </div>
+              `
+          }
 
         </div>
 
@@ -10104,12 +10217,18 @@ function renderProfessionalCard(pro) {
           Voir le profil
         </button>
 
-        <button
-          class="pro-btn pro-btn-whatsapp"
-          onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
-        >
-          WhatsApp
-        </button>
+        ${
+          pro.phone
+            ? `
+              <button
+                class="pro-btn pro-btn-whatsapp"
+                onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
+              >
+                WhatsApp
+              </button>
+            `
+            : ""
+        }
 
         <button
           type="button"
@@ -10186,7 +10305,7 @@ function shareProfessionalLink(btn) {
    RENDER SEARCH RESULTS
 ========================================================= */
 
-function renderSearchResults() {
+async function renderSearchResults() {
 
   const hash =
     window.location.hash;
@@ -10208,16 +10327,120 @@ function renderSearchResults() {
   lastSearchHash = window.location.hash;
 
 
-  const results =
-    sna3tiProfessionals.filter(
-      pro =>
-        professionalMatches(
-          pro,
-          service,
-          city
-        )
-    );
+  let loading =
+    !!(PROFESSIONALS_API && proCache === null);
 
+  let loadError = null;
+
+  let results = [];
+
+
+  /* Build the page now — with an honest loading shell when the API-backed
+     dataset hasn't resolved yet — then refresh the grid in place once it has. */
+  buildSearchPage(service, city, results, loading, loadError);
+
+  if (!loading) {
+    setupResultFilters(results);
+    return;
+  }
+
+
+  const state =
+    await ensureProfessionalsLoaded();
+
+  /* The user navigated away while the source was loading. */
+  if (window.location.hash !== hash) return;
+
+
+  if (state && state.ok) {
+
+    results =
+      currentProfessionals().filter(
+        pro =>
+          professionalMatches(
+            pro,
+            service,
+            city
+          )
+      );
+
+  } else {
+
+    loadError =
+      (state && state.error) || new Error("professionals unavailable");
+
+  }
+
+
+  const page =
+    document.getElementById("searchResultsPage");
+
+  if (!page) return;
+
+  const grid =
+    document.getElementById("professionalsGrid");
+
+  if (grid) {
+    grid.innerHTML = buildResultsGrid(results, loadError);
+  }
+
+  const count =
+    page.querySelector(".results-count");
+
+  if (count) {
+    count.innerHTML = buildResultsCount(results, false);
+  }
+
+  setupResultFilters(results);
+
+}
+
+/* Grid content for the search page: cards, honest empty state, or honest
+   error state (no demo data is ever injected here). */
+function buildResultsGrid(results, loadError) {
+
+  if (loadError) {
+
+    return `
+      <div class="empty-results" style="grid-column:1/-1">
+        <div class="empty-icon">🔌</div>
+        <h2 style="font-size:22px;font-weight:900;">${heroT("error", "Impossible de charger les artisans. Réessayez dans un instant.")}</h2>
+      </div>
+    `;
+
+  }
+
+  return results.length
+    ? results.map(renderProfessionalCard).join("")
+    : `
+      <div class="empty-results" style="grid-column:1/-1">
+        <div class="empty-icon">🔎</div>
+        <h2 style="font-size:22px;font-weight:900;">Aucun artisan trouvé</h2>
+        <p style="color:#64748b;margin-top:8px;">Essayez une autre catégorie ou une autre ville.</p>
+      </div>
+    `;
+
+}
+
+function buildResultsCount(results, loading) {
+
+  if (loading) return "…";
+
+  const n = results.length;
+
+  return (
+    n +
+    " artisan" +
+    (n !== 1 ? "s" : "") +
+    " trouvé" +
+    (n !== 1 ? "s" : "")
+  );
+
+}
+
+/* Renders the search results page shell (filtering UI + cards grid).
+   Loading / empty / error states are honest; demo data is never used. */
+function buildSearchPage(service, city, results, loading, loadError) {
 
   const existing =
     document.getElementById(
@@ -10279,17 +10502,7 @@ function renderSearchResults() {
 
           <div class="results-count">
 
-            ${results.length}
-            artisan${
-              results.length !== 1
-                ? "s"
-                : ""
-            }
-            trouvé${
-              results.length !== 1
-                ? "s"
-                : ""
-            }
+            ${buildResultsCount(results, loading)}
 
           </div>
 
@@ -10461,44 +10674,14 @@ function renderSearchResults() {
           >
 
             ${
-              results.length
-                ? results
-                    .map(
-                      renderProfessionalCard
-                    )
-                    .join("")
-                : `
-                  <div
-                    class="empty-results"
-                    style="grid-column:1/-1"
-                  >
-
-                    <div class="empty-icon">
-                      🔎
-                    </div>
-
-                    <h2
-                      style="
-                        font-size:22px;
-                        font-weight:900;
-                      "
-                    >
-                      Aucun artisan trouvé
-                    </h2>
-
-                    <p
-                      style="
-                        color:#64748b;
-                        margin-top:8px;
-                      "
-                    >
-                      Essayez une autre
-                      catégorie ou une autre
-                      ville.
-                    </p>
-
+              loading
+                ? `
+                  <div class="empty-results" style="grid-column:1/-1">
+                    <div class="empty-icon">⏳</div>
+                    <h2 style="font-size:22px;font-weight:900;">${heroT("loading", "Chargement des artisans…")}</h2>
                   </div>
                 `
+                : buildResultsGrid(results, loadError)
             }
 
           </div>
@@ -10524,9 +10707,6 @@ function renderSearchResults() {
      shown from the top (and not clamped to the bottom of a
      shorter page after the tall home page is replaced). */
   window.scrollTo(0, 0);
-
-
-  setupResultFilters(results);
 
 }
 
@@ -10725,18 +10905,65 @@ function setupResultFilters(originalResults) {
    PROFESSIONAL PROFILE
 ========================================================= */
 
-function openProfessional(id) {
+async function openProfessional(id) {
 
-  /* IDs are opaque (numeric today, possibly "PRO-10295" from the
-     backend later). Preserve them exactly, never Number() them. */
+  /* IDs are opaque (numeric today, "PRO-10295", "PRO-AB73X", ...).
+     Preserve them exactly, never Number() them. */
   const want = String(id).trim();
 
-  const pro =
+  let pro =
     currentProfessionals().find(
       item => String(item.id) === want
     );
 
-  if (!pro) return;
+  /* The loaded collection is the preferred source (existing architecture).
+     If the id is missing (e.g. deep-link refresh before the list resolved,
+     or a pro that changed since the last list fetch), retry the list once,
+     then fall back to the public detail endpoint before declaring it
+     unknown. A real 404 stays an honest "introuvable" — never a fake pro. */
+  if (!pro && PROFESSIONALS_API) {
+    await refreshProfessionals();
+    pro =
+      currentProfessionals().find(
+        item => String(item.id) === want
+      ) || null;
+  }
+  if (!pro && PROFESSIONALS_API) {
+    try {
+      pro = await Sna3tiPublicProfessionals.getById(want);
+    } catch (err) {
+      pro = null;
+    }
+  }
+
+  if (!pro) {
+    /* Honest not-found state (keeps the route, shows no fabricated data). */
+    document
+      .querySelector("main")
+      .innerHTML = `
+        <section
+          style="
+            min-height:100vh;
+            padding:130px 20px 80px;
+            background:var(--cream);
+            text-align:center;
+          "
+        >
+          <div style="max-width:560px;margin:auto;">
+            <div style="font-size:52px;margin-bottom:14px;">🔎</div>
+            <h1 style="font-size:26px;font-weight:900;">Professionnel introuvable</h1>
+            <p style="color:#64748b;margin-top:10px;">
+              Ce professionnel n'est pas disponible ou n'existe plus.
+            </p>
+            <a href="#/search" class="back-home" style="display:inline-block;margin-top:24px;">
+              ← Retour aux résultats
+            </a>
+          </div>
+        </section>
+      `;
+    window.scrollTo(0, 0);
+    return;
+  }
 
   /* Give the profile its own hash route so browser
      back/refresh work correctly. Avoid triggering the
@@ -10792,7 +11019,7 @@ function openProfessional(id) {
             >
 
               <img
-                src="${pro.image}"
+src="${proPhotoSrc(pro)}"
                 alt="${pro.name}"
                 style="
                   width:130px;
@@ -10857,11 +11084,11 @@ function openProfessional(id) {
                   </span>
 
                   <strong>
-                    ${pro.rating}
+                    ${proRatingLabel(pro)}
                   </strong>
 
                   <span class="review-count">
-                    ${pro.reviews} avis
+                    ${proReviewsLabel(pro)} avis
                   </span>
 
                 </div>
@@ -10910,19 +11137,29 @@ function openProfessional(id) {
               "
             >
 
-              <button
-                class="pro-btn pro-btn-primary"
-                onclick="window.location.href='tel:+${pro.phone}'"
-              >
-                📞 Appeler
-              </button>
+              ${
+                pro.phone
+                  ? `
+                    <button
+                      class="pro-btn pro-btn-primary"
+                      onclick="window.location.href='tel:+${pro.phone}'"
+                    >
+                      📞 Appeler
+                    </button>
 
-              <button
-                class="pro-btn pro-btn-whatsapp"
-                onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
-              >
-                💬 WhatsApp
-              </button>
+                    <button
+                      class="pro-btn pro-btn-whatsapp"
+                      onclick="contactWhatsApp('${pro.phone}', '${pro.id}')"
+                    >
+                      💬 WhatsApp
+                    </button>
+                  `
+                  : `
+                    <div class="meta-pill">
+                      Contact et coordonnées à venir
+                    </div>
+                  `
+              }
 
             </div>
 
@@ -10951,10 +11188,7 @@ function openProfessional(id) {
                   color:#64748b;
                 "
               >
-                Artisan expérimenté spécialisé
-                dans son domaine. Contactez cet
-                artisan directement pour discuter
-                de votre besoin et obtenir un devis.
+                ${pro.description || "Artisan expérimenté spécialisé dans son domaine. Contactez cet artisan directement pour discuter de votre besoin et obtenir un devis."}
               </p>
 
             </div>
@@ -10963,19 +11197,11 @@ function openProfessional(id) {
             <div style="margin-top:40px; padding-top:30px; border-top:1px solid #edf0ef;">
               <h2 style="font-size:22px; font-weight:900;">&#9733; Avis</h2>
 
-              <div id="reviewFormBox" style="margin-top:20px; padding:20px; background:#f8fffe; border-radius:20px; border:1px solid #edf0ef;">
-                <div id="starRating" style="margin-bottom:12px; font-size:28px; cursor:pointer; display:flex; gap:4px;">
-                  <span data-star="1" style="color:#d1d5db; transition:color .15s">&#9733;</span>
-                  <span data-star="2" style="color:#d1d5db; transition:color .15s">&#9733;</span>
-                  <span data-star="3" style="color:#d1d5db; transition:color .15s">&#9733;</span>
-                  <span data-star="4" style="color:#d1d5db; transition:color .15s">&#9733;</span>
-                  <span data-star="5" style="color:#d1d5db; transition:color .15s">&#9733;</span>
-                </div>
-                <textarea id="reviewText" rows="3" placeholder="Partagez votre experience avec cet artisan..." style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:14px; resize:vertical; font-size:14px; outline:none; font-family:inherit; box-sizing:border-box;"></textarea>
-                <button id="submitReview" style="margin-top:12px; padding:12px 28px; background:#168F80; color:white; border:none; border-radius:14px; font-weight:700; cursor:pointer; font-size:14px;">Publier mon avis</button>
+              <div style="margin-top:20px; padding:20px; background:#f8fffe; border-radius:20px; border:1px solid #edf0ef;">
+                <p style="margin:0; color:#334155; font-weight:700; line-height:1.6;" data-i18n="hero.reviewUnavailable">Les avis sont momentanément indisponibles. Contactez cet artisan directement via WhatsApp pour partager votre expérience.</p>
               </div>
 
-              <div id="reviewsList" style="margin-top:20px;"></div>
+              <div id="reviewsList" style="margin-top:20px;"><div style="padding:20px; text-align:center; color:#64748b; font-style:italic;">Chargement des avis…</div></div>
             </div>
 
           </div>
@@ -10990,47 +11216,77 @@ function openProfessional(id) {
      shown from the top. */
   window.scrollTo(0, 0);
 
-  /* --- Reviews Logic --- */
-  (function() {
+  /* --- Reviews Logic ---
+     Public reviews now come from the REAL backend only (Phase 2). The old
+     localStorage review flow (storage key "sna3ti-reviews") is REMOVED as the
+     production source. The backend is authoritative for what is visible
+     (published only), for aggregate rating/reviewsCount, for eligibility
+     (training WhatsApp confirmations) and for duplicate prevention. */
+  (function () {
     var proId = "${pro.id}";
-    var STORAGE_KEY = "sna3ti-reviews";
-    var allReviews = {};
-    try { allReviews = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch(e) {}
-    var reviews = allReviews[proId] || [];
-    var selectedRating = 0;
 
-    function starHTML(rating) { var s=""; for (var i=0;i<5;i++) s+='<span style="color:'+(i<rating?'#f59e0b':'#d1d5db')+'">&#9733;</span>'; return s; }
-    function reviewCard(r) { return '<div style="padding:16px; margin-bottom:12px; background:white; border-radius:16px; border:1px solid #edf0ef;"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; gap:4px;">'+starHTML(r.rating)+'</div><span style="font-size:12px; color:#94a3b8;">'+r.date+'</span></div><p style="margin-top:8px; color:#334155; line-height:1.6;">'+r.text+'</p></div>'; }
     var list = document.getElementById("reviewsList");
-    if (list && reviews.length) { list.innerHTML = reviews.map(reviewCard).join(""); }
 
-    var starsEl = document.getElementById("starRating");
-    if (starsEl) {
-      starsEl.addEventListener("click", function(e) {
-        var sp = e.target.closest("[data-star]");
-        if (!sp) return;
-        selectedRating = parseInt(sp.dataset.star);
-        Array.from(starsEl.children).forEach(function(el, i) { el.style.color = i < selectedRating ? "#f59e0b" : "#d1d5db"; });
+    function localeTag() {
+      var lang = localStorage.getItem("sna3ti-language") || "fr";
+      return { fr: "fr-FR", ar: "ar-MA", en: "en-US" }[lang] || "fr-FR";
+    }
+    function starHTML(rating) {
+      var s = "";
+      for (var i = 0; i < 5; i++) s += '<span style="color:' + (i < rating ? "#f59e0b" : "#d1d5db") + '">&#9733;</span>';
+      return s;
+    }
+    function dateLabel(d) {
+      if (!d) return "";
+      try { return new Date(d).toLocaleDateString(localeTag()); }
+      catch (e) { return ""; }
+    }
+    function reviewCard(r) {
+      var customer = (r && r.customer) || "Client";
+      var stars = starHTML(Number(r.rating) || 0);
+      var comment = (r && r.comment) ? r.comment : "";
+      var esc = function (s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      };
+      return '<div style="padding:16px; margin-bottom:12px; background:white; border-radius:16px; border:1px solid #edf0ef;">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+        '<div style="display:flex; gap:4px;">' + stars + '</div>' +
+        '<span style="font-size:12px; color:#94a3b8;">' + esc(dateLabel(r && r.date)) + '</span>' +
+        '</div>' +
+        (comment ? '<p style="margin-top:8px; color:#334155; line-height:1.6;">' + esc(comment) + '</p>' : '') +
+        (customer ? '<p style="margin-top:8px; font-size:12px; font-weight:700; color:#0d6b61;">' + esc(customer) + '</p>' : '') +
+        '</div>';
+    }
+
+    function renderEmpty() {
+      if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">' + heroT("reviewEmpty", "Aucun avis pour le moment.") + '</div>';
+    }
+    function renderLoading() {
+      if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#64748b; font-style:italic;">' + heroT("reviewLoading", "Chargement des avis…") + '</div>';
+    }
+    function renderError() {
+      if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#b91c1c;">' + heroT("error", "Impossible de charger les artisans. Réessayez dans un instant.") + '</div>';
+    }
+    function renderReviews(reviews) {
+      if (!list) return;
+      if (!reviews || !reviews.length) { renderEmpty(); return; }
+      list.innerHTML = reviews.map(reviewCard).join("");
+    }
+
+    function loadReviews() {
+      renderLoading();
+      Sna3tiPublicReviews.getReviews(proId).then(function (res) {
+        renderReviews(res.reviews);
+      }).catch(function (err) {
+        /* Honest error state — never fall back to localStorage or demo reviews. */
+        renderError();
       });
     }
 
-    var btn = document.getElementById("submitReview");
-    if (btn) {
-      btn.addEventListener("click", function() {
-        var txt = (document.getElementById("reviewText") || {}).value || "";
-        if (!selectedRating) { alert("Veuillez selectionner une note."); return; }
-        if (!txt.trim()) { alert("Veuillez ecrire un commentaire."); return; }
-        var entry = { rating: selectedRating, text: txt.trim(), date: new Date().toLocaleDateString("fr-FR") };
-        if (!allReviews[proId]) allReviews[proId] = [];
-        allReviews[proId].unshift(entry);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(allReviews));
-        alert("Merci pour votre avis !");
-        if (list) { list.innerHTML = allReviews[proId].map(reviewCard).join(""); }
-        document.getElementById("reviewText").value = "";
-        selectedRating = 0;
-        Array.from(starsEl.children).forEach(function(el) { el.style.color = "#d1d5db"; });
-      });
-    }
+    /* Kick off the real review load. */
+    loadReviews();
   })();
 
 }
@@ -11041,6 +11297,11 @@ function openProfessional(id) {
 ========================================================= */
 
 function contactWhatsApp(phone, proId) {
+
+  /* No phone published (backend may withhold it) → nothing to open.
+     The card only renders the WhatsApp button when a phone exists, so
+     this is a defensive guard for any other call site. */
+  if (!phone) return;
 
   /* A real contact attempt → grow the live "demandes du mois" stat. */
   recordPublicContact();
@@ -11376,34 +11637,131 @@ function regSubmit() {
   const pack = selected ? selected.getAttribute("data-pack") : "gratuit";
   const packLabel = REG_PACK_LABELS[pack] || pack;
 
-  const photoP = document.getElementById("regPhotoProfil");
-  const photoT = document.getElementById("regPhotoTravail");
-  const photoPName = photoP && photoP.files && photoP.files[0] ? photoP.files[0].name : "-";
-  const photoTName = photoT && photoT.files && photoT.files[0] ? photoT.files[0].name : "-";
+  const planCodeMap = { gratuit: "free", verifie: "verified", gold: "gold" };
+  const plan = planCodeMap[pack] || "free";
 
-  const msg =
-    "🛠️ NOUVELLE INSCRIPTION — Sna3ti.ma\n" +
-    "Formule : " + packLabel + "\n" +
-    "Nom : " + nom + "\n" +
-    "Prénom : " + prenom + "\n" +
-    "Métier : " + metierLabel + "\n" +
-    (desc ? "Description : " + desc + "\n" : "") +
-    "Ville : " + (cityLabel || ville || "-") + "\n" +
-    "Prix (" + (prixUnit || "DH") + ") : " + (prix ? (prix + " " + (prixUnit || "DH")) : "Non précisé") + "\n" +
-    "WhatsApp : " + whatsappNumber + "\n" +
-    "Photo de profil : " + photoPName + "\n" +
-    "Photo de travail : " + photoTName + "\n" +
-    "Envoyé depuis le site Sna3ti.ma";
+  /* Send the account-free onboarding request to the backend. The plan is a
+     CODE (free|verified|gold): the backend resolves the real plan from the
+     catalogue and issues the opaque ARQ- reference. Nothing status-bearing
+     is sent from the client — activation and publication are admin-only,
+     server-side actions. */
+  const payload = {
+    firstName: prenom,
+    lastName: nom,
+    phone: whatsappNumber,
+    profession: metier,
+    city: ville,
+    cityLabel: cityLabel || ville,
+    plan: plan
+  };
+  if (isOther && otherService) payload.otherService = otherService;
+  if (desc) payload.description = desc;
+  if (prix) payload.price = Number(prix);
+  if (prixUnit) payload.priceUnit = prixUnit;
 
-  /* All packs (gratuit / verifie / gold) show the styled success screen.
-     Paid packs also display the CIH bank-transfer details so the pro can
-     pay, then send the receipt via the WhatsApp button. */
+  regSetSubmitting(true);
+  regHideError();
+
+  if (typeof Sna3tiPublicRegistration === "undefined" || !Sna3tiPublicRegistration.submit) {
+    regSetSubmitting(false);
+    regShowErrorFromApi({ code: "UNSUPPORTED" });
+    return;
+  }
+
+  Sna3tiPublicRegistration.submit(payload)
+    .then(function (request) {
+      regSetSubmitting(false);
+      regShowSuccess(pack, {
+        reference: request && (request.reference || request.id) ? String(request.reference || request.id) : "",
+        nom: nom,
+        prenom: prenom,
+        metierLabel: metierLabel,
+        ville: ville,
+        cityLabel: cityLabel,
+        whatsappNumber: whatsappNumber,
+        prix: prix,
+        prixUnit: prixUnit,
+        description: desc
+      });
+    })
+    .catch(function (err) {
+      regSetSubmitting(false);
+      regShowErrorFromApi(err);
+    });
+}
+
+/* ---- Submit-state + error/success helpers (REQ 53) ---- */
+
+function regSetSubmitting(on) {
+  const btn = document.getElementById("regSubmit");
+  if (!btn) return;
+  const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
+  const g = ((translations && translations[lang]) || {}).register || {};
+  if (on) {
+    if (!btn.getAttribute("data-reg-orig")) btn.setAttribute("data-reg-orig", btn.textContent || "");
+    btn.textContent = g.sending || "Envoi en cours…";
+    btn.disabled = true;
+    btn.classList.add("opacity-60", "pointer-events-none");
+  } else {
+    const orig = btn.getAttribute("data-reg-orig");
+    if (orig) btn.textContent = orig;
+    btn.removeAttribute("data-reg-orig");
+    btn.disabled = false;
+    btn.classList.remove("opacity-60", "pointer-events-none");
+  }
+}
+
+function regHideError() {
+  const box = document.getElementById("regErrorBox");
+  if (box) box.classList.add("hidden");
+  const txt = document.getElementById("regErrorMessage");
+  if (txt) txt.textContent = "";
+}
+
+function regShowError(message) {
+  const box = document.getElementById("regErrorBox");
+  const txt = document.getElementById("regErrorMessage");
+  if (box && txt) {
+    txt.textContent = message;
+    box.classList.remove("hidden");
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    alert(message);
+  }
+}
+
+function regShowErrorFromApi(err) {
+  const code = (typeof Sna3tiPublicRegistration !== "undefined" && Sna3tiPublicRegistration.handleRegistrationError)
+    ? (Sna3tiPublicRegistration.handleRegistrationError(err || {}).code || "UNKNOWN_ERROR")
+    : "UNKNOWN_ERROR";
+  const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
+  const g = ((translations && translations[lang]) || {}).register || {};
+  const errs = g.errors || {};
+  const map = {
+    DUPLICATE: errs.duplicate,
+    VALIDATION_ERROR: errs.validation,
+    RATE_LIMITED: errs.ratelimit,
+    NETWORK_ERROR: errs.network,
+    SERVER_ERROR: errs.server,
+    UNSUPPORTED: errs.unsupported
+  };
+  regShowError(map[code] || errs.server || "Une erreur est survenue. Réessayez.");
+}
+
+function regShowSuccess(pack, info) {
+  const meta = REG_PACK_META[pack] || REG_PACK_META.verifie;
+  const packLabel = REG_PACK_LABELS[pack] || pack;
   const successEl = document.getElementById("regSuccess");
   const payBox = document.getElementById("regSuccessPay");
   const waFree = document.getElementById("regSuccessWaFree");
   const waPay = document.getElementById("regSuccessWa");
+  const refEl = document.getElementById("regSuccessRef");
+  const refSpan = document.getElementById("regSuccessRefValue");
 
-if (successEl) successEl.classList.remove("hidden");
+  if (refSpan) refSpan.textContent = info.reference || "—";
+  if (refEl) refEl.classList.remove("hidden");
+
+  if (successEl) successEl.classList.remove("hidden");
 
   /* Push a history entry so the browser back button (←) returns
      the user to the home page instead of the registration form.
@@ -11412,8 +11770,24 @@ if (successEl) successEl.classList.remove("hidden");
 
   const isPaid = pack === "verifie" || pack === "gold";
 
+  const msg =
+    "🛠️ NOUVELLE INSCRIPTION — Sna3ti.ma\n" +
+    "Formule : " + packLabel + "\n" +
+    "Référence de la demande : " + (info.reference || "-") + "\n" +
+    "Nom : " + info.nom + "\n" +
+    "Prénom : " + info.prenom + "\n" +
+    "Métier : " + info.metierLabel + "\n" +
+    (info.description ? "Description : " + info.description + "\n" : "") +
+    "Ville : " + (info.cityLabel || info.ville || "-") + "\n" +
+    "Prix (" + (info.prixUnit || "DH") + ") : " + (info.prix ? (info.prix + " " + (info.prixUnit || "DH")) : "Non précisé") + "\n" +
+    "WhatsApp : " + info.whatsappNumber + "\n" +
+    "Envoyé depuis le site Sna3ti.ma";
+
   if (isPaid) {
-    const meta = REG_PACK_META[pack] || REG_PACK_META.verifie;
+    const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
+    const tr = (translations && translations[lang]) || {};
+    const unitDh = (tr.unit && tr.unit.dh) || "DH";
+    const unitPer = (tr.unit && tr.unit.perMonth) || "/mois";
 
     const pname = document.getElementById("regSuccessPackName");
     const pprice = document.getElementById("regSuccessPackPrice");
@@ -11426,18 +11800,13 @@ if (successEl) successEl.classList.remove("hidden");
     const pprenom = document.getElementById("regSuccessPrenom");
     const pphone = document.getElementById("regSuccessPhone");
 
-    const lang = (window.localStorage && window.localStorage.getItem("sna3ti-language")) || "fr";
-    const tr = (window.translations && window.translations[lang]) || {};
-    const unitDh = (tr.unit && tr.unit.dh) || "DH";
-    const unitPer = (tr.unit && tr.unit.perMonth) || "/mois";
-
     if (pname) pname.textContent = meta.label;
     if (pprice) pprice.textContent = meta.price + " " + unitDh;
     if (picon) picon.textContent = meta.icon;
     if (pplan) pplan.textContent = meta.label + " · " + meta.price + " " + unitDh + unitPer;
-    if (pnom) pnom.textContent = nom;
-    if (pprenom) pprenom.textContent = prenom;
-    if (pphone) pphone.textContent = whatsappNumber;
+    if (pnom) pnom.textContent = info.nom;
+    if (pprenom) pprenom.textContent = info.prenom;
+    if (pphone) pphone.textContent = info.whatsappNumber;
     if (pbene) pbene.textContent = SNA3TI_BANK.beneficiary;
     if (pacc) pacc.textContent = SNA3TI_BANK.account;
     if (prib) prib.textContent = SNA3TI_BANK.rib;
@@ -11447,12 +11816,13 @@ if (successEl) successEl.classList.remove("hidden");
       const receiptMsg =
         "🧾 REÇU DE VIREMENT — Sna3ti.ma\n" +
         "Formule : " + meta.label + " (" + meta.price + " DH/mois)\n" +
+        "Référence de la demande : " + (info.reference || "-") + "\n" +
         "Montant à payer : " + meta.price + " DH\n" +
-        "Nom : " + nom + "\n" +
-        "Prénom : " + prenom + "\n" +
-        "Métier : " + metierLabel + "\n" +
-        "Ville : " + (cityLabel || ville || "-") + "\n" +
-        "WhatsApp : " + whatsappNumber + "\n\n" +
+        "Nom : " + info.nom + "\n" +
+        "Prénom : " + info.prenom + "\n" +
+        "Métier : " + info.metierLabel + "\n" +
+        "Ville : " + (info.cityLabel || info.ville || "-") + "\n" +
+        "WhatsApp : " + info.whatsappNumber + "\n\n" +
         "J'ai effectué le virement (" + meta.price + " DH) vers le compte CIH (Sna3ti.ma) ; ci-joint le reçu.";
       waPay.href = "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(receiptMsg);
     }
@@ -11468,116 +11838,6 @@ if (successEl) successEl.classList.remove("hidden");
       waFree.href = "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg);
     }
   }
-}
-
-/* ---- Persist registration to the admin's shared localStorage so that
-      the admin panel sees the new professional in Verification / Payments
-      and can approve them (approveJoin moves them to the Professionals
-      section automatically). ---- */
-function sna3tiPersistToAdmin(data) {
-  try {
-    var KEY = "sna3ti_admin_";
-    function readArr(k) { try { var r = localStorage.getItem(KEY + k); return r ? JSON.parse(r) : []; } catch (e) { return []; } }
-    function writeArr(k, arr) { try { localStorage.setItem(KEY + k, JSON.stringify(arr)); } catch (e) {} }
-
-    // --- Professional ---
-    var pros = readArr("professionals");
-    var curPro = 10000;
-    try { var raw = localStorage.getItem("sna3ti_admin_pro_counter"); if (raw && /^\d+$/.test(raw)) curPro = Number(raw); } catch (e) {}
-    curPro += 1;
-    try { localStorage.setItem("sna3ti_admin_pro_counter", String(curPro)); } catch (e) {}
-    var proId = "PRO-" + curPro;
-
-    var planIdMap = { gratuit: "PLAN-FREE", verifie: "PLAN-VERIFIED", gold: "PLAN-GOLD" };
-    var planId = planIdMap[data.pack] || "PLAN-FREE";
-
-    var pro = {
-      id: proId, userId: "", professionId: "", name: data.nom + " " + data.prenom, job: data.metierLabel || data.metier || "",
-      categoryId: "", category: data.metierLabel || "", cityId: "", city: data.cityLabel || data.ville || "",
-      area: "", rating: 0, reviewsCount: 0, price: prix ? Number(prix) : 0, pricingUnit: prixUnit || "DH",
-      identityStatus: "pending", verificationStatus: "pending", professionStatus: "pending",
-      subscriptionPlanId: planId, subscriptionStatus: "active", verified: false, package: data.pack || "free",
-      status: "pending", available: true, phone: data.whatsapp, email: "",
-      experience: "", languages: ["arabe", "français"],
-      created: new Date().toISOString().slice(0, 10),
-      description: data.description || "", otherService: data.otherService || "",
-      leads: { profileViews: 0, phoneClicks: 0, whatsappClicks: 0, contactRequests: 0, conversion: 0 },
-      portfolio: []
-    };
-    pros.push(pro);
-    writeArr("professionals", pros);
-
-    // --- Verification request (join) ---
-    var vrs = readArr("verificationRequests");
-    var vrId = "VR-" + Math.floor(700000 + Math.random() * 900000);
-    var vr = {
-      id: vrId, professionalId: proId, level: "join", status: "pending",
-      submitted: new Date().toISOString().slice(0, 10),
-      submittedAt: new Date().toISOString(),
-      priority: "medium",
-      documents: ["Inscription site"],
-      history: [
-        { date: new Date().toISOString().slice(0, 10), text: "Demande d'adhésion soumise via le site" }
-      ]
-    };
-    vrs.push(vr);
-    writeArr("verificationRequests", vrs);
-
-    // --- Notification ---
-    var notifs = readArr("notifications");
-    var notifId = "NT-" + Math.floor(100 + Math.random() * 900);
-    notifs.unshift({
-      id: notifId, type: "verification",
-      text: "Nouvelle inscription : " + data.nom + " " + data.prenom + " (" + (data.metierLabel || data.metier || "-") + ")",
-      when: "à l'instant", unread: true, route: "verification"
-    });
-    writeArr("notifications", notifs);
-
-    // --- Payment (paid packs only) ---
-    if (data.pack === "verifie" || data.pack === "gold") {
-      var pays = readArr("payments");
-      var payId = "PAY-" + Math.floor(700000 + Math.random() * 900000);
-      pays.unshift({
-        id: payId, reference: "SNA3TI-" + Math.floor(48290 + Math.random() * 9000),
-        professionalId: proId, planName: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
-        amount: data.pack === "gold" ? 199 : 99,
-        method: "bank_transfer", currency: "MAD",
-        bankRef: "", receipt: "", date: new Date().toISOString().slice(0, 10),
-        createdAt: new Date().toISOString(), status: "pending"
-      });
-      writeArr("payments", pays);
-
-      // Also add a subscription entry (pending)
-      var subs = readArr("subscriptions");
-      subs.push({
-        id: "SUB-" + Math.floor(700000 + Math.random() * 900000),
-        professionalId: proId, planId: planId,
-        planName: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
-        status: "pending", paymentStatus: "pending",
-        price: data.pack === "gold" ? 199 : 99,
-        since: new Date().toISOString().slice(0, 10), renewal: "—"
-      });
-      writeArr("subscriptions", subs);
-
-      // Plan-level verification request
-      var vr2 = {
-        id: "VR-" + Math.floor(700000 + Math.random() * 900000),
-        professionalId: proId, level: "plan", planId: planId,
-        requestedPlan: data.pack === "gold" ? "GOLD" : "VÉRIFIÉ",
-        amount: data.pack === "gold" ? 199 : 99,
-        status: "pending", submitted: new Date().toISOString().slice(0, 10),
-        submittedAt: new Date().toISOString(),
-        priority: "high", paymentId: payId,
-        documents: ["Virement bancaire"],
-        history: [
-          { date: new Date().toISOString().slice(0, 10), text: "Demande d'abonnement soumise via le site" },
-          { date: new Date().toISOString().slice(0, 10), text: "En attente du virement bancaire" }
-        ]
-      };
-      vrs.push(vr2);
-      writeArr("verificationRequests", vrs);
-    }
-  } catch (e) { /* best-effort */ }
 }
 
 function closeRegSuccess() {
@@ -11685,17 +11945,6 @@ function openGateway(d) {
       const successEl = document.getElementById("regSuccess");
       const waSuccess = document.getElementById("regSuccessWa");
 if (successEl) successEl.classList.remove("hidden");
-
-  /* Persist the registration to the admin's shared localStorage so the
-     admin sees the new professional in Verification / Payments and can
-     approve them (approveJoin auto-adds them to Professionals). */
-  sna3tiPersistToAdmin({
-    nom: nom, prenom: prenom, whatsapp: whatsappNumber,
-    pack: pack, metier: metier, metierLabel: metierLabel,
-    ville: ville, cityLabel: cityLabel,
-    description: document.getElementById("regDesc") ? document.getElementById("regDesc").value.trim() : "",
-    otherService: document.getElementById("regOtherService") ? document.getElementById("regOtherService").value.trim() : ""
-  });
       if (waSuccess) waSuccess.href = wa.href;
     });
   }
@@ -12742,6 +12991,11 @@ initAllGalleries();
   startHeroRotation();
   initProStats();
 
+  /* Keep the restored home's live aggregates (service counts, trust stats)
+     in sync once the API-backed professional source resolves. */
+  onProfessionalsRefresh(populateServiceCounts);
+  onProfessionalsRefresh(initProStats);
+
 }
 
 /* =========================================================
@@ -12902,52 +13156,101 @@ if ("serviceWorker" in navigator) {
    (base URL) and the Hero pulls live professionals from it on every
    rotation. API failures show an honest error state (no fake pros),
    empty responses remain empty, and the built-in roster is only used
-   when no API is configured.
+   as an explicit DEVELOPMENT fallback (SNA3TI_ALLOW_MOCK_FALLBACK=true);
+   it is never served on configured/production paths.
 ========================================================= */
-const PROFESSIONALS_API = (window.SNA3TI_PROFESSIONALS_API || "").replace(/\/+$/, "");
+const PROFESSIONALS_API = (
+  window.SNA3TI_PROFESSIONALS_API ||
+  (window.location.protocol === "file:"
+    ? ""
+    : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? "http://localhost:3000/api/v1"
+      : "/api/v1")
+).replace(/\/+$/, "");
+
+/* Mirror the resolved base back onto window so every module (WhatsApp contact
+   tracking, the public-professionals data layer, ...) reads the same source. */
+window.SNA3TI_PROFESSIONALS_API = PROFESSIONALS_API;
+
 let proCache = null;
 
-/* Single gateway to the professionals source of truth. */
+/* Home-page aggregates are re-derived once the professional source resolves
+   for the first time (service counts + trust stats). */
+const professionalsRefreshCallbacks = [];
+function onProfessionalsRefresh(fn) {
+  if (typeof fn === "function" && professionalsRefreshCallbacks.indexOf(fn) === -1) {
+    professionalsRefreshCallbacks.push(fn);
+  }
+}
+function notifyProfessionalsRefresh() {
+  professionalsRefreshCallbacks.slice().forEach(function (fn) {
+    try { fn(); } catch (err) { /* one failing callback must not break the page */ }
+  });
+}
+
+function canUseMockFallback() {
+  try {
+    return !!(window.Sna3tiFallback && window.Sna3tiFallback.canUseMockFallback());
+  } catch (err) {
+    return false;
+  }
+}
+
+/* Single gateway to the built-in roster — used ONLY as an explicit
+   development fallback (see refreshProfessionals / js/fallback-gate.js). */
 function getProfessionals() {
   return Array.isArray(sna3tiProfessionals) ? sna3tiProfessionals : [];
 }
 
-function normalizeProfessionPayload(data) {
-  if (Array.isArray(data)) return data;
-  if (data && Array.isArray(data.data)) return data.data;
-  if (data && Array.isArray(data.professionals)) return data.professionals;
-  return null;
-}
-
 async function loadProfessionalsFromAPI() {
-  const res = await fetch(PROFESSIONALS_API + "/professionals");
-  if (!res.ok) throw new Error("professionals request failed");
-  const data = await res.json();
-  const list = normalizeProfessionPayload(data);
+  const list = await Sna3tiPublicProfessionals.getAll();
   if (list === null) throw new Error("unexpected professionals payload");
   return list;
 }
 
 async function refreshProfessionals() {
   if (PROFESSIONALS_API) {
+    const firstLoad = proCache === null;
     try {
       const remote = await loadProfessionalsFromAPI();
       proCache = remote.length ? remote : [];
-      return { ok: true, empty: remote.length === 0 };
+      if (firstLoad) notifyProfessionalsRefresh();
+      return { ok: true, empty: proCache.length === 0 };
     } catch (err) {
+      /* Production ALWAYS shows an honest error state. The built-in roster is
+         reachable here only as an explicit development opt-in. */
+      if (canUseMockFallback()) {
+        proCache = getProfessionals();
+        notifyProfessionalsRefresh();
+        return { ok: true, empty: proCache.length === 0 };
+      }
       proCache = null;
       return { ok: false, error: err };
     }
   }
-  /* No API configured yet — the site's roster is the source of
-     truth. It is never served when an API is configured and failing. */
+  /* No API configured: the built-in roster is served ONLY for explicit
+     development fallback, never silently in production. */
+  if (canUseMockFallback()) {
+    proCache = getProfessionals();
+    return { ok: true, empty: proCache.length === 0 };
+  }
   proCache = null;
-  return { ok: true, empty: getProfessionals().length === 0 };
+  return { ok: false, error: new Error("Aucune source de professionnels configurée.") };
+}
+
+async function ensureProfessionalsLoaded() {
+  if (!PROFESSIONALS_API) return { ok: true, empty: getProfessionals().length === 0 };
+  if (proCache === null) return refreshProfessionals();
+  return { ok: true, empty: proCache.length === 0 };
 }
 
 function currentProfessionals() {
-  if (PROFESSIONALS_API && proCache) return proCache;
-  return getProfessionals();
+  /* With an API configured, the roster is the ONLY public source: the loaded
+     list (which may legitimately be []), or [] until it resolves or fails.
+     The demo roster can never leak into a configured/production path. */
+  if (PROFESSIONALS_API) return Array.isArray(proCache) ? proCache : [];
+  if (canUseMockFallback()) return getProfessionals();
+  return [];
 }
 
 /* --- Hero ranking (single, reusable selection algorithm) --- */
@@ -13094,15 +13397,15 @@ function startHeroRotation() {
       if (e[key]) e[key].style.display = "";
     });
 
-    if (e.photo) e.photo.src = p.image || "https://i.pravatar.cc/300?img=12";
+    if (e.photo) e.photo.src = proPhotoSrc(p);
     if (e.name) e.name.textContent = p.name || "";
     if (e.job) e.job.textContent = p.job || "";
     if (e.rating) {
       e.rating.textContent =
-        "★★★★★ " +
-        (Number(p.rating) || 5).toFixed(1) +
+        (proStars(p) ? proStars(p) + " " : "") +
+        proRatingLabel(p) +
         " · " +
-        heroPrint("reviews", p.reviews || 0, "%s avis");
+        heroPrint("reviews", proReviewsLabel(p), "%s avis");
     }
     if (e.area) e.area.textContent = "📍 " + proCityLabel(p);
     if (e.distance) e.distance.textContent = "💵 " + proPriceLabel(p);
@@ -13401,7 +13704,7 @@ initAllGalleries();
     });
   }
   function professionalsIn(serv, area) {
-    return sna3tiProfessionals.filter(function (p) {
+    return currentProfessionals().filter(function (p) {
       if (serv && p.category !== serv) return false;
       if (!area) return true;
       return areaMatches(p, area);
@@ -13437,7 +13740,7 @@ initAllGalleries();
   }
   function areaAnswer(area) {
     if (!area) area = "casablanca";
-    var l = sna3tiProfessionals.filter(function (p) { return areaMatches(p, area); });
+    var l = currentProfessionals().filter(function (p) { return areaMatches(p, area); });
     var head = "📍 Zone : <b>" + esc(titleCase(area)) + "</b>.";
     if (l.length) {
       return head + " Nous avons <b>" + l.length + "</b> pro(s) là-bas, dont : " +
@@ -13447,7 +13750,7 @@ initAllGalleries();
     return head + " Des pros sont déjà à Casablanca (Maarif, Bourgogne, Californie…). 👉 <a href='#/search' class='text-sna3ti-teal underline'>Voir tous →</a>";
   }
   function generalProsAnswer() {
-    return "🧰 Sna3ti.ma réunit des artisans de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + sna3tiProfessionals.length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
+    return "🧰 Sna3ti.ma réunit des artisans de confiance (plomberie, électricité, plâtrerie, peinture, menuiserie, climatisation, carrelage…). On affiche actuellement <b>" + currentProfessionals().length + "</b> fiches. Donne-moi un métier ou une ville et je t'indique les pros disponibles !";
   }
   function fallbackAnswer(q) {
     return "Désolé, je n'ai pas bien compris. 🤔 Essaie avec des mots-clés, ex. « tarifs », « plombier à Casablanca », « comment ça marche », « GOLD », « m3allem zellige ».";
@@ -13636,6 +13939,7 @@ initAllGalleries();
   // Return a professional entry matching a name or phone, preferring admin data.
   function detectPro(name, phone) {
     var list = readStore(PRO_KEY) || (typeof sna3tiProfessionals !== "undefined" ? sna3tiProfessionals : []);
+    if (!Array.isArray(list) || !list.length) list = currentProfessionals();
     var nn = pnorm(name), np = pnorm(phone);
     var byName = null, byPhone = null;
     list.forEach(function (p) {
@@ -13761,6 +14065,7 @@ populateServiceSelect();
 })();
 
   </script>
+
 
 <!-- PACK CHOICE POPUP -->
 <div id="packPopup" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">

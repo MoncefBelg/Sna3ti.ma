@@ -49,6 +49,16 @@ const reviewLimiter = rateLimit({
   message: { success: false, error: { code: "RATE_LIMITED", message: "Trop d'avis soumis. Réessayez plus tard." } }
 });
 
+// Account-free artisan onboarding submissions (REQ 53): individually budgeted
+// so one abusive source can't flood the admin's application queue.
+const requestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: env.isProduction ? 20 : 10000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: { code: "RATE_LIMITED", message: "Trop de demandes d'inscription. Réessayez plus tard." } }
+});
+
 /**
  * Creates the Express app. Accepts an optional `db` adapter so tests inject
  * InMemoryDb while production uses Prisma.
@@ -81,7 +91,7 @@ function createApp({ db }) {
   app.use("/api/v1", apiLimiter);
 
   // Mount versioned routes. All API routes live under /api/v1 (req 12).
-  app.use("/api/v1", createRoutes(services, { requireAuth, requirePermission, contactLimiter, reviewLimiter }));
+  app.use("/api/v1", createRoutes(services, { requireAuth, requirePermission, contactLimiter, reviewLimiter, requestLimiter }));
 
   // 404 catch-all.
   app.use(notFound);

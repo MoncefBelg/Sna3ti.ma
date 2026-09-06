@@ -1,15 +1,16 @@
 /* ============================================================
    Sna3ti.ma — Admin Web Platform
    js/admin-i18n.js
-   Lightweight i18n (FR/EN) + dark-mode theme manager.
+   Lightweight i18n (FR/EN/AR) + dark-mode theme manager + RTL.
    Must be loaded first (before user-facing modules) so the
    whole shell and views can translate at render time.
 
    Model: T(frenchString, frenchFallback?) is the primary form.
    The argument IS the French source string (used as-is in FR).
-   When the language is English, T() returns the English
-   translation looked up from the FR->EN dictionary; unknown
-   strings degrade gracefully back to French.
+   In English, T() returns the FR->EN translation; in Arabic it
+   returns the FR->AR translation (falling back to EN then FR).
+   Unknown strings degrade gracefully back to French. When the
+   active language is Arabic the document gets dir="rtl".
    ============================================================ */
 
 (function (global) {
@@ -17,6 +18,7 @@
 
   var STORE_LANG = "sna3ti-admin-lang";
   var STORE_THEME = "sna3ti-admin-theme";
+  var LANGS = ["fr", "en", "ar"];
 
   // FR -> EN translation table for every user-facing admin string.
   var EN = {
@@ -522,17 +524,328 @@
     "WhatsApp en attente": "Pending",
     "Photos": "Photos",
     "Chargement...": "Loading",
-    "Erreur réseau": "Network error"
+    "Erreur réseau": "Network error",
+    "Demandes d'inscription": "Registration requests",
+    "Candidatures reçues via le formulaire sans compte. Décision = approuver ou rejeter.": "Applications submitted through the account-free form. Decision = approve or reject.",
+    "Approuvées": "Approved",
+    "Rejetées": "Rejected",
+    "Référence, nom ou téléphone": "Reference, name or phone",
+    "Formule": "Plan",
+    "Vérifié": "Verified",
+    "Aucune demande.": "No requests.",
+    "Demandé le": "Requested on",
+    "Détails": "Details",
+    "Approuver": "Approve",
+    "Rejeter": "Reject",
+    "Demande d'inscription": "Registration request",
+    "Prix annoncé": "Advertised price",
+    "Créé le": "Created on",
+    "Décidé par": "Decided by",
+    "Décidé le": "Decided on",
+    "Demande introuvable.": "Request not found.",
+    "Demande approuvée.": "Request approved.",
+    "Demande rejetée.": "Request rejected.",
+    "Approuver cette demande d'inscription ?": "Approve this registration request?",
+    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "The request moves to Approved. No automatic marketplace listing; marketing publication remains a separate step.",
+    "Rejeter cette demande d'inscription ?": "Reject this registration request?",
+    "Le motif est obligatoire et sera enregistré.": "The reason is required and will be recorded.",
+    "Demande incomplète": "Incomplete application",
+    "Information incohérente": "Inconsistent information",
+    "Document/justificatif manquant": "Missing document/proof",
+    "Activité non conforme": "Non-compliant activity",
+    "Doublon": "Duplicate",
+    "Demande": "Request",
+
+    // ---- REQ 55: registrations list — counters / table / search / pagination ----
+    "Candidatures d'inscription": "Registration applications",
+    "Aperçu de toutes les candidatures reçues via le formulaire sans compte. Les compteurs et la pagination sont calculés côté serveur.": "Overview of every application submitted through the account-free form. Counters and pagination are computed server-side.",
+    "Toutes les candidatures": "All applications",
+    "En cours d'examen": "Being reviewed",
+    "Examinées": "Reviewed",
+    "Afficher": "Show",
+    "par page": "per page",
+    "Résultats": "Results",
+    "sur": "of",
+    "Page": "Page",
+    "Précédent": "Previous",
+    "Suivant": "Next",
+    "Trier par": "Sort by",
+    "Trié par": "Sorted by",
+    "Croissant": "Ascending",
+    "Décroissant": "Descending",
+    "Rechercher une référence, un nom ou un téléphone...": "Search by reference, name or phone...",
+    "Filtrer par statut, formule ou ville. La recherche et les filtres sont appliqués côté serveur.": "Filter by status, plan or city. Search and filters are applied server-side.",
+    "Effacer les filtres": "Clear filters",
+    "Aucune candidature pour le moment.": "No applications yet.",
+    "Aucun résultat pour votre recherche.": "No results for your search.",
+    "Aucun résultat pour « {q} »": "No results for \u00AB {q} \u00BB",
+    "Aucune candidature ne correspond aux filtres.": "No applications match the filters.",
+    "Candidat": "Applicant",
+    "Formule": "Plan",
+    "Date": "Date",
+    "Chargement...": "Loading...",
+    "Actualisation des données...": "Refreshing data...",
+    "Problème réseau. Vérifiez votre connexion et réessayez.": "Network problem. Check your connection and try again.",
+    "Session expirée, veuillez vous reconnecter.": "Session expired, please sign in again.",
+    "Accès refusé pour cette action.": "Access denied for this action.",
+    "Trop de requêtes. Réessayez dans un instant.": "Too many requests. Try again in a moment.",
+    "Erreur serveur. Réessayez plus tard.": "Server error. Try again later.",
+    "Demande déjà traitée, veuillez rafraîchir la liste.": "Request already processed, please refresh the list.",
+    "Donnée invalide envoyée au serveur.": "Invalid data sent to the server.",
+    "Traitement en cours...": "Processing...",
+    "Action impossible : la candidature ne peut plus être modifiée.": "Action not possible: this application can no longer be changed.",
+    "Traitée par": "Processed by",
+    "Le demandeur": "Applicant",
+    "Formule demandée": "Requested plan",
+    "Prix annoncé": "Advertised price",
+    "Autre métier": "Other trade",
+    "Historique de traitement": "Processing history",
+    "Vue d'ensemble": "Overview",
+    "Détails de la candidature": "Application details",
+    "Candidature déjà traitée": "Application already processed",
+    "Cette candidature a été finalisée.": "This application has been finalized.",
+    "Informations de contact": "Contact information",
+    "Aucune adresse email fournie.": "No email address provided.",
+    "Aucune adresse fournie.": "No address provided.",
+    "Non disponible": "Not available",
+    "Tout approuver": "Approve all",
+    "Tout rejeter": "Reject all",
+    "Action": "Action",
+    "Exporter CSV": "Export CSV",
+    "Résultat": "Result",
+    "Justificatifs": "Proof",
+    "Suspendu": "Suspended",
+    "Activé": "Active",
+
+    // ---- REQ 56: approval → pending professional → publish lifecycle ----
+    "En attente": "Pending",
+    "Place de marché": "Marketplace",
+    "Activer ce professionnel ?": "Activate this professional?",
+    "Le compte sera visible par les visiteurs et les recherches.": "The account will be visible to visitors and in searches.",
+    "Activation en cours...": "Activating...",
+    "Artisan activé.": "Professional activated.",
+    "Artisan introuvable.": "Professional not found.",
+    "Action impossible : le compte ne peut plus être activé.": "Action not possible: the account can no longer be activated.",
+    "Module API professionnels non chargé.": "Professionals API module not loaded.",
+    "Professionnel publié.": "Professional published.",
+    "Publier": "Publish",
+    "Publication en cours...": "Publishing...",
+    "Professionnel lié": "Linked professional",
+    "Activé sur la place de marché": "Active on the marketplace",
+    "Non publié": "Unpublished",
+    "Un compte artisan sera créé en attente, puis publié uniquement après votre activation explicite.": "A professional account will be created as pending, then published only after your explicit activation.",
+    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "The request moves to Approved. No automatic marketplace listing; marketing publication remains a separate step."
+  };
+
+  // FR -> AR translation table (REQ 55). Covers the admin shell + the
+  // registration management UI. Missing strings degrade to EN, then FR.
+  var AR = {
+    // ---- shell / nav ----
+    "Administration": "الإدارة",
+    "Tableau de bord": "لوحة التحكم",
+    "Rechercher...": "بحث...",
+    "Recherche globale": "بحث شامل",
+    "Mode sombre": "الوضع الداكن",
+    "Changer la langue": "تغيير اللغة",
+    "Menu utilisateur": "قائمة المستخدم",
+    "Se déconnecter": "تسجيل الخروج",
+    "Notifications": "الإشعارات",
+    "non lues": "غير مقروءة",
+    "Aucune notification": "لا توجد إشعارات",
+    "Marketplace": "السوق",
+    "Artisans": "الحرفيون",
+    "Utilisateurs": "المستخدمون",
+    "Catégories": "الفئات",
+    "Villes": "المدن",
+    "Confiance et sécurité": "الثقة والأمان",
+    "Vérification": "التحقق",
+    "Avis": "التقييمات",
+    "Signalements": "البلاغات",
+    "Business": "الأعمال",
+    "Abonnements": "الاشتراكات",
+    "Paiements": "المدفوعات",
+    "Insights": "الرؤى",
+    "Analytiques": "التحليلات",
+    "AI Center": "مركز الذكاء الاصطناعي",
+    "Système": "النظام",
+    "Réglages": "الإعدادات",
+    "Contenu légal": "المحتوى القانوني",
+    "Langue": "اللغة",
+    "Titre": "العنوان",
+    "Admin Users": "مدراء النظام",
+    "Audit Logs": "سجلات التدقيق",
+    "Support": "الدعم",
+    "Demandes de mise en relation": "طلبات الوساطة",
+    "Mise en relation": "الوساطة",
+
+    // ---- common actions ----
+    "Annuler": "إلغاء",
+    "Confirmer": "تأكيد",
+    "Enregistrer": "حفظ",
+    "Modifier": "تعديل",
+    "Supprimer": "حذف",
+    "Retour": "رجوع",
+    "Exporter": "تصدير",
+    "Réessayer": "إعادة المحاولة",
+    "Voir": "عرض",
+    "Ajouter": "إضافة",
+    "Fermer": "إغلاق",
+    "Recherche": "بحث",
+    "Réinitialiser": "إعادة التعيين",
+    "Effacer les filtres": "مسح المرشحات",
+    "Ouvrir": "فتح",
+    "Raison": "السبب",
+    "Expliquez la raison...": "اشرح السبب...",
+    "Veuillez fournir une raison.": "يرجى توفير سبب.",
+    "Veuillez réessayer.": "يرجى إعادة المحاولة.",
+    "Erreur de chargement": "خطأ في التحميل",
+    "Oups, une erreur est survenue": "عذرًا، حدث خطأ ما",
+    "non renseigné": "غير محدد",
+
+    // ---- registration approvals (REQ 54/55) ----
+    "Demandes d'inscription": "طلبات التسجيل",
+    "Candidatures d'inscription": "طلبات التسجيل",
+    "Aperçu de toutes les candidatures reçues via le formulaire sans compte. Les compteurs et la pagination sont calculés côté serveur.": "نظرة عامة على جميع الطلبات الواردة عبر النموذج بدون حساب. تُحسب العدادات وترقيم الصفحات من جهة الخادم.",
+    "Candidatures reçues via le formulaire sans compte. Décision = approuver ou rejeter.": "الطلبات الواردة عبر النموذج بدون حساب. القرار = الموافقة أو الرفض.",
+    "Toutes les candidatures": "كل الطلبات",
+    "En attente": "قيد الانتظار",
+    "En cours d'examen": "قيد المراجعة",
+    "Approuvées": "مقبولة",
+    "Rejetées": "مرفوضة",
+    "Examinées": "تمت معالجتها",
+    "Afficher": "عرض",
+    "par page": "في الصفحة",
+    "Résultats": "النتائج",
+    "sur": "من",
+    "Page": "الصفحة",
+    "Précédent": "السابق",
+    "Suivant": "التالي",
+    "Trier par": "ترتيب حسب",
+    "Trié par": "مرتب حسب",
+    "Croissant": "تصاعدي",
+    "Décroissant": "تنازلي",
+    "Rechercher une référence, un nom ou un téléphone...": "ابحث بالمرجع أو الاسم أو الهاتف...",
+    "Filtrer par statut, formule ou ville. La recherche et les filtres sont appliqués côté serveur.": "تصفية حسب الحالة أو الصيغة أو المدينة. يُطبق البحث والمرشحات من جهة الخادم.",
+    "Référence": "المرجع",
+    "Candidat": "مقدم الطلب",
+    "Téléphone": "الهاتف",
+    "Métier": "المهنة",
+    "Ville": "المدينة",
+    "Formule": "الصيغة",
+    "WhatsApp": "واتساب",
+    "Date": "التاريخ",
+    "Nom": "الاسم",
+    "Actions": "الإجراءات",
+    "Chargement...": "جارٍ التحميل...",
+    "Actualisation des données...": "جارٍ تحديث البيانات...",
+    "Aucune candidature pour le moment.": "لا توجد طلبات حالياً.",
+    "Aucun résultat pour votre recherche.": "لا توجد نتائج لبحثك.",
+    "Aucun résultat pour « {q} »": "لا توجد نتائج لـ «{q}»",
+    "Aucune candidature ne correspond aux filtres.": "لا يوجد طلب مطابق للمرشحات.",
+    "Aucune demande.": "لا توجد طلبات.",
+    "Problème réseau. Vérifiez votre connexion et réessayez.": "مشكلة في الشبكة. تحقق من اتصالك وأعد المحاولة.",
+    "Session expirée, veuillez vous reconnecter.": "انتهت الجلسة، يرجى إعادة تسجيل الدخول.",
+    "Accès refusé pour cette action.": "تم رفض الوصول لهذا الإجراء.",
+    "Trop de requêtes. Réessayez dans un instant.": "طلبات كثيرة جداً. أعد المحاولة بعد لحظة.",
+    "Erreur serveur. Réessayez plus tard.": "خطأ في الخادم. أعد المحاولة لاحقاً.",
+    "Demande déjà traitée, veuillez rafraîchir la liste.": "تمت معالجة الطلب، يرجى تحديث القائمة.",
+    "Donnée invalide envoyée au serveur.": "بيانات غير صالحة أُرسلت إلى الخادم.",
+    "Traitement en cours...": "جارٍ المعالجة...",
+    "Impossible de joindre le serveur. Réessayez.": "تعذر الاتصال بالخادم. أعد المحاولة.",
+    "Action impossible : la candidature ne peut plus être modifiée.": "إجراء غير ممكن: لا يمكن تعديل هذا الطلب بعد الآن.",
+    "Traitée par": "تمت المعالجة بواسطة",
+    "Le demandeur": "مقدم الطلب",
+    "Formule demandée": "الصيغة المطلوبة",
+    "Prix annoncé": "السعر المعلن",
+    "Autre métier": "مهنة أخرى",
+    "Historique de traitement": "سجل المعالجة",
+    "Vue d'ensemble": "نظرة عامة",
+    "Détails de la candidature": "تفاصيل الطلب",
+    "Candidature déjà traitée": "تمت معالجة الطلب بالفعل",
+    "Cette candidature a été finalisée.": "تم إنهاء هذا الطلب.",
+    "Informations de contact": "معلومات الاتصال",
+    "Aucune adresse email fournie.": "لم يُقدم عنوان بريد إلكتروني.",
+    "Aucune adresse fournie.": "لم يُقدم عنوان.",
+    "Non disponible": "غير متوفر",
+    "Tout approuver": "الموافقة على الكل",
+    "Tout rejeter": "رفض الكل",
+    "Action": "إجراء",
+    "Résultat": "النتيجة",
+    "Justificatifs": "المستندات",
+    "Demande d'inscription": "طلب تسجيل",
+    "Détails": "التفاصيل",
+    "Approuver": "موافقة",
+    "Rejeter": "رفض",
+    "Créé le": "تاريخ الإنشاء",
+    "Demandé le": "تاريخ الطلب",
+    "Décidé par": "قُرر بواسطة",
+    "Décidé le": "تاريخ القرار",
+    "Raison du rejet": "سبب الرفض",
+    "Description": "الوصف",
+    "Demande introuvable.": "الطلب غير موجود.",
+    "Demande approuvée.": "تمت الموافقة على الطلب.",
+    "Demande rejetée.": "تم رفض الطلب.",
+    "Approuver cette demande d'inscription ?": "الموافقة على طلب التسجيل؟",
+    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "سينتقل الطلب إلى حالة «مقبول». لا إضافة تلقائية إلى السوق؛ النشر التسويقي خطوة منفصلة.",
+    "Rejeter cette demande d'inscription ?": "رفض طلب التسجيل؟",
+    "Le motif est obligatoire et sera enregistré.": "السبب إلزامي وسيتم تسجيله.",
+    "Demande incomplète": "طلب ناقص",
+    "Information incohérente": "معلومات غير متسقة",
+    "Document/justificatif manquant": "مستند/إثبات ناقص",
+    "Activité non conforme": "نشاط غير مطابق",
+    "Doublon": "تكرار",
+    "Autre": "أخرى",
+    "Précision (si « Autre »)": "توضيح (إن اختير «أخرى»)",
+    "Détaillez le motif...": "فصّل السبب...",
+    "Demande": "طلب",
+    "Toutes": "الكل",
+    "Statut": "الحالة",
+    "Total": "المجموع",
+    "Prix": "السعر",
+    "Du": "من",
+    "Au": "إلى",
+    "Non lues": "غير مقروءة",
+    "Lues": "مقروءة",
+    "Tout marquer lu": "تحديد الكل كمقروء",
+    "Aucune notification.": "لا توجد إشعارات.",
+    "Export généré.": "تم إنشاء التصدير.",
+    "Exporter CSV": "تصدير CSV",
+    "Artisan": "الحرفي",
+    "Client": "العميل",
+    "Aujourd'hui": "اليوم",
+    "7 jours": "7 أيام",
+    "30 jours": "30 يوماً",
+    "Suspendu": "موقوف",
+    "Activé": "مفعّل",
+
+    // ---- REQ 56: approval → pending professional → publish lifecycle ----
+    "En attente": "قيد الانتظار",
+    "Place de marché": "السوق",
+    "Activer ce professionnel ?": "تفعيل هذا الحرفي؟",
+    "Le compte sera visible par les visiteurs et les recherches.": "سيكون الحساب مرئياً للزوار وفي عمليات البحث.",
+    "Activation en cours...": "جارٍ التفعيل...",
+    "Artisan activé.": "تم تفعيل الحرفي.",
+    "Artisan introuvable.": "الحرفي غير موجود.",
+    "Action impossible : le compte ne peut plus être activé.": "إجراء غير ممكن: لا يمكن تفعيل الحساب بعد الآن.",
+    "Module API professionnels non chargé.": "وحدة API الحرفيين غير محمّلة.",
+    "Professionnel publié.": "تم نشر الحرفي.",
+    "Publier": "نشر",
+    "Publication en cours...": "جارٍ النشر...",
+    "Professionnel lié": "الحرفي المرتبط",
+    "Activé sur la place de marché": "مفعّل على السوق",
+    "Non publié": "غير منشور",
+    "Un compte artisan sera créé en attente, puis publié uniquement après votre activation explicite.": "سيتم إنشاء حساب حرفي كقيد الانتظار، ثم نشره فقط بعد تنشيطك الصريح.",
+    "La demande passera au statut Approuvée. Aucun ajout automatique sur la place de marché ; la publication marketing reste une étape distincte.": "سينتقل الطلب إلى حالة «مقبول». لا إضافة تلقائية إلى السوق؛ النشر التسويقي خطوة منفصلة."
   };
 
   function loadLang(){
-    try { return localStorage.getItem(STORE_LANG) || "fr"; } catch(e){ return "fr"; }
+    try { var v = localStorage.getItem(STORE_LANG); return LANGS.indexOf(v) > -1 ? v : "fr"; } catch(e){ return "fr"; }
   }
   function loadTheme(){
     try { return localStorage.getItem(STORE_THEME) || "light"; } catch(e){ return "light"; }
   }
 
-  var lang = (loadLang() === "en") ? "en" : "fr";
+  var lang = loadLang();
   var theme = (loadTheme() === "dark") ? "dark" : "light";
 
   function applyTheme(){
@@ -541,19 +854,32 @@
     }
   }
 
-  // t(french, fallback?) -> if lang=en and french in dict, return en; else french.
+  // t(french, fallback?) -> lang-aware lookup.
+  //   en -> EN[base] || base ; ar -> AR[base] || EN[base] || base ; fr -> base.
   function t(fr, fallback){
     if(!fr && fr !== "") return fr;
     var base = String(fr);
     if(lang === "en"){
       return EN[base] || base;
     }
+    if(lang === "ar"){
+      return AR[base] || EN[base] || base;
+    }
     return base;
   }
 
+  function applyDir(){
+    // Arabic renders right-to-left; flip the whole document root.
+    var root = document.documentElement;
+    if(lang === "ar"){ root.setAttribute("dir", "rtl"); }
+    else { root.removeAttribute("dir"); }
+    root.setAttribute("lang", lang);
+  }
+
   function setLang(l){
-    lang = (l === "en") ? "en" : "fr";
+    lang = LANGS.indexOf(l) > -1 ? l : "fr";
     try { localStorage.setItem(STORE_LANG, lang); } catch(e){}
+    applyDir();
     return lang;
   }
 
@@ -568,8 +894,9 @@
   function getTheme(){ return theme; }
   function getLang(){ return lang; }
 
-  // apply initial theme on load
+  // apply initial theme + language direction on load
   applyTheme();
+  applyDir();
 
   global.Sna3tiI18n = {
     t: t, setLang: setLang, getLang: getLang,
