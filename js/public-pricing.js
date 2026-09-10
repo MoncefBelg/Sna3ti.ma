@@ -57,7 +57,8 @@
     var labels = {
       free:     { fr: "Gratuit — {price} DH" },
       verified: { fr: "Vérifié — {price} DH/mois" },
-      gold:     { fr: "GOLD — {price} DH/mois" }
+      // GOLD keeps its name/icon static in the markup; only the price is replaced.
+      gold:     { fr: "{price} DH/mois" }
     };
 
     ["free", "verified", "gold"].forEach(function (code) {
