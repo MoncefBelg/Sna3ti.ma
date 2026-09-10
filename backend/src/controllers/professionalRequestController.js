@@ -37,6 +37,30 @@ function createProfessionalRequestController(services) {
       }
       const data = await services.professionalRequests.reject(req.params.id, req.body.reason, req.admin);
       ok(res, { data });
+    }),
+    // Public — multipart media upload (the wizard attaches photos/videos to a
+    // just-created request). Fields: file (single), kind (profile|echantillon),
+    // label. Plan gates + size caps are enforced server-side.
+    uploadMedia: asyncHandler(async (req, res) => {
+      if (!req.file) throw new AppError("Fichier requis.", 400);
+      const data = await services.professionalRequests.uploadMedia(req.params.id, req.file, {
+        kind: req.body.kind,
+        label: req.body.label
+      });
+      created(res, { data });
+    }),
+    // Admin — serve a guarded request media file.
+    getMedia: asyncHandler(async (req, res) => {
+      const { entry, bytes } = await services.professionalRequests.getMedia(req.params.id, req.params.mediaId);
+      if (!bytes || !bytes.buffer) throw new AppError("Fichier introuvable dans le stockage.", 404);
+      res.set("Content-Type", entry.mimeType || "application/octet-stream");
+      res.set("Content-Disposition", `inline; filename="${entry.id}${entry.type === "video" ? ".mp4" : ".jpg"}"`);
+      res.send(bytes.buffer);
+    }),
+    // Admin — remove a single media entry from a request.
+    removeMedia: asyncHandler(async (req, res) => {
+      const data = await services.professionalRequests.removeMedia(req.params.id, req.params.mediaId, req.admin);
+      ok(res, { data });
     })
   };
 }

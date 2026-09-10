@@ -5,7 +5,7 @@
 
 const MODELS = [
   "role", "adminUser", "auditLog", "category", "region", "city",
-  "plan", "user", "professional", "subscription", "payment",
+  "plan", "user", "professional", "subscription", "payment", "billingTransaction",
   "verificationRequest", "verificationDocument", "review", "report", "supportTicket",
   "notification", "legalDocument", "idSequence", "matchRequest", "matchPhoto",
   "professionalContactInteraction", "professionalRequest"
@@ -163,6 +163,36 @@ function createInMemoryDb(seed = {}) {
     db[model] = store;
   }
   bootstrapSequences(db, seed);
+  return withTransaction(db);
+}
+
+// Adds a $transaction(fn) to the in-memory adapter so services that guard
+// financial state transitions with a DB transaction (REQ 58-F) behave the same
+// in tests: the whole `fn` runs against snapshot copies and commits atomically
+// on success, or ROLLS BACK every change on throw. This lets tests assert that
+// a mid-confirmation failure leaves NO partial state committed.
+function withTransaction(db) {
+  function snapshot() {
+    const snap = {};
+    for (const model of MODELS) snap[model] = db[model].rows.map((r) => ({ ...r }));
+    return snap;
+  }
+  function restore(snap) {
+    for (const model of MODELS) db[model].rows = snap[model].map((r) => ({ ...r }));
+  }
+  // Build a transactional view of the SAME backing store (clone-on-write is not
+  // required for a synchronous, sequentially-executed in-memory adapter).
+  db.$transaction = async (fn) => {
+    const before = snapshot();
+    try {
+      const result = await fn(db);
+      // Commit: keep current in-memory state as-is.
+      return result;
+    } catch (err) {
+      restore(before);
+      throw err;
+    }
+  };
   return db;
 }
 
@@ -176,8 +206,9 @@ function bootstrapSequences(db, seed) {
     review: "RV", report: "RP", subscription: "SUB",
     adminUser: "AU", notification: "NT", auditLog: "AL",
     category: "CAT", region: "REG", city: "CITY", plan: "PLAN",
-    matchRequest: "REQ", matchPhoto: "PH", professionalContactInteraction: "INT",
-    professionalRequest: "ARQ"
+    matchRequest: "REQ", matchPhoto: "PH", professionalMedia: "MED",
+    professionalContactInteraction: "INT",
+    professionalRequest: "ARQ", billingTransaction: "BT"
   };
   for (const [model, prefix] of Object.entries(MODELS_TO_PREFIX)) {
     const rows = seed[model] || [];

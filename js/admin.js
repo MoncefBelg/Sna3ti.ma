@@ -32,13 +32,12 @@
         '<div class="login-sub">'+T("Administration")+'</div>' +
         show +
         '<form class="form" id="loginForm">' +
-          '<div class="frm"><label for="email">Email</label><input id="loginEmail" type="email" placeholder="admin@sna3ti.ma" autocomplete="username" required /></div>' +
-          '<div class="frm"><label for="password">'+T("Mot de passe")+'</label><div class="pw-wrap"><input id="loginPassword" type="password" placeholder="Sna3ti@@2030" autocomplete="current-password" required /><button type="button" class="pw-toggle" id="pwToggle" aria-label="'+T("Afficher le mot de passe")+'">👁️</button></div></div>' +
+          '<div class="frm"><label for="email">Email</label><input id="loginEmail" type="email" placeholder="" autocomplete="off" autocapitalize="off" spellcheck="false" required /></div>' +
+          '<div class="frm"><label for="password">'+T("Mot de passe")+'</label><div class="pw-wrap"><input id="loginPassword" type="password" placeholder="" autocomplete="new-password" required /><button type="button" class="pw-toggle" id="pwToggle" aria-label="'+T("Afficher le mot de passe")+'">👁️</button></div></div>' +
           '<label class="field-check"><input type="checkbox" id="loginRemember" /> '+T("Se souvenir de moi")+'</label>' +
           '<button class="btn btn-primary btn-block" id="loginBtn" type="submit" style="justify-content:center">'+T("Se connecter")+'</button>' +
         '</form>' +
-        '<div class="login-foot">'+T("Prototype — authentification de démonstration uniquement.")+'</div>' +
-        '<div class="demo-box"><div class="demo-row"><span><b>'+T("Connexion")+'</b></span><code>mbelgas@sna3ti.ma</code></div><div class="demo-row"><span class="muted">'+T("Mot de passe")+'</span><span class="muted">Sna3ti@@2030</span></div><div class="demo-row"><span class="muted">'+T("Rôles illustrés")+'</span><span class="muted">Super Admin · Finance · Moderator · Support</span></div></div>' +
+        '<div class="login-foot">'+T("Accès réservé à l'administration.")+'</div>' +
       '</div></div>';
 
     document.getElementById("pwToggle").addEventListener("click", function(){
@@ -443,9 +442,13 @@
       document.querySelectorAll("#proBody [data-del]").forEach(function(b){ b.addEventListener("click", function(){
         var id=b.dataset.del;
         UI.confirmAction({ title:T("Supprimer définitivement ?"), message:T("Cette action est irréversible."), confirmLabel:T("Supprimer"), onConfirm:function(){
-          DATA.deleteProfessional(id);
-          DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
-          UI.toast(T("Artisan supprimé.")); drawPros();
+          var done = function(){
+            DATA.logAudit({ admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:id, result:"Deleted" });
+            UI.toast(T("Artisan supprimé.")); drawPros();
+          };
+          var call = DATA.deleteProfessional(id);
+          if(call && call.then){ call.then(done).catch(function(err){ UI.toast((err && err.message) || T("Suppression impossible."), true); drawPros(); }); }
+          else if(call){ done(); }
         }});
       }); });
       (act = document.getElementById("proCheckAll")) && act.removeEventListener("change", refreshSelected);
@@ -686,9 +689,14 @@
       });
       var ddel = document.getElementById("dDelete"); if(ddel) ddel.addEventListener("click", function(){
         UI.confirmAction({ title:T("Supprimer ce professionnel ?"), message:T("Action irréversible. Le profil, ses abonnements, paiements, avis et demandes seront retirés de la plateforme."), confirmLabel:T("Supprimer"), onConfirm:function(){
-          DATA.deleteProfessional(p.id);
-          DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:p.id, result:"Deleted"});
-          UI.toast(T("Artisan supprimé.")); ROUTER.navigate("professionals");
+          var pid = p ? p.id : null;
+          var go = function(){
+            DATA.logAudit({admin:AUTH.getSession().name, action:"DELETE_PROFESSIONAL", entity:"Professional", entityId:pid, result:"Deleted", note:pid});
+            UI.toast(T("Artisan supprimé.")); ROUTER.navigate("professionals");
+          };
+          var call = DATA.deleteProfessional(pid);
+          if(call && call.then){ call.then(go).catch(function(err){ UI.toast((err && err.message) || T("Suppression impossible."), true); }); }
+          else { go(); }
         }});
       });
       var dcp = document.getElementById("dChangePlan"); if(dcp) dcp.addEventListener("click", function(){ changePlanModal(p.id, sub); });
@@ -823,13 +831,59 @@
   }
 
   /* ============================================================
-     MEDIA / UPLOADS (visibility + package quotas)
+     MEDIA / UPLOADS (REQ 53 — real backend media pipeline)
+     A professional's media (profile photo, échantillon photos,
+     videos) lives on the backend: metadata on Professional.media,
+     bytes in StorageService. Thumbnails load the ACTUAL bytes through
+     the admin-guarded routes (?token=...); remove/upload go through
+     the backend API. Package quotas pre-gate the UX; the server
+     enforces them authoritatively.
      ============================================================ */
+  function profMediaUrl(proId, mediaId){
+    var base = (global.Sna3tiApi && global.Sna3tiApi.baseUrl) ? global.Sna3tiApi.baseUrl : "";
+    var route = (global.Sna3tiProfessionalsApi && global.Sna3tiProfessionalsApi.mediaUrl)
+      ? global.Sna3tiProfessionalsApi.mediaUrl(proId, mediaId)
+      : ("admin/professionals/" + proId + "/media/" + mediaId);
+    var token = (global.Sna3tiApi && global.Sna3tiApi.getToken) ? (global.Sna3tiApi.getToken() || "") : "";
+    return base + "/" + route + "?token=" + encodeURIComponent(token);
+  }
+  function reqMediaUrl(reqId, mediaId){
+    var base = (global.Sna3tiApi && global.Sna3tiApi.baseUrl) ? global.Sna3tiApi.baseUrl : "";
+    var route = (global.Sna3tiProfessionalRequestsApi && global.Sna3tiProfessionalRequestsApi.mediaUrl)
+      ? global.Sna3tiProfessionalRequestsApi.mediaUrl(reqId, mediaId)
+      : ("admin/professional-requests/" + reqId + "/media/" + mediaId);
+    var token = (global.Sna3tiApi && global.Sna3tiApi.getToken) ? (global.Sna3tiApi.getToken() || "") : "";
+    return base + "/" + route + "?token=" + encodeURIComponent(token);
+  }
+  global.Sna3tiOpenMedia = function(u){
+    if(!u) return;
+    var base = (global.Sna3tiApi && global.Sna3tiApi.baseUrl) ? global.Sna3tiApi.baseUrl : "";
+    var token = (global.Sna3tiApi && global.Sna3tiApi.getToken) ? (global.Sna3tiApi.getToken() || "") : "";
+    var href = (String(u).indexOf("://") === -1 && String(u).indexOf("/") === 0) ? base + u : String(u);
+    if(href.indexOf("?") === -1 && href.indexOf("token") === -1 && token){
+      href += "?token=" + encodeURIComponent(token);
+    }
+    window.open(href, "_blank", "noopener");
+  };
+  function mediaThumbHtml(m, url){
+    if(m.type === "video"){
+      return '<video class="m-real" src="'+esc(url)+'" controls playsinline preload="metadata" muted></video>';
+    }
+    return '<img class="m-real" src="'+esc(url)+'" alt="'+esc(m.label||"media")+'" loading="lazy" onerror="this.classList.add(\'m-broken\')"/>';
+  }
+  function mediaItemHtml(m, url, removeAttr){
+    var added = m.addedAt || m.added || "";
+    var viewJs = String(url).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+    return '<div class="media-item"><div class="media-thumb">'+mediaThumbHtml(m, url)+'</div><div class="media-body"><b>'+esc(m.label||(m.type==="video"?T("Vidéo"):T("Photo")))+'</b><div class="muted">'+(m.type==="video"?T("Vidéo"):T("Photo"))+' · '+esc(added)+'</div>'+
+      '<div class="media-actions"><button class="icon-act" type="button" title="'+T("Voir")+'" onclick="window.Sna3tiOpenMedia&&window.Sna3tiOpenMedia(\''+viewJs+'\')">👁️</button>'+
+      '<button class="icon-act danger" '+removeAttr+' title="'+T("Retirer")+'">🗑️</button></div></div></div>';
+  }
+
   function mediaSection(p){
+    var media = (p.media||[]);
     var pkg = String(p.package||"free").toLowerCase();
     var lim = DATA.packageLimits(pkg);
-    var use = DATA.getMediaUsage(p.id);
-    var media = (p.media||[]);
+    var use = DATA.getMediaUsage(p.id, media);
     var profile = media.filter(function(m){ return m.kind==="profile"; });
     var echant = media.filter(function(m){ return m.kind==="echantillon"; });
     var echantPct = lim.echantillonTotal>0 ? Math.min(100, Math.round(use.echantillonTotal/lim.echantillonTotal*100)) : 100;
@@ -839,8 +893,7 @@
     // Profile photo block
     var profHtml = '<h4>'+T("Photo de profil")+'</h4>' +
       '<div class="media-grid" style="margin-top:10px">' +
-        (profile.length ? profile.map(function(m){ return '<div class="media-item"><div class="media-thumb">👤</div><div class="media-body"><b>'+T("Photo de profil")+'</b><div class="muted">'+esc(m.added||"")+'</div>'+
-          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="'+T("Retirer")+'">🗑️</button></div></div>'; }).join("")
+        (profile.length ? profile.map(function(m){ return mediaItemHtml(m, profMediaUrl(p.id, m.id), 'data-mdel="'+esc(m.id)+'"'); }).join("")
           : '<div class="media-item"><div class="media-thumb">➕</div><div class="media-body"><b>'+T("Photo de profil")+'</b><div class="muted">'+T("1 requise (tous les packs)")+'</div></div></div>') +
       '</div>';
 
@@ -849,8 +902,7 @@
       '<div class="muted" style="margin:8px 0">'+T("Quota échantillons : ")+'<b>'+use.echantillonTotal+'</b> / '+lim.echantillonTotal+' ('+T("photos ou vidéos")+') · '+T("vidéos")+' <b>'+use.echantillonVideos+'</b> / '+lim.echantillonVideos+'</div>' +
       '<div class="usage-bar"><div class="usage-fill" style="width:'+echantPct+'%"></div></div>' +
       '<div class="media-grid" id="mediaGrid">' +
-        (echant.length ? echant.map(function(m){ return '<div class="media-item"><div class="media-thumb">'+(m.type==="video"?"🎬":"🖼️")+'</div><div class="media-body"><b>'+esc(m.label||(m.type==="video"?T("Vidéo"):T("Photo")))+'</b><div class="muted">'+(m.type==="video"?T("Vidéo"):T("Photo"))+' · '+esc(m.added||"")+'</div>'+
-          '<button class="icon-act" data-mdel="'+p.id+'" data-mid="'+m.id+'" title="'+T("Retirer")+'">🗑️</button></div></div>'; }).join("")
+        (echant.length ? echant.map(function(m){ return mediaItemHtml(m, profMediaUrl(p.id, m.id), 'data-mdel="'+esc(m.id)+'"'); }).join("")
           : '<div class="empty">'+T("Aucun échantillon téléversé.")+'</div>') +
       '</div>' +
       '<div class="toolbar" style="margin-top:16px">' +
@@ -864,20 +916,39 @@
       '<span class="badge '+badge+'">'+grant+'</span></div>'+
       '<div style="margin-top:14px">'+profHtml+echantHtml+'</div></div>';
   }
+  function pickMediaFile(accept, cb){
+    var inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = accept || "*/*";
+    inp.style.display = "none";
+    document.body.appendChild(inp);
+    inp.addEventListener("change", function(){
+      var f = inp.files && inp.files[0];
+      if(inp.parentNode) inp.parentNode.removeChild(inp);
+      if(f) cb(f);
+    });
+    inp.click();
+  }
   function bindMedia(p){
     document.querySelectorAll("[data-mdel]").forEach(function(btn){ btn.addEventListener("click", function(){
-      DATA.removeMedia(btn.dataset.mdel, btn.dataset.mid); UI.toast(T("Média retiré.")); renderProfessionalDetail(p.id);
+      var mediaId = btn.dataset.mdel;
+      btn.disabled = true;
+      DATA.removeMedia(p.id, mediaId, (p.media||[])).then(function(ok){
+        UI.toast(ok ? T("Média retiré.") : T("Impossible de retirer le média."), !ok);
+        renderProfessionalDetail(p.id);
+      });
     }); });
     var pf = document.getElementById("medProfile"); if(pf) pf.addEventListener("click", function(){ tryUpload(p, "profile"); });
     var ph = document.getElementById("medPhoto"); if(ph) ph.addEventListener("click", function(){ tryUpload(p, "echantillon-photo"); });
     var vd = document.getElementById("medVideo"); if(vd) vd.addEventListener("click", function(){ tryUpload(p, "echantillon-video"); });
   }
   function tryUpload(p, kind){
-    var label = (document.getElementById("medLabel")&&document.getElementById("medLabel").value)||"";
-    var isProfile = kind==="profile";
-    var type = kind==="echantillon-video" ? "video" : "photo";
-    var k = kind==="echantillon-video"||kind==="echantillon-photo" ? "echantillon" : "profile";
-    var gate = DATA.canUploadMedia(p.id, { kind: k, type: type });
+    var labelEl = document.getElementById("medLabel");
+    var label = (labelEl && labelEl.value) || "";
+    var isProfile = kind === "profile";
+    var type = kind === "echantillon-video" ? "video" : "photo";
+    var k = (kind === "echantillon-video" || kind === "echantillon-photo") ? "echantillon" : "profile";
+    var gate = DATA.canUploadMedia(p.id, { kind: k, type: type }, (p.media||[]));
     if(!gate.ok){
       UI.confirmAction({
         title: isProfile ? T("Photo de profil") : (type==="video" ? T("Vidéo non autorisée sur ce pack") : T("Limite d'échantillons atteinte")),
@@ -888,12 +959,18 @@
       });
       return;
     }
-    var res = DATA.addMedia(p.id, { kind: k, type: type, label: isProfile ? T("Photo de profil") : (label || (type==="video"?T("Vidéo"):T("Échantillon"))) });
-    if(res.ok){
-      var u = res.usage;
-      UI.toast((isProfile?T("Photo de profil"):T("Média"))+T(" ajouté (profil ")+(u.profileCount||0)+T(", échantillons ")+u.echantillonTotal+").");
-      renderProfessionalDetail(p.id);
-    }
+    pickMediaFile(type === "video" ? "video/*" : "image/*", function(file){
+      var dispLabel = isProfile ? T("Photo de profil") : (label || (type==="video" ? T("Vidéo") : T("Échantillon")));
+      DATA.addMedia(p.id, { kind: k, type: type, label: dispLabel, file: file }, (p.media||[])).then(function(res){
+        if(res && res.ok){
+          var u = res.usage || {};
+          UI.toast((isProfile?T("Photo de profil"):T("Média"))+T(" ajouté (profil ")+(u.profileCount||0)+T(", échantillons ")+u.echantillonTotal+").");
+          renderProfessionalDetail(p.id);
+        } else {
+          UI.toast((res && res.reason) || T("Téléversement impossible."), true);
+        }
+      });
+    });
   }
   function qcCount(p){
     try { return DATA.getMediaUsage(p.id).echantillonTotal || (p.portfolio?p.portfolio.length:0) || 6; } catch(e){ return 6; }
@@ -1776,6 +1853,14 @@
       drow(T("Demandé le"),esc(r.dateLabel||"—"))+
       (r.description?drow(T("Description"),esc(r.description)):"")+
     '</div>';
+    if(r.media && r.media.length){
+      h += '<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 6px">'+T("Médias fournis")+' ('+r.media.length+')</div>';
+      h += '<div class="media-grid">' +
+        r.media.map(function(m){
+          return mediaItemHtml(m, reqMediaUrl(r.id, m.id), 'data-rmdel="'+esc(m.id)+'"');
+        }).join("") +
+      '</div>';
+    }
     if(r.reviewerName||r.reviewedLabel||(r.reason&&r.status==="rejected")){
       h += '<div class="muted" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 6px">'+T("Traitée par")+'</div>';
       h += '<div class="detail-grid">'+
@@ -1815,6 +1900,33 @@
       );
       var app=document.getElementById("regApprove"); if(app) app.addEventListener("click",function(){ UI.closeModal(); approveRegistration(id); });
       var rj=document.getElementById("regReject"); if(rj) rj.addEventListener("click",function(){ UI.closeModal(); rejectRegistration(id); });
+
+      // REQ 53 — request media already uploaded by the artisan (photos /
+      // videos attached to the account-free onboarding request). Admin can
+      // remove an inappropriate file; removal is backend-backed.
+      document.querySelectorAll("[data-rmdel]").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var mediaId = btn.dataset.rmdel;
+          btn.disabled = true;
+          DATA.removeRequestMedia(r.id, mediaId).then(function(){
+            UI.toast(T("Média retiré de la demande."));
+            DATA.fetchProfessionalRequest(r.id).then(function(res){
+              var nr = res && res.data ? res.data : null;
+              UI.closeModal();
+              if(nr){
+                var c = _reg.data || [], i;
+                for(i=0;i<c.length;i++){ if(c[i].id===nr.id){ c[i]=nr; } }
+                var cc = window.__sna3tiRegCache || [];
+                for(i=0;i<cc.length;i++){ if(cc[i].id===nr.id){ cc[i]=nr; } }
+              }
+              openRegistrationDetail(r.id);
+              drawRegistrations();
+            });
+          }).catch(function(err){
+            UI.toast(proFriendlyError(err), true);
+          });
+        });
+      });
 
       // REQ 56 — fetch the professional the approval created and expose an
       // explicit "Publish / Activate" action while it is still pending.
@@ -2198,59 +2310,172 @@
     var filter = (initialFilter && valid[initialFilter]) ? initialFilter : "all";
     var order = ["all","published","pending","flagged","hidden"];
     var html =
-      '<div class="page-head"><h1>'+T("Avis")+'</h1><div class="spacer">'+(AUTH.can("reviews","read")?'<button class="btn btn-ghost" id="revExport">⬇ '+T("Exporter")+'</button>':"")+'</div></div>'+
+      '<div class="page-head"><h1>'+T("Avis")+'</h1><div class="spacer">'+(AUTH.can("reviews","read")?'<button class="btn btn-ghost" id="revExport">⬇ '+T("Exporter")+'</button>':"")+
+      (AUTH.can("reviews","moderate")?'<button class="btn btn-primary" id="revManual" style="margin-left:8px">➕ '+T("Saisir un avis client")+'</button>':"")+'</div></div>'+
       '<div class="tabs">'+order.map(function(s,i){
         var list = DATA.getReviews(); var n = list.length; if(s!=="all") n = list.filter(function(r){return r.status===s;}).length;
         return '<button class="tab '+(s===filter?"active":"")+'" data-s="'+s+'">'+labels[s]+' <span class="cnt">'+n+'</span></button>';
-      }).join("")+'</div><div id="revBody"></div>';
+      }).join("")+'</div><div id="revBody"><div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Artisan")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Contact")+'</th><th>'+T("Source")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody><tr><td colspan="9"><div class="empty" style="padding:30px"><div class="spinner"></div> '+T("Chargement…")+'</div></td></tr></tbody></table></div></div></div>';
     UI.setContent(html);
-    drawReviews(filter);
+    var manual = document.getElementById("revManual");
+    if(manual) manual.addEventListener("click", openManualReview);
+    var revExportEl = document.getElementById("revExport");
+    if(revExportEl) revExportEl.addEventListener("click", exportReviews);
+    return loadReviewsLive(filter);
   }
-  function drawReviews(filter){
-    document.querySelectorAll("#content .tab").forEach(function(t){
-      t.classList.toggle("active", t.dataset.s===filter);
-      t.onclick=function(){ drawReviews(t.dataset.s); };
+
+  // REQ 62 — source of truth = GET /admin/reviews (live, all statuses).
+  // A successful empty ([]) is an EMPTY state; a network/server/401/403/429/500
+  // failure renders an error/offline state — never demo data.
+  function loadReviewsLive(filter){
+    var bodyEl = document.getElementById("revBody");
+    return DATA.fetchReviews().then(function(res){
+      var list = res.data || [];
+      if(bodyEl){
+        bodyEl.innerHTML = renderReviewsTable(list, filter || currentReviewFilter());
+      }
+      syncReviewTabs(list);
+      bindReviewRowActions();
+      bindReviewTabs();
+    }).catch(function(err){
+      var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      if(bodyEl) bodyEl.innerHTML = '<div class="card"><div class="empty" style="padding:40px"><div>⚠️ '+esc(msg)+'</div><button class="btn btn-ghost" id="revRetry" style="margin-top:12px">'+T("Réessayer")+'</button></div></div>';
+      var retry = document.getElementById("revRetry");
+      if(retry) retry.addEventListener("click", function(){ renderReviews(currentReviewFilter()); });
     });
-    var list = DATA.getReviews({ status: filter==="all"?"":filter });
-    var el = document.getElementById("revBody");
-    if(!list.length){ el.innerHTML='<div class="empty">'+T("Aucun avis.")+'</div>'; return; }
-    var rexp = document.getElementById("revExport"); if(rexp && !rexp._bound){ rexp._bound=true; rexp.addEventListener("click", function(){
-      var rows=[[T("Client"),T("Artisan"),T("Note"),T("Commentaire"),T("Date"),T("Statut"),"ID"]];
-      DATA.getReviews({ status: currentReviewFilter()==="all"?"":currentReviewFilter() }).forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.customer,p?p.name:"?",r.rating,r.comment,r.date,r.status,r.id]); });
+  }
+
+  function syncReviewTabs(list){
+    var map = {}; (list||[]).forEach(function(r){ map[r.status]=(map[r.status]||0)+1; });
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      var s = t.dataset.s, n = s==="all" ? (list||[]).length : (map[s]||0);
+      var c = t.querySelector(".cnt"); if(c) c.textContent = n;
+    });
+  }
+
+  function renderReviewsTable(list, filter){
+    if(!list || !list.length){ return '<div class="card"><div class="empty" style="padding:40px">'+T("Aucun avis.")+'</div></div>'; }
+    var rows = list;
+    if(filter && filter!=="all") rows = list.filter(function(r){ return r.status===filter; });
+    if(!rows.length){ return '<div class="card"><div class="empty" style="padding:40px">'+T("Aucun avis dans cet état.")+'</div></div>'; }
+    var trs = rows.map(function(r){
+      var p = DATA.getProfessional(r.professionalId);
+      var flagInfo = r.status==="flagged" ? '<div class="muted" style="margin-top:4px;color:var(--red)">🚩 '+esc(r.flaggedReason||T("Signalé"))+'<br><span style="font-size:11px">'+T("Signalé par")+' '+esc(r.flaggedReporter||"—")+' · '+esc(r.flaggedDate||"")+'</span></div>' : "";
+      var sourceLabel = reviewSourceLabel(r.reviewSource);
+      var clientName = esc(r.reviewerName || r.customer || "—");
+      return '<tr><td><b>'+clientName+'</b>'+(r.reviewerName ? '<div class="muted" style="font-size:11px">'+esc(r.customer||"")+'</div>' : "")+'</td><td>'+esc(r.professionalName || (p?p.name:"—"))+'</td><td>'+mkStars(r.rating)+'</td><td style="max-width:240px">'+esc(r.comment)+flagInfo+'</td>'+
+        '<td>'+(r.reviewerContact?'<a href="https://wa.me/'+esc(String(r.reviewerContact).replace(/\D/g,""))+'" target="_blank" rel="noopener">'+esc(r.reviewerContact)+'</a>':'<span class="muted">—</span>')+'</td>'+
+        '<td>'+sourceLabel+'</td><td>'+esc(r.date || r.createdAt || "")+'</td><td>'+revStatus(r.status)+'</td>'+
+        '<td class="actions-cell">'+
+          (AUTH.can("reviews","moderate") && r.status!=="published" ? '<button class="icon-act" data-pub="'+r.id+'" title="'+T("Publier")+'" style="color:var(--green)">✓</button>':"") +
+          (AUTH.can("reviews","moderate") && (r.status==="hidden") ? '<button class="icon-act" data-rst="'+r.id+'" title="'+T("Restaurer")+'" style="color:var(--teal)">♻️</button>':"") +
+          (AUTH.can("reviews","moderate") && r.status!=="flagged" ? '<button class="icon-act" data-flag="'+r.id+'" title="'+T("Signaler/suspect")+'" style="color:var(--amber)">🚩</button>':"") +
+          (AUTH.can("reviews","moderate") ? '<button class="icon-act" data-hide="'+r.id+'" title="'+T("Masquer")+'" style="color:var(--muted)">🙈</button>':"") +
+          (AUTH.can("reviews","delete") ? '<button class="icon-act danger" data-delrev="'+r.id+'" title="'+T("Supprimer")+'">🗑️</button>':"") +
+        '</td></tr>';
+    }).join("");
+    return '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Artisan")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Contact")+'</th><th>'+T("Source")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>' + trs + '</tbody></table></div></div>';
+  }
+  function reviewSourceLabel(s){
+    if(s==="whatsapp") return '<span class="badge green">💬 WhatsApp</span>';
+    if(s==="admin") return '<span class="badge blue">🛠 Admin</span>';
+    return '<span class="badge gray">📱 App</span>';
+  }
+  function exportReviews(){
+    DATA.fetchReviews().then(function(res){
+      var list = res.data || [];
+      var rows=[[T("Client"),T("Artisan"),T("Note"),T("Commentaire"),T("Contact"),T("Source"),T("Date"),T("Statut"),"ID"]];
+      list.forEach(function(r){ var p=DATA.getProfessional(r.professionalId); rows.push([r.reviewerName||r.customer||"", r.professionalName||(p?p.name:"?"), r.rating, r.comment, r.reviewerContact||"", r.reviewSource||"app", r.date||r.createdAt||"", r.status, r.id]); });
       UI.exportCSV("avis-sna3ti.csv", rows); UI.toast(T("Export généré."));
-    }); }
-    el.innerHTML =
-      '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Client")+'</th><th>'+T("Artisan")+'</th><th>'+T("Note")+'</th><th>'+T("Commentaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody>' +
-      list.map(function(r){
-        var p = DATA.getProfessional(r.professionalId);
-        var flagInfo = r.status==="flagged" ? '<div class="muted" style="margin-top:4px;color:var(--red)">🚩 '+esc(r.flaggedReason||T("Signalé"))+'<br><span style="font-size:11px">'+T("Signalé par")+' '+esc(r.flaggedReporter||"—")+' · '+esc(r.flaggedDate||"")+'</span></div>' : "";
-        return '<tr><td><b>'+esc(r.customer)+'</b></td><td>'+esc(p?p.name:"—")+'</td><td>'+mkStars(r.rating)+'</td><td style="max-width:240px">'+esc(r.comment)+flagInfo+'</td><td>'+r.date+'</td><td>'+revStatus(r.status)+'</td>'+
-          '<td class="actions-cell">'+
-            (AUTH.can("reviews","moderate") && r.status!=="published" ? '<button class="icon-act" data-pub="'+r.id+'" title="'+T("Publier")+'" style="color:var(--green)">✓</button>':"") +
-            (AUTH.can("reviews","moderate") && (r.status==="hidden") ? '<button class="icon-act" data-rst="'+r.id+'" title="'+T("Restaurer")+'" style="color:var(--teal)">♻️</button>':"") +
-            (AUTH.can("reviews","moderate") && r.status!=="flagged" ? '<button class="icon-act" data-flag="'+r.id+'" title="'+T("Signaler/suspect")+'" style="color:var(--amber)">🚩</button>':"") +
-            (AUTH.can("reviews","moderate") ? '<button class="icon-act" data-hide="'+r.id+'" title="'+T("Masquer")+'" style="color:var(--muted)">🙈</button>':"") +
-            (AUTH.can("reviews","delete") ? '<button class="icon-act danger" data-delrev="'+r.id+'" title="'+T("Supprimer")+'">🗑️</button>':"") +
-          '</td></tr>';
-      }).join("") + '</tbody></table></div></div>';
-    document.querySelectorAll("[data-pub]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.pub, "published"); }); });
-    document.querySelectorAll("[data-flag]").forEach(function(b){ b.addEventListener("click", function(){ flagRev(b.dataset.flag); }); });
-    document.querySelectorAll("[data-hide]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.hide, "hidden"); }); });
-    document.querySelectorAll("[data-rst]").forEach(function(b){ b.addEventListener("click", function(){ setRev(b.dataset.rst, "published"); }); });
-    document.querySelectorAll("[data-delrev]").forEach(function(b){ b.addEventListener("click", function(){
-      var id=b.dataset.delrev;
-      UI.confirmAction({title:T("Supprimer cet avis ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
-        DATA.deleteReview(id); DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_DELETED", entity:"Review", entityId:id, result:"Deleted"}); UI.toast(T("Avis supprimé.")); drawReviews(currentReviewFilter());
-      }});
-    }); });
+    }).catch(function(){ UI.toast(T("Export impossible — serveur injoignable."), "error"); });
+  }
+  function openManualReview(){
+    UI.openModal(
+      '<div class="modal-head"><h3>➕ '+T("Saisir un avis client")+'</h3><button class="modal-x" aria-label="'+T("Fermer")+'" onclick="window.Sna3tiUI.closeModal()">×</button></div>'+
+      '<div class="modal-body">'+
+        '<p class="muted" style="margin:0 0 12px">'+T("Un client vous a donné son avis sur WhatsApp ? Saisissez-le ici pour le publier sur son profil.")+'</p>'+
+        '<div class="frm"><label>'+T("Artisan")+' *</label><select id="remPro"><option value="">'+T("Chargement…")+'</option></select></div>'+
+        '<div class="frm"><label>'+T("Client")+' *</label><input id="remCustomer" type="text" placeholder="'+T("Prénom / nom du client")+'"></div>'+
+        '<div class="frm"><label>'+T("Note")+' *</label><select id="remRating"><option value="">—</option><option value="5">★★★★★ (5)</option><option value="4">★★★★ (4)</option><option value="3">★★★ (3)</option><option value="2">★★ (2)</option><option value="1">★ (1)</option></select></div>'+
+        '<div class="frm"><label>'+T("Commentaire")+'</label><textarea id="remComment" rows="3" placeholder="'+T("Le message du client…")+'"></textarea></div>'+
+        '<div class="frm"><label>'+T("Contact WhatsApp (optionnel)")+'</label><input id="remContact" type="tel" placeholder="06XXXXXXXX"></div>'+
+        '<label class="frm check" style="margin-top:6px"><input type="checkbox" id="remPublish" checked> '+T("Publier immédiatement")+'</label>'+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button>'+
+        '<button class="btn btn-primary" id="remSave">✓ '+T("Enregistrer l’avis")+'</button>'+
+      '</div>'
+    );
+    var proSel = document.getElementById("remPro");
+    var save = document.getElementById("remSave");
+    // populate artisan select from live professionals
+    DATA.fetchProfessionals({ limit: 400 }).then(function(res){
+      var pros = res.data || [];
+      proSel.innerHTML = '<option value="">'+T("Choisir un artisan…")+'</option>' + pros.filter(function(p){ return p.status==="active" || p.status==="pending"; }).map(function(p){ return '<option value="'+esc(p.id)+'">'+esc(p.name)+' — '+esc(p.job||p.category||"")+'</option>'; }).join("");
+    }).catch(function(){ proSel.innerHTML = '<option value="">'+T("Impossible de charger les artisans.")+'</option>'; });
+    if(save) save.addEventListener("click", function(){
+      var professionalId = proSel.value, customer = (document.getElementById("remCustomer").value || "").trim();
+      var rating = Number(document.getElementById("remRating").value);
+      var comment = (document.getElementById("remComment").value || "").trim();
+      var contact = (document.getElementById("remContact").value || "").trim();
+      var publish = !!document.getElementById("remPublish").checked;
+      if(!professionalId){ UI.toast(T("Choisissez un artisan."), true); return; }
+      if(!customer){ UI.toast(T("Saisissez le nom du client."), true); return; }
+      if(!rating || rating<1 || rating>5){ UI.toast(T("Choisissez une note."), true); return; }
+      save.disabled = true;
+      DATA.createAdminReview({ professionalId:professionalId, customer:customer, rating:rating, comment:comment, contact:contact, publish:publish })
+        .then(function(){
+          UI.closeModal();
+          DATA.logAudit({ admin:AUTH.getSession().name, action:"REVIEW_CREATED_MANUAL", entity:"Review", result:"Created", note:customer });
+          UI.toast(publish ? T("Avis ajouté et publié.") : T("Avis ajouté (en attente)."));
+          loadReviewsLive(currentReviewFilter());
+        }).catch(function(err){
+          save.disabled = false;
+          var msg = (err && err.message) || T("Impossible d'enregistrer l'avis. Réessayez.");
+          UI.toast(msg, true);
+        });
+    });
   }
   function currentReviewFilter(){ var a=document.querySelector(".tab.active"); return a?a.dataset.s:"all"; }
-  function setRev(id, status){ if(DATA.setReviewStatus(id, status)){ DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_"+status.toUpperCase(), entity:"Review", entityId:id, result:status}); UI.toast(T("Avis ")+status+"."); drawReviews(currentReviewFilter()); } }
+  function bindReviewTabs(){
+    document.querySelectorAll("#content .tab").forEach(function(t){
+      t.onclick=function(){ 
+        document.querySelectorAll("#content .tab").forEach(function(x){ x.classList.toggle("active", x===t); });
+        var list = window.__sna3tiReviewsLive || [];
+        var bodyEl = document.getElementById("revBody");
+        if(bodyEl) bodyEl.innerHTML = renderReviewsTable(list, t.dataset.s);
+        bindReviewRowActions();
+      };
+    });
+  }
+  function bindReviewRowActions(){
+    var list = window.__sna3tiReviewsLive || [];
+    document.querySelectorAll("[data-pub]").forEach(function(b){ b.onclick=function(){ setRev(b.dataset.pub, "published"); }; });
+    document.querySelectorAll("[data-flag]").forEach(function(b){ b.onclick=function(){ flagRev(b.dataset.flag); }; });
+    document.querySelectorAll("[data-hide]").forEach(function(b){ b.onclick=function(){ setRev(b.dataset.hide, "hidden"); }; });
+    document.querySelectorAll("[data-rst]").forEach(function(b){ b.onclick=function(){ setRev(b.dataset.rst, "published"); }; });
+    document.querySelectorAll("[data-delrev]").forEach(function(b){ b.onclick=function(){
+      var id=b.dataset.delrev;
+      UI.confirmAction({title:T("Supprimer cet avis ?"), confirmLabel:T("Supprimer"), onConfirm:function(){
+        DATA.deleteReview(id).then ? DATA.deleteReview(id).then(function(){
+          DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_DELETED", entity:"Review", entityId:id, result:"Deleted"}); UI.toast(T("Avis supprimé.")); loadReviewsLive(currentReviewFilter());
+        }).catch(function(err){ UI.toast((err && err.message) || T("Suppression impossible."), true); }) : (DATA.deleteReview(id), UI.toast(T("Avis supprimé.")), loadReviewsLive(currentReviewFilter()));
+      }});
+    }; });
+  }
+  function setRev(id, status){
+    var ok = DATA.setReviewStatus(id, status);
+    var done = function(){ DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_"+status.toUpperCase(), entity:"Review", entityId:id, result:status}); UI.toast(T("Avis ")+status+"."); loadReviewsLive(currentReviewFilter()); };
+    if(ok && ok.then){ ok.then(done).catch(function(err){ UI.toast((err && err.message) || T("Action impossible."), true); loadReviewsLive(currentReviewFilter()); }); }
+    else if(ok){ done(); }
+    else { UI.toast(T("Action impossible sur cet avis."), true); }
+  }
   function flagRev(id){
     UI.confirmAction({ title:T("Signaler cet avis ?"), reasonRequired:true, reasonLabel:T("Raison du signalement"), confirmLabel:T("Signaler"), onConfirm:function(reason){
-      DATA.flagReview(id, { reason:reason, reporter:AUTH.getSession().name, date:todayShort() });
-      DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_FLAGGED", entity:"Review", entityId:id, result:"Flagged", note:reason});
-      UI.toast(T("Avis signalé.")); drawReviews(currentReviewFilter());
+      var call = DATA.flagReview(id, { reason:reason, reporter:AUTH.getSession().name, date:todayShort() });
+      var done = function(){ DATA.logAudit({admin:AUTH.getSession().name, action:"REVIEW_FLAGGED", entity:"Review", entityId:id, result:"Flagged", note:reason}); UI.toast(T("Avis signalé.")); loadReviewsLive(currentReviewFilter()); };
+      if(call && call.then){ call.then(done).catch(function(err){ UI.toast((err && err.message) || T("Action impossible."), true); loadReviewsLive(currentReviewFilter()); }); }
+      else { done(); }
     }});
   }
   function revStatus(s){ var m={published:["green",T("Publié")],pending:["amber",T("En attente")],flagged:["red",T("Signalé")],hidden:["gray",T("Masqué")],deleted:["gray",T("Supprimé")]}; var e=m[s]||["gray",s]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
@@ -2613,7 +2838,7 @@
         (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act danger" data-rejp="'+pa.id+'" title="'+T("Rejeter")+'">✖</button>' : "") +
         (AUTH.can("payments","reject") && pa.status==="pending" ? '<button class="icon-act" data-infop="'+pa.id+'" title="'+T("Demander des informations")+'" style="color:var(--amber)">💡</button>' : "") +
         '<button class="icon-act" data-whats="'+pa.id+'" title="'+T("Discuter sur WhatsApp")+'">💬</button>' +
-        (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Voir en vérification")+'">✅</button>' : "") +
+        (linkReq ? '<button class="icon-act" data-openbk="'+linkReq.id+'" title="'+T("Plan demandé")+'" style="cursor:default;pointer-events:none">✅</button>' : "") +
       '</td></tr>';
   }
 
@@ -2627,7 +2852,6 @@
     document.querySelectorAll("[data-confp]").forEach(function(b){ b.addEventListener("click", function(){ confirmPayment(b.dataset.confp); }); });
     document.querySelectorAll("[data-rejp]").forEach(function(b){ b.addEventListener("click", function(){ rejectPayment(b.dataset.rejp); }); });
     document.querySelectorAll("[data-infop]").forEach(function(b){ b.addEventListener("click", function(){ requestPaymentInfo(b.dataset.infop); }); });
-    document.querySelectorAll("[data-openbk]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate("verification"); }); });
     document.querySelectorAll("[data-whats]").forEach(function(b){ b.addEventListener("click", function(){
       var pa = (list||[]).find(function(x){return x.id===b.dataset.whats;});
       if(pa){ window.open("https://wa.me/"+DATA.getConfig().phone+"?text="+encodeURIComponent("Sna3ti Admin — confirmation paiement "+(pa.reference||pa.id)+" ("+pa.amount+" DH)"), "_blank"); }
@@ -2637,7 +2861,12 @@
   function renderPayments(){
     UI.setTitle(T("Paiements"));
     UI.setContent(
-      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+'<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
+      '<div class="page-head"><h1>'+T("Paiements")+'</h1><div class="spacer">'+(AUTH.can("payments","read")?'<button class="btn btn-ghost" id="payExport">⬇ '+T("Exporter")+'</button>':"")+
+        '<span class="muted" style="margin:0 8px">'+T("Virements bancaires manuels confirmés après contrôle.")+'</span></div></div>' +
+      '<div class="toolbar" style="margin:6px 0 14px"><span class="spacer"></span>'+
+        '<button class="btn btn-ghost btn-small" data-an="billing-history">🧾 '+T("Historique de facturation")+'</button>'+
+        '<button class="btn btn-ghost btn-small" data-an="analytics">📈 '+T("Analytiques")+'</button>'+
+      '</div>' +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>'+T("Référence")+'</th><th>'+T("Artisan")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Méthode")+'</th><th>'+T("Réf. bancaire")+'</th><th>'+T("Date")+'</th><th>'+T("Statut")+'</th><th>'+T("Actions")+'</th></tr></thead><tbody id="payBody">'+paymentsSkeleton()+'</tbody></table></div></div>' +
       '<div class="card"><div class="card-title">'+T("Workflow virement bancaire")+'</div>' +
       '<div class="verif-steps" style="margin-top:10px"><span class="step done">1. '+T("Artisan choisit le plan")+'</span><span class="step current">2. '+T("Virement bancaire")+'</span><span class="step">3. '+T("Reçu téléversé")+'</span><span class="step">4. '+T("Paiement = En attente")+'</span><span class="step">5. '+T("Finance/Admin vérifie")+'</span><span class="step">6. '+T("Confirmer/Rejeter")+'</span><span class="step">7. '+T("Abonnement VÉRIFIÉ/GOLD activé (badge vérifié = processus distinct)")+'</span></div>' +
@@ -2652,6 +2881,7 @@
         UI.exportCSV("paiements-sna3ti.csv", paymentExportRows(list)); UI.toast(T("Export généré."));
       }).catch(function(){ UI.toast(T("Export impossible — serveur injoignable."), "error"); });
     });
+    document.querySelectorAll("[data-an]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate(b.dataset.an); }); });
     // REQ 52: source of truth = GET /admin/payments. Skeleton -> real rows /
     // empty / error (never demo). Opaque IDs preserved.
     return DATA.fetchPayments().then(function(res){
@@ -2692,13 +2922,11 @@
           drow(T("Artisan"), p ? ('<a href="#/admin/professionals/'+esc(p.id)+'">'+esc(p.name)+'</a>') : "—")+
           (pa.rejectionReason ? drow(T("Raison du rejet"), esc(pa.rejectionReason)) : "")+
           (pa.infoRequested ? drow(T("Informations demandées"), esc(pa.infoRequested)) : "")+
-        '</div></div>' +
-        (linkReq ? '<div class="card"><div class="card-title">'+T("Demande d'abonnement liée")+'</div><p class="muted" style="margin:8px 0">'+esc(linkReq.id)+' — '+esc(linkReq.requestedPlan||"")+'</p><button class="btn btn-soft" id="pdOpenVr">'+T("Voir en vérification")+'</button></div>' : "")
+        '</div></div>'
       );
       var back = document.getElementById("pdBack"); if(back) back.addEventListener("click", function(){ ROUTER.navigate("payments"); });
       var conf = document.getElementById("pdConf"); if(conf) conf.addEventListener("click", function(){ confirmPayment(id); ROUTER.navigate("payments"); });
       var rej = document.getElementById("pdRej"); if(rej) rej.addEventListener("click", function(){ rejectPayment(id); ROUTER.navigate("payments"); });
-      var ovr = document.getElementById("pdOpenVr"); if(ovr) ovr.addEventListener("click", function(){ ROUTER.navigate("verification"); });
     }).catch(function(err){
       var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
       UI.setTitle(T("Paiement"));
@@ -2709,17 +2937,31 @@
   }
   function confirmPayment(id){
     UI.confirmAction({ title:T("Confirmer ce paiement ?"), message:T("Après contrôle du virement, la souscription VÉRIFIÉ ou GOLD sera activée sur le profil. Le badge « Professionnel Vérifié » reste soumis à une vérification distincte, indépendante du paiement."), confirmLabel:T("Confirmer"), onConfirm:function(){
-      DATA.confirmPayment(id);
-      DATA.logAudit({admin:AUTH.getSession().name, action:"CONFIRM_PAYMENT", entity:"Payment", entityId:id, result:"Confirmed"});
-      UI.toast(T("Paiement confirmé — souscription activée (vérification du badge = processus distinct)."));
-      renderPayments();
+      UI.openModal('<h3>'+T("Traitement en cours...")+'</h3><div class="reg-processing"><span class="spinner"></span><span>'+T("Traitement en cours...")+'</span></div>');
+      DATA.confirmPayment(id).then(function(){
+        UI.closeModal();
+        DATA.logAudit({admin:AUTH.getSession().name, action:"CONFIRM_PAYMENT", entity:"Payment", entityId:id, result:"Confirmed"});
+        UI.toast(T("Paiement confirmé — souscription activée (vérification du badge = processus distinct)."));
+        renderPayments();
+      }).catch(function(err){
+        UI.closeModal();
+        UI.toast(proFriendlyError(err), true);
+        renderPayments();
+      });
     }});
   }
   function rejectPayment(id){
     UI.confirmAction({ title:T("Rejeter ce paiement ?"), reasonRequired:true, reasonLabel:T("Raison du rejet"), confirmLabel:T("Rejeter"), onConfirm:function(reason){
-      DATA.rejectPayment(id, reason);
-      DATA.logAudit({admin:AUTH.getSession().name, action:"REJECT_PAYMENT", entity:"Payment", entityId:id, result:"Rejected", note:reason});
-      UI.toast(T("Paiement rejeté.")); renderPayments();
+      UI.openModal('<h3>'+T("Traitement en cours...")+'</h3><div class="reg-processing"><span class="spinner"></span><span>'+T("Traitement en cours...")+'</span></div>');
+      DATA.rejectPayment(id, reason).then(function(){
+        UI.closeModal();
+        DATA.logAudit({admin:AUTH.getSession().name, action:"REJECT_PAYMENT", entity:"Payment", entityId:id, result:"Rejected", note:reason});
+        UI.toast(T("Paiement rejeté.")); renderPayments();
+      }).catch(function(err){
+        UI.closeModal();
+        UI.toast(proFriendlyError(err), true);
+        renderPayments();
+      });
     }});
   }
   function requestPaymentInfo(id){
@@ -2738,6 +2980,111 @@
     }});
   }
   function payMethodBadge(m){ var map={ bank_transfer:["blue","🏦 "+T("Virement")], card:["purple","💳 "+T("Carte")], cash:["green","💵 "+T("Espèces")], paypal:["amber","🅿️ PayPal"] }; var e=map[m]||["gray",m||"—"]; return '<span class="badge '+e[0]+'">'+e[1]+'</span>'; }
+
+  /* ============================================================
+     REQ 58 — BILLING HISTORY (immutable paid-period ledger)
+     Read-only: BillingTransaction cannot be edited or deleted.
+     ============================================================ */
+  function billingTypeBadge(type){
+    var e = type === "renewal" ? ["purple", T("Renouvellement")] : ["blue", T("Activation")];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+  function billingStatusBadge(status){
+    var e = { active:["green", T("Active")], expired:["gray", T("Expirée")], cancelled:["red", T("Annulée")] }[status] || ["gray", status||"—"];
+    return '<span class="badge '+e[0]+'">'+e[1]+'</span>';
+  }
+  function money(v, cur){ var c = cur || "MAD"; return (v==null?0:v) + ' ' + c; }
+  function billingSkeletonRows(n){
+    return Array.from({length:(n||5)}).map(function(){ return '<tr><td colspan="9" style="padding:0"><div class="sk-line" style="height:44px;margin:4px"></div></td></tr>'; }).join("");
+  }
+  function billingRow(tx){
+    var p = DATA.getProfessional(tx.professionalId);
+    return '<tr>'+
+      '<td><b>'+esc(tx.id)+'</b></td>'+
+      '<td><div class="pro"><div class="p-avatar">'+initials(p?p.name:"?")+'</div><div class="pro-name">'+esc(p?p.name:"?")+'</div></div></td>'+
+      '<td>'+billingTypeBadge(tx.type)+'</td>'+
+      '<td>'+esc(tx.planName)+'</td>'+
+      '<td><b>'+money(tx.amount, tx.currency)+'</b></td>'+
+      '<td>'+esc(tx.periodStart||"—")+' → '+esc(tx.periodEnd||"—")+'</td>'+
+      '<td>'+esc(tx.actorName||"—")+'</td>'+
+      '<td>'+billingStatusBadge(tx.status)+'</td>'+
+      '<td class="muted">'+esc((tx.createdAt||"").slice?String(tx.createdAt).slice(0,10):"—")+'</td>'+
+      '<td>'+(tx.paymentId ? '<a class="kpi-view" href="#/admin/payments/'+esc(tx.paymentId)+'">💰 '+esc(tx.paymentId)+'</a>' : '<span class="muted">—</span>')+'</td>'+
+    '</tr>';
+  }
+  function billingSummaryCard(ico,label,value,sub){
+    return '<div class="kpi"><div class="k-top"><span class="k-title">'+esc(label)+'</span><span class="k-ico">'+ico+'</span></div>'+
+      '<div class="k-val">'+(value==null?"—":value)+'</div>'+
+      (sub?'<div class="k-delta"><span class="cmp">'+esc(sub)+'</span></div>':"")+
+    '</div>';
+  }
+  function renderBillingHistory(params){
+    UI.setTitle(T("Historique de facturation"));
+    var query = params || {};
+    UI.setContent(
+      '<div class="page-head"><h1>'+T("Historique de facturation")+'</h1><span class="muted" style="margin-left:10px">'+T("Registre inaltérable des périodes payées. Aucune donnée ne peut être modifiée ou supprimée.")+'</span></div>'+
+      '<div class="toolbar" style="margin:6px 0 14px"><span class="badge green">● '+T("Données réelles")+'</span>'+
+        '<span class="muted" style="margin-left:10px;font-size:12px">'+T("Lignes liées à leur paiement d'origine (💰).")+'</span>'+
+        '<span class="spacer"></span>'+
+        '<button class="btn btn-ghost btn-small" data-an="payments">💰 '+T("Paiements")+'</button>'+
+        '<button class="btn btn-ghost btn-small" id="billRefresh">🔄 '+T("Actualiser")+'</button>'+
+        '<button class="btn btn-ghost btn-small" data-an="analytics">📈 '+T("Analytiques")+'</button>'+
+      '</div>'+
+      '<div class="kpi-grid" id="billKpis">'+
+        billingSummaryCard("💵", T("Revenus confirmés"), T("Chargement..."))+
+        billingSummaryCard("⏳", T("Revenus en attente"), T("Chargement..."))+
+        billingSummaryCard("🚫", T("Paiements rejetés"), T("Chargement..."))+
+      '</div>'+
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>'+T("Artisan")+'</th><th>'+T("Type")+'</th><th>'+T("Plan")+'</th><th>'+T("Montant")+'</th><th>'+T("Période")+'</th><th>'+T("Acteur")+'</th><th>'+T("Statut")+'</th><th>'+T("Date")+'</th><th>'+T("Paiement")+'</th></tr></thead><tbody id="billBody">'+billingSkeletonRows(6)+'</tbody></table></div>'+
+      '<div class="card-foot" id="billPager"></div></div>'+
+      '<div class="card"><p class="muted" style="margin:0">🧾 '+T("L'historique de facturation est un registre en lecture seule : aucune modification ni suppression n'est possible.")+'</p></div>'
+    );
+    DATA.fetchBillingSummary().then(function(res){
+      var s = (res && res.data) || null;
+      if(!s) return;
+      var cell = document.getElementById("billKpis");
+      if(!cell) return;
+      cell.innerHTML =
+        billingSummaryCard("💵", T("Revenus confirmés"), money(s.confirmedAmount, "MAD"), s.confirmedCount + " " + T("Confirmés"))+
+        billingSummaryCard("⏳", T("Revenus en attente"), money(s.pendingAmount, "MAD"), T("En attente"))+
+        billingSummaryCard("🚫", T("Paiements rejetés"), s.rejectedCount+" ("+money(s.rejectedAmount,"MAD")+")", T("Paiements rejetés"));
+    }).catch(function(){
+      var cell = document.getElementById("billKpis");
+      if(cell) cell.innerHTML =
+        billingSummaryCard("💵", T("Revenus confirmés"), "—")+
+        billingSummaryCard("⏳", T("Revenus en attente"), "—")+
+        billingSummaryCard("🚫", T("Paiements rejetés"), "—");
+    });
+    return DATA.fetchBillingTransactions(query).then(function(res){
+      var list = res.data || [];
+      var pag = res.pagination || null;
+      var tbody = document.getElementById("billBody");
+      if(!tbody) return;
+      tbody.innerHTML = list.length ? list.map(billingRow).join("") : '<tr><td colspan="10"><div class="empty" style="padding:30px">'+T("Aucune transaction de facturation.")+'</div></td></tr>';
+      var pager = document.getElementById("billPager");
+      if(pager && pag){
+        var total = pag.total||0, pages = pag.pages||1, page = pag.page||1;
+        pager.innerHTML = '<div class="pager"><span class="muted">'+total+' '+T("Résultats")+' · '+T("Page")+' '+page+'/'+pages+'</span>'+
+          (page>1?'<button class="btn btn-ghost btn-small" data-bp="'+(page-1)+'">← '+T("Précédent")+'</button>':"")+
+          (page<pages?'<button class="btn btn-ghost btn-small" data-bp="'+(page+1)+'" style="margin-left:6px">'+T("Suivant")+' →</button>':"")+
+          '</div>';
+        pager.querySelectorAll("[data-bp]").forEach(function(b){ b.addEventListener("click", function(){ var q=Object.assign({}, query); q.page=b.dataset.bp; renderBillingHistory(q); }); });
+      }
+    }).catch(function(err){
+      var msg = (err && err.message) || T("Impossible de joindre le serveur. Réessayez.");
+      var tbody = document.getElementById("billBody");
+      if(!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="10"><div class="empty" style="padding:30px"><div>⚠️ '+esc(msg)+'</div><button class="btn btn-ghost btn-small" style="margin-top:10px">'+T("Réessayer")+'</button></div></td></tr>';
+      var retry = tbody.querySelector("button");
+      if(retry) retry.addEventListener("click", function(){ renderBillingHistory(query); });
+    });
+    document.querySelectorAll("[data-an]").forEach(function(b){
+      b.addEventListener("click", function(){
+        if(b.id && b.id === "billRefresh"){ renderBillingHistory(query); return; }
+        ROUTER.navigate(b.dataset.an);
+      });
+    });
+  }
 
   /* ============================================================
      DEMANDES DE MISE EN RELATION (Sna3ti Match)
@@ -2978,71 +3325,179 @@
   function renderAnalytics(){
     UI.setTitle(T("Analytiques"));
     var a = DATA.getAnalytics();
-    var slice = a.visits.slice();
+    var isLive = !!(a && a.totals && a.days && a.months);
     var fLbl = {"today":T("Aujourd'hui"),"7d":T("7 jours"),"30d":T("30 jours"),"90d":T("90 jours"),"12m":T("12 mois"),"custom":T("Période personnalisée")}[analyticsFilter];
     var customN = customMonths();
-    function sub(ar){ return ar.slice(-Math.abs(periodN())); }
-    function periodN(){
-      var m={ today:1, "7d":2, "30d":6, "90d":9, "12m":12, custom:customN };
-      return m[analyticsFilter]||12;
-    }
+    function periodN(){ var m={ today:1, "7d":2, "30d":6, "90d":9, "12m":12, custom:customN }; return m[analyticsFilter]||12; }
     function sum(ar){ return ar.reduce(function(x,y){return x+y;},0); }
     function last(ar){ return ar.length?ar[ar.length-1]:0; }
-    function pct(c,a){ return (a>0)?(Math.round(c/a*1000)/10):0; }
-    var visits = sub(a.visits), signups = sub(a.signups), mrr = sub(a.mrr), churn = sub(a.churn), conv = sub(a.conversion);
-    var leads = a.leads || {};
+    function pct(c,ba){ return (ba>0)?(Math.round(c/ba*1000)/10):0; }
+    function deltaParts(ar){
+      if(ar.length<2) return [null,null];
+      var prev = ar[ar.length-2];
+      if(!prev) return [null,null];
+      var g = Math.round(((ar[ar.length-1]-prev)/prev)*1000)/10;
+      return [Math.abs(g)+"%", g>=0];
+    }
+
+    var n = periodN();
+    var monthly = analyticsFilter==="12m" || (analyticsFilter==="custom" && n>=9);
+
+    var signups=[], revenue=[], requests=[], conv=[], churn=[], bLabels=null, pendingPayments=0;
+    var totals = { active:0, verifiedPercent:0, goldPercent:0, freeToPaid:0, avgRating:0, mrr:0, confirmedAmountTotal:0, pendingAmount:0 };
+    var leads = { phone:0, whatsapp:0, contact:0 };
+    var topServices=[], topCities=[], notes=[];
+    var revenueByPlan=[];
+
+    if(isLive){
+      var months = a.months || [], days = a.days || [];
+      totals = a.totals || totals;
+      leads = a.leads || leads;
+      topServices = a.topServices || [];
+      topCities = a.topCities || [];
+      notes = a.notes || [];
+      revenueByPlan = a.revenueByPlan || [];
+      pendingPayments = totals.pendingPayments || 0;
+      if(monthly){
+        signups = months.map(function(mm){ return mm.signups; });
+        revenue = months.map(function(mm){ return mm.revenue; });
+        requests = months.map(function(mm){ return (mm.signups||0)+(mm.leads||0); });
+        conv = months.map(function(mm){ return mm.conversion; });
+        churn = months.map(function(mm){ return mm.churn; });
+        bLabels = months.map(function(mm){ return mm.label; });
+      } else {
+        var slice = days.slice(-Math.max(1,n));
+        signups = slice.map(function(d){ return d.signups; });
+        revenue = slice.map(function(d){ return d.revenue; });
+        requests = slice.map(function(d){ return d.requests; });
+        bLabels = slice.map(function(d){ return String(d.date||"").slice(5); });
+      }
+    } else {
+      function subArr(ar){ return (ar||[]).slice(-Math.max(1,n)); }
+      requests = subArr(a.visits); signups = subArr(a.signups); revenue = subArr(a.mrr);
+      conv = subArr(a.conversion); churn = subArr(a.churn);
+      leads = a.leads || {}; topServices = a.topServices || []; topCities = a.topCities || [];
+      totals = { active:0, verifiedPercent:a.verifiedPercent||0, goldPercent:a.goldPercent||0, freeToPaid:a.freeToPaid||0, avgRating:a.avgRating||0, mrr:last(subArr(a.mrr)), confirmedAmountTotal:0, pendingAmount:0 };
+    }
     var leadsTotal = (leads.phone||0)+(leads.whatsapp||0)+(leads.contact||0);
+
     var customPicker = (analyticsFilter==="custom")? ('<div class="custom-range" style="display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap">'+
         '<label class="muted">'+T("Du")+' <input type="date" id="anFrom" value="'+esc(analyticsFrom)+'"></label>'+
         '<label class="muted">'+T("Au")+' <input type="date" id="anTo" value="'+esc(analyticsTo)+'"></label>'+
         '<span class="muted" style="font-size:12px">'+T("Période")+' : '+customN+' '+T("mois")+'</span></div>') : "";
+
+    var liveBadge = isLive
+      ? '<span class="badge green" title="'+T("Chiffres calculés depuis la base de données à chaque ouverture")+'">● '+T("Données réelles")+'</span>'
+      : '<span class="badge amber" title="'+T("L'API d'analytiques est indisponible — vue de démonstration, chiffres non réels")+'">⚠ '+T("Démo — API indisponible")+'</span>';
+    var toolbar =
+      '<div class="toolbar" style="margin:6px 0 14px;flex-wrap:wrap;gap:6px">'+liveBadge+
+        '<span class="muted" style="margin-left:10px;font-size:12px">'+T("Actualisées automatiquement toutes les 60 s")+'</span>'+
+        '<span class="spacer"></span>'+
+        '<button class="btn btn-ghost btn-small" data-an="payments">💰 '+T("Paiements")+'</button>'+
+        '<button class="btn btn-ghost btn-small" data-an="billing-history">🧾 '+T("Historique de facturation")+'</button>'+
+        '<button class="btn btn-ghost btn-small" id="anRefresh">🔄 '+T("Actualiser")+'</button>'+
+      '</div>';
+
+    var kpis;
+    if(isLive){
+      var dp1 = deltaParts(signups), dr = deltaParts(revenue);
+      kpis =
+        '<div class="kpi-grid grid-4">'+
+          dashKpi(T("Artisans actifs"), "👷", secara(totals.active), (totals.verifiedPercent||0)+"%", T("vérifiés"), true, "professionals")+
+          dashKpi(T("Inscriptions"), "📝", secara(sum(signups)), dp1[0]||"—", fLbl, dp1[1], "registrations")+
+          dashKpi(T("Demandes de contact"), "📞", secara(leadsTotal), pct(leads.whatsapp||0, leadsTotal||1)+"%", "WhatsApp", true, "match-requests")+
+          dashKpi(T("Revenus confirmés"), "💵", money(totals.confirmedAmountTotal), money(totals.mrr), T("MRR actuel"), true, "billing-history")+
+        '</div>';
+    } else {
+      var dp2 = deltaParts(signups);
+      kpis =
+        '<div class="kpi-grid grid-4">'+
+          kpiCard(T("Utilisateurs"), "👥", secara(sum(signups)), dp2[0]||"—", dp2[1]?"up":"down")+
+          kpiCard(T("Recherches"), "🔍", secara(sum(requests)), "—", "")+
+          kpiCard(T("Demandes de contact"), "📞", secara(sum(requests)), "—", "")+
+          kpiCard("MRR ("+fLbl+")", "💰", secara(last(revenue))+" DH", "—", "")+
+        '</div>';
+    }
+
     var html =
       '<div class="page-head"><h1>'+T("Analytiques")+'</h1><div class="spacer"><div class="tabs" style="border:none;padding:0;margin:0">'+
         ["today","7d","30d","90d","12m","custom"].map(function(f){ return '<button class="tab '+(f===analyticsFilter?"active":"")+'" data-f="'+f+'">'+{"today":T("Aujourd'hui"),"7d":T("7 jours"),"30d":T("30 jours"),"90d":T("90 jours"),"12m":T("12 mois"),"custom":T("Période")}[f]+'</button>'; }).join("")+
       '</div></div></div>' +
+      toolbar +
       customPicker +
-      '<div class="kpi-grid grid-4">'+
-        kpiCard(T("Utilisateurs"), "👥", DATA.getUsers() ? ('' + sum(signups)) : "0", "▲ "+(signups.length>1?Math.round((signups[signups.length-1]-signups[0])/signups[0]*100):8.2)+"%","up") +
-        kpiCard(T("Recherches"), "🔍", secara(sum(visits)),"▲ 18%","up") +
-        kpiCard(T("Demandes de contact"), "📞", secara(sum(signups)*22),"▲ 6%","up") + kpiCard("MRR ("+fLbl+")", "💰", secara(last(mrr))+" DH", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"▲ 9,7%":"▽ 1,2%", (mrr.length>1&&mrr[mrr.length-1]>=mrr[mrr.length-2])?"up":"down") +
+      kpis +
+      '<div class="grid-2" style="margin-top:20px">'+
+        '<div class="card"><div class="card-title">'+T("Activité")+' ('+fLbl+')</div><div class="chart-bars">'+bars(requests, false, bLabels)+'</div></div>'+
+        '<div class="card"><div class="card-title">'+T("Inscriptions")+' ('+fLbl+')</div><div class="chart-bars">'+bars(signups, false, bLabels)+'</div></div>'+
       '</div>' +
       '<div class="grid-2" style="margin-top:20px">'+
-        '<div class="card"><div class="card-title">'+T("Visites")+' ('+fLbl+')</div><div class="chart-bars">'+bars(visits)+'</div></div>'+
-        '<div class="card"><div class="card-title">'+T("Inscriptions")+' ('+fLbl+')</div><div class="chart-bars">'+bars(signups)+'</div></div>'+
-      '</div>' +
-      '<div class="grid-2" style="margin-top:20px">'+
-        '<div class="card"><div class="card-title">MRR ('+T("récurrent mensuel")+') — DH</div><div class="chart-bars">'+bars(mrr)+'</div></div>'+
-        '<div class="card"><div class="card-title">'+T("Taux de conversion")+' (%)</div><div class="chart-bars">'+bars(conv)+'</div></div>'+
+        '<div class="card"><div class="card-title">'+T("Revenus confirmés")+' — MAD ('+fLbl+') <a class="kpi-view" href="#/admin/payments">'+T("Voir paiements →")+'</a></div><div class="chart-bars">'+bars(revenue, false, bLabels)+'</div></div>'+
+        (monthly
+          ? '<div class="card"><div class="card-title">'+T("Taux de conversion")+' (%)</div><div class="chart-bars">'+bars(conv, false, bLabels)+'</div>'+
+            (churn.length?'<div style="margin-top:16px"><div class="card-title">Churn (%)</div><div class="chart-bars">'+bars(churn, false, bLabels)+'</div></div>':"")+'</div>'
+          : '<div class="card"><p class="muted" style="margin:0">'+T("Taux de conversion et churn sont calculés mensuellement — passez à « 12 mois » pour les visualiser.")+'</p></div>')+
       '</div>' +
       '<div class="kpi-grid grid-4" style="margin-top:20px">'+
-        '<div class="kpi"><div class="k-title">'+T("Vérifiés")+'</div><div class="k-val">'+ (a.verifiedPercent||54)+'%</div></div>'+
-        '<div class="kpi"><div class="k-title">GOLD</div><div class="k-val">'+(a.goldPercent||26)+'%</div></div>'+
-        '<div class="kpi"><div class="k-title">'+T("Free → Payant")+'</div><div class="k-val">'+(a.freeToPaid||12.4)+'%</div></div>'+
-        '<div class="kpi"><div class="k-title">'+T("Note moyenne")+'</div><div class="k-val">★ '+(a.avgRating||4.6)+'</div></div>'+
+        '<div class="kpi"><div class="k-title">'+T("Vérifiés")+'</div><div class="k-val">'+ (totals.verifiedPercent||0)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">GOLD</div><div class="k-val">'+(totals.goldPercent||0)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">'+T("Free → Payant")+'</div><div class="k-val">'+(totals.freeToPaid||0)+'%</div></div>'+
+        '<div class="kpi"><div class="k-title">'+T("Note moyenne")+'</div><div class="k-val">★ '+(isLive ? (totals.avgRating||"—") : (totals.avgRating||0))+'</div></div>'+
       '</div>' +
       '<div class="grid-3" style="margin-top:20px;align-items:start">'+
-        '<div class="card"><div class="card-title">'+T("Top services")+'</div>' + (a.topServices||[]).map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
-        '<div class="card"><div class="card-title">'+T("Top villes")+'</div>' + (a.topCities||[]).map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s)+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") + '</div>'+
+        '<div class="card"><div class="card-title">'+T("Top services")+'</div>' + (topServices.length? topServices.map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s).replace(/_/g," ")+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") : '<p class="muted" style="margin:0">'+T("Aucun artisan actif.")+'</p>') + '</div>'+
+        '<div class="card"><div class="card-title">'+T("Top villes")+'</div>' + (topCities.length? topCities.map(function(s,i){ return '<div class="row-item"><div class="grow">'+esc(s).replace(/_/g," ")+'</div><span class="muted">#'+(i+1)+'</span></div>'; }).join("") : '<p class="muted" style="margin:0">'+T("Aucun artisan actif.")+'</p>') + '</div>'+
         '<div class="card"><div class="card-title">'+T("Sources de leads")+'</div>'+
-          '<div class="row-item"><div class="grow">📞 '+T("Téléphone")+'</div><span class="muted">'+secara(leads.phone||0)+' ('+pct(leads.phone||0,leadsTotal)+'%)</span></div>'+
-          '<div class="row-item"><div class="grow">💬 WhatsApp</div><span class="muted">'+secara(leads.whatsapp||0)+' ('+pct(leads.whatsapp||0,leadsTotal)+'%)</span></div>'+
-          '<div class="row-item"><div class="grow">📨 '+T("Formulaire")+'</div><span class="muted">'+secara(leads.contact||0)+' ('+pct(leads.contact||0,leadsTotal)+'%)</span></div>'+
+          '<div class="row-item"><div class="grow">📞 '+T("Téléphone")+'</div><span class="muted">'+secara(leads.phone||0)+' ('+pct(leads.phone||0,leadsTotal||1)+'%)</span></div>'+
+          '<div class="row-item"><div class="grow">💬 WhatsApp</div><span class="muted">'+secara(leads.whatsapp||0)+' ('+pct(leads.whatsapp||0,leadsTotal||1)+'%)</span></div>'+
+          '<div class="row-item"><div class="grow">📨 '+T("Formulaire")+'</div><span class="muted">'+secara(leads.contact||0)+' ('+pct(leads.contact||0,leadsTotal||1)+'%)</span></div>'+
         '</div>'+
       '</div>' +
       '<div class="grid-2" style="margin-top:20px;align-items:start">'+
-        '<div class="card"><div class="card-title">Churn (%)</div><div class="chart-bars">'+bars(churn)+'</div></div>'+
-        '<div class="card"><div class="card-title">'+T("Recherches sans résultat")+'</div>' + bars(sub(a.failedSearches)) + '</div>'+
-      '</div>';
+        '<div class="card"><div class="card-title">'+T("Revenus confirmés par plan")+'</div>'+
+          (revenueByPlan.length? revenueByPlan.map(function(r){ return '<div class="row-item"><div class="grow">'+esc(r.planName||"—")+'</div><span class="muted">'+secara(r.count)+' · '+money(r.amount)+'</span></div>'; }).join("") : '<p class="muted" style="margin:0">'+T("Aucun paiement confirmé.")+'</p>')+
+        '</div>'+
+        '<div class="card"><div class="card-title">'+T("Paiements")+' <a class="kpi-view" href="#/admin/payments">'+T("Voir →")+'</a></div>'+
+          '<div class="row-item"><div class="grow">'+T("En attente de confirmation")+'</div><span class="muted">'+secara(pendingPayments)+' · '+money(totals.pendingAmount)+'</span></div>'+
+          '<div class="row-item"><div class="grow">'+T("Revenus totaux confirmés")+'</div><span class="muted">'+money(totals.confirmedAmountTotal)+'</span></div>'+
+          '<a class="kpi-view" href="#/admin/billing-history">🧾 '+T("Historique de facturation →")+'</a>'+
+        '</div>'+
+      '</div>' +
+      (notes.length ? '<p class="muted" style="font-size:11px;margin-top:14px;max-width:720px">'+notes.map(function(x){ return '• '+esc(x); }).join('<br>')+'</p>' : "");
     UI.setContent(html);
+
     document.querySelectorAll(".tab[data-f]").forEach(function(t){ t.addEventListener("click", function(){ analyticsFilter=t.dataset.f; renderAnalytics(); }); });
     var df=document.getElementById("anFrom"), dt=document.getElementById("anTo");
     if(df) df.addEventListener("change", function(){ analyticsFrom=df.value; renderAnalytics(); });
     if(dt) dt.addEventListener("change", function(){ analyticsTo=dt.value; renderAnalytics(); });
+    document.querySelectorAll("[data-an]").forEach(function(b){ b.addEventListener("click", function(){ ROUTER.navigate(b.dataset.an); }); });
+    var rf=document.getElementById("anRefresh");
+    if(rf) rf.addEventListener("click", function(){
+      var old = rf.innerHTML;
+      rf.disabled = true; rf.innerHTML = T("Actualisation…");
+      DATA.fetchAnalytics().then(function(res){
+        if(!res || !res.data) { UI.toast(T("Analytiques indisponibles : API non joignable."), true); return; }
+        renderAnalytics();
+      }).catch(function(err){
+        UI.toast((window.proFriendlyError && proFriendlyError(err)) || T("Échec de l'actualisation des analytiques."), true);
+      }).finally(function(){
+        if(rf && rf.isConnected){ rf.disabled = false; rf.innerHTML = old; }
+      });
+    });
+
+    // Self-refresh every 60s while the Analytics page is open (dynamic data).
+    clearTimeout(window.__anTimer);
+    window.__anTimer = setTimeout(function(){
+      if(!document.getElementById("anRefresh")) return;
+      DATA.fetchAnalytics().then(function(){
+        if(document.getElementById("anRefresh")) renderAnalytics();
+      }).catch(function(){});
+    }, 60000);
   }
-  function bars(data, acc){
+  function bars(data, acc, labels){
     var m = Math.max.apply(null, data) || 1;
     return data.map(function(v,i){
-      return '<div class="bar"><div class="b '+(acc?"acc":"")+'" style="height:'+Math.round(v/m*100)+'%"></div><div class="b-val">'+v+'</div><div class="b-lbl">'+MONTHS[i%12]+'</div></div>';
+      var lbl = (labels && labels[i]) ? labels[i] : MONTHS[i%12];
+      return '<div class="bar"><div class="b '+(acc?"acc":"")+'" style="height:'+Math.round(v/m*100)+'%"></div><div class="b-val">'+v+'</div><div class="b-lbl">'+esc(String(lbl))+'</div></div>';
     }).join("");
   }
 
@@ -3264,14 +3719,20 @@
   var notifFilter = "all";
   // Dirty flag guarding unsaved Settings changes (see renderSettings).
   var settingsDirty = false;
+  // Ensures the Admin Users view fetches the live backend list exactly once
+  // (the fetch-triggered re-render must not loop).
+  var adminUsersLiveFetched = false;
   // Currently rendered view id, used by the navigation guard to detect
   // leaving the Settings page with unsaved changes.
   var currentView = "";
   function renderNotifications(initialFilter){
+    var live = global.Sna3tiNotificationsLive;
+    var ready = !!(live && live.isReady());
+    if(live && !ready){ live.refresh().then(function(){ renderNotifications(initialFilter); }); return; }
     UI.setTitle(T("Notifications"));
     var valid = { all:1, payment:1, verification:1, sub:1, report:1, review:1, system:1, support:1, unread:1, read:1 };
     if(initialFilter && valid[initialFilter]) notifFilter = initialFilter;
-    var list = DATA.getNotifications();
+    var list = ready ? live.list() : DATA.getNotifications();
     var byCat = function(c){ return list.filter(function(n){ var t=n.type||n.cat||n.ico; return t===c || (c==="sub"&&t==="subscription"); }); };
     var cats = { all:T("Toutes"), payment:T("Paiement"), verification:T("Vérification"), sub:T("Abonnement"), report:T("Signalement"), review:T("Avis"), system:T("Système"), support:T("Support") };
     var catOrder = ["payment","verification","sub","report","review","system","support"];
@@ -3297,8 +3758,18 @@
       '</div>');
     document.querySelectorAll(".tab[data-nf]").forEach(function(t){ t.addEventListener("click", function(){ notifFilter=t.dataset.nf; renderNotifications(); }); });
     document.querySelectorAll("[data-nav]").forEach(function(row){ row.addEventListener("click", function(ev){ if(ev.target.closest("[data-readone]")) return; var r=row.dataset.nav; if(r) ROUTER.navigate(r); }); });
-    document.querySelectorAll("[data-readone]").forEach(function(btn){ btn.addEventListener("click", function(){ DATA.markNotificationRead(btn.dataset.readone); UI.toast(T("Notification lue.")); renderNotifications(); }); });
-    var ma = document.getElementById("markAll"); if(ma) ma.addEventListener("click", function(){ DATA.markNotificationsRead(); UI.toast(T("Toutes les notifications lues.")); renderNotifications(); });
+    document.querySelectorAll("[data-readone]").forEach(function(btn){ btn.addEventListener("click", function(){ markOneRead(btn.dataset.readone); UI.toast(T("Notification lue.")); }); });
+    var ma = document.getElementById("markAll"); if(ma) ma.addEventListener("click", function(){ markAllRead(); UI.toast(T("Toutes les notifications lues.")); });
+  }
+  function markOneRead(id){
+    var live = global.Sna3tiNotificationsLive;
+    if(live && live.isReady()){ live.markRead(id).then(renderNotifications); }
+    else { DATA.markNotificationRead(id); renderNotifications(); }
+  }
+  function markAllRead(){
+    var live = global.Sna3tiNotificationsLive;
+    if(live && live.isReady()){ live.markAllRead().then(renderNotifications); }
+    else { DATA.markNotificationsRead(); renderNotifications(); }
   }
   function notifIcon(k){ var m={ payment:"💰", verification:"✅", sub:"📦", subscription:"📦", report:"🚩", review:"⭐", support:"🎧", search:"🔍", view:"👁️", contact:"🤝", system:"🔔" }; return m[k]||"🔔"; }
 
@@ -3357,6 +3828,20 @@
           rule(T("Confirmation du paiement requise avant activation."))+
         '</div></div>' +
       '</div>' +
+      (AUTH.can("adminUsers","update") ?
+      '<div class="card" style="margin-top:16px"><div class="card-title">'+T("Gestion des accès admin")+'</div>'+
+        '<p class="muted" style="font-size:13px;margin-top:6px;line-height:1.6">'+T("Assignez un email à un collaborateur et générez un mot de passe pour lui accorder l'accès. Seul un administrateur peut modifier les emails et les mots de passe.")+'</p>'+
+        '<div class="frm" style="margin-top:12px"><button class="btn btn-primary" id="adAccAdd">+ '+T("Ajouter un compte")+'</button></div>'+
+        '<div id="adAccWrap" style="margin-top:14px"></div>'+
+      '</div>' : "") +
+      '<div class="card" style="margin-top:16px"><div class="card-title">'+T("Sécurité — changer le mot de passe")+'</div>'+
+        '<div class="frm" style="margin-top:14px">'+
+          '<div class="frm"><label>'+T("Email du compte")+'</label><input id="cpEmail" type="email" value="'+esc(AUTH.getSession() && AUTH.getSession().email ? AUTH.getSession().email : "")+'" disabled></div>'+
+          '<div class="frm"><label>'+T("Mot de passe actuel")+'</label><input id="cpCurrent" type="password" autocomplete="current-password"></div>'+
+          '<div class="frm"><label>'+T("Nouveau mot de passe")+'</label><input id="cpNew" type="password" autocomplete="new-password" placeholder="'+T("Min. 8 caractères")+'"></div>'+
+          '<div class="frm"><label>'+T("Confirmer le nouveau mot de passe")+'</label><input id="cpNew2" type="password" autocomplete="new-password"></div>'+
+          '<div class="frm" style="margin-top:12px"><button class="btn btn-primary" id="cpSave">'+T("Changer le mot de passe")+'</button></div>'+
+        '</div></div>' +
       '<div class="card" style="margin-top:16px"><div class="card-title">'+T("Prototype — stockage et authentification")+'</div>'+
         '<p class="muted" style="font-size:13px;line-height:1.6">'+T("Les données de démonstration sont stockées localement dans votre navigateur (localStorage) et les rôles / l'authentification sont simulés. Ce prototype n'implémente aucune sécurité de production : aucun serveur, aucune base de données réelle, aucun chiffrement réel. La couche de données est conçue pour être raccordée ultérieurement à une API backend et à une base de données PostgreSQL.")+'</p></div>';
     UI.setContent(html);
@@ -3398,6 +3883,41 @@
         UI.toast(T("Réglages réinitialisés."));
       }});
     });
+    // Security — change the current admin's own password.
+    var cp = document.getElementById("cpSave"); if(cp) cp.addEventListener("click", function(){
+      var cur = document.getElementById("cpCurrent").value;
+      var n1 = document.getElementById("cpNew").value;
+      var n2 = document.getElementById("cpNew2").value;
+      if(!cur){ UI.toast(T("Veuillez saisir votre mot de passe actuel."), true); return; }
+      if(!n1){ UI.toast(T("Veuillez saisir un nouveau mot de passe."), true); return; }
+      if(n1.length < 8){ UI.toast(T("Le nouveau mot de passe doit contenir au moins 8 caractères."), true); return; }
+      if(n1 !== n2){ UI.toast(T("Les mots de passe ne correspondent pas."), true); return; }
+      var sess = AUTH.getSession(); if(!sess || !sess.adminId){ UI.toast(T("Session invalide. Reconnectez-vous."), true); return; }
+      cp.disabled = true;
+      DATA.changeMyPassword(sess.adminId, { currentPassword: cur, password: n1 })
+        .then(function(res){
+          cp.disabled = false;
+          document.getElementById("cpCurrent").value = "";
+          document.getElementById("cpNew").value = "";
+          document.getElementById("cpNew2").value = "";
+          DATA.logAudit({admin:sess.name, action:"ADMIN_PASSWORD_CHANGED", entity:"AdminUser", entityId:sess.adminId, result:"Updated"});
+          UI.toast(res && res.live ? T("Mot de passe changé avec succès.") : T("Mot de passe mis à jour (démo)."));
+        })
+        .catch(function(err){
+          cp.disabled = false;
+          UI.toast((err && err.message) || T("Changement de mot de passe impossible."), true);
+        });
+    });
+    // Admin access management — create/edit admin accounts (email + password).
+    var accAdd = document.getElementById("adAccAdd");
+    if(accAdd){
+      accAdd.addEventListener("click", function(){ editAdminUser(null); });
+      renderAdminAccess();
+      DATA.fetchAdminUsers().then(function(){
+        var wrap = document.getElementById("adAccWrap");
+        if(wrap) renderAdminAccess();
+      }).catch(function(){});
+    }
   }
   function rule(t){ return '<div class="feed-item"><div class="feed-dot teal"></div><div class="f-txt">'+esc(t)+'</div></div>'; }
 
@@ -3538,32 +4058,94 @@
       document.querySelectorAll("[data-editau]").forEach(function(b){ b.addEventListener("click", function(){ editAdminUser(b.dataset.editau); }); });
       document.getElementById("auAdd").addEventListener("click", function(){ editAdminUser(null); });
     }
+    // Live (async): authoritative admin list replaces the demo when available.
+    // Guarded so the fetch-triggered re-render never re-fetches in a loop.
+    if(!adminUsersLiveFetched){
+      adminUsersLiveFetched = true;
+      DATA.fetchAdminUsers().then(function(){
+        renderAdminUsers();
+      }).catch(function(){});
+    }
   }
+  // Generates a strong random password (>=14 chars, upper/lower/digit/symbol).
+  function generatePassword(len){
+    len = len || 14;
+    var lower="abcdefghjkmnpqrstuvwxyz", upper="ABCDEFGHJKMNPQRSTUVWXYZ", digits="23456789", special="!@#$%&*_+-=";
+    var all = lower+upper+digits+special;
+    var res = [lower,upper,digits,special].map(function(s){ return s[Math.floor(Math.random()*s.length)]; });
+    while(res.length<len){ res.push(all[Math.floor(Math.random()*all.length)]); }
+    for(var i=res.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=res[i]; res[i]=res[j]; res[j]=t; }
+    return res.join("");
+  }
+
+  // Renders just the admin-access table used inside the Settings page.
+  function renderAdminAccess(){
+    var wrap = document.getElementById("adAccWrap"); if(!wrap) return;
+    var users = DATA.getAdminUsers();
+    wrap.innerHTML = '<div class="table-wrap"><table><thead><tr><th>'+T("Nom")+'</th><th>Email</th><th>'+T("Rôle")+'</th><th>'+T("Statut")+'</th><th></th></tr></thead><tbody>'+
+      users.map(function(u){
+        var rl = AUTH.roles[u.role] || { label:u.role, color:"gray" };
+        return '<tr><td><div class="pro"><div class="p-avatar">'+initials(u.name)+'</div><div class="pro-name">'+esc(u.name)+'</div></div></td><td>'+esc(u.email)+'</td>'+
+          '<td><span class="badge '+rl.color+'">'+esc(rl.label)+'</span></td><td>'+userStatusBadge(u.status)+'</td>'+
+          '<td class="actions-cell"><button class="icon-act" data-sedacc="'+esc(u.id)+'" title="'+T("Modifier l'email ou le mot de passe")+'">✏️</button></td></tr>';
+      }).join("")+'</tbody></table></div>';
+    if(AUTH.can("adminUsers","update")){
+      wrap.querySelectorAll("[data-sedacc]").forEach(function(b){ b.addEventListener("click", function(){ editAdminUser(b.dataset.sedacc); }); });
+    }
+  }
+
   function editAdminUser(id){
     var u = id ? DATA.getAdminUsers().find(function(x){ return x.id===id; }) : { id:null, name:"", email:"", role:"moderator" };
     UI.openModal('<h3>'+(id?T("Modifier"):T("Ajouter"))+' admin</h3><div class="frm">'+
       '<div class="frm"><label>'+T("Nom")+'</label><input id="auName" value="'+esc(u.name)+'"></div>'+
-      '<div class="frm"><label>Email</label><input id="auEmail" value="'+esc(u.email)+'"></div>'+
+      '<div class="frm"><label>Email</label><input id="auEmail" type="email" value="'+esc(u.email)+'"></div>'+
       '<div class="frm"><label>'+T("Rôle")+'</label><select id="auRole">'+Object.keys(AUTH.roles).map(function(r){ return '<option value="'+r+'" '+(u.role===r?"selected":"")+'>'+esc(AUTH.roles[r].label)+'</option>'; }).join("")+'</select></div>'+
+      (id?'':'<div class="frm"><label>'+T("Mot de passe")+' *</label><div class="pw-wrap"><input id="auPass" type="password" autocomplete="new-password" placeholder="'+T("Min. 8 caractères")+'"><button type="button" class="btn btn-soft btn-small" id="auGen" title="'+T("Générer un mot de passe sécurisé")+'">🎲 '+T("Générer")+'</button></div></div>'+
+        '<div class="frm"><label>'+T("Confirmer le mot de passe")+'</label><input id="auPass2" type="password" autocomplete="new-password"></div>')+
+      (id?'<div class="frm" style="margin-top:8px"><label class="muted" style="font-size:12px">'+T("Réinitialiser le mot de passe ? Laissez vide pour conserver.")+'</label><div class="pw-wrap"><input id="auPass" type="password" autocomplete="new-password" placeholder="'+T("Nouveau mot de passe (min. 8)")+'"><button type="button" class="btn btn-soft btn-small" id="auGen" title="'+T("Générer un mot de passe sécurisé")+'">🎲 '+T("Générer")+'</button></div></div>':"")+
       '</div><div class="modal-actions"><button class="btn btn-ghost" onclick="window.Sna3tiUI.closeModal()">'+T("Annuler")+'</button><button class="btn btn-primary" id="auSave">'+T("Enregistrer")+'</button></div>');
+    var gen = document.getElementById("auGen");
+    if(gen) gen.addEventListener("click", function(){
+      var g = generatePassword();
+      var p1 = document.getElementById("auPass"); p1.value = g;
+      var p2 = document.getElementById("auPass2"); if(p2) p2.value = g;
+    });
     document.getElementById("auSave").addEventListener("click", function(){
       var d={ name:document.getElementById("auName").value, email:document.getElementById("auEmail").value, role:document.getElementById("auRole").value };
-      var isNew = false;
-      var savedId = id;
-      if(id){ DATA.updateAdminUser(id, d); }
-      else { var na = DATA.addAdminUser(d); isNew = true; savedId = na.id; }
-      DATA.logAudit({admin:AUTH.getSession().name, action: isNew?"ADMIN_USER_CREATED":"ADMIN_USER_UPDATED", entity:"AdminUser", entityId:savedId, result:"Updated"});
-      UI.toast(T("Admin enregistré.")); UI.closeModal(); renderAdminUsers();
+      var auPass = document.getElementById("auPass");
+      if(auPass){
+        var p = auPass.value || "";
+        var p2 = document.getElementById("auPass2") ? document.getElementById("auPass2").value : p;
+        if(p !== p2){ UI.toast(T("Les mots de passe ne correspondent pas."), true); return; }
+        if(p && p.length < 8){ UI.toast(T("Mot de passe trop court (≥ 8 caractères)."), true); return; }
+        if(p) d.password = p;
+      }
+      if(!d.name || !d.email){ UI.toast(T("Nom et email sont requis."), true); return; }
+      var r, isNew = false, savedId = id;
+      if(id){ r = DATA.updateAdminUser(id, d); }
+      else {
+        if(!d.password){ UI.toast(T("Un mot de passe est requis pour un nouvel admin."), true); return; }
+        r = DATA.addAdminUser(d); isNew = true; savedId = (r && r.id) || savedId;
+      }
+      var done = function(){
+        DATA.logAudit({admin:AUTH.getSession().name, action: isNew?"ADMIN_USER_CREATED":"ADMIN_USER_UPDATE_PASSWORD", entity:"AdminUser", entityId:savedId, result:"Updated"});
+        UI.toast(T("Admin enregistré.")); UI.closeModal();
+        if(document.getElementById("adAccWrap")){ renderAdminAccess(); } else { renderAdminUsers(); }
+      };
+      if(r && r.then){ r.then(function(){ done(); }).catch(function(err){ UI.toast((err && err.message) || T("Enregistrement impossible."), true); }); }
+      else { done(); }
     });
   }
 
   function renderAuditLogs(){
     UI.setTitle(T("Audit Logs"));
-    var logs = DATA.getAuditLogs();
-    UI.setContent('<div class="page-head"><h1>Audit Logs</h1><div class="spacer">'+(AUTH.can("auditLogs","export")?'<button class="btn btn-ghost" id="auExport">⬇ '+T("Exporter")+'</button>':"")+'</div></div>' +
+    var canDelete = AUTH.can("auditLogs","delete");
+    UI.setContent('<div class="page-head"><h1>Audit Logs</h1><div class="spacer">'+(AUTH.can("auditLogs","export")?'<button class="btn btn-ghost" id="auExport">⬇ '+T("Exporter")+'</button>':"")+
+      (canDelete?'<button class="btn btn-ghost btn-danger" id="auClearAll" style="margin-left:8px">🗑 '+T("Supprimer tout")+'</button>':"")+'</div></div>' +
       '<div class="card"><div class="toolbar"><div class="field"><label>'+T("Recherche")+'</label><input type="search" id="auQ" placeholder="'+T("Action, admin, entité, ID...")+'"></div>'+
         '<div class="field"><label>'+T("Résultat")+'</label><select id="auRes"><option value="">'+T("Tous")+'</option><option>Success</option><option>Approved</option><option>Rejected</option><option>Flagged</option><option>Updated</option></select></div></div>'+
-      '<div class="table-wrap"><table><thead><tr><th>'+T("Horodatage")+'</th><th>Admin</th><th>'+T("Action")+'</th><th>'+T("Entité")+'</th><th>ID</th><th>'+T("Résultat")+'</th><th>'+T("Note")+'</th></tr></thead><tbody id="auBody"></tbody></table></div></div>');
+      '<div class="table-wrap"><table><thead><tr><th>'+T("Horodatage")+'</th><th>Admin</th><th>'+T("Action")+'</th><th>'+T("Entité")+'</th><th>ID</th><th>'+T("Résultat")+'</th><th>'+T("Note")+'</th>'+(canDelete?'<th>'+T("Actions")+'</th>':"")+'</tr></thead><tbody id="auBody"></tbody></table></div></div>');
+    var logs = DATA.getAuditLogs();
     function auditFiltered(){
       var q=(document.getElementById("auQ").value||"").toLowerCase();
       var rs=document.getElementById("auRes").value;
@@ -3572,16 +4154,44 @@
     function drawAudit(){
       var rows=auditFiltered();
       document.getElementById("auBody").innerHTML = rows.length ? rows.map(function(l){ return '<tr><td>'+esc(l.timestamp)+'</td><td>'+esc(l.admin)+'</td><td><code>'+esc(l.action)+'</code></td><td>'+esc(l.entity)+'</td><td>'+esc(l.entityId)+(l.prev?'<div class="muted">'+esc(l.prev)+' → '+esc(l.next)+'</div>':"")+'</td>'+
-        '<td><span class="badge '+(String(l.result).toLowerCase()==="success"||String(l.result).toLowerCase()==="approved"||String(l.result).toLowerCase()==="confirmed"?"green":"amber")+'">'+esc(l.result)+'</span></td><td class="muted">'+esc(l.note||"—")+'</td></tr>'; }).join("")
-        : '<tr><td colspan="7"><div class="empty">'+T("Aucun résultat.")+'</div></td></tr>';
+        '<td><span class="badge '+(String(l.result).toLowerCase()==="success"||String(l.result).toLowerCase()==="approved"||String(l.result).toLowerCase()==="confirmed"?"green":"amber")+'">'+esc(l.result)+'</span></td><td class="muted">'+esc(l.note||"—")+'</td>'+
+        (canDelete?'<td><button class="btn btn-ghost btn-danger" data-audel="'+esc(l.id)+'">🗑 '+T("Supprimer")+'</button></td>':"")+'</tr>'; }).join("")
+        : '<tr><td colspan="'+(canDelete?8:7)+'"><div class="empty">'+T("Aucun résultat.")+'</div></td></tr>';
     }
+    document.getElementById("auBody").addEventListener("click", function(ev){
+      var btn = ev.target && ev.target.closest ? ev.target.closest("[data-audel]") : null;
+      if(!btn) return;
+      var id = btn.dataset.audel;
+      UI.confirmAction({title:T("Supprimer cet enregistrement ?"), message:T("Cette entrée sera définitivement retirée de l'historique d'audit."), confirmLabel:T("Supprimer"), onConfirm:function(){
+        var r = DATA.deleteAuditLog(id);
+        var done = function(){ DATA.logAudit({admin:AUTH.getSession().name, action:"AUDIT_LOG_DELETED", entity:"AuditLog", entityId:id, result:"Deleted"}); UI.toast(T("Entrée supprimée.")); logs = DATA.getAuditLogs(); drawAudit(); };
+        if(r && r.then){ r.then(done).catch(function(err){ UI.toast((err && err.message) || T("Suppression impossible."), true); }); }
+        else if(r){ done(); }
+        else { UI.toast(T("Entrée introuvable."), true); }
+      }});
+    });
     document.getElementById("auQ").addEventListener("input", UI.debounce(drawAudit, 220));
     document.getElementById("auRes").addEventListener("change", drawAudit);
     drawAudit();
+    var clearAll = document.getElementById("auClearAll");
+    if(clearAll) clearAll.addEventListener("click", function(){
+      var total = DATA.getAuditLogs().length;
+      if(!total){ UI.toast(T("Aucun enregistrement à supprimer."), true); return; }
+      UI.confirmAction({title:T("Supprimer tout l'historique ?"), message:T("L'intégralité des "+total+" enregistrements d'audit sera définitivement effacée. Cette action est irréversible."), confirmLabel:T("Supprimer tout"), onConfirm:function(){
+        var r = DATA.deleteAllAuditLogs();
+        var done = function(){ DATA.logAudit({admin:AUTH.getSession().name, action:"AUDIT_LOGS_CLEARED", entity:"AuditLog", result:"Cleared"}); UI.toast(T("Historique d'audit vidé.")); logs = DATA.getAuditLogs(); drawAudit(); };
+        if(r && r.then){ r.then(done).catch(function(err){ UI.toast((err && err.message) || T("Suppression impossible."), true); }); }
+        else if(r){ done(); }
+      }});
+    });
     var ex = document.getElementById("auExport"); if(ex) ex.addEventListener("click", function(){
       var rows=[[T("Timestamp"),"Admin","Action",T("Entité"),"ID",T("Résultat"),T("Note")]]; auditFiltered().forEach(function(l){ rows.push([l.timestamp,l.admin,l.action,l.entity,l.entityId,l.result,l.note||""]); });
       UI.exportCSV("audit-logs-sna3ti.csv", rows); UI.toast(T("Export généré."));
     });
+    // Live (async): when API is present, authoritative list replaces the demo.
+    DATA.fetchAuditLogs().then(function(){
+      logs = DATA.getAuditLogs(); drawAudit();
+    }).catch(function(){});
   }
 
   /* ============================================================
@@ -3601,7 +4211,7 @@
      ============================================================ */
   function dispatch(route){
     if(route.route.view === "login"){ renderLogin(); return; }
-    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : (route.route.view === "registrationDetail" ? "registrations" : route.route.view)));
+    UI.setActiveNav(route.route.view === "professionalDetail" ? "professionals" : (route.route.view === "paymentDetail" ? "payments" : (route.route.view === "registrationDetail" ? "registrations" : (route.route.view === "billingHistory" ? "billing-history" : route.route.view))));
     currentView = route.route.view;
     try {
     switch(route.route.view){
@@ -3609,7 +4219,7 @@
       case "professionals": renderProfessionals(route.query||{}); break;
       case "professionalDetail": renderProfessionalDetail(route.params.id, route.query||{}); break;
       case "users": renderUsers(); break;
-      case "verification": renderVerification((route.query||{}).status || "all"); break;
+      case "verification": ROUTER.navigate("registrations"); break;
       case "registrations": renderRegistrations((route.query||{}).status || "all"); if(route.params && route.params.id){ setTimeout(function(){ openRegistrationDetail(route.params.id); }, 350); } break;
       case "registrationDetail": renderRegistrations((route.query||{}).status || "all"); setTimeout(function(){ openRegistrationDetail(route.params.id); }, 350); break;
       case "categories": renderCategories(); break;
@@ -3621,6 +4231,7 @@
       case "subscriptions": renderSubscriptions(); break;
       case "payments": renderPayments((route.query||{}).status || "all"); break;
       case "paymentDetail": renderPaymentDetail(route.params.id); break;
+      case "billingHistory": renderBillingHistory(route.query||{}); break;
       case "analytics": renderAnalytics(); break;
       case "ai": renderAI(); break;
       case "notifications": renderNotifications((route.query||{}).filter || ""); break;
@@ -3669,6 +4280,9 @@
       });
     }
     UI.afterShell();
+    // Pre-populate the live reviews cache so detail views / tab counts read
+    // the real backend list, not the demo store. Non-blocking.
+    DATA.fetchReviews().catch(function(){});
     // Update sidebar/nav pills occasionally
     setInterval(function(){ try{ UI.updatePills && global.Sna3tiUI.updatePills(); }catch(e){} }, 15000);
   }

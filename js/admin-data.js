@@ -37,11 +37,25 @@
   // ("professionalRequests.view"); approve/reject via the authenticated
   // decision endpoints (transition rules are enforced server-side).
   var ProReqApi = global.Sna3tiProfessionalRequestsApi || null;
+  // REQ 58: billing-history API (loaded before admin-data.js). BillingTransaction
+  // is an immutable append-only ledger — this module is READ-ONLY.
+  var BillApi = global.Sna3tiBillingApi || null;
 
   // REQ 52: pure idempotency helper — true when a payment is already in a
   // terminal state and should not be re-processed (used to mirror the backend
   // 409 guard in the read model; the backend remains authoritative).
   function isPayTerminal(status){ return status === "confirmed" || status === "rejected"; }
+
+  // REQ 53: media usage counters from a media array (backend or mock records).
+  function usageFrom(media){
+    var arr = Array.isArray(media) ? media : [];
+    return {
+      profileCount: arr.filter(function(m){ return m.kind==="profile"; }).length,
+      echantillonPhotos: arr.filter(function(m){ return m.kind==="echantillon" && m.type==="photo"; }).length,
+      echantillonVideos: arr.filter(function(m){ return m.kind==="echantillon" && m.type==="video"; }).length,
+      echantillonTotal: arr.filter(function(m){ return m.kind==="echantillon"; }).length
+    };
+  }
 
   /* ---------- Roles & permissions (RBAC) ---------- */
   // NOTE: For prototype only. Production authorization MUST be
@@ -65,7 +79,7 @@
     settings: ["read", "update"],
     legal: ["read", "update"],
     adminUsers: ["read", "update"],
-    auditLogs: ["read", "export"],
+    auditLogs: ["read", "export", "delete"],
     matchRequests: ["read", "update"],
     professionalRequests: ["read", "approve", "reject"]
   };
@@ -74,12 +88,12 @@
     "super_admin": {
       label: T("Super Admin"),
       color: "purple",
-      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export"], matchRequests:["read","update"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend","delete"], professionals:["read","update","verify","suspend","activate","delete"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve","warn","suspend"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","export","delete"], matchRequests:["read","update"] }
     },
     "admin": {
       label: T("Admin"),
       color: "teal",
-      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read"], auditLogs:["read"], matchRequests:["read","update"] }
+      permissions: { dashboard:["read"], users:["read","update","suspend"], professionals:["read","update","verify","suspend","activate"], verification:["read","approve","reject"], professionalRequests:["read","approve","reject"], reviews:["read","moderate","delete"], reports:["read","resolve"], support:["read","update","assign"], categories:["read","update"], cities:["read","update"], subscriptions:["read","update"], payments:["read","approve","reject"], analytics:["read"], ai:["read"], notifications:["read","send"], settings:["read","update"], legal:["read","update"], adminUsers:["read","update"], auditLogs:["read","delete"], matchRequests:["read","update"] }
     },
     "moderator": {
       label: T("Moderator"),
@@ -366,7 +380,7 @@
   ];
 
   var NOTIFICATIONS = [
-    { id:"NT-1", type:"verification", text:T("3 demandes de vérification en attente"), when:T("il y a 5 min"), unread:true, route:"verification" },
+    { id:"NT-1", type:"registration", text:T("3 demandes d'inscription en attente"), when:T("il y a 5 min"), unread:true, route:"registrations" },
     { id:"NT-2", type:"payment", text:T("Paiement confirmé SNA3TI-48291"), when:T("il y a 18 min"), unread:true, route:"payments/PAY-7001" },
     { id:"NT-3", type:"report", text:T("Nouveau signalement: PRO-10297"), when:T("il y a 24 min"), unread:true, route:"reports" },
     { id:"NT-4", type:"report", text:T("Avis signalé: RV-305"), when:T("il y a 30 min"), unread:false, route:"reviews" },
@@ -601,6 +615,14 @@
         var raw = localStorage.getItem("sna3ti_admin_"+k);
         if(raw){ var arr = JSON.parse(raw); store[k] = arr; }
       });
+      // Purge any password material that could have been persisted historically.
+      if(Array.isArray(store.adminUsers)){
+        store.adminUsers.forEach(function(u){
+          if(!u) return;
+          delete u.password; delete u.currentPassword; delete u.passwordHash; delete u.hash;
+        });
+        persist();
+      }
       CONFIG = store.config; // keep CONFIG reference in sync after hydrate
     } catch(e){}
   }
@@ -679,6 +701,8 @@
     if (remote.languages && Array.isArray(remote.languages)) out.languages = remote.languages;
     if (remote.services && Array.isArray(remote.services)) out.services = remote.services;
     if (remote.media && Array.isArray(remote.media)) out.portfolio = remote.media;
+    if (remote.media && Array.isArray(remote.media)) out.media = remote.media;
+    if (remote.mediaCount !== undefined) out.mediaCount = remote.mediaCount;
     return out;
   }
 
@@ -731,6 +755,35 @@
       startedAt: startedAt || "",
       expiresAt: expiresAt || "",
       activeAt: remote.activeAt || ""
+    };
+  }
+
+  // REQ 58: normalize a backend billing-transaction record into the UI shape.
+  // BillingTransaction is the immutable paid-period ledger — amounts, currency,
+  // periods and references pass through verbatim (never invented, never edited).
+  // Opaque BT-xxxxx ids pass through untouched.
+  function mapBillingTransaction(remote) {
+    if (!remote) return null;
+    var periodStart = remote.periodStartAt || "";
+    var periodEnd = remote.periodEndAt || "";
+    return {
+      id: remote.id,
+      type: remote.type || "activation",
+      professionalId: remote.professionalId,
+      paymentId: remote.paymentId || null,
+      subscriptionId: remote.subscriptionId || "",
+      planId: remote.planId || null,
+      planName: remote.planName || "",
+      amount: remote.amount,
+      currency: remote.currency || "MAD",
+      periodStart: String(periodStart).slice ? String(periodStart).slice(0, 10) : periodStart,
+      periodEnd: String(periodEnd).slice ? String(periodEnd).slice(0, 10) : periodEnd,
+      periodStartAt: periodStart || "",
+      periodEndAt: periodEnd || "",
+      actorId: remote.actorId || null,
+      actorName: remote.actorName || "",
+      status: remote.status || "active",
+      createdAt: remote.createdAt || ""
     };
   }
 
@@ -865,6 +918,7 @@
       history: Array.isArray(remote.history) ? remote.history : [],
       notificationStatus: remote.notificationStatus || null,
       professionalId: remote.professionalId || null,
+      media: Array.isArray(remote.media) ? remote.media : [],
       createdAt: remote.createdAt || null,
       updatedAt: remote.updatedAt || null,
       dateLabel: dateLabel
@@ -966,6 +1020,71 @@
       });
     },
 
+    // ---- REQ 58: async admin billing-history read. Source of truth =
+    // GET /admin/billing-transactions (+ summary). BillingTransaction is an
+    // immutable paid-period ledger: there is NO write path client-side. Gated
+    // server-side by payments.view. A successful empty response ([]) is an
+    // EMPTY state; a network/server/401/403/429/500 failure rejects so the UI
+    // renders an error/offline state. Opaque BT-xxxxx ids pass verbatim.
+    fetchBillingTransactions: function(params){
+      if(!BillApi || !BillApi.list) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API historique de facturation non chargé." });
+      return BillApi.list(params || {}).then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        return { success:true, data: list.map(mapBillingTransaction), pagination: (res && res.pagination) || null };
+      });
+    },
+    fetchBillingSummary: function(){
+      if(!BillApi || !BillApi.summary) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API historique de facturation non chargé." });
+      return BillApi.summary().then(function(res){
+        return { success:true, data: (res && res.data) || null };
+      });
+    },
+
+    // ---- REQ 61: async admin Analytics read. Source of truth = GET
+    // /admin/analytics (permission analytics.view server-side). Figures are
+    // computed from the LIVE repositories at request time (totals, 12 monthly +
+    // 90 daily buckets, revenueByPlan, top lists, leads splits) — never from the
+    // demo store. A success caches the feed for the Analytics page
+    // (window.__sna3tiAnalyticsLive); a network/server/401/403/429/500 failure
+    // rejects so the page keeps working on the demo store but reports it.
+    fetchAnalytics: function(){
+      var Api = window.Sna3tiAnalyticsApi;
+      if(!Api || !Api.get) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API analytiques non chargé." });
+      return Api.get().then(function(res){
+        var live = (res && res.data) || null;
+        if(live) window.__sna3tiAnalyticsLive = live;
+        return { success:true, data: live };
+      });
+    },
+
+    // ---- REQ 62: async admin Reviews read. Source of truth = GET /admin/reviews
+    // (permission reviews.view server-side). Includes ALL statuses (published /
+    // pending Whatsapp submissions / flagged / hidden) plus the admin-only
+    // reviewerContact + reviewSource fields and a professionalName join. A
+    // successful empty response ([]) resolves as an EMPTY state; a network /
+    // server / 401 / 403 / 429 / 500 failure rejects so the UI renders an
+    // error/offline state — never demo data. Opaque ids pass verbatim.
+    fetchReviews: function(){
+      var Rv = window.Sna3tiReviewsApi;
+      if(!Rv || !Rv.list) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API avis non chargé." });
+      return Rv.list().then(function(res){
+        var list = (res && res.data) ? res.data : [];
+        window.__sna3tiReviewsLive = list;
+        return { success:true, data: list };
+      });
+    },
+    // REQ 62 — admin captures a client's review manually (POST /admin/reviews/manual).
+    createAdminReview: function(payload){
+      var Rv = window.Sna3tiReviewsApi;
+      if(!Rv || !Rv.manualCreate) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API avis non chargé." });
+      return Rv.manualCreate(payload || {}).then(function(res){
+        var created = (res && res.data) ? res.data : null;
+        if(created) window.__sna3tiReviewsLive = (window.__sna3tiReviewsLive || []).concat([created]);
+        return { success:true, data: created };
+      });
+    },
+
+
     // ---- REQ 52: async admin verification read. Source = GET /admin/verifications.
     // The backend is the single source of truth for request state. A successful
     // empty response ([]) resolves as an EMPTY state; a network / server / 401 /
@@ -1053,15 +1172,28 @@
       return true;
     },
     deleteProfessional: function(id){
-      var p = getById(store.professionals, id); if(!p) return false;
-      store.professionals = store.professionals.filter(function(x){ return x.id!==id; });
-      store.verificationRequests = store.verificationRequests.filter(function(x){ return x.professionalId!==id; });
-      store.subscriptions = store.subscriptions.filter(function(x){ return x.professionalId!==id; });
-      store.payments = store.payments.filter(function(x){ return x.professionalId!==id; });
-      store.reviews = store.reviews.filter(function(x){ return x.professionalId!==id; });
-      store.reports = store.reports.filter(function(x){ return x.professionalId!==id; });
-      persist();
-      return true;
+      // Authoritative delete lives on the backend (DELETE /professionals/:id).
+      // The local store is updated only as a cache-consistency pass after the
+      // backend confirms, so the artisan disappears everywhere (admin + public).
+      var dropLocal = function(){
+        store.professionals = store.professionals.filter(function(x){ return x.id!==id; });
+        store.verificationRequests = store.verificationRequests.filter(function(x){ return x.professionalId!==id; });
+        store.subscriptions = store.subscriptions.filter(function(x){ return x.professionalId!==id; });
+        store.payments = store.payments.filter(function(x){ return x.professionalId!==id; });
+        store.reviews = store.reviews.filter(function(x){ return x.professionalId!==id; });
+        store.reports = store.reports.filter(function(x){ return x.professionalId!==id; });
+        persist();
+      };
+      if(ProfApi && ProfApi.remove){
+        return ProfApi.remove(id).then(function(){
+          dropLocal();
+          return { success:true, id:id };
+        });
+      }
+      // No API module: keep the legacy local-only behaviour for offline dev.
+      if(!getById(store.professionals, id)) return Promise.resolve(null);
+      dropLocal();
+      return Promise.resolve({ success:true, id:id });
     },
     // ---- AI lead capture ----
     logLead: function(proId, via){
@@ -1215,22 +1347,19 @@
       if(key==="verified") return { profile:1, echantillonPhotos:10, echantillonVideos:3, echantillonTotal:10, kind:T("1 photo de profil + 10 échantillons (photos ou max 3 vidéos)") };
       return { profile:1, echantillonPhotos:3, echantillonVideos:0, echantillonTotal:3, kind:T("1 photo de profil + 3 échantillons (pas de vidéo)") };
     },
-    getMediaUsage: function(proId){
+    getMediaUsage: function(proId, fallbackMedia){
       var p = getById(store.professionals, proId);
-      var media = (p && p.media) || [];
-      return {
-        profileCount: media.filter(function(m){ return m.kind==="profile"; }).length,
-        echantillonPhotos: media.filter(function(m){ return m.kind==="echantillon" && m.type==="photo"; }).length,
-        echantillonVideos: media.filter(function(m){ return m.kind==="echantillon" && m.type==="video"; }).length,
-        echantillonTotal: media.filter(function(m){ return m.kind==="echantillon"; }).length
-      };
+      var media = (p && p.media) || (Array.isArray(fallbackMedia) ? fallbackMedia : []);
+      return usageFrom(media);
     },
     // Can this professional upload media? opts: { kind:"profile"|"echantillon", type:"photo"|"video" }.
-    canUploadMedia: function(proId, opts){
+    // `mediaArr` (optional) covers remotely-fetched records that are not in the
+    // demo store. The backend remains authoritative — this is a UX pre-filter.
+    canUploadMedia: function(proId, opts, mediaArr){
       var p = getById(store.professionals, proId);
       var pkg = (p && String(p.package||"free").toLowerCase()) || "free";
       var lim = Sna3tiData.packageLimits(pkg);
-      var use = Sna3tiData.getMediaUsage(proId);
+      var use = usageFrom((p && p.media) || (Array.isArray(mediaArr) ? mediaArr : []));
       var upg = T("Pour débloquer plus de médias, faites évoluer votre pack : GOLD = 1 photo de profil + 20 échantillons, VÉRIFIÉ = 1 photo de profil + 10 échantillons.");
       var kind = (opts&&opts.kind) || "echantillon";
       var type = (opts&&opts.type) || "photo";
@@ -1248,28 +1377,85 @@
       }
       return { ok:true };
     },
-    addMedia: function(proId, item){
-      var p = getById(store.professionals, proId); if(!p) return { ok:false, reason:T("Artisan introuvable.") };
-      var kind = (item&&item.kind) || "echantillon";
+    // Media write path (REQ 53). When the admin API is available the upload
+    // goes to the real backend (multipart POST /admin/professionals/:id/media)
+    // and the professional record keeps the backend's own media entry; offline /
+    // demo mode falls back to the local mock. Plan gates are enforced
+    // SERVER-side — the local canUploadMedia mirror only pre-filters the UX.
+    // `currentMedia` is the in-memory record's media array so counts work even
+    // when the professional was fetched remotely (store-only demo data absent).
+    addMedia: function(proId, item, currentMedia){
+      var wk = (Array.isArray(currentMedia) ? currentMedia : []);
+      var kind = (item&&item.kind==="profile") ? "profile" : "echantillon";
+      var label = (item&&item.label) || "";
+      if(ProfApi && ProfApi.uploadMedia && item && item.file){
+        return ProfApi.uploadMedia(proId, item.file, kind, label).then(function(res){
+          var m = (res && res.data) || null;
+          if(m) wk = wk.concat([m]);
+          var p = getById(store.professionals, proId);
+          if(p) p.media = wk;
+          persist();
+          var pkg = String((p && p.package) || "free").toLowerCase();
+          return { ok:true, media:m, usage: usageFrom(wk), limits: Sna3tiData.packageLimits(pkg) };
+        }).catch(function(err){
+          return { ok:false, reason:(err&&err.message)||T("Téléversement impossible.") };
+        });
+      }
       var type = (item&&item.type==="video") ? "video" : "photo";
-      var gate = Sna3tiData.canUploadMedia(proId, { kind:kind, type:type });
-      if(!gate.ok) return gate;
-      p.media = p.media || [];
-      var n = p.media.length;
-      p.media.push({ id: uid("MED"), kind:kind, type:type, label: item.label||"", src: item.src||"", added: todayStr(), order: n+1 });
+      var gate = gateway(proId, wk, { kind: kind, type: type });
+      if(!gate.ok) return Promise.resolve(gate);
+      var n = wk.length;
+      var entry = { id: uid("MED"), kind: kind, type: type, label: label, src: (item&&item.src)||"", added: todayStr(), order: n+1 };
+      wk = wk.concat([entry]);
+      var p2 = getById(store.professionals, proId);
+      if(p2){ p2.media = wk; }
       persist();
-      return { ok:true, usage: Sna3tiData.getMediaUsage(proId), limits: Sna3tiData.packageLimits(p.package) };
+      return Promise.resolve({ ok:true, media:entry, usage: usageFrom(wk), limits: Sna3tiData.packageLimits(String((p2&&p2.package)||"free").toLowerCase()) });
     },
-    removeMedia: function(proId, mediaId){
-      var p = getById(store.professionals, proId); if(!p) return false;
-      p.media = (p.media||[]).filter(function(m){ return m.id!==mediaId; });
+    removeMedia: function(proId, mediaId, currentMedia){
+      var wk = (Array.isArray(currentMedia) ? currentMedia : []);
+      if(ProfApi && ProfApi.removeMedia){
+        return ProfApi.removeMedia(proId, mediaId).then(function(){
+          var next = wk.filter(function(m){ return m.id!==mediaId; });
+          var p = getById(store.professionals, proId);
+          if(p) p.media = next;
+          persist();
+          return true;
+        }).catch(function(){ return false; });
+      }
+      var next = wk.filter(function(m){ return m.id!==mediaId; });
+      var p2 = getById(store.professionals, proId);
+      if(p2) p2.media = next;
       persist();
-      return true;
+      return Promise.resolve(true);
+    },
+    // ---- REQ 53: registration-request media. Read = embedded in the request
+    // record (mapProfessionalRequest). Admin can remove a bad upload (DELETE
+    // /admin/professional-requests/:id/media/:mediaId) or add one on the
+    // artisan's behalf (public multipart route, request reference as key).
+    removeRequestMedia: function(reqId, mediaId){
+      if(!ProReqApi || !ProReqApi.removeMedia) return Promise.reject({ success:false, code:"UNSUPPORTED", message:T("Module API demandes d'inscription non chargé.") });
+      return ProReqApi.removeMedia(reqId, mediaId).then(function(){
+        var cache = window.__sna3tiRegCache || [];
+        var r = cache.find(function(x){ return x.id===reqId || x.reference===reqId; });
+        if(r) r.media = (r.media||[]).filter(function(m){ return m.id!==mediaId; });
+        return { success:true };
+      });
+    },
+    uploadRequestMedia: function(reqId, file, kind, label){
+      if(!ProReqApi || !ProReqApi.uploadMedia) return Promise.reject({ success:false, code:"UNSUPPORTED", message:T("Module API demandes d'inscription non chargé.") });
+      return ProReqApi.uploadMedia(reqId, file, kind || "echantillon", label || "").then(function(res){
+        return { success:true, data:(res&&res.data)||null };
+      });
     },
 
     // ---- Reviews ----
+    // Live-first: once the backend list has been fetched (window.__sna3tiReviewsLive)
+    // it is the authoritative source everywhere (detail pages, tab counts, dashboards).
+    // The demo store is only a fallback before the first live fetch / in demo mode.
     getReviews: function(params){
-      var list = clone(store.reviews);
+      var live = window.__sna3tiReviewsLive;
+      var list = clone(live && live.length ? live : store.reviews);
       if(params && params.status) list = list.filter(function(r){ return r.status===params.status; });
       return list;
     },
@@ -1313,28 +1499,47 @@
     getSubscriptions: function(){ return clone(store.subscriptions); },
     updateSubscriptionPlan: function(id, data){ var p=getById(store.subscriptionPlans,id); if(!p)return false; Object.keys(data).forEach(function(k){ if(data[k]!==undefined)p[k]=data[k]; }); return true; },
     getPayments: function(){ return clone(store.payments); },
-    confirmPayment: function(id){ var p=getById(store.payments,id); if(!p)return false; p.status="confirmed"; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; var s=store.subscriptions.find(function(x){return x.professionalId===p.professionalId && x.planName===p.planName;}); if(s){s.paymentStatus="confirmed"; s.status="active"; s.activeAt=p.reviewedAt;}
-      // Auto-apply the paid-plan badge (VÉRIFIÉ / GOLD) on the professional profile once payment is confirmed.
-      var planId = paidPlanByPayment(p);
-      if(planId){ applyPlanToProfessional(p.professionalId, planId); }
-      // Close the linked plan request (Verification centre) so both areas stay in sync.
-      var vr = store.verificationRequests.find(function(x){ return x.paymentId === p.id && x.level==="plan"; });
-      if(vr && vr.status!=="approved" && vr.status!=="rejected"){
-        vr.status="approved"; vr.reviewedAt=p.reviewedAt; vr.history.push({ date: todayStr(), text:T("Paiement confirmé — plan "+ (vr.requestedPlan||"") +" activé") });
-        if(planId){ applyPlanToProfessional(vr.professionalId, planId); }
-      }
-      return true; },
-    rejectPayment: function(id, reason){ var p=getById(store.payments,id); if(!p)return false; p.status="rejected"; p.rejectionReason=reason||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin";
-      // Keep the linked plan request (Verification centre) in sync: reject it and never grant the badge.
-      var vr = store.verificationRequests.find(function(x){ return x.paymentId === p.id && x.level==="plan"; });
-      if(vr && vr.status!=="approved" && vr.status!=="rejected"){
-        vr.status="rejected"; vr.reason=reason||""; vr.reviewedAt=new Date().toISOString();
-        vr.history.push({ date: todayStr(), text:T("Paiement rejeté — plan non activé")+(reason?(" — "+reason):"") });
-        var pr=getById(store.professionals, vr.professionalId);
-        if(pr){ pr.planEligible = false; }
-      }
-      return true; },
-    requestPaymentInfo: function(id, note){ var p=getById(store.payments,id); if(!p)return false; p.status="needs_info"; p.infoRequested=note||""; p.reviewedAt=new Date().toISOString(); p.reviewedBy=(global.Sna3tiAuth&&global.Sna3tiAuth.getSession)?(global.Sna3tiAuth.getSession()||{}).name:"admin"; return true; },
+    // ---- REQ 19/58: payment decisions are LIVE — they hit the backend
+    // (POST /admin/payments/:id/confirm|reject|request-information) and the
+    // source of truth is the returned row. The local demo store is only
+    // re-synced from the server response so store-based consumers stay
+    // coherent; nothing local is ever authoritative. Success resolves with the
+    // mapped row; network/server/429/500 rejects so the UI shows an error
+    // toast (never a silent no-op).
+    syncDemoPayment: function(id, mapped){
+      if(!mapped) return;
+      var ds = getById(store.payments, id);
+      if(!ds) return;
+      Object.keys(mapped).forEach(function(k){ if(mapped[k]!==undefined) ds[k]=mapped[k]; });
+      persist();
+    },
+    confirmPayment: function(id){
+      if(!PayApi || !PayApi.confirm) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API paiements non chargé." });
+      return PayApi.confirm(id).then(function(res){
+        var p = (res && res.data) ? res.data : null;
+        var mapped = p ? mapAdminPayment(p) : null;
+        DATA.syncDemoPayment(id, mapped);
+        return { success:true, data: mapped };
+      });
+    },
+    rejectPayment: function(id, reason){
+      if(!PayApi || !PayApi.reject) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API paiements non chargé." });
+      return PayApi.reject(id, reason || "").then(function(res){
+        var p = (res && res.data) ? res.data : null;
+        var mapped = p ? mapAdminPayment(p) : null;
+        DATA.syncDemoPayment(id, mapped);
+        return { success:true, data: mapped };
+      });
+    },
+    requestPaymentInfo: function(id, note){
+      if(!PayApi || !PayApi.requestInfo) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API paiements non chargé." });
+      return PayApi.requestInfo(id, note || "").then(function(res){
+        var p = (res && res.data) ? res.data : null;
+        var mapped = p ? mapAdminPayment(p) : null;
+        DATA.syncDemoPayment(id, mapped);
+        return { success:true, data: mapped };
+      });
+    },
     addPayment: function(data){
       var np = { id:uid("PAY"), reference:"SNA3TI-"+(48290+Math.floor(Math.random()*900)), status:"pending", currency:"MAD", method:"bank_transfer", date:todayStr(), createdAt:new Date().toISOString(),
         professionalId:"", planName:"VÉRIFIÉ", amount:99, bankRef:"", receipt:"" };
@@ -1400,13 +1605,6 @@
     // ---- Work queue (dashboard) ----
     getWorkQueue: function(){
       var q = [];
-      store.verificationRequests.forEach(function(v){
-        if(v.status==="pending"||v.status==="needs_info"){
-          q.push({ type:"verification", label:T("Vérification"), id:v.id, ref:(getById(store.professionals,v.professionalId)||{}).name||v.professionalId,
-            priority:v.priority==="high"?T("Critique"):v.priority==="medium"?T("Haute"):T("Moyenne"), pclass:v.priority||"medium",
-            created:v.submitted, assigned:reviewerName(v.reviewerId), status:v.status, route:"verification" });
-        }
-      });
       store.payments.forEach(function(p){
         if(p.status==="pending"){
           q.push({ type:"payment", label:T("Paiement"), id:p.id, ref:p.reference+" · "+(getById(store.professionals,p.professionalId)||{}).name||"",
@@ -1499,6 +1697,7 @@
         professionals: pros.length,
         verified: pros.filter(function(p){ return p.verificationStatus==="approved"; }).length,
         pendingVerification: store.verificationRequests.filter(function(v){ return v.status==="pending"; }).length,
+        pendingRegistrations: (store.professionalRequests || []).filter(function(r){ return r.status==="pending"; }).length,
         active: pros.filter(function(p){ return p.status==="active"; }).length,
         activeSubscriptions: store.subscriptions.filter(function(s){ return s.status==="active"; }).length,
         pendingSubscriptions: store.subscriptions.filter(function(s){ return s.status==="pending" || s.paymentStatus==="pending"; }).length,
@@ -1512,14 +1711,14 @@
       };
     },
     getAlerts: function(){ return [
-      { type:"warn", icon:"⚠️", title: T(this.getKPIs().pendingVerification + " demandes de vérification en attente"), sub:T("Cliquez pour traiter"), route:"verification" },
+      { type:"warn", icon:"📋", title: T(this.getKPIs().pendingRegistrations + " demandes d'inscription en attente"), sub:T("Cliquez pour traiter"), route:"registrations" },
       { type:"warn", icon:"💰", title: T(store.payments.filter(function(p){return p.status==="pending";}).length + " paiements en attente de confirmation"), sub:T("Dont virements bancaires à vérifier"), route:"payments" },
       { type:"bad", icon:"🚩", title: T(store.reports.filter(function(r){return r.status==="new" || r.status==="under_review";}).length + " professionnels signalés"), sub:T("Consulter le centre de modération"), route:"reports" },
       { type:"bad", icon:"⭐", title: T(store.reviews.filter(function(r){return r.status==="flagged";}).length + " avis suspects"), sub:T("Vérifier les avis signalés"), route:"reviews" },
       { type:"good", icon:"✓", title: T("Nouveaux professionnels aujourd'hui"), sub:T("2 inscriptions aujourd'hui"), route:"professionals" }
     ]; },
     getActivity: function(){ return clone(store.activity); },
-    getAnalytics: function(){ return clone(store.analytics); },
+    getAnalytics: function(){ return window.__sna3tiAnalyticsLive || clone(store.analytics); },
     // Record a real contact/lead event (e.g. a visitor tapping "WhatsApp")
     // into the CURRENT month's slot of monthlyContacts, then persist so the
     // public site's live stats pick it up under the same localStorage key.
@@ -1534,8 +1733,138 @@
     markNotificationsRead: function(){ store.notifications.forEach(function(n){ n.unread=false; }); persist(); },
     markNotificationRead: function(id){ var n=getById(store.notifications,id); if(n){ n.unread=false; persist(); } return !!n; },
     // ---- Admin users & audit ----
-    getAdminUsers: function(){ return clone(store.adminUsers); },
-    getAuditLogs: function(){ return clone(store.auditLogs); },
+    // Live-first: the backend list (window.__sna3tiAdminUsersLive) is the
+    // authoritative source once fetched; the demo store is only a fallback.
+    getAdminUsers: function(){
+      var live = window.__sna3tiAdminUsersLive;
+      return clone(live && live.length ? live : store.adminUsers);
+    },
+    fetchAdminUsers: function(){
+      var Au = window.Sna3tiAdminUsersApi;
+      if(!Au || !Au.list) return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API admin users non chargé." });
+      return Au.list().then(function(res){
+        var list = (res && res.data && res.data.data) ? res.data.data : ((res && res.data) ? res.data : []);
+        window.__sna3tiAdminUsersLive = list;
+        if(list && list.length) store.adminUsers = list;
+        return list;
+      }).catch(function(err){ window.__sna3tiAdminUsers = window.__sna3tiAdminUsers || { failed:true }; throw err; });
+    },
+    // Create an admin account (super-admin only). Live-first: POST to the
+    // backend when available; local demo fallback keeps the prototype working
+    // offline. Returns the created record (or a Promise when live).
+    addAdminUser: function(data){
+      var Au = window.Sna3tiAdminUsersApi;
+      var local = function(){
+        var safe = Object.assign({}, data);
+        delete safe.password; delete safe.currentPassword; delete safe.passwordHash;
+        var a = Object.assign({ id: uid("AU"), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10) }, safe);
+        store.adminUsers.push(a);
+        persist();
+        return clone(a);
+      };
+      if(Au && Au.create){
+        return Au.create(data || {}).then(function(res){
+          var created = (res && res.data) || null;
+          if(created && created.id){
+            var safe = clone(created); delete safe.password; delete safe.currentPassword; delete safe.passwordHash;
+            window.__sna3tiAdminUsersLive = (window.__sna3tiAdminUsersLive || []).concat([safe]);
+            store.adminUsers.push(safe);
+            persist();
+          }
+          return created || local();
+        }).catch(function(err){
+          if(err && (err.code === "NETWORK_ERROR" || err.code === "UNSUPPORTED" || err.code === "HTTP_0")) return local();
+          throw err;
+        });
+      }
+      return local();
+    },
+    // Update an admin account (name/email/role/password). Live-first.
+    updateAdminUser: function(id, data){
+      var Au = window.Sna3tiAdminUsersApi;
+      var local = function(){
+        var a = getById(store.adminUsers, id); if(!a) return false;
+        var safe = Object.assign({}, data);
+        delete safe.password; delete safe.currentPassword; delete safe.passwordHash;
+        Object.keys(safe||{}).forEach(function(k){ if(safe[k]!==undefined) a[k]=safe[k]; });
+        persist();
+        return clone(a) || true;
+      };
+      if(Au && Au.update && id){
+        return Au.update(id, data || {}).then(function(res){
+          var updated = (res && res.data) || null;
+          if(updated && updated.id){
+            var safe = clone(updated); delete safe.password; delete safe.currentPassword; delete safe.passwordHash;
+            window.__sna3tiAdminUsersLive = (window.__sna3tiAdminUsersLive || []).map(function(x){ return x.id===id ? safe : x; });
+            var a = getById(store.adminUsers, id); if(a) Object.assign(a, safe);
+            persist();
+          } else { local(); }
+          return true;
+        }).catch(function(err){
+          if(err && (err.code === "NETWORK_ERROR" || err.code === "UNSUPPORTED" || err.code === "HTTP_0")) return local();
+          throw err;
+        });
+      }
+      return local();
+    },
+    // Change an admin's own password — verifies the current password server-side.
+    // Returns a Promise resolving with { success:true } (rejects on 401/etc.).
+    changeMyPassword: function(id, payload){
+      var Au = window.Sna3tiAdminUsersApi;
+      if(Au && Au.update && id){
+        return Au.update(id, { currentPassword: payload.currentPassword, password: payload.password })
+          .then(function(){ return { success:true, live:true }; });
+      }
+      // Offline demo fallback: keep behavior friendly, no real verification.
+      return Promise.reject({ code:"NETWORK_ERROR", message:T("Le backend est requis pour changer le mot de passe.") });
+    },
+    // Live-first: once the backend audit list has been fetched
+    // (window.__sna3tiAuditLogsLive) it is the authoritative source; the demo
+    // store is only a fallback before the first live fetch / in demo mode.
+    getAuditLogs: function(){
+      var live = window.__sna3tiAuditLogsLive;
+      return clone(live && live.length ? live : store.auditLogs);
+    },
+    fetchAuditLogs: function(){
+      if(!window.Sna3tiAuditApi || !window.Sna3tiAuditApi.list){ return Promise.reject({ success:false, code:"UNSUPPORTED", message:"Module API audit non chargé." }); }
+      return window.Sna3tiAuditApi.list().then(function(res){
+        var list = (res && res.data && res.data.data) ? res.data.data : ((res && res.data) ? res.data : []);
+        window.__sna3tiAuditLogsLive = list;
+        return list;
+      }).catch(function(err){ window.__sna3tiAuditLogs = window.__sna3tiAuditLogs || { failed:true }; throw err; });
+    },
+    deleteAuditLog: function(id){
+      // Live-first: when the entry came from the backend, delete it there.
+      var Au = window.Sna3tiAuditApi;
+      var live = window.__sna3tiAuditLogsLive || [];
+      var isLive = live.some(function(x){ return x.id===id; });
+      if(Au && Au.remove && isLive){
+        return Au.remove(id).then(function(res){
+          window.__sna3tiAuditLogsLive = live.filter(function(x){ return x.id!==id; });
+          store.auditLogs = store.auditLogs.filter(function(x){ return x.id!==id; });
+          return { success:true, data:(res&&res.data)||null };
+        });
+      }
+      var l = getById(store.auditLogs, id); if(!l) return false;
+      store.auditLogs = store.auditLogs.filter(function(x){ return x.id!==id; });
+      persist();
+      return true;
+    },
+    deleteAllAuditLogs: function(){
+      var Au = window.Sna3tiAuditApi;
+      var live = window.__sna3tiAuditLogsLive || [];
+      if(Au && Au.clear && live.length){
+        return Au.clear().then(function(res){
+          window.__sna3tiAuditLogsLive = [];
+          store.auditLogs = [];
+          persist();
+          return { success:true, data:(res&&res.data)||null };
+        });
+      }
+      store.auditLogs = [];
+      persist();
+      return true;
+    },
     logAudit: function(entry){
       var session = (typeof Sna3tiAuth !== "undefined" && Sna3tiAuth.getSession) ? Sna3tiAuth.getSession() : null;
       var sid = session ? (session.adminId || session.id || "") : "";
@@ -1591,18 +1920,58 @@
     getCategoriesLive: function(){ return store.categories; },
     getRegionsLive: function(){ return store.regions; },
     deleteReview: function(id){
+      // Live-first: if the review came from the backend, delete it there.
+      var Rv = window.Sna3tiReviewsApi;
+      var live = window.__sna3tiReviewsLive || [];
+      var isLive = live.some(function(x){ return x.id===id; });
+      if(Rv && Rv.remove && isLive){
+        return Rv.remove(id).then(function(res){
+          if(res && res.data) res = res.data;
+          window.__sna3tiReviewsLive = live.filter(function(x){ return x.id!==id; });
+          return { success:true, data: res };
+        });
+      }
       var r = getById(store.reviews, id); if(!r) return false;
       store.reviews = store.reviews.filter(function(x){ return x.id!==id; });
       persist();
       return true;
     },
     setReviewStatus: function(id, status){
+      // Live-first: moderate the review on the backend when it is a live review.
+      var Rv = window.Sna3tiReviewsApi;
+      var live = window.__sna3tiReviewsLive || [];
+      var isLive = live.some(function(x){ return x.id===id; });
+      if(Rv && Rv.publish && Rv.hide && status==="hidden" && isLive){
+        return Rv.hide(id).then(function(res){
+          if(res && res.data) res = res.data;
+          window.__sna3tiReviewsLive = window.__sna3tiReviewsLive.map(function(x){ return x.id===id ? Object.assign({}, x, { status:"hidden" }) : x; });
+          return { success:true, data: res };
+        });
+      }
+      if(Rv && Rv.publish && (status==="published"||status==="active") && isLive){
+        return Rv.publish(id).then(function(res){
+          if(res && res.data) res = res.data;
+          window.__sna3tiReviewsLive = window.__sna3tiReviewsLive.map(function(x){ return x.id===id ? Object.assign({}, x, { status:"published" }) : x; });
+          return { success:true, data: res };
+        });
+      }
       var r = getById(store.reviews, id); if(!r) return false;
       r.status = status;
       persist();
       return true;
     },
     flagReview: function(id, data){
+      // Live-first: flag the review on the backend when it is a live review.
+      var Rv = window.Sna3tiReviewsApi;
+      var live = window.__sna3tiReviewsLive || [];
+      var isLive = live.some(function(x){ return x.id===id; });
+      if(Rv && Rv.flag && isLive){
+        return Rv.flag(id).then(function(res){
+          if(res && res.data) res = res.data;
+          window.__sna3tiReviewsLive = window.__sna3tiReviewsLive.map(function(x){ return x.id===id ? Object.assign({}, x, { status:"flagged", flaggedReason:(data&&data.reason)||"", flaggedReporter:(data&&data.reporter)||"" }) : x; });
+          return { success:true, data: res };
+        });
+      }
       var r = getById(store.reviews, id); if(!r) return false;
       r.status = "flagged";
       r.flaggedReason = (data && data.reason) || "";
@@ -1638,18 +2007,6 @@
       t.status = "pending";
       persist();
       return true;
-    },
-    updateAdminUser: function(id, data){
-      var a = getById(store.adminUsers, id); if(!a) return false;
-      Object.keys(data||{}).forEach(function(k){ if(data[k]!==undefined) a[k]=data[k]; });
-      persist();
-      return true;
-    },
-    addAdminUser: function(data){
-      var a = Object.assign({ id: uid("AU"), status:"active", lastLogin:"—", created:new Date().toISOString().slice(0,10) }, data);
-      store.adminUsers.push(a);
-      persist();
-      return a;
     },
     // ---- helpers ----
     cityName: function(id){ var c = store.regions.reduce(function(a,r){ return a.concat(r.cities); },[]).find(function(x){return x.id===id;}); return c ? c.name.fr : id; },

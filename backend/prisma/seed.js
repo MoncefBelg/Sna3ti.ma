@@ -150,7 +150,7 @@ async function seed() {
 
   await seedReferenceData();
 
-  const hash = await bcrypt.hash("admin123", env.bcryptRounds);
+const hash = await bcrypt.hash("Hs8#bY5@y3R8Dhcx%ABd", env.bcryptRounds);
 
   const admins = [
     { id:"admin-1", name:"Super Admin", email:"admin@sna3ti.ma", role:"super_admin", password:hash, status:"active" },

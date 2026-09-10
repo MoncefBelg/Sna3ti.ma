@@ -30,6 +30,39 @@
     adminSuspend: function (id, reason) { return R("POST", "admin/professionals/:id/suspend", { pathParams: { id: id }, body: { reason: reason } }); },
     adminActivate: function (id) { return R("POST", "admin/professionals/:id/activate", { pathParams: { id: id } }); },
 
+    // ---- Media (REQ 53) ----
+    // Portfolio/échantillon media lives on the professional. Upload and access
+    // control differ by consumer:
+    //   mediaUrl / getMediaAdmin / admin*  -> admin-guarded (Bearera admin JWT)
+    //   publicMediaUrl / publicGet         -> public portfolio serving
+    mediaUrl: function (id, mediaId) { return "admin/professionals/" + id + "/media/" + mediaId; },
+    publicMediaUrl: function (id, mediaId) { return "professionals/" + id + "/media/" + mediaId; },
+
+    uploadMedia: function (id, file, kind, label) {
+      var base = String(global.Sna3tiApi.baseUrl || "").replace(/\/+$/, "");
+      var token = global.Sna3tiApi && global.Sna3tiApi.getToken ? (global.Sna3tiApi.getToken() || "") : "";
+      var fd = new FormData();
+      fd.append("file", file, file.name || "fichier");
+      fd.append("kind", kind || "echantillon");
+      if (label) fd.append("label", label);
+      var init = { method: "POST", body: fd };
+      if (token) init.headers = { "Authorization": "Bearer " + token };
+      return global.fetch(base + "/admin/professionals/" + encodeURIComponent(id) + "/media", init)
+        .then(function (res) {
+          return res.text().then(function (text) {
+            var data = null;
+            try { data = text ? JSON.parse(text) : {}; } catch (e) { data = null; }
+            if (res.ok) return data;
+            var err = (data && data.error) ? data.error : {};
+            throw { success: false, code: err.code || "UPLOAD_FAILED", message: err.message || "Téléversement impossible." };
+          });
+        });
+    },
+
+    removeMedia: function (id, mediaId) {
+      return R("DELETE", "admin/professionals/:id/media/:mediaId", { pathParams: { id: id, mediaId: mediaId } });
+    },
+
     reviews: {
       list: function (professionalId, params) {
         return R("GET", "professionals/:professionalId/reviews", { pathParams: { professionalId: professionalId }, params: params });

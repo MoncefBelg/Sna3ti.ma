@@ -23,6 +23,21 @@ function errorHandler(err, req, res, _next) {
     return render(res, err.statusCode, code, err.message, err.details);
   }
 
+  // body-parser rejects oversized JSON/urlencoded bodies (413).
+  if (err.type === "entity.too.large" || err.status === 413 || err.statusCode === 413) {
+    return render(res, 413, "PAYLOAD_TOO_LARGE", "Contenu trop volumineux. Réduisez la taille du fichier et réessayez.");
+  }
+
+  // multer multipart upload errors (media pipeline).
+  if (err && err.name === "MulterError") {
+    const msg = err.code === "LIMIT_FILE_SIZE"
+      ? "Fichier trop volumineux."
+      : err.code === "LIMIT_UNEXPECTED_FILE"
+        ? "Champ de fichier inattendu (utilisez le champ « file »)."
+        : "Téléversement invalide.";
+    return render(res, 400, "BAD_REQUEST", msg);
+  }
+
   // Prisma-specific mapped errors.
   if (err.code === "P2002") {
     return render(res, 409, "CONFLICT", "Cet enregistrement existe déjà (contrainte unique violée).");

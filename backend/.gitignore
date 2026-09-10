@@ -15,3 +15,6 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/dev.db.sqlite
+
+# Runtime uploads (media, photos) — never commit
+storage/

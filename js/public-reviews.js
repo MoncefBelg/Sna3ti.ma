@@ -95,6 +95,33 @@
     });
   }
 
+  /* REQ 62 — WhatsApp brief-avis (anonymous, no account required).
+     A visitor picks a rating, writes an "avis" and gives their WhatsApp
+     number. The backend stores the review as PENDING + raises an admin
+     notification, and returns the platform WhatsApp number so the UI can
+     redirect the visitor to a pre-filled wa.me chat (platform follow-up).
+     The reviewer number is admin-only; it never appears on the public list. */
+  function submitWhatsApp(payload) {
+    if (!R) return Promise.reject(baseUnavailableError());
+    var body = {
+      professionalId: payload && payload.professionalId,
+      rating: payload && payload.rating,
+      comment: (payload && payload.comment) || "",
+      contact: (payload && payload.contact) || "",
+      reviewerName: (payload && payload.reviewerName) || ""
+    };
+    return R("POST", "reviews/whatsapp", {
+      auth: false,
+      body: body
+    }).then(function (created) {
+      var out = normalizeSingleReviewPayload(created);
+      if (out && created && created.data && created.data.platformWhatsapp) {
+        out.platformWhatsapp = created.data.platformWhatsapp;
+      }
+      return out;
+    });
+  }
+
   /* Map backend error responses { success:false, code, message, details }
      into a small, frontend-friendly result so the UI renders honest,
      translated states without duplicating backend business logic. */
@@ -128,6 +155,7 @@
   return {
     getReviews: getReviews,
     createReview: createReview,
+    submitWhatsApp: submitWhatsApp,
     handleReviewError: handleReviewError,
     normalizeReviewsPayload: normalizeReviewsPayload,
     normalizeSingleReviewPayload: normalizeSingleReviewPayload

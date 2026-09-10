@@ -13,8 +13,16 @@ function prefixId(prefix) {
 }
 
 async function list(repos, userId) {
+  // Customer scope: the user's own feed.
   if (userId) return repos.notifications.listForUser(userId);
-  return repos.notifications.listUnread();
+  // Admin scope (GET /admin/notifications): FULL history of the broadcast feed
+  // (userId null), newest first, plus the live unread counter so the bell can
+  // show "n non lues" without polling the whole store twice.
+  const [rows, unreadCount] = await Promise.all([
+    repos.notifications.list({ userId: null }, { orderBy: { createdAt: "desc" } }),
+    repos.notifications.count({ userId: null, readAt: null })
+  ]);
+  return { rows, unreadCount };
 }
 
 async function markRead(repos, id, userId) {
@@ -45,4 +53,19 @@ async function create(repos, data) {
   });
 }
 
-module.exports = { list, markRead, markAllRead, create };
+// Admin feed notification: a broadcast (userId null) surfaced in the admin
+// notifications centre (GET /admin/notifications -> listUnread). Every
+// UI-originated event that mutates state should raise one so the dashboard
+// never misses a request, review or payment. Id is minted server-side.
+async function notifyAdmin(repos, data) {
+  return create(repos, {
+    userId: null,
+    type: data.type || "system",
+    title: data.title,
+    message: data.message,
+    entityType: data.entityType,
+    entityId: data.entityId
+  });
+}
+
+module.exports = { list, markRead, markAllRead, create, notifyAdmin };

@@ -1,9 +1,17 @@
 /* =========================================================
    Sna3ti.ma Service Worker
    Cache-first for static assets, network-first for pages.
+
+   IMPORTANT: bump CACHE_NAME on every deploy of js/* or
+   index-v3.html. Because static assets are cache-first,
+   leaving the same cache name makes every previously
+   controlled browser keep serving the OLD bundles (e.g. a
+   stale api-client/public-professionals before a config fix).
+   A new cache name triggers install -> activate, which purges
+   the old cache and re-fetches fresh files.
    ========================================================= */
 
-const CACHE_NAME = "sna3ti-v1";
+const CACHE_NAME = "sna3ti-v5";
 const STATIC_ASSETS = [
   "/",
   "/index-v3.html",

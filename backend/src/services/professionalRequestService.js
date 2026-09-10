@@ -15,15 +15,21 @@
 
 const { AppError } = require("../utils/AppError");
 const { PROFESSIONAL_REQUEST_STATUSES } = require("../constants/statuses");
+const { PLANS } = require("../constants/plans");
 const { sendApplicationLead } = require("../providers/whatsapp");
+const notificationSvc = require("./notificationService");
 const professionalSvc = require("./professionalService");
+const paymentSvc = require("./paymentService");
+const { mediaLimitsFor, assertMediaAllowed } = require("./mediaService");
 
 // Admin approves/rejects a PENDING request. Decide metadata is stored on the
 // request (reason / reviewer / reviewedAt / history / professionalId) and
 // mirrored to the append-only audit log. Approval (REQ 56 + REQ 57-A) creates
-// exactly one PENDING Professional on the FREE account (package=free) — the
-// marketplace listing happens only via the explicit admin activate action, and
-// the paid package is never applied at registration.
+// exactly one PENDING Professional — the marketplace listing happens only via
+// the explicit admin activate action. The requested plan carries onto the
+// account (package / planEligible / subscriptionPlanId); for paid formulas a
+// pending Payment expectation is created automatically (REQ 60) so the admin
+// sees the collection item in the "Paiements" tab right after approval.
 const REQUEST_PLAN_CODES = ["free", "verified", "gold"];
 
 // Resolve the requested plan against the active catalogue. Server-authoritative:
@@ -66,6 +72,7 @@ async function create(repos, data) {
     planPrice: plan.price,
     status: "pending",
     notificationStatus: { whatsapp: "pending" },
+    media: [],
     createdAt: new Date()
   });
 
@@ -83,6 +90,16 @@ async function create(repos, data) {
     updatedAt: new Date()
   });
   request.notificationStatus = { whatsapp: whatsappStatus };
+
+  // Admin feed: a new application is always surfaced as a notification so the
+  // review workflow is never silent (the WhatsApp lead is a channel only).
+  await notificationSvc.notifyAdmin(repos, {
+    type: "registration",
+    title: "Nouvelle demande d'inscription",
+    message: `${request.firstName || ""} ${request.lastName || ""} — ${request.profession || ""}, ${request.city || ""} (${request.planName || request.planCode || ""})`,
+    entityType: "ProfessionalRequest",
+    entityId: id
+  });
 
   return { ...request, reference: request.id };
 }
@@ -234,8 +251,21 @@ async function approve(repos, requestId, admin) {
     }
   }
 
-  // Materialise the account as PENDING. Explicit status — professionalService
-  // defaults to "active" only when no status is passed.
+  // Carry the plan chosen at submission (free | verified | gold) onto the
+  // created account — the marketplace badge/eligibility read `package`.
+  // The paid subscription remains a separate, later payment step.
+  let planCode = "free";
+  let planId = null;
+  try {
+    const plan = await resolvePlan(repos, request.planCode || "free");
+    if (plan && plan.code) {
+      planCode = String(plan.code).toLowerCase();
+      planId = plan.id || null;
+    }
+  } catch (err) {
+    // Catalogue hiccup → fall back to free; never block an approval.
+  }
+
   const pro = await professionalSvc.create(repos, {
     name: [request.firstName, request.lastName].filter(Boolean).map((s) => String(s).trim()).join(" ").trim(),
     job: request.profession,
@@ -246,9 +276,39 @@ async function approve(repos, requestId, admin) {
       : null,
     phone: request.phone,
     description: request.description || null,
-    package: "free",
+    package: planCode,
+    planEligible: planCode !== "free",
+    subscriptionPlanId: planId,
     status: "pending"
   }, admin);
+
+  // REQ 53 media: carry the artisan's submitted media (profile photo +
+  // échantillons) onto the created professional account so the admin turn
+  // around is lossless. Storage bytes are re-keyed under professionals/<proId>.
+  const requestMedia = Array.isArray(request.media) ? request.media : [];
+  if (requestMedia.length) {
+    try {
+      await professionalSvc.setMedia(repos, pro.id, requestMedia, admin);
+    } catch (err) {
+      // Best-effort: an approval must never fail because a media copy hiccuped.
+    }
+  }
+
+  // REQ 60 — a paid formula (Vérifié/GOLD) materialises a pending Payment the
+  // moment the professional account exists, so the admin sees the collection
+  // item in the "Paiements" tab. Idempotent (paymentService dedupes pending
+  // payments per professional+plan); best-effort — never blocks an approval.
+  if (planCode !== "free" && planId) {
+    try {
+      await paymentSvc.create(repos, {
+        professionalId: pro.id,
+        planId: planId,
+        reference: `${requestId}-${String(planCode).toUpperCase()}`
+      }, admin);
+    } catch (err) {
+      // Payment bookkeeping must never fail the approval itself.
+    }
+  }
 
   const now = new Date();
   const updated = await repos.professionalRequests.update(requestId, {
@@ -269,6 +329,14 @@ async function approve(repos, requestId, admin) {
     entityId: requestId,
     result: "Approved",
     metadata: { professionalId: pro.id }
+  });
+
+  await notificationSvc.notifyAdmin(repos, {
+    type: "registration",
+    title: "Demande approuvée",
+    message: `${requestId} approuvée → professionnel ${pro.id} créé (${request.firstName || ""} ${request.lastName || ""})`,
+    entityType: "ProfessionalRequest",
+    entityId: requestId
   });
 
   return { ...updated, professionalId: pro.id, reference: requestId };
@@ -309,7 +377,91 @@ async function reject(repos, requestId, reason, admin) {
     note: cleanReason
   });
 
+  await notificationSvc.notifyAdmin(repos, {
+    type: "registration",
+    title: "Demande rejetée",
+    message: `${requestId} rejetée — ${cleanReason}`,
+    entityType: "ProfessionalRequest",
+    entityId: requestId
+  });
+
   return { ...updated, reference: requestId };
 }
 
-module.exports = { create, list, get, approve, reject, resolvePlan };
+// ─── Request media (REQ 53) ────────────────────────────────────────────────
+// A pending onboarding request can carry media uploaded by the artisan:
+//   * profile photo     (kind="profile",  exactly 1)
+//   * échantillons       (kind="echantillon"; photos for every plan, videos
+//                         only on Vérifié/GOLD — enforced server-side)
+// Bytes go through the abstract StorageService; only metadata is persisted on
+// the request's `media` JSON column. Plan gates are server-authoritative and
+// never derived from the client.
+
+async function findMedia(request, mediaId) {
+  const list = Array.isArray(request.media) ? request.media : [];
+  return list.find((m) => m && m.id === mediaId) || null;
+}
+
+async function uploadMedia(reqCtx, requestId, meta = {}) {
+  const repos = reqCtx.repos;
+  const storage = reqCtx.storage;
+  const request = await repos.professionalRequests.get(requestId);
+  if (!request) throw new AppError("Demande d'inscription introuvable.", 404);
+
+  const kind = meta.kind === "profile" ? "profile" : "echantillon";
+  const allowed = assertMediaAllowed(request.planCode, meta.file, request.media, { kind });
+
+  const stored = await storage.put(`professional-requests/${requestId}`, {
+    originalname: String(meta.file.originalname || (allowed.type === "video" ? "video.mp4" : "photo.jpg")),
+    mimetype: meta.file.mimetype,
+    size: meta.file.size,
+    buffer: meta.file.buffer
+  });
+
+  const mediaId = await repos.ids.nextId("professionalMedia");
+  const entry = {
+    id: mediaId,
+    kind: allowed.kind,
+    type: allowed.type,
+    label: meta.label && String(meta.label).trim() ? String(meta.label).slice(0, 120) : "",
+    fileUrl: stored.url,
+    key: stored.key,
+    mimeType: stored.mimeType,
+    size: stored.size,
+    added: new Date().toISOString()
+  };
+
+  const next = [...(Array.isArray(request.media) ? request.media : []), entry];
+  await repos.professionalRequests.update(requestId, { media: next, updatedAt: new Date() });
+
+  return { ...entry, quotas: { used: next.length, limits: allowed.limits } };
+}
+
+async function getMedia(reqCtx, requestId, mediaId) {
+  const repos = reqCtx.repos;
+  const request = await repos.professionalRequests.get(requestId);
+  if (!request) throw new AppError("Demande d'inscription introuvable.", 404);
+  const entry = await findMedia(request, mediaId);
+  if (!entry) throw new AppError("Média introuvable.", 404);
+  // fileUrl is `${baseUrl}/${key}`; strip the baseUrl to recover the key.
+  const key = String(entry.fileUrl).replace(/^\/files\//, "");
+  const bytes = reqCtx.storage ? await reqCtx.storage.get(key) : null;
+  return { entry, bytes };
+}
+
+async function removeMedia(reqCtx, requestId, mediaId) {
+  const repos = reqCtx.repos;
+  const request = await repos.professionalRequests.get(requestId);
+  if (!request) throw new AppError("Demande d'inscription introuvable.", 404);
+  const entry = await findMedia(request, mediaId);
+  if (!entry) throw new AppError("Média introuvable.", 404);
+
+  const next = (request.media || []).filter((m) => m.id !== mediaId);
+  await repos.professionalRequests.update(requestId, { media: next, updatedAt: new Date() });
+  if (reqCtx.storage && entry.fileUrl) {
+    try { await reqCtx.storage.delete(String(entry.fileUrl).replace(/^\/files\//, "")); } catch (err) { /* best-effort */ }
+  }
+  return { id: mediaId, removed: true };
+}
+
+module.exports = { create, list, get, approve, reject, resolvePlan, uploadMedia, getMedia, removeMedia, mediaLimitsFor };

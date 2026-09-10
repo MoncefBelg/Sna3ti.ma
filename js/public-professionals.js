@@ -94,12 +94,34 @@
   function mapPublicProfessional(raw) {
     if (!raw || typeof raw !== "object") return null;
 
-    var media = Array.isArray(raw.media) ? raw.media : [];
+    var rawMedia = Array.isArray(raw.media) ? raw.media : [];
+    var media = [];
     var image = null;
-    for (var i = 0; i < media.length; i++) {
-      var m = media[i];
-      if (typeof m === "string" && m) { image = m; break; }
-      if (m && typeof m === "object" && str(m.url)) { image = str(m.url); break; }
+    var base = apiBase();
+    for (var i = 0; i < rawMedia.length; i++) {
+      var m = rawMedia[i];
+      var url = null;
+      var id = null;
+      var type = "photo";
+      var label = null;
+      var added = null;
+      if (typeof m === "string") {
+        url = str(m);
+      } else if (m && typeof m === "object") {
+        id = str(m.id || m.mediaId || "");
+        type = m.type === "video" ? "video" : "photo";
+        label = m.label || null;
+        added = m.added || m.addedAt || null;
+        if (str(m.url)) { url = str(m.url); }
+        else if (id && id.indexOf("/") === -1) {
+          // Real storage entries carry { id, type, key, ... } but no public
+          // URL; build the byte-serving URL (public portfolio route).
+          url = base + "/professionals/" + encodeURIComponent(str(raw.id)) + "/media/" + encodeURIComponent(id);
+        }
+      }
+      if (!url) continue;
+      media.push({ id: id, type: type, label: label, added: added, url: url });
+      if (!image) image = url;
     }
 
     var services = Array.isArray(raw.services)
@@ -140,6 +162,7 @@
       package: (str(raw.package) || "free").toLowerCase(),
       subscriptionStatus: (str(raw.subscriptionStatus) || "none").toLowerCase(),
       subscriptionExpiresAt: raw.subscriptionExpiresAt || null,
+      media: media,
       image: image,
       phone: str(raw.phone) || str(raw.whatsapp) || "",
       status: str(raw.status).toLowerCase(),

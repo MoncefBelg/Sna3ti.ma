@@ -25,6 +25,37 @@
     approve: function (id) { return R("POST", "admin/professional-requests/:id/approve", { pathParams: { id: id } }); },
     reject: function (id, reason) {
       return R("POST", "admin/professional-requests/:id/reject", { pathParams: { id: id }, body: { reason: reason } });
+    },
+
+    // ---- Media (REQ 53) ----
+    // Upload runs against the PUBLIC route (account-free onboarding); the
+    // request's own reference is its only credential. removeMedia uses the
+    // admin-guarded DELETE.
+    mediaUrl: function (id, mediaId) { return "admin/professional-requests/" + id + "/media/" + mediaId; },
+
+    uploadMedia: function (id, file, kind, label) {
+      var base = String(global.Sna3tiApi.baseUrl || "").replace(/\/+$/, "");
+      var token = global.Sna3tiApi && global.Sna3tiApi.getToken ? (global.Sna3tiApi.getToken() || "") : "";
+      var fd = new FormData();
+      fd.append("file", file, file.name || "fichier");
+      fd.append("kind", kind || "echantillon");
+      if (label) fd.append("label", label);
+      var init = { method: "POST", body: fd };
+      if (token) init.headers = { "Authorization": "Bearer " + token };
+      return global.fetch(base + "/professional-requests/" + encodeURIComponent(id) + "/media", init)
+        .then(function (res) {
+          return res.text().then(function (text) {
+            var data = null;
+            try { data = text ? JSON.parse(text) : {}; } catch (e) { data = null; }
+            if (res.ok) return data;
+            var err = (data && data.error) ? data.error : {};
+            throw { success: false, code: err.code || "UPLOAD_FAILED", message: err.message || "Téléversement impossible." };
+          });
+        });
+    },
+
+    removeMedia: function (id, mediaId) {
+      return R("DELETE", "admin/professional-requests/:id/media/:mediaId", { pathParams: { id: id, mediaId: mediaId } });
     }
   };
 

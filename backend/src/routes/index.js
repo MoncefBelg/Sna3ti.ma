@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { upload } = require("../middleware/upload");
 
 function createRoutes(services, middleware) {
   const { requireAuth, requirePermission, contactLimiter, reviewLimiter, requestLimiter } = middleware;
@@ -19,6 +20,7 @@ function createRoutes(services, middleware) {
   const matchCtrl            = require("../controllers/matchController").createMatchController(services);
   const interactionCtrl      = require("../controllers/interactionController").createInteractionController(services);
   const professionalRequestCtrl = require("../controllers/professionalRequestController").createProfessionalRequestController(services);
+  const billingTransactionCtrl = require("../controllers/billingTransactionController").createBillingTransactionController(services);
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   router.post("/auth/login", authCtrl.login);
@@ -47,6 +49,9 @@ function createRoutes(services, middleware) {
 router.get("/professionals/:professionalId/reviews", reviewCtrl.list);
 router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter, reviewCtrl.create);
   router.patch("/reviews/:id", requireAuth, reviewCtrl.update);
+  // REQ 62 — anonymous WhatsApp brief-avis (public, rate-limited): creates a
+  // PENDING review + admin notification, returns the platform WhatsApp number.
+  router.post("/reviews/whatsapp", reviewLimiter, reviewCtrl.submitWhatsApp);
 
   // ── Contact interactions (WhatsApp trust) ──────────────────────────────────
   // Recording is best-effort by design: the frontend opens WhatsApp regardless
@@ -66,6 +71,11 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
 
   // ── Account-free artisan onboarding (REQ 53) — public submit ──────────────
   router.post("/professional-requests", requestLimiter, professionalRequestCtrl.create);
+  // Artisan media upload — multipart, attached to a just-created request.
+  router.post("/professional-requests/:id/media", requestLimiter, upload.single("file"), professionalRequestCtrl.uploadMedia);
+
+  // ── Professional portfolio media — public byte serving (published pros) ───
+  router.get("/professionals/:id/media/:mediaId", professionalCtrl.getMedia);
 
   // ── Notifications (req 25) ─────────────────────────────────────────────────
   router.use("/notifications", requireAuth);
@@ -120,6 +130,12 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.post("/subscriptions/:id/renew", requirePermission("subscriptions.manage"), subscriptionCtrl.renew);
   admin.post("/subscriptions/:id/downgrade", requirePermission("subscriptions.manage"), subscriptionCtrl.downgrade);
 
+  // Billing history — REQ 58-I (read-only) + REQ 58-K (lightweight reporting).
+  // Gated by payments.view so only admin/finance/super_admin (who already
+  // manage billing) can read the immutable ledger. No update/delete routes.
+  admin.get("/billing-transactions", requirePermission("payments.view"), billingTransactionCtrl.list);
+  admin.get("/billing-transactions/summary", requirePermission("payments.view"), billingTransactionCtrl.summary);
+
   // Verifications
   admin.get("/verifications", requirePermission("verification.view"), verificationCtrl.list);
 
@@ -134,6 +150,8 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.post("/reviews/:id/flag", requirePermission("reviews.moderate"), reviewCtrl.flag);
   admin.post("/reviews/:id/hide", requirePermission("reviews.moderate"), reviewCtrl.hide);
   admin.post("/reviews/:id/delete", requirePermission("reviews.moderate"), reviewCtrl.remove);
+  // REQ 62 — admin manually captures a client's review (typed from WhatsApp).
+  admin.post("/reviews/manual", requirePermission("reviews.moderate"), reviewCtrl.createManual);
 
   // Contact interactions (WhatsApp trust) — dashboard list / detail
   admin.get("/interactions", requirePermission("interactions.view"), interactionCtrl.list);
@@ -158,9 +176,17 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   // Account-free artisan onboarding — admin read-only (approval in a later step).
   admin.get("/professional-requests", requirePermission("professionalRequests.view"), professionalRequestCtrl.list);
   admin.get("/professional-requests/:id", requirePermission("professionalRequests.view"), professionalRequestCtrl.get);
+  // REQ 53 media — guarded serving + removal while the request is reviewed.
+  admin.get("/professional-requests/:id/media/:mediaId", requirePermission("professionalRequests.view"), professionalRequestCtrl.getMedia);
+  admin.delete("/professional-requests/:id/media/:mediaId", requirePermission("professionalRequests.edit"), professionalRequestCtrl.removeMedia);
   // REQ 54 — admin decision endpoints (pending -> approved / rejected).
   admin.post("/professional-requests/:id/approve", requirePermission("professionalRequests.approve"), professionalRequestCtrl.approve);
   admin.post("/professional-requests/:id/reject", requirePermission("professionalRequests.reject"), professionalRequestCtrl.reject);
+
+  // Professional media — admin add / guarded read / remove (plan-gated).
+  admin.post("/professionals/:id/media", requirePermission("professionals.edit"), upload.single("file"), professionalCtrl.uploadMedia);
+  admin.get("/professionals/:id/media/:mediaId", requirePermission("professionals.view"), professionalCtrl.getMediaAdmin);
+  admin.delete("/professionals/:id/media/:mediaId", requirePermission("professionals.edit"), professionalCtrl.removeMedia);
 
   // Legal (req 24) — admin management
   admin.get("/legal", requirePermission("settings.manage"), legalCtrl.listAll);
@@ -169,6 +195,7 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
 
   // Dashboard / analytics
   admin.get("/dashboard", requirePermission("analytics.view"), adminCtrl.getDashboard);
+  admin.get("/analytics", requirePermission("analytics.view"), adminCtrl.getAnalytics);
 
   // Settings
   admin.get("/settings", requirePermission("settings.manage"), adminCtrl.getSettings);
@@ -178,8 +205,11 @@ router.post("/professionals/:professionalId/reviews", requireAuth, reviewLimiter
   admin.post("/admin-users", requirePermission("admin_users.manage"), adminCtrl.createAdminUser);
   admin.patch("/admin-users/:id", requirePermission("admin_users.manage"), adminCtrl.updateAdminUser);
 
-  // Audit logs (req 23) — read-only; append-only, no modify/delete endpoints.
+  // Audit logs (req 23) — append-only for unprivileged roles; super-admin/admin
+  // can remove individual entries or clear the whole log (audit_logs.delete).
   admin.get("/audit-logs", requirePermission("audit_logs.view"), adminCtrl.listAuditLogs);
+  admin.delete("/audit-logs", requirePermission("audit_logs.delete"), adminCtrl.clearAuditLogs);
+  admin.delete("/audit-logs/:id", requirePermission("audit_logs.delete"), adminCtrl.deleteAuditLog);
 
   router.use("/admin", admin);
 

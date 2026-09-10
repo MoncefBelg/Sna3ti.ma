@@ -39,6 +39,8 @@
 
   function buildAppShell(){
     var navGroups = buildNavGroups();
+    var sess = (typeof Sna3tiAuth !== "undefined" && Sna3tiAuth.getSession) ? Sna3tiAuth.getSession() : null;
+    var demo = !sess || sess.api !== true;
     appRoot = document.getElementById("admin-root");
     appRoot.innerHTML =
       '<div class="app">' +
@@ -47,13 +49,13 @@
             '<div class="sidebar-brand"><div class="brand-logo">S</div><div><div class="brand-name">Sna3ti</div><div class="brand-sub">'+T("Administration")+'</div></div></div>' +
           '</div>' +
           '<nav class="sidebar-nav" id="sidebarNav">' + navGroups + '</nav>' +
-          '<div class="sidebar-foot"><div id="sideUser"></div><div class="proto-note">'+T("Prototype — authentification de démonstration uniquement.")+'</div></div>' +
+          '<div class="sidebar-foot"><div id="sideUser"></div>'+(demo?'<div class="proto-note">'+T("Prototype — authentification de démonstration uniquement.")+'</div>':"")+'</div>' +
         '</aside>' +
         '<div class="app-main">' +
           '<header class="topbar">' +
             '<button class="hamburger" id="hamburger" aria-label="Menu">☰</button>' +
             '<div class="topbar-title" id="topbarTitle">'+T("Tableau de bord")+'</div>' +
-            '<span class="badge purple prototype-badge">'+T("Prototype")+'</span>' +
+            (demo?'<span class="badge purple prototype-badge">'+T("Prototype")+'</span>':"") +
             '<div class="topbar-spacer"></div>' +
             '<div class="topbar-tools">' +
               '<button class="icon-btn" id="themeToggle" title="Dark mode" aria-label="'+T("Mode sombre")+'">🌙</button>' +
@@ -89,12 +91,31 @@
     var notifBtn = document.getElementById("notifBtn"), notifPanel = document.getElementById("notifPanel");
     notifBtn.addEventListener("click", function(e){
       e.stopPropagation();
-      var open = notifPanel.classList.toggle("open");
-      if(open) renderNotifications();
+var open = notifPanel.classList.toggle("open");
+    if(open){
+      if(global.Sna3tiNotificationsLive){
+        Sna3tiNotificationsLive.refresh().then(renderNotifications);
+      } else {
+        renderNotifications();
+      }
+    }
     });
     notifPanel.addEventListener("click", function(e){
       var it = e.target.closest(".notif-item");
-      if(it && it.dataset.route){ notifPanel.classList.remove("open"); ROUTER.navigate(it.dataset.route); }
+      if(it){
+        var id = it.dataset.id;
+        // Reading happens one-by-one: clicking a notification marks THAT
+        // notification read (the counter decreases only then).
+        if(id){
+          if(global.Sna3tiNotificationsLive && Sna3tiNotificationsLive.isReady()){
+            Sna3tiNotificationsLive.markRead(id).then(updatePills);
+          } else {
+            DATA.markNotificationRead(id);
+            updatePills();
+          }
+        }
+        if(it.dataset.route){ notifPanel.classList.remove("open"); ROUTER.navigate(it.dataset.route); }
+      }
     });
 
     // user menu
@@ -157,6 +178,12 @@
     }
 
     renderSidebarUser();
+    if(global.Sna3tiNotificationsLive){
+      // Keep the bell badge in sync: the 20s background poll refreshes the
+      // cached feed, so the unread counter updates without any action.
+      Sna3tiNotificationsLive.onChange(function(){ updatePills(); });
+      Sna3tiNotificationsLive.refresh().then(updatePills);
+    }
   }
 
   function buildNavGroups(){
@@ -169,7 +196,6 @@
           { route:"cities", ico:"📍", label:T("Villes") }
         ]},
       { label:T("Confiance et sécurité"), items:[
-          { route:"verification", ico:"✅", label:T("Vérification"), pill:"verification" },
           { route:"registrations", ico:"📋", label:T("Demandes d'inscription"), pill:"professionalRequests" },
           { route:"reviews", ico:"⭐", label:T("Avis") },
           { route:"reports", ico:"🚩", label:T("Signalements"), pill:"reports" },
@@ -178,7 +204,8 @@
         ]},
       { label:T("Business"), items:[
           { route:"subscriptions", ico:"📦", label:T("Abonnements") },
-          { route:"payments", ico:"💰", label:T("Paiements"), pill:"payments" }
+          { route:"payments", ico:"💰", label:T("Paiements"), pill:"payments" },
+          { route:"billing-history", ico:"🧾", label:T("Historique de facturation") }
         ]},
       { label:T("Insights"), items:[
           { route:"analytics", ico:"📈", label:T("Analytiques") },
@@ -218,6 +245,7 @@
     reviews:["reviews","read"], reports:["reports","read"], "match-requests":["matchRequests","read"], support:["support","read"],
     subscriptions:["subscriptions","read"],
     payments:["payments","read"], analytics:["analytics","read"], ai:["ai","read"],
+    "billing-history":["payments","read"],
     notifications:["notifications","read"], settings:["settings","read"], legal:["legal","read"],
     "admin-users":["adminUsers","read"], "audit-logs":["auditLogs","read"]
   };
@@ -260,7 +288,6 @@
   function updatePills(){
     var kpi = DATA.getKPIs();
     var set = function(id, n){ var el=document.getElementById("pill-"+id); if(el){ el.textContent=n; el.style.display = n>0?"":"none"; } };
-    set("verification", kpi.pendingVerification);
     set("reports", DATA.getReports().filter(function(r){ return r.status==="new"||r.status==="under_review"; }).length);
     set("matchRequests", (DATA.getMatchRequests()||[]).filter(function(r){ return r.status==="new" || r.status==="reviewing"; }).length);
     // Backend-driven count when available (REQ 55); fall back to the page
@@ -273,21 +300,26 @@
     var openSupport = (DATA.getSupportTickets ? DATA.getSupportTickets().filter(function(t){ return t.status==="open"||t.status==="pending"; }).length : 0);
     set("support", openSupport);
     var dot = document.getElementById("notifDot");
-    var unread = DATA.getNotifications().filter(function(n){ return n.unread; }).length;
-    if(dot) dot.style.display = unread>0 ? "" : "none";
+    var unread = (global.Sna3tiNotificationsLive && Sna3tiNotificationsLive.isReady())
+      ? Sna3tiNotificationsLive.unreadCount()
+      : DATA.getNotifications().filter(function(n){ return n.unread; }).length;
+    if(dot){ dot.textContent = unread > 99 ? "99+" : (unread || ""); dot.style.display = unread>0 ? "" : "none"; }
   }
 
   function renderNotifications(){
     var panel = document.getElementById("notifPanel");
-    var list = DATA.getNotifications();
-    var NOTIF_ICO = { verification:"✅", payment:"💰", report:"🚩", subscription:"📦", user:"👥", system:"⚙️" };
-    panel.innerHTML = '<div class="np-head"><span>'+T("Notifications")+'</span><span class="muted small">'+list.filter(function(n){return n.unread;}).length+' '+T("non lues")+'</span></div>' +
+    var live = global.Sna3tiNotificationsLive;
+    var ready = !!(live && live.isReady());
+    if(live && !ready){ return; }
+    var list = ready ? live.list() : DATA.getNotifications();
+    var unread = ready ? live.unreadCount() : list.filter(function(n){ return n.unread; }).length;
+    var NOTIF_ICO = { verification:"✅", payment:"💰", report:"🚩", subscription:"📦", registration:"📋", review:"⭐", user:"👥", system:"⚙️" };
+    panel.innerHTML = '<div class="np-head"><span>'+T("Notifications")+'</span><span class="muted small">'+unread+' '+T("non lues")+'</span></div>' +
       (list.length ? list.map(function(n){
         var ico = NOTIF_ICO[n.type] || "🔔";
         return '<div class="notif-item '+(n.unread?"unread":"")+'" data-id="'+n.id+'" data-route="'+(n.route||"")+'">' +
                '<div class="n-ico">'+ico+'</div><div><div class="n-txt">'+esc(n.text)+'</div><div class="n-when">'+esc(n.when)+'</div></div></div>';
       }).join("") : '<div class="sp-empty">'+T("Aucune notification")+'</div>');
-    DATA.markNotificationsRead();
     updatePills();
   }
 
@@ -320,9 +352,9 @@
         results.push({ group:T("Paiements"), id:pa.id, main:pa.reference+" · "+pa.planName, sub:pa.amount+" DH · "+pa.status, route:"payments", ico:"💰" });
       }
     });
-    // verifications
-    DATA.getVerificationRequests().forEach(function(v){
-      if((v.id).toLowerCase().indexOf(q)>-1){ results.push({ group:T("Vérification"), id:v.id, main:v.id, sub:T("Statut")+" "+v.status, route:"verification", ico:"✅" }); }
+    // registration requests
+    DATA.getProfessionalRequests().forEach(function(r){
+      if((r.id).toLowerCase().indexOf(q)>-1){ results.push({ group:T("Inscriptions"), id:r.id, main:idLabel(r), sub:T("Statut")+" "+r.status, route:"registrations", ico:"📋" }); }
     });
 
     if(results.length === 0){

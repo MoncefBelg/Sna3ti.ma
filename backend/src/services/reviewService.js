@@ -5,7 +5,9 @@
 // and every review submission is recorded in the audit log (append-only).
 
 const { AppError } = require("../utils/AppError");
+const env = require("../config/env");
 const interactionService = require("./interactionService");
+const notificationSvc = require("./notificationService");
 
 const PUBLIC_STATUS = "published";
 
@@ -113,6 +115,140 @@ async function create(reqCtx, professionalId, data, actor) {
     metadata: { professionalId, riskScore: risk.score, verifiedContact: true }
   });
 
+  // A suspicious review (HIGH / CRITICAL risk) is auto-flagged → surface it in
+  // the admin notifications feed so moderation can act.
+  if (status === "flagged") {
+    const pro = await reqCtx.repos.professionals.get(professionalId).catch(() => null);
+    await notificationSvc.notifyAdmin(reqCtx.repos, {
+      type: "review",
+      title: "Avis signalé",
+      message: `Avis ${id} (${rating}/5) signalé automatiquement contre ${pro && pro.name ? pro.name : professionalId} (risque ${risk.level}).`,
+      entityType: "Review",
+      entityId: id
+    });
+  }
+
+  return review;
+}
+
+// ── WhatsApp brief-avis submission (REQ 62) ─────────────────────────────────
+// Anonymous by design: a site visitor picks a rating, types an "avis" and gives
+// a WhatsApp number (no account required). The review is stored PENDING; the
+// platform's own WhatsApp phone is returned so the client can be redirected to
+// a pre-filled chat (wa.me) where the platform can follow up. An admin
+// notification and an audit entry are created (nothing is auto-published).
+async function submitWhatsApp(reqCtx, professionalId, data) {
+  await ensureProfessional(reqCtx.repos, professionalId);
+  const rating = normalizeRating(data.rating);
+  const contact = String(data.contact || "").trim();
+  const contactDigits = contact.replace(/\D/g, "");
+  if (contactDigits.length < 8 || contactDigits.length > 15) {
+    throw new AppError("Numéro WhatsApp invalide.", 400, [{ field: "contact", message: "Numéro WhatsApp invalide." }]);
+  }
+  if (!data.comment || !String(data.comment).trim()) {
+    throw new AppError("Veuillez écrire votre avis.", 400, [{ field: "comment", message: "Veuillez écrire votre avis." }]);
+  }
+  const name = String(data.reviewerName || "").trim();
+
+  // Duplicate / spam prevention (REQ 62): the same WhatsApp number cannot
+  // submit a new avis for the same professional while an existing one is still
+  // pending (or already recorded). This stops visitors from flooding the queue
+  // with repeated submissions. Only the open (pending) window is blocked; once
+  // an admin closes it, a genuine follow-up is still possible.
+  const existing = await reqCtx.repos.reviews.find({ professionalId, reviewerContact: contact });
+  if (existing) {
+    const stillOpen = existing.status === "pending" || existing.status === "flagged";
+    throw new AppError(
+      stillOpen
+        ? "Un avis est déjà en attente pour ce numéro et cet artisan. Merci de patienter."
+        : "Un avis a déjà été envoyé avec ce numéro pour cet artisan.",
+      409,
+      [{ field: "contact", message: "Demande déjà envoyée pour ce contact." }]
+    );
+  }
+
+  const id = await reqCtx.repos.ids.nextId("review");
+  const review = await reqCtx.repos.reviews.create({
+    id,
+    professionalId,
+    userId: null,
+    customer: name || "Client WhatsApp",
+    rating,
+    comment: String(data.comment).trim(),
+    status: "pending",
+    verifiedContact: false,
+    reviewerName: name || null,
+    reviewerContact: contact,
+    reviewSource: "whatsapp",
+    date: new Date(),
+    createdAt: new Date()
+  });
+  await reqCtx.repos.auditLogs.log({
+    adminId: null,
+    action: "REVIEW_SUBMITTED_WHATSAPP",
+    entity: "Review",
+    entityId: id,
+    result: "pending",
+    metadata: { professionalId, rating, hasContact: true }
+  });
+
+  const pro = await reqCtx.repos.professionals.get(professionalId).catch(() => null);
+  await notificationSvc.notifyAdmin(reqCtx.repos, {
+    type: "review",
+    title: "Nouvel avis WhatsApp",
+    message: `Avis ${id} (${rating}/5) reçu via WhatsApp pour ${pro && pro.name ? pro.name : professionalId} — à vérifier et publier. Contact : ${contact}.`,
+    entityType: "Review",
+    entityId: id
+  });
+
+  return { review, platformWhatsapp: env.whatsapp.businessPhone || env.whatsapp.defaultRecipient || "" };
+}
+
+// ── Admin manual capture (REQ 62): an admin types a client's review received
+// on the platform WhatsApp. Published immediately unless publish=false.
+async function createManual(reqCtx, data, admin) {
+  const professionalId = String(data.professionalId || "");
+  await ensureProfessional(reqCtx.repos, professionalId);
+  const rating = normalizeRating(data.rating);
+  const name = String(data.customer || "").trim() || "Client";
+  const status = data.publish === false ? "pending" : "published";
+  const contact = String(data.contact || "").trim() || null;
+
+  const id = await reqCtx.repos.ids.nextId("review");
+  const review = await reqCtx.repos.reviews.create({
+    id,
+    professionalId,
+    userId: null,
+    customer: name,
+    rating,
+    comment: data.comment ? String(data.comment).trim() : null,
+    status,
+    verifiedContact: false,
+    reviewerName: name,
+    reviewerContact: contact,
+    reviewSource: "admin",
+    date: new Date(),
+    createdAt: new Date()
+  });
+  await reqCtx.repos.auditLogs.log({
+    adminId: admin && admin.id,
+    action: "REVIEW_CREATED_MANUAL",
+    entity: "Review",
+    entityId: id,
+    result: status,
+    metadata: { professionalId, rating, source: "admin" }
+  });
+  if (status === "published") {
+    const pro = await reqCtx.repos.professionals.get(professionalId).catch(() => null);
+    await notificationSvc.notifyAdmin(reqCtx.repos, {
+      type: "review",
+      title: "Avis ajouté par un admin",
+      message: `Avis ${id} (${rating}/5) ajouté et publié pour ${pro && pro.name ? pro.name : professionalId}.`,
+      entityType: "Review",
+      entityId: id
+    });
+  }
+  await recomputeRating(reqCtx.repos, professionalId);
   return review;
 }
 
@@ -174,4 +310,4 @@ async function moderate(reqCtx, reviewId, action, admin, reason) {
   return reqCtx.repos.reviews.get(reviewId);
 }
 
-module.exports = { list, listAll, create, update, moderate };
+module.exports = { list, listAll, create, submitWhatsApp, createManual, update, moderate };

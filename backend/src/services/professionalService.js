@@ -3,6 +3,8 @@
 const { AppError } = require("../utils/AppError");
 const searchSvc = require("./searchService");
 const subscriptionSvc = require("./subscriptionService");
+const notificationSvc = require("./notificationService");
+const { assertMediaAllowed } = require("./mediaService");
 
 // Public, paginated, searchable list (envelope from searchService).
 async function list(repos, query) {
@@ -59,6 +61,13 @@ async function suspend(repos, professionalId, admin, reason) {
     action: "PROFESSIONAL_SUSPENDED", entity: "Professional",
     entityId: professionalId, result: "Suspended", note: reason || null
   });
+  await notificationSvc.notifyAdmin(repos, {
+    type: "system",
+    title: "Artisan suspendu",
+    message: `${professionalId} ${pro.name || ""} suspendu de la place de marché.${reason ? " Motif : " + reason : ""}`,
+    entityType: "Professional",
+    entityId: professionalId
+  });
   return repos.professionals.get(professionalId);
 }
 
@@ -76,6 +85,13 @@ async function activate(repos, professionalId, admin) {
     action: "PROFESSIONAL_ACTIVATED", entity: "Professional",
     entityId: professionalId, result: "Activated"
   });
+  await notificationSvc.notifyAdmin(repos, {
+    type: "system",
+    title: "Artisan activé",
+    message: `${professionalId} ${pro.name || ""} activé sur la place de marché.`,
+    entityType: "Professional",
+    entityId: professionalId
+  });
   return repos.professionals.get(professionalId);
 }
 
@@ -88,6 +104,94 @@ async function update(repos, professionalId, data, admin) {
     action: "UPDATE_PROFESSIONAL", entity: "Professional",
     entityId: professionalId, result: "Updated"
   });
+  return repos.professionals.get(professionalId);
+}
+
+// ─── Professional media (portfolio / profile photo) ────────────────────────
+// Mirrors the request media pipeline: bytes live in StorageService
+// (professionals/<proId>/...), metadata on the Professional.media JSON column.
+// Plan gates follow the professional's effective package (free/verified/gold):
+// FREE = photos only, Vérifié/GOLD = photos or ≤ 3 videos.
+
+async function findMedia(professional, mediaId) {
+  const list = Array.isArray(professional.media) ? professional.media : [];
+  return list.find((m) => m && m.id === mediaId) || null;
+}
+
+function effectivePlanCode(pro) {
+  const pkg = String(pro.package || pro.subscriptionStatus || "free").toLowerCase();
+  if (pkg === "gold" || pkg.indexOf("gold") !== -1) return "gold";
+  if (pkg === "verified" || pkg === "vérifié" || pkg === "verifie" || pkg.indexOf("verifie") !== -1) return "verified";
+  return "free";
+}
+
+async function uploadMedia(reqCtx, professionalId, meta = {}) {
+  const repos = reqCtx.repos;
+  const pro = await repos.professionals.get(professionalId);
+  if (!pro) throw new AppError("Professionnel introuvable.", 404);
+
+  const kind = meta.kind === "profile" ? "profile" : "echantillon";
+  const allowed = assertMediaAllowed(effectivePlanCode(pro), meta.file, pro.media, { kind });
+
+  const stored = await reqCtx.storage.put(`professionals/${professionalId}`, {
+    originalname: String(meta.file.originalname || (allowed.type === "video" ? "video.mp4" : "photo.jpg")),
+    mimetype: meta.file.mimetype,
+    size: meta.file.size,
+    buffer: meta.file.buffer
+  });
+
+  const mediaId = await repos.ids.nextId("professionalMedia");
+  const entry = {
+    id: mediaId,
+    kind: allowed.kind,
+    type: allowed.type,
+    label: meta.label && String(meta.label).trim() ? String(meta.label).slice(0, 120) : "",
+    fileUrl: stored.url,
+    key: stored.key,
+    mimeType: stored.mimeType,
+    size: stored.size,
+    added: new Date().toISOString()
+  };
+
+  const next = [...(Array.isArray(pro.media) ? pro.media : []), entry];
+  await repos.professionals.update(professionalId, { media: next });
+  return { ...entry, quotas: { used: next.length, limits: allowed.limits } };
+}
+
+async function getMedia(reqCtx, professionalId, mediaId) {
+  const repos = reqCtx.repos;
+  const pro = await repos.professionals.get(professionalId);
+  if (!pro) throw new AppError("Professionnel introuvable.", 404);
+  const entry = await findMedia(pro, mediaId);
+  if (!entry) throw new AppError("Média introuvable.", 404);
+  const key = String(entry.fileUrl).replace(/^\/files\//, "");
+  const bytes = reqCtx.storage ? await reqCtx.storage.get(key) : null;
+  return { entry, bytes };
+}
+
+async function removeMedia(reqCtx, professionalId, mediaId) {
+  const repos = reqCtx.repos;
+  const pro = await repos.professionals.get(professionalId);
+  if (!pro) throw new AppError("Professionnel introuvable.", 404);
+  const entry = await findMedia(pro, mediaId);
+  if (!entry) throw new AppError("Média introuvable.", 404);
+
+  const next = (pro.media || []).filter((m) => m.id !== mediaId);
+  await repos.professionals.update(professionalId, { media: next });
+  if (reqCtx.storage && entry.fileUrl) {
+    try { await reqCtx.storage.delete(String(entry.fileUrl).replace(/^\/files\//, "")); } catch (err) { /* best-effort */ }
+  }
+  return { id: mediaId, removed: true };
+}
+
+// Carry media from an approved request onto the professional. Bytes stay in
+// storage (keys are bucket-agnostic for the guarded GET endpoints), so this is
+// a pure metadata copy — used by approve in professionalRequestService.
+async function setMedia(repos, professionalId, entries, admin) {
+  const pro = await repos.professionals.get(professionalId);
+  if (!pro) throw new AppError("Professionnel introuvable.", 404);
+  const next = (Array.isArray(entries) ? entries : []).map((e) => ({ ...e }));
+  await repos.professionals.update(professionalId, { media: next });
   return repos.professionals.get(professionalId);
 }
 
@@ -186,4 +290,4 @@ async function adminList(repos, query = {}) {
   return { data, pagination: { page: currentPage, limit, total, pages } };
 }
 
-module.exports = { suspend, activate, update, list, create, remove, get, adminList };
+module.exports = { suspend, activate, update, list, create, remove, get, adminList, uploadMedia, getMedia, removeMedia, setMedia };

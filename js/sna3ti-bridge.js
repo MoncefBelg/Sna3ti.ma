@@ -201,6 +201,46 @@
     };
   }
 
+  // Backend Notification -> local admin notification shape
+  // ({id,type,text,when,unread,route}). `unread` derives from readAt;
+  // `text` prefers the richer message, falling back to title.
+  function relTime(ts) {
+    if (!ts) return "";
+    var t = new Date(ts).getTime();
+    if (!t || isNaN(t)) return "";
+    var s = Math.max(0, Math.floor((Date.now() - t) / 1000));
+    if (s < 60) return "à l'instant";
+    var m = Math.floor(s / 60);
+    if (m < 60) return "il y a " + m + " min";
+    var h = Math.floor(m / 60);
+    if (h < 24) return "il y a " + h + " h";
+    var d = Math.floor(h / 24);
+    if (d < 7) return "il y a " + d + " j";
+    return new Date(ts).toLocaleDateString("fr-FR");
+  }
+
+  var NOTIF_ROUTE = {
+    registration: "registrations",
+    verification: "registrations",
+    payment: "payments",
+    subscription: "subscriptions",
+    report: "reports",
+    review: "reviews"
+  };
+
+  function mapNotification(remote) {
+    if (!remote) return null;
+    return {
+      id: remote.id,
+      type: remote.type || "system",
+      text: remote.message || remote.title || "",
+      when: relTime(remote.createdAt),
+      unread: !remote.readAt,
+      readAt: remote.readAt,
+      route: NOTIF_ROUTE[remote.type] || ""
+    };
+  }
+
   function unwrapList(res) { return res && res.data ? res.data : (Array.isArray(res) ? res : []); }
 
   /** Merge API lists into the local store by id, adding new and patching
@@ -299,7 +339,7 @@
       jobs.push(track("auditLogs", AuditApi.list().then(function (res) { mergeList("auditLogs", unwrapList(res), null); })));
     }
     if (NotifApi && NotifApi.list) {
-      jobs.push(track("notifications", NotifApi.list().then(function (res) { mergeList("notifications", unwrapList(res), null); })));
+      jobs.push(track("notifications", NotifApi.list().then(function (res) { mergeList("notifications", unwrapList(res), mapNotification); })));
     }
     if (SettingsApi && SettingsApi.get) {
       jobs.push(track("settings", SettingsApi.get().then(function (res) {

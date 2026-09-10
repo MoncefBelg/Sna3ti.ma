@@ -19,7 +19,7 @@
 
   function fetchPlans() {
     if (!Api) return Promise.resolve(null);
-    return Api.R("GET", "plans", {}).then(function (res) {
+    return Api.__request("GET", "plans", { auth: false }).then(function (res) {
       return (res && res.data) ? res.data : null;
     }).catch(function () {
       return null;

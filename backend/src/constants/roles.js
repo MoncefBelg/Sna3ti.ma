@@ -1,7 +1,7 @@
-// Server-side RBAC permission matrix.
+﻿// Server-side RBAC permission matrix.
 //
 // Authorization is enforced HERE, server-side, from the authenticated session
-// only. The client never sends `role`/`permissions`/`userId` that is trusted —
+// only. The client never sends `role`/`permissions`/`userId` that is trusted â€”
 // the middleware resolves the actor from the JWT (sub + role) and checks a
 // permission string below.
 //
@@ -28,12 +28,14 @@ const ALL_PERMISSIONS = [
   "matchRequests.view",
   "matchRequests.edit",
   "professionalRequests.view",
+  "professionalRequests.edit",
   "professionalRequests.approve",
   "professionalRequests.reject",
   "analytics.view",
   "settings.manage",
-  "admin_users.manage",
+"admin_users.manage",
   "audit_logs.view",
+  "audit_logs.delete",
   "notifications.read",
   "notifications.edit"
 ];
@@ -59,15 +61,17 @@ const ROLE_PERMISSIONS = {
     "interactions.view",
     "reports.view",
     "reports.resolve",
-    "matchRequests.view",
+"matchRequests.view",
     "matchRequests.edit",
     "professionalRequests.view",
+    "professionalRequests.edit",
     "professionalRequests.approve",
     "professionalRequests.reject",
     "analytics.view",
     "settings.manage",
-    "admin_users.manage",
+"admin_users.manage",
     "audit_logs.view",
+    "audit_logs.delete",
     "notifications.read",
     "notifications.edit"
   ]),
@@ -82,9 +86,10 @@ const ROLE_PERMISSIONS = {
     "interactions.view",
     "reports.view",
     "reports.resolve",
-    "matchRequests.view",
+"matchRequests.view",
     "matchRequests.edit",
     "professionalRequests.view",
+    "professionalRequests.edit",
     "professionalRequests.approve",
     "professionalRequests.reject",
     "analytics.view",
@@ -127,3 +132,4 @@ function permissionsOf(role) {
 const ROLE_IDS = Object.keys(ROLE_PERMISSIONS);
 
 module.exports = { ROLES: ROLE_PERMISSIONS, ROLE_IDS, can, permissionsOf, ALL_PERMISSIONS };
+

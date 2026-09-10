@@ -166,7 +166,7 @@ describe("REQ 56 — registration approval → pending professional → activati
     assert.equal(pro.city, "rabat", "city slug preserved");
     assert.equal(pro.area, "Rabat Agdal", "distinct readable cityLabel → area");
     assert.equal(pro.phone, "+212622111333");
-    assert.equal(pro.package, "free", "REQ 57-A — approval always starts on the FREE account");
+    assert.equal(pro.package, "gold", "REQ 57-A — the requested plan carries onto the professional (badge)");
     assert.equal(pro.description, null, "empty description stored as null");
 
     // Never invented: no price / no catalog refs / no account link.
@@ -181,12 +181,14 @@ describe("REQ 56 — registration approval → pending professional → activati
     assert.equal(pro2.area, null, "equivalent cityLabel collapsed to null");
   });
 
-  it("no subscription is ever auto-created by approval; start FREE (REQ 57-A)", async () => {
+  it("no subscription is ever auto-created by approval; requested tier tracked, not activated (REQ 57-A)", async () => {
     const req = await makePending({ plan: "verified" });
     await approve(req.id);
     assert.equal(db.subscription.rows.length, 0, "approval creates no subscription");
     const pro = db.professional.rows[0];
-    assert.equal(pro.package, "free", "even a requested paid plan starts on FREE");
+    assert.equal(pro.package, "verified", "requested plan carries onto the professional tier");
+    assert.equal(pro.planEligible, true, "paid plan flagged eligible until payment");
+    assert.equal(pro.subscriptionPlanId, "PLAN-VER", "paid plan referenced on the account");
     assert.equal(pro.subscriptionStatus, undefined, "no subscription state invented");
     // The chosen formula stays traceable on the REQUEST, not the professional.
     const detail = await request(server, "GET", `/admin/professional-requests/${req.id}`, undefined, tokens.super_admin);

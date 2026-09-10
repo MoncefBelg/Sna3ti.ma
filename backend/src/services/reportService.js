@@ -2,6 +2,7 @@
 // resolve, reject, warn, or suspend. Every admin action is audited (req 23).
 
 const { AppError } = require("../utils/AppError");
+const notificationSvc = require("./notificationService");
 
 const OPEN_STATUSES = ["new", "under_review"];
 
@@ -12,7 +13,7 @@ async function ensureProfessional(repos, id) {
 }
 
 async function create(reqCtx, data, actor) {
-  await ensureProfessional(reqCtx.repos, data.professionalId);
+  const pro = await ensureProfessional(reqCtx.repos, data.professionalId);
   const id = await reqCtx.repos.ids.nextId("report");
   const report = await reqCtx.repos.reports.create({
     id,
@@ -24,6 +25,13 @@ async function create(reqCtx, data, actor) {
     description: data.description || null,
     status: "new",
     createdAt: new Date()
+  });
+  await notificationSvc.notifyAdmin(reqCtx.repos, {
+    type: "report",
+    title: "Nouveau signalement",
+    message: `${pro.name || data.professionalId} signalé par ${report.reporter} — ${report.reason || report.type || "aucun motif"}`,
+    entityType: "Report",
+    entityId: id
   });
   return report;
 }

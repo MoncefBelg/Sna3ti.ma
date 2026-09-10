@@ -68,13 +68,30 @@ function createApp({ db }) {
   app.disable("x-powered-by");
 
   app.use(helmet());
+
+  // Helmet defaults to `Cross-Origin-Resource-Policy: same-origin`. That is
+  // fine for API JSON, but it makes browsers BLOCK cross-origin renderings of
+  // our media — the admin SPA (localhost:8080, marketplace, etc.) displays
+  // these files with plain <img>/<video> tags that cannot send CORS headers.
+  // Relax CORP (and X-Frame-Options, so the same file may open in a new tab
+  // for the admin "Voir" action) only for byte-serving media endpoints.
+  app.use(function (req, res, next) {
+    if (/(^|\/)media\/[^/]+$/.test(req.path) || /(^|\/)photo\/[^/]+$/.test(req.path)) {
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.removeHeader("X-Frame-Options");
+    }
+    next();
+  });
   app.use(cors({
     origin: env.corsOrigins.length ? env.corsOrigins : true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
   }));
-  app.use(express.json({ limit: "1mb" }));
+  // 30 MB JSON cap: Sna3ti Match photos arrive as base64 data-URLs (up to
+  // 5 photos x 3 MB each per matchService), which inflates ~33% in JSON.
+  // 1 MB rejected real customer photos with an unhandled 413 -> request 500.
+  app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ extended: false, limit: "1mb" }));
 
   const repos = createRepos(db);

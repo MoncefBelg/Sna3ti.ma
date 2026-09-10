@@ -296,6 +296,22 @@ describe("Admin registration approval (REQ 54)", () => {
     assert.equal(list.filter((p) => String(p.phone || "").includes("644555666")).length, 0);
   });
 
+  it("approving a GOLD request carries the plan onto the created professional (package/planEligible)", async () => {
+    const id = await makePending({ phone: "+212611333444", plan: "gold" });
+    const res = await request(server, "POST", `/admin/professional-requests/${id}/approve`, undefined, adminToken);
+    assert.equal(res.status, 200);
+    const proId = res.body.data.professionalId;
+    assert.ok(proId, "approve must expose the created professionalId");
+    const proRes = await request(server, "GET", `/admin/professionals/${proId}`, undefined, adminToken);
+    assert.equal(proRes.status, 200);
+    const pro = proRes.body.data;
+    assert.equal(String(pro.package), "gold", "marketplace badge comes from package");
+    assert.equal(pro.planEligible, true);
+    assert.equal(String(pro.subscriptionPlanId || ""), "PLAN-GOLD");
+    // Paid subscription itself stays separate until money actually moves.
+    assert.equal(String(pro.subscriptionStatus || "none"), "none");
+  });
+
   it("approve is rejectable-only-once: second approve -> 409 (invalid transition)", async () => {
     const id = await makePending({ phone: "+212655666777", plan: "free" });
     const first = await request(server, "POST", `/admin/professional-requests/${id}/approve`, undefined, adminToken);

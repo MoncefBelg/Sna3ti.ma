@@ -108,7 +108,7 @@
   }
 
   function clonePublic(s){
-    return { id:s.id, adminId:s.id, email:s.email, name:s.name, role:s.role };
+    return { id:s.id, adminId:s.id, email:s.email, name:s.name, role:s.role, api: s.api === true };
   }
 
   /* ---------- Login ---------- */

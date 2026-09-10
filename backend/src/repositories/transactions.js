@@ -100,6 +100,37 @@ function createSupportRepo(db) {
   };
 }
 
+// REQ 58-D — append-only financial history. Exposes ONLY create/read/count so
+// a BillingTransaction can never be updated or deleted through any repository
+// path. Immutability is guaranteed at the data layer, not just the API.
+function createBillingTransactionRepo(db) {
+  const base = createGenericRepository("billingTransaction", db);
+  const UPDATEABLE_STATUSES = ["active", "expired", "cancelled"];
+  return {
+    model: base.model,
+    // Append-only write — no generic update/remove are exposed.
+    async insert(data) { return base.create(data); },
+    list: base.list,
+    findMany: base.findMany,
+    get: base.get,
+    count: base.count,
+    async findByPayment(paymentId) { return base.find({ paymentId }); },
+    async listByProfessional(professionalId) {
+      return base.list({ professionalId }, { orderBy: { createdAt: "desc" } });
+    },
+    // REQ 58-H — lifecycle-only status transition. This is NOT an edit of the
+    // financial record: it re-labels an historical period's status (active ->
+    // expired / cancelled) when the entitlement ends. Amounts, periods, plan and
+    // references remain immutable. Calling this throws for any other change.
+    async updateStatus(id, status) {
+      if (!UPDATEABLE_STATUSES.includes(status)) {
+        throw new Error(`BillingTransaction status not allowed: ${status}`);
+      }
+      return db.billingTransaction.update({ where: { id }, data: { status } });
+    }
+  };
+}
+
 function createTransactionRepo(db) {
   return {
     payments: createPaymentRepo(db),
@@ -108,7 +139,8 @@ function createTransactionRepo(db) {
     reviews: createReviewRepo(db),
     interactions: createInteractionRepo(db),
     reports: createReportRepo(db),
-    support: createSupportRepo(db)
+    support: createSupportRepo(db),
+    billingTransactions: createBillingTransactionRepo(db)
   };
 }
 

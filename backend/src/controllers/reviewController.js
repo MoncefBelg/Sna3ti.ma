@@ -16,6 +16,16 @@ function createReviewController(services) {
       const data = await services.reviews.update(req.params.id, req.body, req.admin);
       ok(res, { data });
     }),
+    // REQ 62 — anonymous WhatsApp avis submission (public, rate-limited).
+    submitWhatsApp: asyncHandler(async (req, res) => {
+      const data = await services.reviews.submitWhatsApp(req.body.professionalId, req.body);
+      created(res, { data });
+    }),
+    // REQ 62 — admin manual capture of a client's review.
+    createManual: asyncHandler(async (req, res) => {
+      const data = await services.reviews.createManual(req.body, req.admin);
+      created(res, { data });
+    }),
     // Admin moderation
     publish: asyncHandler(async (req, res) => {
       const data = await services.reviews.moderate(req.params.id, "publish", req.admin, req.body.reason);

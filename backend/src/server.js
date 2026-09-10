@@ -1,4 +1,4 @@
-require("./config/env");
+﻿require("./config/env");
 const { prisma, disconnectDb: disconnectDB } = require("./config/database");
 const { createApp } = require("./app");
 const logger = require("./utils/logger");
@@ -16,7 +16,7 @@ async function main() {
 
   // Graceful shutdown.
   async function shutdown(signal) {
-    logger.info(`\n${signal} received – shutting down…`);
+    logger.info(`\n${signal} received â€“ shutting downâ€¦`);
     server.close(async () => {
       await disconnectDB();
       process.exit(0);

@@ -38,6 +38,47 @@ function addMonths(date, n) {
 
 function oneMonthFrom(date) { return addMonths(date, 1); }
 
+// REQ 58-D/E/G — append an immutable BillingTransaction for a PAID period.
+// Only ever called for paid plans (price > 0). Free-plan activations (join)
+// do NOT create a financial record. `type` is activation | renewal. This is
+// append-only: each call inserts a NEW row and never touches a previous one.
+async function _appendBillingTransaction(repos, { type, professionalId, paymentId, subscriptionId, plan, periodStartAt, periodEndAt, actorId, actorName }) {
+  if (!plan || !(plan.price > 0)) return null; // free plans are not financial events
+  const id = await repos.ids.nextId("billingTransaction");
+  const txn = await repos.billingTransactions.insert({
+    id,
+    type,
+    professionalId,
+    paymentId: paymentId || null,
+    subscriptionId,
+    planId: plan.id || null,
+    planName: plan.name,
+    amount: plan.price,
+    currency: plan.currency || "MAD",
+    periodStartAt,
+    periodEndAt,
+    actorId: actorId || null,
+    actorName: actorName || null,
+    status: "active",
+    createdAt: new Date()
+  });
+  return txn;
+}
+
+// REQ 58-H — expiry/downgrade NEVER create a new financial event. They only
+// re-label the historical `active` paid period(s) whose entitlement has ended
+// as `expired`, keeping the immutable rows permanently available and never
+// deleting / mutating their amounts or periods.
+async function _expireBillingForProfessional(repos, professionalId) {
+  const rows = await repos.billingTransactions.list({ professionalId, status: "active" });
+  const now = new Date();
+  for (const t of rows) {
+    if (t.periodEndAt && new Date(t.periodEndAt) <= now) {
+      await repos.billingTransactions.updateStatus(t.id, "expired");
+    }
+  }
+}
+
 // Revert a professional to an EFFECTIVE FREE account. Keeps history.
 async function _revertProfessionalToFree(repos, professionalId) {
   const active = await repos.subscriptions.findActiveByProfessional(professionalId);
@@ -76,11 +117,14 @@ async function activateForProfessional(repos, professionalId, plan, opts = {}) {
     cancelledAt: null
   };
 
+  let subId;
   if (sub) {
     await repos.subscriptions.update(sub.id, subData);
+    subId = sub.id;
   } else {
     const id = await repos.ids.nextId("subscription");
     await repos.subscriptions.create({ ...subData, id, professionalId, since: now, createdAt: now });
+    subId = id;
   }
 
   await repos.professionals.update(professionalId, {
@@ -90,6 +134,21 @@ async function activateForProfessional(repos, professionalId, plan, opts = {}) {
     subscriptionExpiresAt: expiresAt
   });
 
+  // REQ 58-E/G — preserve the paid period permanently. Exactly one append-only
+  // BillingTransaction per paid activation/renewal (idempotent per payment via
+  // the DB-unique paymentId). Free plans produce no financial record.
+  const billingTxn = await _appendBillingTransaction(repos, {
+    type: stillActive ? "renewal" : "activation",
+    professionalId,
+    paymentId: opts.paymentId || null,
+    subscriptionId: subId,
+    plan,
+    periodStartAt: baseStart,
+    periodEndAt: expiresAt,
+    actorId: (opts.admin && opts.admin.id) || (opts.actorId || null),
+    actorName: (opts.admin && opts.admin.name) || (opts.actorName || null)
+  });
+
   // Subscription activation must always be recorded (audit).
   if (opts.audit) {
     await repos.auditLogs.log({
@@ -97,12 +156,23 @@ async function activateForProfessional(repos, professionalId, plan, opts = {}) {
       adminName: opts.admin ? opts.admin.name : null,
       action: stillActive ? "SUBSCRIPTION_RENEWED" : "SUBSCRIPTION_ACTIVATED",
       entity: "Subscription",
-      entityId: (sub && sub.id) || "SUB-" + professionalId,
+      entityId: subId,
       result: "Activated",
-      note: `${plan.code} -> ${expiresAt.toISOString()}`
+      note: `${plan.code} -> ${expiresAt.toISOString()}`,
+      metadata: {
+        professionalId,
+        subscriptionId: subId,
+        billingTransactionId: billingTxn ? billingTxn.id : null,
+        planId: plan.id,
+        planName: plan.name,
+        amount: plan.price,
+        currency: plan.currency || "MAD",
+        periodStartAt: baseStart.toISOString(),
+        periodEndAt: expiresAt.toISOString()
+      }
     });
   }
-  return plan;
+  return { plan, billingTransactionId: billingTxn ? billingTxn.id : null };
 }
 
 // Mark any active subscription whose period has elapsed as expired and revert
@@ -117,7 +187,10 @@ async function reconcileExpiredForProfessional(repos, professionalId) {
       changed = true;
     }
   }
-  if (changed) await _revertProfessionalToFree(repos, professionalId);
+  if (changed) {
+    await _expireBillingForProfessional(repos, professionalId);
+    await _revertProfessionalToFree(repos, professionalId);
+  }
   return changed;
 }
 
@@ -127,6 +200,7 @@ async function reconcileExpiredAcross(repos) {
   for (const s of rows) {
     if (s.expiresAt && new Date(s.expiresAt) <= now) {
       await repos.subscriptions.update(s.id, { status: "expired" });
+      await _expireBillingForProfessional(repos, s.professionalId);
       await _revertProfessionalToFree(repos, s.professionalId);
     }
   }
@@ -269,10 +343,35 @@ async function renew(repos, subscriptionId, admin) {
     });
   }
 
+  // REQ 58-G — every paid renewal APPENDS a new BillingTransaction; the previous
+  // historical periods are never overwritten. Free plans produce no record.
+  const billingTxn = await _appendBillingTransaction(repos, {
+    type: "renewal",
+    professionalId: sub.professionalId,
+    paymentId: null,
+    subscriptionId,
+    plan,
+    periodStartAt: baseStart,
+    periodEndAt: expiresAt,
+    actorId: admin.id,
+    actorName: admin.name
+  });
+
   await repos.auditLogs.log({
     adminId: admin.id, adminName: admin.name,
     action: "SUBSCRIPTION_RENEWED", entity: "Subscription",
-    entityId: subscriptionId, result: "Renewed", note: expiresAt.toISOString()
+    entityId: subscriptionId, result: "Renewed", note: expiresAt.toISOString(),
+    metadata: {
+      professionalId: sub.professionalId,
+      subscriptionId,
+      billingTransactionId: billingTxn ? billingTxn.id : null,
+      planId: plan ? plan.id : null,
+      planName: plan ? plan.name : null,
+      amount: plan ? plan.price : 0,
+      currency: plan ? (plan.currency || "MAD") : "MAD",
+      periodStartAt: baseStart.toISOString(),
+      periodEndAt: expiresAt.toISOString()
+    }
   });
   return repos.subscriptions.get(subscriptionId);
 }
@@ -289,6 +388,12 @@ async function downgradeToFree(repos, subscriptionId, admin) {
     expiresAt: sub.expiresAt && new Date(sub.expiresAt) > now ? new Date(sub.expiresAt) : now,
     cancelledAt: now
   });
+  // REQ 58-H — downgrade re-labels the current active paid period as cancelled
+  // (revoked early). It NEVER deletes or creates a new financial record.
+  const activeTxns = await repos.billingTransactions.list({ professionalId: sub.professionalId, status: "active" });
+  for (const t of activeTxns) {
+    await repos.billingTransactions.updateStatus(t.id, "cancelled");
+  }
   await repos.professionals.update(sub.professionalId, {
     package: "free",
     subscriptionStatus: "none",

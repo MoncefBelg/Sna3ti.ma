@@ -49,8 +49,10 @@ const ID_PREFIXES = {
   verificationDocument: "VD",
   match: "REQ",
   matchPhoto: "PH",
+  professionalMedia: "MED",
   interaction: "INT",
-  professionalRequest: "ARQ"
+  professionalRequest: "ARQ",
+  billingTransaction: "BT"
 };
 
 module.exports = {

@@ -32,6 +32,10 @@ function createAuditRepo(db) {
         metadata: metadata || null,
         createdAt: new Date()
       });
+    },
+    // Bulk delete of every audit entry (audit_logs.delete, super-admin/admin only).
+    async clear() {
+      return db.auditLog.deleteMany({});
     }
   };
 }
@@ -49,6 +53,7 @@ function createNotificationRepo(db) {
     async markAllRead(userId) {
       const where = { readAt: null };
       if (userId) where.userId = userId;
+      else where.userId = null; // admin scope: broadcast notifications only
       return db.notification.updateMany({ where, data: { readAt: new Date() } });
     },
     async markRead(id, userId) {

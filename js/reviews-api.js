@@ -18,7 +18,9 @@
     publish: function (id) { return R("POST", "admin/reviews/:id/publish", { pathParams: { id: id } }); },
     flag: function (id) { return R("POST", "admin/reviews/:id/flag", { pathParams: { id: id } }); },
     hide: function (id) { return R("POST", "admin/reviews/:id/hide", { pathParams: { id: id } }); },
-    remove: function (id) { return R("POST", "admin/reviews/:id/delete", { pathParams: { id: id } }); }
+    remove: function (id) { return R("POST", "admin/reviews/:id/delete", { pathParams: { id: id } }); },
+    // REQ 62 — admin manually captures a client's review (typed from WhatsApp).
+    manualCreate: function (data) { return R("POST", "admin/reviews/manual", { body: data || {} }); }
   };
 
 })(window);

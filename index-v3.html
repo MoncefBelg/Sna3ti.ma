@@ -6911,6 +6911,9 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
       <!-- backend request reference (REQ 53) -->
       <p id="regSuccessRef" class="relative z-10 hidden mt-3 rounded-full bg-teal-400/10 px-4 py-1.5 text-xs font-black text-teal-300 ring-1 ring-teal-400/30"><span data-i18n="regSuccess.reference">N° de demande :</span> <span id="regSuccessRefValue">—</span></p>
 
+      <!-- media upload status (only shown when a file could not be sent) -->
+      <p id="regMediaNote" class="relative z-10 hidden mt-3 rounded-xl border border-sna3ti-orange/40 bg-sna3ti-orange/10 px-4 py-2 text-xs font-semibold text-white"></p>
+
       <!-- payment details (shown only for paid packs) -->
       <div id="regSuccessPay" class="relative z-10 hidden w-full rounded-2xl bg-white/10 p-5 text-start text-white shadow-soft ring-1 ring-white/10 backdrop-blur-sm">
         <div class="grid gap-4 sm:grid-cols-2">
@@ -7043,6 +7046,12 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
   <button id="sna3ti-chat-btn" type="button" class="grid h-14 w-14 place-items-center rounded-full bg-sna3ti-ink text-2xl text-white shadow-premium transition hover:scale-105" aria-label="Ouvrir le chat">💬</button>
 
   <!-- Shared Sna3ti API layer (must load before the app script below) -->
+  <script>
+    window.API_BASE_URL = 'http://localhost:3000/api/v1';
+    window.SNA3TI_API = window.SNA3TI_API || {
+      BASE_URL: window.API_BASE_URL || '/api/v1'
+    };
+  </script>
   <script src="js/api-client.js"></script>
   <script src="js/fallback-gate.js"></script>
   <script src="js/public-pricing.js"></script>
@@ -7208,7 +7217,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
 
         hero: {
           eyebrow: "Pensé pour le Maroc",
-          title: "L9a Lm3allem Li\u00a09rib\u00a0Lik.",
+          title: "Des pros pour chaque projet dans votre région.",
           subtitle:
             "Trouvez un artisan de confiance près de chez vous, comparez les profils et contactez-le directement.",
           servicePlaceholder:
@@ -7266,8 +7275,21 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "Chargement des avis…",
           reviewEmpty:
             "Aucun avis pour le moment.",
-          reviewUnavailable:
-            "Les avis sont momentanément indisponibles. Contactez cet artisan directement via WhatsApp pour partager votre expérience."
+          reviewNamePh: "Votre nom (facultatif)",
+          reviewPhonePh: "Votre numéro WhatsApp *",
+          reviewCommentPh: "Votre avis *",
+          reviewSubmitBtn: "Envoyer mon avis",
+          reviewSending: "Envoi en cours…",
+          reviewSentOk: "Merci ! Votre avis a bien été reçu et sera publié après vérification.",
+          reviewSentKo: "Envoi impossible : ",
+          reviewReqStars: "Choisissez une note (1 à 5 étoiles).",
+          reviewReqPhone: "Numéro invalide : 10 chiffres uniquement, commençant par 0.",
+          reviewReqComment: "Veuillez écrire votre avis.",
+          reviewWaText: "Bonjour, je viens de laisser un avis ",
+          reviewWaText2: " sur ",
+          reviewWaText3: " : \u00ab ",
+          reviewWaText4: " \u2014 ",
+          reviewWaText5: ". Pour me répondre : ",
         },
 
         services: {
@@ -7726,8 +7748,21 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "جارٍ تحميل التقييمات…",
           reviewEmpty:
             "لا توجد تقييمات في الوقت الحالي.",
-          reviewUnavailable:
-            "التقييمات متاحة للقراءة فقط حالياً. تواصل مع هذا الحرفي مباشرة عبر واتساب لمشاركة تجربتك."
+          reviewNamePh: "الاسم (اختياري)",
+          reviewPhonePh: "رقم واتساب الخاص بك *",
+          reviewCommentPh: "تقييمك *",
+          reviewSubmitBtn: "إرسال تقييمي",
+          reviewSending: "جارٍ الإرسال…",
+          reviewSentOk: "شكراً! تم استلام تقييمك وسيتم نشره بعد المراجعة.",
+          reviewSentKo: "تعذّر الإرسال: ",
+          reviewReqStars: "اختر تقييماً (من 1 إلى 5 نجوم).",
+          reviewReqPhone: "رقم غير صالح: 10 أرقام فقط تبدأ بـ 0.",
+          reviewReqComment: "يرجى كتابة تقييمك.",
+          reviewWaText: "مرحباً، لقد تركت تقييماً ",
+          reviewWaText2: " لـ ",
+          reviewWaText3: ": \u00ab ",
+          reviewWaText4: " \u2014 ",
+          reviewWaText5: ". للرد علي: ",
         },
 
         services: {
@@ -8128,7 +8163,7 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
 
         hero: {
           eyebrow: "Made for Morocco",
-          title: "Find the artisan you need.",
+          title: "Pros for every project in Your Area.",
           subtitle:
             "Discover trusted artisans near you, compare profiles and contact them directly.",
           servicePlaceholder:
@@ -8186,8 +8221,21 @@ Un membre de l'équipe Sna3ti.ma vous contactera rapidement.
             "Loading reviews…",
           reviewEmpty:
             "No reviews yet.",
-          reviewUnavailable:
-            "Reviews are temporarily read-only. Contact this artisan directly on WhatsApp to share your experience."
+          reviewNamePh: "Your name (optional)",
+          reviewPhonePh: "Your WhatsApp number *",
+          reviewCommentPh: "Your review *",
+          reviewSubmitBtn: "Send my review",
+          reviewSending: "Sending…",
+          reviewSentOk: "Thanks! Your review has been received and will be published after verification.",
+          reviewSentKo: "Could not send: ",
+          reviewReqStars: "Pick a rating (1 to 5 stars).",
+          reviewReqPhone: "Invalid number: 10 digits only, starting with 0.",
+          reviewReqComment: "Please write your review.",
+          reviewWaText: "Hi, I just left a review ",
+          reviewWaText2: " for ",
+          reviewWaText3: ": \u201c ",
+          reviewWaText4: " \u2014 ",
+          reviewWaText5: ". To reply to me: ",
         },
 
         services: {
@@ -9094,8 +9142,9 @@ function populateServiceSelect() {
     sel.appendChild(o);
   }
 
-  /* "Autres services" — a trade not in the list routes to the
-     Sna3ti Match request form instead of empty results. */
+  /* "Autres services" — selecting it shows the artisans registered under
+     "Autres services" in the search results (search no longer redirects
+     it to the Match form). */
   const other = document.createElement("option");
   other.value = "autre";
   const regT = (translations[lang] && translations[lang].register) || {};
@@ -10047,7 +10096,7 @@ function professionalMatches(pro, service, city) {
     !effectiveService ||
     category.includes(effectiveService) ||
     job.includes(effectiveService) ||
-    effectiveService.includes(category);
+    (category && effectiveService.includes(category));
 
 
   let cityMatch = !effectiveCity;
@@ -10099,7 +10148,7 @@ function renderProfessionalCard(pro) {
       <div class="pro-top">
 
         <img
-          src="${pro.image}"
+          src="${proPhotoSrc(pro)}"
           alt="${pro.name}"
           class="pro-avatar"
         />
@@ -10340,21 +10389,40 @@ async function renderSearchResults() {
      dataset hasn't resolved yet — then refresh the grid in place once it has. */
   buildSearchPage(service, city, results, loading, loadError);
 
-  if (!loading) {
-    setupResultFilters(results);
-    return;
-  }
+  if (loading) {
+
+    const state =
+      await ensureProfessionalsLoaded();
+
+    /* The user navigated away while the source was loading. */
+    if (window.location.hash !== hash) return;
 
 
-  const state =
-    await ensureProfessionalsLoaded();
+    if (state && state.ok) {
 
-  /* The user navigated away while the source was loading. */
-  if (window.location.hash !== hash) return;
+      results =
+        currentProfessionals().filter(
+          pro =>
+            professionalMatches(
+              pro,
+              service,
+              city
+            )
+        );
 
+    } else {
 
-  if (state && state.ok) {
+      loadError =
+        (state && state.error) || new Error("professionals unavailable");
 
+    }
+
+  } else {
+
+    /* Professionals were already loaded (the homepage hero primes the cache),
+       so there is nothing to await: compute the filtered results directly.
+       Previously this branch returned early with results=[], so any search made
+       after the home page had rendered always showed "Aucun artisan trouvé". */
     results =
       currentProfessionals().filter(
         pro =>
@@ -10364,11 +10432,6 @@ async function renderSearchResults() {
             city
           )
       );
-
-  } else {
-
-    loadError =
-      (state && state.error) || new Error("professionals unavailable");
 
   }
 
@@ -11198,11 +11261,27 @@ src="${proPhotoSrc(pro)}"
             <div style="margin-top:40px; padding-top:30px; border-top:1px solid #edf0ef;">
               <h2 style="font-size:22px; font-weight:900;">&#9733; Avis</h2>
 
-              <div style="margin-top:20px; padding:20px; background:#f8fffe; border-radius:20px; border:1px solid #edf0ef;">
-                <p style="margin:0; color:#334155; font-weight:700; line-height:1.6;" data-i18n="hero.reviewUnavailable">Les avis sont momentanément indisponibles. Contactez cet artisan directement via WhatsApp pour partager votre expérience.</p>
-              </div>
-
               <div id="reviewsList" style="margin-top:20px;"><div style="padding:20px; text-align:center; color:#64748b; font-style:italic;">Chargement des avis…</div></div>
+
+              <!-- REQ 62: WhatsApp brief-avis (anonymous) — a pending review is
+                   created for the admin; the visitor is redirected to the
+                   platform WhatsApp with the infos pre-filled. -->
+              <div id="waReviewForm" style="margin-top:28px; padding:20px; background:#f8fafc; border:1px solid #edf0ef; border-radius:16px;">
+                <div style="display:grid; gap:12px;">
+                  <div id="waStars" style="display:flex; gap:6px; font-size:26px;">
+                    <span data-star="1" style="cursor:pointer; color:#d1d5db; user-select:none;">&#9733;</span>
+                    <span data-star="2" style="cursor:pointer; color:#d1d5db; user-select:none;">&#9733;</span>
+                    <span data-star="3" style="cursor:pointer; color:#d1d5db; user-select:none;">&#9733;</span>
+                    <span data-star="4" style="cursor:pointer; color:#d1d5db; user-select:none;">&#9733;</span>
+                    <span data-star="5" style="cursor:pointer; color:#d1d5db; user-select:none;">&#9733;</span>
+                  </div>
+                  <input id="waReviewerName" type="text" placeholder="${heroT("reviewNamePh","Votre nom (facultatif)")}" style="padding:12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px;">
+                  <input id="waPhone" type="tel" placeholder="${heroT("reviewPhonePh","Votre numéro WhatsApp *")}" style="padding:12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px;">
+                  <textarea id="waComment" rows="3" placeholder="${heroT("reviewCommentPh","Votre avis *")}" style="padding:12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; font-family:inherit; resize:vertical;"></textarea>
+                  <button id="waSubmit" style="padding:12px 16px; background:#25D366; color:white; border:none; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer;">${heroT("reviewSubmitBtn","Envoyer mon avis")}</button>
+                  <div id="waMsg" style="font-size:13px; line-height:1.7;"></div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -11224,7 +11303,7 @@ src="${proPhotoSrc(pro)}"
      (published only), for aggregate rating/reviewsCount, for eligibility
      (training WhatsApp confirmations) and for duplicate prevention. */
   (function () {
-    var proId = "${pro.id}";
+    var proId = String(pro.id);
 
     var list = document.getElementById("reviewsList");
 
@@ -11268,7 +11347,9 @@ src="${proPhotoSrc(pro)}"
       if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#64748b; font-style:italic;">' + heroT("reviewLoading", "Chargement des avis…") + '</div>';
     }
     function renderError() {
-      if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#b91c1c;">' + heroT("error", "Impossible de charger les artisans. Réessayez dans un instant.") + '</div>';
+      /* On load failure, fall back to a neutral empty state instead of an
+         alarming error banner — the reviews list simply shows nothing. */
+      if (list) list.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8;">' + heroT("reviewEmpty", "Aucun avis pour le moment.") + '</div>';
     }
     function renderReviews(reviews) {
       if (!list) return;
@@ -11283,6 +11364,85 @@ src="${proPhotoSrc(pro)}"
       }).catch(function (err) {
         /* Honest error state — never fall back to localStorage or demo reviews. */
         renderError();
+      });
+    }
+
+    /* --- REQ 62: WhatsApp brief-avis form wiring --- */
+    var ARTISAN_NAME = String(pro.name || "");
+    var waRating = 0;
+    var waMsg = document.getElementById("waMsg");
+    var waStars = document.getElementById("waStars");
+    var waPhone = document.getElementById("waPhone");
+    var waName = document.getElementById("waReviewerName");
+    var waComment = document.getElementById("waComment");
+    var waSubmit = document.getElementById("waSubmit");
+
+    function waFlash(html, color) {
+      if (waMsg) waMsg.innerHTML = '<span style="color:' + (color || "#0f172a") + ';">' + html + '</span>';
+    }
+    function paintStars() {
+      if (!waStars) return;
+      for (var i = 0; i < waStars.children.length; i++) {
+        var s = waStars.children[i];
+        s.style.color = (Number(s.getAttribute("data-star")) <= waRating) ? "#f59e0b" : "#d1d5db";
+      }
+    }
+    if (waStars) {
+      for (var i = 0; i < waStars.children.length; i++) {
+        (function (span) {
+          span.addEventListener("click", function () {
+            waRating = Number(span.getAttribute("data-star"));
+            paintStars();
+          });
+        })(waStars.children[i]);
+      }
+    }
+    function openWaChat(targetPhone) {
+      var digits = String(targetPhone || "").replace(/\D/g, "");
+      if (!digits) return;
+      var text = heroT("reviewWaText", "Bonjour, je viens de laisser un avis ") + "(" + waRating + "/5)" + heroT("reviewWaText2", " sur ") + ARTISAN_NAME + heroT("reviewWaText3", " : « ") + waComment.value + " »" + (waName.value ? (heroT("reviewWaText4", " — ") + waName.value) : "") + heroT("reviewWaText5", ". Pour me répondre : ") + waPhone.value + ".";
+      window.open("https://wa.me/" + digits + "?text=" + encodeURIComponent(text), "_blank");
+    }
+    function resetWaSubmit() {
+      if (!waSubmit) return;
+      waSubmit.disabled = false;
+      waSubmit.textContent = heroT("reviewSubmitBtn", "Envoyer mon avis");
+    }
+    if (waSubmit) {
+      waSubmit.addEventListener("click", function () {
+        waFlash("");
+        var phoneRaw = String((waPhone && waPhone.value) || "").trim();
+        var phoneDigits = phoneRaw.replace(/\D/g, "");
+        var comment = ((waComment && waComment.value) || "").trim();
+        if (!waRating) { waFlash(heroT("reviewReqStars", "Choisissez une note (1 à 5 étoiles)."), "#b91c1c"); return; }
+        /* Only digits, must start with 0, and no more than 10 total. */
+        if (!/^\d+$/.test(phoneRaw) || phoneDigits !== phoneRaw || phoneDigits.length < 10 || phoneDigits.length > 10 || phoneDigits.charAt(0) !== "0") { waFlash(heroT("reviewReqPhone", "Veuillez saisir un numéro WhatsApp valide."), "#b91c1c"); return; }
+        if (!comment) { waFlash(heroT("reviewReqComment", "Veuillez écrire votre avis."), "#b91c1c"); return; }
+        waSubmit.disabled = true;
+        waSubmit.textContent = heroT("reviewSending", "Envoi en cours…");
+        Sna3tiPublicReviews.submitWhatsApp({
+          professionalId: proId,
+          rating: waRating,
+          comment: comment,
+          contact: String((waPhone && waPhone.value) || "").trim(),
+          reviewerName: String((waName && waName.value) || "").trim()
+        }).then(function (created) {
+          waFlash(heroT("reviewSentOk", "Merci ! Votre avis a bien été reçu et sera publié après vérification.") + " 👍", "#0d6b61");
+          openWaChat(created && created.platformWhatsapp);
+          /* Reset the form so a fresh review can be typed; the placeholder
+             phone is kept visible so visitors know it was used. */
+          if (waComment) waComment.value = "";
+          if (waPhone) waPhone.value = "";
+          if (waName) waName.value = "";
+          waRating = 0;
+          paintStars();
+          resetWaSubmit();
+        }).catch(function (err) {
+          var mapped = Sna3tiPublicReviews.handleReviewError ? Sna3tiPublicReviews.handleReviewError(err) : null;
+          var msg = (mapped && mapped.message) || (err && err.message) || "Erreur";
+          waFlash(heroT("reviewSentKo", "Envoi impossible : ") + String(msg), "#b91c1c");
+          resetWaSubmit();
+        });
       });
     }
 
@@ -11544,6 +11704,7 @@ function sna3tiResetRegForm() {
 
   const prof = document.getElementById("regPhotoProfil");
   if (prof) prof.value = "";
+  window.Sna3tiRegProfileFile = null;
   const profLabel = document.querySelector('#regPhotoProfil') && document.querySelector('#regPhotoProfil').closest(".reg-file");
   const pname = profLabel ? profLabel.querySelector(".reg-file-name") : null;
   if (pname) pname.textContent = "Aucun fichier sélectionné";
@@ -11684,6 +11845,15 @@ function regSubmit() {
         prixUnit: prixUnit,
         description: desc
       });
+
+      // Media (profile photo + échantillon photos/videos) are uploaded
+      // AFTER the text request so the backend already has the ARQ- reference.
+      const reference = request && (request.reference || request.id) ? String(request.reference || request.id) : "";
+      if (reference) {
+        sna3tiUploadRequestMedia(reference).then(function (r) {
+          if (r && r.failed) sna3tiRegMediaNote(r);
+        });
+      }
     })
     .catch(function (err) {
       regSetSubmitting(false);
@@ -11838,6 +12008,78 @@ function regShowSuccess(pack, info) {
       waFree.classList.remove("hidden");
       waFree.href = "https://wa.me/" + SNA3TI_ADMIN_WHATSAPP + "?text=" + encodeURIComponent(msg);
     }
+  }
+}
+
+/* ---- Media upload after successful onboarding (REQ 53) ----
+   Collects the retained File objects and POSTs each one as multipart
+   `/professional-requests/<ref>/media`. Plan gates (FREE = photos only,
+   Vérifié/GOLD = photos or videos) are enforced server-side. */
+
+function sna3tiApiBase() {
+  var base = (window.Sna3tiApi && window.Sna3tiApi.baseUrl)
+    ? String(window.Sna3tiApi.baseUrl)
+    : (window.SNA3TI_API && (window.SNA3TI_API.BASE_URL || window.SNA3TI_API.baseUrl)) || "/api/v1";
+  return String(base).replace(/\/+$/, "");
+}
+
+function sna3tiRequestMediaQueue() {
+  var queue = [];
+  if (window.Sna3tiRegProfileFile) {
+    queue.push({ file: window.Sna3tiRegProfileFile, kind: "profile", label: "Photo de profil" });
+  }
+  (window.Sna3tiEchantPhotos || []).forEach(function (item) {
+    if (item && item.file) queue.push({ file: item.file, kind: "echantillon", label: "" });
+  });
+  (window.Sna3tiVideos || []).forEach(function (item) {
+    if (item && item.file) queue.push({ file: item.file, kind: "echantillon", label: "" });
+  });
+  return queue;
+}
+
+function sna3tiUploadRequestMedia(reference, onProgress) {
+  var queue = sna3tiRequestMediaQueue();
+  if (!queue.length) return Promise.resolve({ uploaded: 0, failed: 0 });
+
+  var base = sna3tiApiBase();
+  var uploaded = 0, failed = 0;
+  var chain = Promise.resolve();
+
+  queue.forEach(function (m) {
+    chain = chain.then(function () {
+      var fd = new FormData();
+      // Backend expects the multipart field named exactly « file ».
+      fd.append("file", m.file, m.file.name || "fichier");
+      fd.append("kind", m.kind);
+      if (m.label) fd.append("label", m.label);
+      return fetch(base + "/professional-requests/" + encodeURIComponent(reference) + "/media", { method: "POST", body: fd })
+        .then(function (res) {
+          if (res.ok) {
+            uploaded++;
+          } else {
+            failed++;
+            // The backend already rejects oversize/over-quota files; the
+            // success screen flags that something was dropped.
+          }
+          if (typeof onProgress === "function") onProgress(uploaded, queue.length);
+        })
+        .catch(function () {
+          failed++;
+          if (typeof onProgress === "function") onProgress(uploaded, queue.length);
+        });
+    });
+  });
+
+  return chain.then(function () { return { uploaded: uploaded, failed: failed }; });
+}
+
+function sna3tiRegMediaNote(r) {
+  const el = document.getElementById("regMediaNote");
+  if (el) {
+    const lang = localStorage.getItem("sna3ti-language") || "fr";
+    const t = (translations && translations[lang] && translations[lang].register) || {};
+    el.textContent = t.mediaNote || ("⚠️ " + r.failed + " photo(s)/vidéo(s) n'ont pas pu être envoyées — elles seront demandées lors de la confirmation.");
+    el.classList.remove("hidden");
   }
 }
 
@@ -12163,12 +12405,12 @@ function sna3tiRenderEchantGallery() {
   const notice = document.getElementById("regEchantNotice");
   if (gal) {
     gal.innerHTML = "";
-    window.Sna3tiEchantPhotos.forEach(function (url, i) {
+    window.Sna3tiEchantPhotos.forEach(function (item, i) {
       const wrap = document.createElement("div");
       wrap.className = "relative h-20 w-20 overflow-hidden rounded-lg ring-2 ring-sna3ti-teal";
       wrap.title = "Échantillon " + (i + 1);
       const img = document.createElement("img");
-      img.src = url;
+      img.src = item.url;
       img.className = "h-full w-full object-cover";
       wrap.appendChild(img);
       const idx = document.createElement("span");
@@ -12289,7 +12531,7 @@ document.addEventListener("change", function (e) {
             const key2 = file.name + "|" + (file.size || 0) + "|" + (file.lastModified || 0);
             if (!window.Sna3tiVideoSeen[key2] && window.Sna3tiVideos.length < sna3tiCurrentVideoLimit()) {
               window.Sna3tiVideoSeen[key2] = true;
-              window.Sna3tiVideos.push({ url: URL.createObjectURL(file), duration: dur });
+              window.Sna3tiVideos.push({ file: file, url: URL.createObjectURL(file), duration: dur });
             }
           }
           handled++;
@@ -12326,7 +12568,7 @@ document.addEventListener("change", function (e) {
           return;
         }
         window.Sna3tiEchantSeen[key] = true;
-        window.Sna3tiEchantPhotos.push(URL.createObjectURL(file));
+        window.Sna3tiEchantPhotos.push({ file: file, url: URL.createObjectURL(file) });
       });
       sna3tiRenderEchantGallery();
       input.value = "";
@@ -12357,6 +12599,7 @@ document.addEventListener("change", function (e) {
       }
     }
     window.Sna3tiRegPrevId = input.id;
+    window.Sna3tiRegProfileFile = file;
 
     // Show a small preview thumbnail (local object URL).
     if (prevEl) {
@@ -12374,6 +12617,7 @@ document.addEventListener("change", function (e) {
     labelEl.title = file.webkitRelativePath || file.name;
   } else {
     window.Sna3tiRegPrevId = null;
+    if (isProfile) window.Sna3tiRegProfileFile = null;
     if (prevEl) { prevEl.classList.add("hidden"); prevEl.removeAttribute("src"); prevEl.classList.remove("opacity-40", "ring-sna3ti-orange"); prevEl.style.filter = ""; }
     if (replacedEl) replacedEl.classList.add("hidden");
     const lang = localStorage.getItem("sna3ti-language") || "fr";
@@ -12405,10 +12649,11 @@ function handleSna3tiRoute() {
   // SEARCH ROUTE
   if (hash.startsWith("#/search")) {
 
-    /* Selecting "⭐ Sna3ti Match" (or "Autres services") from a service
-       dropdown routes to the Match request page rather than an empty
-       results list. */
-    if (hash.indexOf("service=match") !== -1 || hash.indexOf("service=autre") !== -1) {
+    /* "⭐ Sna3ti Match" from a service dropdown routes to the Match
+       request page. "Autres services" (service=autre) is NOT special-cased
+       here anymore: it goes through the normal search results so the user
+       sees the artisans registered under "Autres services" (REQ fix). */
+    if (hash.indexOf("service=match") !== -1) {
       renderMatchPage();
       return true;
     }
@@ -13127,7 +13372,47 @@ if (mainEl) {
   homeMainHTML = mainEl.innerHTML;
 }
 
-handleSna3tiRoute();
+/* Defer the initial route render to a microtask so every module-scope
+   const/let (PROFESSIONALS_API, proCache, ...) is initialised before the
+   first route runs. Without this, landing directly on a #/search hash
+   reached handleSna3tiRoute() -> renderSearchResults() before the
+   PROFESSIONALS_API const below was set, throwing a "Cannot access
+   'PROFESSIONALS_API' before initialization" TDZ error that left the
+   results grid stuck on its loading shell (no artisans ever appeared). */
+Promise.resolve().then(handleSna3tiRoute);
+
+/* ---- One-time service-worker cache purge (REQ: stale js/ bundles caused
+       wrong artisan ids and "Professionnel introuvable" on avis submit).
+       Runs exactly once: unregisters any old SW, wipes all caches, then
+       reloads once so every js/* asset is re-fetched fresh. ---- */
+(function () {
+  try {
+    var KEY = "sna3ti-purged-v5";
+    var done = false;
+    try { done = !!localStorage.getItem(KEY); } catch (e) { done = false; }
+    if (done || !("serviceWorker" in navigator)) return;
+    var needsReload = false;
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+        if (regs.length) needsReload = true;
+        if (window.caches) {
+          window.caches.keys().then(function (names) {
+            names.forEach(function (n) {
+              if (n !== "sna3ti-v5") { window.caches.delete(n); needsReload = true; }
+            });
+          }).then(function () {
+            try { localStorage.setItem(KEY, "1"); } catch (e) {}
+            if (needsReload) window.location.reload();
+          });
+        } else {
+          try { localStorage.setItem(KEY, "1"); } catch (e) {}
+          if (needsReload) window.location.reload();
+        }
+      });
+    }
+  } catch (e) { /* best-effort purge */ }
+})();
 
 /* ---- PWA: register the service worker (production only).
       Note: requires HTTPS (or localhost). ---- */

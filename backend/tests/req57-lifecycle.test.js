@@ -150,7 +150,7 @@ describe("REQ 57 — subscription / payment lifecycle hardening", () => {
     return (res.body.data || []).map((a) => a.action);
   }
 
-  describe("57-A — registration approval always starts on FREE", () => {
+  describe("57-A — approval carries the requested plan; never auto-creates a subscription", () => {
     beforeEach(() => reset());
     let phoneCounter = 100;
 
@@ -168,23 +168,27 @@ describe("REQ 57 — subscription / payment lifecycle hardening", () => {
       return { req: created.body.data, pro: proRow, approved };
     }
 
-    it("free / verified / gold requests all materialise as package=free (pending)", async () => {
+    it("free / verified / gold requests materialise with the requested package (pending)", async () => {
       for (const plan of ["free", "verified", "gold"]) {
         const { pro: proRow } = await registerAndApprove({ plan });
-        assert.equal(proRow.package, "free", "REQ 57-A: requested '" + plan + "' starts on free");
-        assert.equal(proRow.status, "pending", "never published");
+        const last = db.professional.rows[db.professional.rows.length - 1];
+        assert.equal(last.package, plan, "REQ 57-A: requested '" + plan + "' carries onto the professional");
+        assert.equal(last.status, "pending", "never published");
+        void proRow;
       }
     });
 
-    it("requested plan stays traceable on the request (not the professional)", async () => {
+    it("requested plan stays traceable on the request AND the professional", async () => {
       const { req, pro: proRow } = await registerAndApprove({ plan: "gold" });
-      // Plan trace lives on the request, not the professional record.
+      // Plan trace lives on the request and drives the marketplace tier.
       const detail = await request(server, "GET", `/admin/professional-requests/${req.id}`, undefined, tokens.super_admin);
       assert.equal(detail.status, 200);
       assert.equal(detail.body.data.planCode, "gold", "request-level plan preserved");
       assert.equal(detail.body.data.professionalId, proRow.id, "ARQ→PRO link intact");
       assert.equal(proRow.status, "pending", "never published");
-      assert.equal(proRow.package, "free", "professional always starts free");
+      assert.equal(proRow.package, "gold", "professional carries the requested tier");
+      assert.equal(proRow.subscriptionPlanId, "PLAN-GOLD", "paid plan referenced on the account");
+      assert.equal(proRow.planEligible, true, "paid plan is eligible until payment");
     });
 
     it("exactly one professional is created; idempotent approval returns the same account", async () => {
@@ -194,6 +198,50 @@ describe("REQ 57 — subscription / payment lifecycle hardening", () => {
       const dup = await request(server, "POST", `/admin/professional-requests/${req.id}/approve`, undefined, tokens.admin);
       assert.equal(dup.status, 409);
       assert.equal(db.professional.rows.length, 1, "still exactly one");
+    });
+  });
+
+  describe("60 — paid-plan approval auto-creates a pending payment (REQ 60)", () => {
+    beforeEach(() => reset());
+    let phoneCounter = 500;
+    function nextPhone() { return "+2126" + String(phoneCounter++).padStart(8, "0"); }
+
+    async function registerAndApprove(plan) {
+      const created = await request(server, "POST", "/professional-requests", {
+        firstName: "Sara", lastName: "Bennani", phone: nextPhone(),
+        profession: "platrerie", city: "el-kelaa-des-sraghna", plan
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      const id = created.body.data.id;
+      await request(server, "POST", `/admin/professional-requests/${id}/approve`, undefined, tokens.admin);
+      return { id, proId: db.professional.rows[db.professional.rows.length - 1].id };
+    }
+
+    it("approving VERIFIED/GOLD requests creates one pending payment at the plan price", async () => {
+      const expectations = { verified: { price: 99, planName: "Vérifié" }, gold: { price: 199, planName: "GOLD" } };
+      for (const plan of ["verified", "gold"]) {
+        await registerAndApprove(plan);
+        const p = db.payment.rows.find((r) => r.amount === expectations[plan].price);
+        assert.ok(p, `pending payment (${plan}, ${expectations[plan].price} MAD) created`);
+        assert.equal(p.status, "pending");
+        assert.equal(p.planName, expectations[plan].planName);
+        const proRow = db.professional.rows[db.professional.rows.length - 1];
+        assert.equal(p.professionalId, proRow.id, "payment linked to the created professional");
+      }
+    });
+
+    it("FREE approval creates no payment; a re-approve (409) never duplicates the GOLD payment", async () => {
+      const free = await request(server, "POST", "/professional-requests", {
+        firstName: "R", lastName: "H", phone: "+212611555666", profession: "peinture", city: "rabat", plan: "free" });
+      assert.equal(free.status, 201);
+      await request(server, "POST", `/admin/professional-requests/${free.body.data.id}/approve`, undefined, tokens.admin);
+      assert.equal(db.payment.rows.length, 0, "free approval creates no payment");
+
+      const gold = await registerAndApprove("gold");
+      assert.equal(db.payment.rows.length, 1, "one pending payment for the gold approval");
+      const dup = await request(server, "POST", `/admin/professional-requests/${gold.id}/approve`, undefined, tokens.admin);
+      assert.equal(dup.status, 409);
+      assert.equal(db.payment.rows.length, 1, "no duplicate payment row");
     });
   });
 

@@ -78,6 +78,23 @@ enum SubscriptionStatus {
   cancelled
 }
 
+// Immutable financial-history events (REQ 58-D). Type is closed:
+// activation (a new paid period) and renewal (an appended paid period).
+enum BillingTransactionType {
+  activation
+  renewal
+}
+
+// Minimal lifecycle for a historical paid period. `active` = the period is the
+// current/entitlement period; `expired` = the paid period has elapsed (or was
+// replaced); `cancelled` = the entitlement was revoked early. Expiry is NOT a
+// new financial event — it only re-labels the historical record.
+enum BillingTransactionStatus {
+  active
+  expired
+  cancelled
+}
+
 enum ReviewStatus {
   pending
   published
@@ -321,6 +338,41 @@ model Subscription {
   updatedAt     DateTime           @updatedAt
 }
 
+// REQ 58-D — Immutable, append-only paid-period history.
+//
+// Business intent: a Payment is the monetary workflow record; a Subscription
+// is the CURRENT entitlement state (one per professional, overwritten on
+// renew); a BillingTransaction is the immutable financial ledger preserving
+// EVERY paid period. Renewal NEVER overwrites a past transaction — it APPENDS a
+// new one. Expiry/downgrade never create a new financial event; they only
+// re-label the historical record's status.
+//
+// Immutability: there is NO update/delete route or admin action that edits or
+// removes these rows. `paymentId` is UNIQUE at the DB level so a repeated
+// confirmation can never create duplicate transactions.
+model BillingTransaction {
+  id             String                 @id // BT-xxxxx
+  type           BillingTransactionType
+  professionalId String
+  paymentId      String?                @unique // null for renewal (no new payment)
+  subscriptionId String
+  planId         String?
+  planName       String
+  amount         Int
+  currency       String                 @default("MAD")
+  periodStartAt  DateTime
+  periodEndAt    DateTime
+  actorId        String?                // reviewer/actor, from server context
+  actorName      String?
+  status         BillingTransactionStatus @default(active)
+  createdAt      DateTime               @default(now())
+
+  @@index([professionalId])
+  @@index([planId])
+  @@index([status])
+  @@index([createdAt])
+}
+
 model Payment {
   id             String        @id
   reference      String        @unique
@@ -328,10 +380,17 @@ model Payment {
   subscriptionId String?
   planName       String
   amount         Int
+  // REQ 58-A — currency is SERVER-authoritative (plan currency, MAD); the
+  // client never supplies it for normal payment creation.
+  currency       String        @default("MAD")
   method         PaymentMethod @default(bank_transfer)
   status         PaymentStatus @default(pending)
   bankRef        String?
   receipt        String?
+  // REQ 58-C — proof-submission metadata. `receipt`/`bankRef` remain plain,
+  // sanitized reference strings (never treated as verified uploaded files).
+  proofSubmittedAt DateTime?
+  proofNote       String?
   date           DateTime      @default(now())
   rejectionReason String?
   infoRequested  String?
@@ -400,6 +459,9 @@ model Review {
   verifiedContact Boolean      @default(false) // true only for validated WhatsApp contacts
   interactionId  String?       // linked ProfessionalContactInteraction (one review per contact)
   riskScore      Int           @default(0) // 0-100; computed server-side at creation
+  reviewerName   String?       // reviewer name captured on WhatsApp submissions (REQ 62)
+  reviewerContact String?      // reviewer WhatsApp number captured on submission (REQ 62, admin-only)
+  reviewSource   String        @default("app") // app | whatsapp | admin
   flaggedReason  String?
   flaggedReporter String?
   flaggedDate    DateTime?
@@ -546,6 +608,7 @@ model ProfessionalRequest {
   description       String?
   price             Int?
   priceUnit         String?
+  media             Json                         @default("[]") // profile photo + échantillons (photos/videos)
   planId            String?                      // resolved server-side
   planCode          String?                      // free | verified | gold
   planName          String?

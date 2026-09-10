@@ -38,6 +38,38 @@ function createProfessionalController(services) {
     update: asyncHandler(async (req, res) => {
       const pro = await services.professionals.update(req.params.id, req.body, req.admin);
       ok(res, { data: pro });
+    }),
+    // Public — serve a professional portfolio media file (no auth; portfolio
+    // items are meant to be public once a professional is published).
+    getMedia: asyncHandler(async (req, res) => {
+      const { entry, bytes } = await services.professionals.getMedia(req.params.id, req.params.mediaId);
+      if (!bytes || !bytes.buffer) throw new AppError("Fichier introuvable dans le stockage.", 404);
+      res.set("Content-Type", entry.mimeType || "application/octet-stream");
+      res.set("Content-Disposition", `inline; filename="${entry.id}${entry.type === "video" ? ".mp4" : ".jpg"}"`);
+      if (entry.type === "video") res.set("Accept-Ranges", "bytes");
+      res.send(bytes.buffer);
+    }),
+    // Admin — add media to a professional (multipart), plan-gated.
+    uploadMedia: asyncHandler(async (req, res) => {
+      if (!req.file) throw new AppError("Fichier requis.", 400);
+      const data = await services.professionals.uploadMedia(req.params.id, req.file, {
+        kind: req.body.kind,
+        label: req.body.label
+      });
+      created(res, { data });
+    }),
+    // Admin — serve a guarded professional media file.
+    getMediaAdmin: asyncHandler(async (req, res) => {
+      const { entry, bytes } = await services.professionals.getMedia(req.params.id, req.params.mediaId);
+      if (!bytes || !bytes.buffer) throw new AppError("Fichier introuvable dans le stockage.", 404);
+      res.set("Content-Type", entry.mimeType || "application/octet-stream");
+      res.set("Content-Disposition", `inline; filename="${entry.id}${entry.type === "video" ? ".mp4" : ".jpg"}"`);
+      res.send(bytes.buffer);
+    }),
+    // Admin — remove a single media entry from a professional.
+    removeMedia: asyncHandler(async (req, res) => {
+      const data = await services.professionals.removeMedia(req.params.id, req.params.mediaId, req.admin);
+      ok(res, { data });
     })
   };
 }

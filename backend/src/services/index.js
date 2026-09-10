@@ -14,6 +14,8 @@ const reportService = require("./reportService");
 const matchService = require("./matchService");
 const interactionService = require("./interactionService");
 const professionalRequestService = require("./professionalRequestService");
+const billingTransactionService = require("./billingTransactionService");
+const analyticsService = require("./analyticsService");
 function createServices(repos) {
   const services = {
     auth: {
@@ -49,7 +51,10 @@ function createServices(repos) {
       remove: (id, actor) => professionalService.remove(repos, id, actor),
       suspend: (id, admin, reason) => professionalService.suspend(repos, id, admin, reason),
       activate: (id, admin) => professionalService.activate(repos, id, admin),
-      update: (id, data, admin) => professionalService.update(repos, id, data, admin)
+      update: (id, data, admin) => professionalService.update(repos, id, data, admin),
+      uploadMedia: (id, file, meta) => professionalService.uploadMedia({ repos, storage: services.storage }, id, { file, ...meta }),
+      getMedia: (id, mediaId) => professionalService.getMedia({ repos, storage: services.storage }, id, mediaId),
+      removeMedia: (id, mediaId, admin) => professionalService.removeMedia({ repos, storage: services.storage }, id, mediaId)
     },
     search: {
       search: (query) => searchService.search(repos, query)
@@ -62,6 +67,13 @@ function createServices(repos) {
       cancel: (id, actor) => subscriptionService.cancel(repos, id, actor),
       renew: (id, admin) => subscriptionService.renew(repos, id, admin),
       downgrade: (id, admin) => subscriptionService.downgradeToFree(repos, id, admin)
+    },
+    billingTransactions: {
+      list: (query, actor) => billingTransactionService.list(repos, query, actor),
+      summary: (actor) => billingTransactionService.summary(repos, actor)
+    },
+    analytics: {
+      get: () => analyticsService.getAnalytics(repos)
     },
     users: {
       list: () => repos.users.list(),
@@ -78,7 +90,11 @@ function createServices(repos) {
       markRead: (id, userId) => notificationService.markRead(repos, id, userId),
       create: (data) => notificationService.create(repos, data)
     },
-    auditLogs: { list: () => repos.auditLogs.list({}, { orderBy: { createdAt: "desc" } }) },
+    auditLogs: {
+      list: () => repos.auditLogs.list({}, { orderBy: { createdAt: "desc" } }),
+      remove: (id) => repos.auditLogs.remove(id),
+      clear: () => repos.auditLogs.clear()
+    },
     legal: {
       list: (query) => legalService.list(repos, query),
       getByTypeAndLanguage: (type, language, opts) => legalService.getByTypeAndLanguage(repos, type, language, opts),
@@ -89,6 +105,8 @@ function createServices(repos) {
       list: (professionalId, opts) => reviewService.list({ repos }, professionalId, opts),
       listAll: () => reviewService.listAll({ repos }),
       create: (professionalId, data, actor) => reviewService.create({ repos }, professionalId, data, actor),
+      submitWhatsApp: (professionalId, data) => reviewService.submitWhatsApp({ repos }, professionalId, data),
+      createManual: (data, admin) => reviewService.createManual({ repos }, data, admin),
       update: (reviewId, data, actor) => reviewService.update({ repos }, reviewId, data, actor),
       moderate: (reviewId, action, admin, reason) => reviewService.moderate({ repos }, reviewId, action, admin, reason)
     },
@@ -130,7 +148,10 @@ function createServices(repos) {
       list: (query) => professionalRequestService.list(repos, query),
       get: (id) => professionalRequestService.get(repos, id),
       approve: (id, admin) => professionalRequestService.approve(repos, id, admin),
-      reject: (id, reason, admin) => professionalRequestService.reject(repos, id, reason, admin)
+      reject: (id, reason, admin) => professionalRequestService.reject(repos, id, reason, admin),
+      uploadMedia: (id, file, meta) => professionalRequestService.uploadMedia({ repos, storage: services.storage }, id, { file, ...meta }),
+      getMedia: (id, mediaId) => professionalRequestService.getMedia({ repos, storage: services.storage }, id, mediaId),
+      removeMedia: (id, mediaId, admin) => professionalRequestService.removeMedia({ repos, storage: services.storage }, id, mediaId)
     }
   };
   return services;
